@@ -1,20 +1,19 @@
 package org.enricobn.iuv.example
 
-import kotlinx.html.DIV
-import kotlinx.html.br
-import kotlinx.html.dom.create
-import kotlinx.html.js.div
+import kotlinx.html.HtmlBlockTag
+import kotlinx.html.table
+import kotlinx.html.td
+import kotlinx.html.tr
 import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
-import org.w3c.dom.HTMLElement
-import kotlin.browser.document
 
 data class TestModel(val button1Model: ButtonModel,
                      val button2Model: ButtonModel)
 
 class TestIUV : IUV<TestModel>() {
-
+    private val height = 50
+    private val width = 10
     private val button1 = ButtonComponent("Button 1")
     private val button2 = ButtonComponent("Button 2")
 
@@ -28,9 +27,19 @@ class TestIUV : IUV<TestModel>() {
         return TestModel(button1Model, button2Model)
     }
 
-    override fun view(messageBus: MessageBus, model: TestModel): DIV.() -> Unit = {
-        button1.render(this, messageBus, model.button1Model)
-        button2.render(this, messageBus, model.button2Model)
+    override fun view(messageBus: MessageBus, model: TestModel): HtmlBlockTag.() -> Unit = {
+        table {
+            for (y in 1..height) {
+                tr {
+                    for (x in 1..width) {
+                        td {
+                            button1.render(this, messageBus, model.button1Model)
+                            button2.render(this, messageBus, model.button2Model)
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

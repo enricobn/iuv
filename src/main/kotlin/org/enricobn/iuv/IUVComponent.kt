@@ -1,10 +1,10 @@
 package org.enricobn.iuv
 
-import kotlinx.html.DIV
+import kotlinx.html.HtmlBlockTag
 
 abstract class IUVComponent<MODEL> : IUV<MODEL>() {
 
-    fun render(parent: DIV, messageBus: MessageBus, model: MODEL) {
+    fun render(parent: HtmlBlockTag, messageBus: MessageBus, model: MODEL) {
         view(messageBus, model).invoke(parent)
     }
 

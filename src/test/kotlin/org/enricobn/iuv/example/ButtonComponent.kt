@@ -1,6 +1,7 @@
 package org.enricobn.iuv.example
 
 import kotlinx.html.DIV
+import kotlinx.html.HtmlBlockTag
 import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.js.onClickFunction
@@ -28,7 +29,7 @@ class ButtonComponent(val text: String) : IUVComponent<ButtonModel>() {
         return newModel
     }
 
-    override fun view(messageBus: MessageBus, model: ButtonModel): DIV.() -> Unit = {
+    override fun view(messageBus: MessageBus, model: ButtonModel): HtmlBlockTag.() -> Unit = {
         button {
             +text
 
