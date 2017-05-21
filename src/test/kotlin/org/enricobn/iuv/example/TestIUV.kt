@@ -11,8 +11,11 @@ import org.enricobn.iuv.MessageBus
 data class TestModel(val buttonModels: List<ButtonModel>)
 
 class TestIUV : IUV<TestModel>() {
-    private val height = 50
-    private val width = 10
+    companion object {
+        private val height = 50
+        private val width = 10
+    }
+
     private val buttons = (1..height).map { y ->
         (1..width).map { x ->
             ButtonComponent("Button " + index(y, x))
