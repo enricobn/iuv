@@ -1,5 +1,7 @@
 package org.enricobn.iuv
 
+import kotlinx.html.div
+import kotlinx.html.dom.create
 import org.w3c.dom.HTMLElement
 import org.enricobn.iuv.impl.MessageBusImpl
 import kotlin.browser.document
@@ -20,7 +22,9 @@ class IUVLoop<MODEL>(private val iuv: IUV<MODEL>) {
 
     private fun updateDocument() {
         view?.remove()
-        view = iuv.view(messageBus, model)
+        view = document.create.div {
+            iuv.view(messageBus, model).invoke(this)
+        }
         document.body!!.appendChild(view!!)
     }
 
