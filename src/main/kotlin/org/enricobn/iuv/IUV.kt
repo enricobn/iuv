@@ -14,6 +14,10 @@ abstract class IUV<MODEL> {
 
     abstract fun view(messageBus: MessageBus, model: MODEL): HtmlBlockTag.() -> Unit
 
+    fun render(parent: HtmlBlockTag, messageBus: MessageBus, model: MODEL) {
+        view(messageBus, model).invoke(parent)
+    }
+
     val id = (IdCounter.count++).toString()
 
 }

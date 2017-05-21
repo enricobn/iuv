@@ -1,11 +1,10 @@
 package org.enricobn.iuv.example
 
-import kotlinx.html.DIV
 import kotlinx.html.HtmlBlockTag
 import kotlinx.html.button
 import kotlinx.html.div
 import kotlinx.html.js.onClickFunction
-import org.enricobn.iuv.IUVComponent
+import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
 
@@ -13,7 +12,7 @@ data class ButtonModel(val clicked: Boolean)
 
 class ButtonClick(_id: String) : Message(_id)
 
-class ButtonComponent(val text: String) : IUVComponent<ButtonModel>() {
+class ButtonComponent(val text: String) : IUV<ButtonModel>() {
 
     override fun init(): ButtonModel {
         return ButtonModel(false)
