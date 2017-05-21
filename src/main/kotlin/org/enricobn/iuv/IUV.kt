@@ -2,7 +2,7 @@ package org.enricobn.iuv
 
 import org.w3c.dom.HTMLElement
 
-private object IdCounter {
+object IdCounter {
     var count = 0
 }
 

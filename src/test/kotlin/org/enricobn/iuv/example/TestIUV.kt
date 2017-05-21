@@ -1,5 +1,6 @@
 package org.enricobn.iuv.example
 
+import kotlinx.html.br
 import kotlinx.html.dom.create
 import kotlinx.html.js.div
 import org.enricobn.iuv.IUV
@@ -27,15 +28,10 @@ class TestIUV : IUV<TestModel>() {
     }
 
     override fun view(messageBus: MessageBus, model: TestModel): HTMLElement {
-        val div = document.create.div {
+        return document.create.div {
+            button1.render(this, messageBus, model.button1Model)
+            button2.render(this, messageBus, model.button2Model)
         }
-
-        div.append(
-                button1.view(messageBus, model.button1Model),
-                button2.view(messageBus, model.button2Model)
-        )
-
-        return div
     }
 
 }
