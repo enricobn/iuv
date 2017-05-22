@@ -1,8 +1,6 @@
 package org.enricobn.iuv.example
 
-import kotlinx.html.HtmlBlockTag
-import kotlinx.html.button
-import kotlinx.html.div
+import kotlinx.html.*
 import kotlinx.html.js.onClickFunction
 import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
@@ -20,7 +18,7 @@ class ButtonComponent(val text: String) : IUV<ButtonModel>() {
 
     override fun update(message: Message, model: ButtonModel): ButtonModel {
         var newModel = model
-        if (message.id == id) {
+        if (message.id == ID) {
             if (message is ButtonClick) {
                 newModel = ButtonModel(!model.clicked)
             }
@@ -33,13 +31,13 @@ class ButtonComponent(val text: String) : IUV<ButtonModel>() {
             +text
 
             onClickFunction = {
-                messageBus.send(ButtonClick(id))
+                messageBus.send(ButtonClick(ID))
+            }
+            if (model.clicked) {
+                classes = setOf("ButtonComponentSelected")
             }
         }
 
-        if (model.clicked) {
-            div { +(text + " on") }
-        }
     }
 
 }

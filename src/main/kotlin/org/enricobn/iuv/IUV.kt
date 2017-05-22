@@ -18,6 +18,6 @@ abstract class IUV<MODEL> {
         view(messageBus, model).invoke(parent)
     }
 
-    val id = (IdCounter.count++).toString()
+    val ID = (IdCounter.count++).toString()
 
 }

@@ -12,7 +12,7 @@ data class TestModel(val buttonModels: List<ButtonModel>)
 
 class TestIUV : IUV<TestModel>() {
     companion object {
-        private val height = 50
+        private val height = 200
         private val width = 10
     }
 
@@ -29,6 +29,9 @@ class TestIUV : IUV<TestModel>() {
     }
 
     override fun update(message: Message, model: TestModel): TestModel {
+        if (message is ButtonClick) {
+
+        }
         val buttonModels = (1..height).map { y ->
             (1..width).map { x ->
                 buttons[index(y, x)].update(message, model.buttonModels[index(y, x)])
