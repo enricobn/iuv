@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS Bin</title>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-style.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-class.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-props.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-attributes.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-eventlisteners.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/h.min.js"></script>
+
+    <!--
+
+    <script type="text/javascript" src="src/web/snabbdom.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-style.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-class.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-props.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-attributes.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-eventlisteners.min.js"></script>
+    <script type="text/javascript" src="src/web/h.min.js"></script>
+-->
+
+</head>
+<body>
+<div id="app"></div>
+</body>
+<script>
+var patch = snabbdom.init([
+    snabbdom_style,
+    snabbdom_class,
+    snabbdom_props,
+    snabbdom_attributes,
+    snabbdom_eventlisteners
+]);
+
+var vnode = h('span', 'foobar');
+var container = document.getElementById('app');
+
+patch(container, vnode);
+
+setTimeout(function() {
+  //var newVnode = h('span', {style: {fontWeight: 'bold', fontStyle: 'italic'}}, 'This is now bold italics');
+  //var newVnode = h('a', {class: {active: true, selected: false}}, 'Toggle');
+  //var newVnode = h('a', {props: {href: '/foo'}}, 'Go to Foo');
+  //var newVnode = h('a', {attrs: {href: '/foo'}}, 'Go to Foo');
+
+  function clickHandler(number) { console.log('button ' + number + ' was clicked!'); }
+  var newVnode = h('div', [
+    h('a', {on: {click: [clickHandler, 1]}, attrs: {href: '#'}}, '1'),
+    h('a', {on: {click: [clickHandler, 2]}, attrs: {href: '#'}}, '2'),
+    h('a', {on: {click: [clickHandler, 3]}, attrs: {href: '#'}}, '3'),
+  ]);
+
+  patch(vnode, newVnode);
+}, 1500);
+</script>
+</html>

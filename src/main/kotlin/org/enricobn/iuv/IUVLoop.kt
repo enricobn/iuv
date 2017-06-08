@@ -21,10 +21,18 @@ class IUVLoop<MODEL>(private val iuv: IUV<MODEL>) {
     }
 
     private fun updateDocument() {
-        view?.remove()
-        view = document.create.div {
+        val newView = document.create.div {
             iuv.view(messageBus, model).invoke(this)
         }
+
+        val lastView = view
+
+        if (lastView is HTMLElement) {
+            lastView.attributes.length
+            lastView.remove()
+        }
+
+        view = newView
         document.body!!.appendChild(view!!)
     }
 

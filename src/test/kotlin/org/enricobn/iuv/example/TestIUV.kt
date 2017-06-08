@@ -10,6 +10,8 @@ import org.enricobn.iuv.MessageBus
 
 data class TestModel(val buttonModels: List<ButtonModel>)
 
+data class IndexedButtonComponent(val buttonComponent: ButtonComponent, val index: Int)
+
 class TestIUV : IUV<TestModel>() {
     companion object {
         private val height = 200
@@ -18,9 +20,12 @@ class TestIUV : IUV<TestModel>() {
 
     private val buttons = (1..height).map { y ->
         (1..width).map { x ->
-            ButtonComponent("Button " + index(y, x))
+            val index = index(y, x)
+            IndexedButtonComponent(ButtonComponent("Button " + index), index)
         }
     }.flatten()
+
+    private val buttonsMap = buttons.associateBy { it.buttonComponent.ID }
 
     override fun init(): TestModel {
         return TestModel((1..height).map {
@@ -29,14 +34,24 @@ class TestIUV : IUV<TestModel>() {
     }
 
     override fun update(message: Message, model: TestModel): TestModel {
-        if (message is ButtonClick) {
+//        if (message is ButtonClick) {
+//            val component = buttonsMap[message.id]
+//            if (component is IndexedButtonComponent) {
+//                val buttonModel = component.buttonComponent.update(message, model.buttonModels[component.index])
+//                val list = model.buttonModels.toMutableList().apply {
+//                    this[component.index] = buttonModel
+//                }
+//                return TestModel(list)
+//            }
+//        }
+//        return model
 
-        }
         val buttonModels = (1..height).map { y ->
             (1..width).map { x ->
-                buttons[index(y, x)].update(message, model.buttonModels[index(y, x)])
+                buttons[index(y, x)].buttonComponent.update(message, model.buttonModels[index(y, x)])
             }
         }.flatten()
+
 
         return TestModel(buttonModels)
     }
@@ -48,7 +63,7 @@ class TestIUV : IUV<TestModel>() {
                     for (x in 1..width) {
                         val index = index(y, x)
                         td {
-                            buttons[index].render(this, messageBus, model.buttonModels[index])
+                            buttons[index].buttonComponent.render(this, messageBus, model.buttonModels[index])
                         }
                     }
                 }

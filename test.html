@@ -2,14 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Console Output</title>
+    <title>IUV</title>
+
+    <!--
+    <script type="text/javascript" src="src/web/snabbdom.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-style.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-class.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-props.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-attributes.min.js"></script>
+    <script type="text/javascript" src="src/web/snabbdom-eventlisteners.min.js"></script>
+    <script type="text/javascript" src="src/web/h.min.js"></script>
+    -->
+
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-style.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-class.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-props.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-attributes.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/snabbdom-eventlisteners.min.js"></script>
+    <script src="//cdn.rawgit.com/risto-stevcev/snabbdom/master/dist/h.min.js"></script>
+
+    <script type="text/javascript" src="build/classes/main/lib/kotlin.js"></script>
+    <script type="text/javascript" src="build/classes/test/lib/kotlinx-html-js.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
 </head>
 <body>
-<script type="text/javascript" src="build/classes/main/lib/kotlin.js"></script>
-<script type="text/javascript" src="build/classes/test/lib/kotlinx-html-js.js"></script>
-<script type="text/javascript" src="build/classes/main/iuv.js"></script>
-<script type="text/javascript" src="build/classes/test/iuv.js"></script>
-<link rel="stylesheet" type="text/css" href="style.css">
+    <script type="text/javascript">
+        var patch = snabbdom.init([
+            snabbdom_style,
+            snabbdom_class,
+            snabbdom_props,
+            snabbdom_attributes,
+            snabbdom_eventlisteners
+        ]);
+    </script>
+
+    <script type="text/javascript" src="build/classes/main/iuv.js"></script>
+    <script type="text/javascript" src="build/classes/test/iuv.js"></script>
 
 </body>
 </html>
