@@ -1,7 +1,5 @@
 package org.enricobn.iuv
 
-import kotlinx.html.HtmlBlockTag
-
 object IdCounter {
     var count = 0
 }
@@ -12,9 +10,9 @@ abstract class IUV<MODEL> {
 
     abstract fun update(message: Message, model: MODEL) : MODEL
 
-    abstract fun view(messageBus: MessageBus, model: MODEL): HtmlBlockTag.() -> Unit
+    abstract fun view(messageBus: MessageBus, model: MODEL): HTML.() -> Unit
 
-    fun render(parent: HtmlBlockTag, messageBus: MessageBus, model: MODEL) {
+    fun render(parent: HTML, messageBus: MessageBus, model: MODEL) {
         view(messageBus, model).invoke(parent)
     }
 

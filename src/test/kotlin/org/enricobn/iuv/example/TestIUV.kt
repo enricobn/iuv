@@ -1,9 +1,6 @@
 package org.enricobn.iuv.example
 
-import kotlinx.html.HtmlBlockTag
-import kotlinx.html.table
-import kotlinx.html.td
-import kotlinx.html.tr
+import org.enricobn.iuv.HTML
 import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
@@ -56,7 +53,7 @@ class TestIUV : IUV<TestModel>() {
         return TestModel(buttonModels)
     }
 
-    override fun view(messageBus: MessageBus, model: TestModel): HtmlBlockTag.() -> Unit = {
+    override fun view(messageBus: MessageBus, model: TestModel): HTML.() -> Unit = {
         table {
             for (y in 1..height) {
                 tr {

@@ -28,15 +28,15 @@ private fun a(number: Int, handler: (Int) -> Unit) : dynamic {
     newObject(o, "on")["click"] = arrayOf(handler, number)
     newObject(o, "attrs")["href"] = "#"
 
-    val o1: dynamic = object {
-        val on =
-                object {
-                    val click = arrayOf(handler, number)
-                }
-        val attrs = object {
-            val href = "#"
-        }
-    }
+//    val o1: dynamic = object {
+//        val on =
+//                object {
+//                    val click = arrayOf(handler, number)
+//                }
+//        val attrs = object {
+//            val href = "#"
+//        }
+//    }
     return h("a", o, number.toString())
 }
 

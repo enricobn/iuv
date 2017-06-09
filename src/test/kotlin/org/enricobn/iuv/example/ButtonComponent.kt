@@ -1,7 +1,6 @@
 package org.enricobn.iuv.example
 
-import kotlinx.html.*
-import kotlinx.html.js.onClickFunction
+import org.enricobn.iuv.HTML
 import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
@@ -26,15 +25,14 @@ class ButtonComponent(val text: String) : IUV<ButtonModel>() {
         return newModel
     }
 
-    override fun view(messageBus: MessageBus, model: ButtonModel): HtmlBlockTag.() -> Unit = {
+    override fun view(messageBus: MessageBus, model: ButtonModel): HTML.() -> Unit = {
         button {
             +text
 
-            onClickFunction = {
-                messageBus.send(ButtonClick(ID))
-            }
+            onClick { _ ->messageBus.send(ButtonClick(ID)) }
+
             if (model.clicked) {
-                classes = setOf("ButtonComponentSelected")
+                classes("ButtonComponentSelected")
             }
         }
 

@@ -28,11 +28,10 @@ class IUVLoop<MODEL>(private val iuv: IUV<MODEL>) {
     }
 
     private fun updateDocument(first: Boolean) {
-        val newView = document.create.div {
-            iuv.view(messageBus, model).invoke(this)
-        }
+        val newView = HTML("div")
+        iuv.view(messageBus, model).invoke(newView)
 
-        val newH = toH(newView)
+        val newH = newView.toH()
 
         if (first) {
             patch(view!!, newH)
@@ -40,7 +39,6 @@ class IUVLoop<MODEL>(private val iuv: IUV<MODEL>) {
             patch(viewH, newH)
         }
 
-        view = newView
         viewH = newH
     }
 
