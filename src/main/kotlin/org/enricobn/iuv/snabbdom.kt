@@ -59,6 +59,21 @@ open class HTML(val name: String) {
             return h(name, data, children.toTypedArray())
         }
     }
+
+    fun addAttr(name: String, attr: dynamic) {
+        if (data["attrs"] == null) {
+            data["attrs"] = object {}
+        }
+        data["attrs"][name] = attr
+    }
+
+    fun addHandler(name: String, handler: (Event) -> dynamic) {
+        if (data["on"] == null) {
+            data["on"] = object {}
+        }
+        data["on"][name] = handler
+    }
+
 }
 
 class DivH : HTML("div")
@@ -72,16 +87,11 @@ class TRH : HTML("tr")
 class ButtonH : HTML("button") {
 
     fun onClick(handler: (Event) -> dynamic) : Unit {
-        data["on"] = object {
-            val click = arrayOf(handler)
-        }
+        addHandler("click", handler)
     }
 
-    fun classes(c: String) {
-        if (data["attrs"] == null) {
-            data["attrs"] = object {}
-        }
-        data["attrs"]["class"] = c
+    fun classes(classes: String) {
+        addAttr("class", classes)
     }
 }
 
