@@ -10,8 +10,8 @@ import org.w3c.dom.Text
 import org.w3c.dom.get
 import kotlin.browser.document
 
-class IUVLoop<MODEL>(private val iuv: IUV<MODEL>) {
-    private var model = iuv.init()
+class IUVLoop<MODEL,MESSAGE: Message>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, initialModel: MODEL) {
+    private var model = initialModel
     private val messageBus = MessageBusImpl(this::onMessage)
     private var view : HTMLElement? = null
     private var viewH : dynamic = null
@@ -23,13 +23,13 @@ class IUVLoop<MODEL>(private val iuv: IUV<MODEL>) {
     }
 
     fun onMessage(message: Message) {
-        model = iuv.update(message, model)
+        model = iuv.update(message.unsafeCast<MESSAGE>(), model)
         updateDocument(false)
     }
 
     private fun updateDocument(first: Boolean) {
         val newView = HTML("div")
-        iuv.view(messageBus, model).invoke(newView)
+        iuv.view(messageBus, model, {m -> m}).invoke(newView)
 
         val newH = newView.toH()
 

@@ -1,21 +1,15 @@
 package org.enricobn.iuv
 
-//object IdCounter {
-//    var count = 0
-//}
+abstract class IUV<MODEL, MESSAGE: Message, in CONTAINER_MESSAGE : Message> {
 
-abstract class IUV<MODEL> {
+//    abstract fun init() : MODEL
 
-    abstract fun init() : MODEL
+    abstract fun update(message: MESSAGE, model: MODEL) : MODEL
 
-    abstract fun update(message: Message, model: MODEL) : MODEL
+    abstract fun view(messageBus: MessageBus, model: MODEL, map: (MESSAGE) -> CONTAINER_MESSAGE): HTML.() -> Unit
 
-    abstract fun view(messageBus: MessageBus, model: MODEL): HTML.() -> Unit
-
-    fun render(parent: HTML, messageBus: MessageBus, model: MODEL) {
-        view(messageBus, model).invoke(parent)
+    fun render(parent: HTML, messageBus: MessageBus, model: MODEL, map: (MESSAGE) -> CONTAINER_MESSAGE) {
+        view(messageBus, model, map).invoke(parent)
     }
-
-//    val ID = (IdCounter.count++).toString()
 
 }

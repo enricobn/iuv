@@ -1,44 +1,33 @@
 package org.enricobn.iuv.example
 
-import org.enricobn.iuv.HTML
-import org.enricobn.iuv.IUV
-import org.enricobn.iuv.Message
-import org.enricobn.iuv.MessageBus
+import org.enricobn.iuv.*
 
 // MODEL
-data class ButtonModel(val selected: Boolean)
+data class ButtonModel(val text: String, val selected: Boolean)
 
-class ButtonComponent(val text: String) : IUV<ButtonModel>() {
-    val self = this
+// MESSAGES
+class ButtonClick : Message()
 
-    // MESSAGES
-    inner class ButtonClick : Message(self)
+class ButtonComponent<in CONTAINER_MESSAGE : Message> : IUV<ButtonModel, ButtonClick, CONTAINER_MESSAGE>() {
 
-    override fun init(): ButtonModel {
-        return ButtonModel(false)
+    override fun update(message: ButtonClick, model: ButtonModel): ButtonModel {
+        return ButtonModel(model.text, !model.selected)
     }
 
-    override fun update(message: Message, model: ButtonModel): ButtonModel {
-        var newModel = model
-        if (message.sender == this) {
-            if (message is ButtonClick) {
-                newModel = ButtonModel(!model.selected)
-            }
-        }
-        return newModel
-    }
-
-    override fun view(messageBus: MessageBus, model: ButtonModel): HTML.() -> Unit = {
+    override fun view(messageBus: MessageBus, model: ButtonModel, map: (ButtonClick) -> CONTAINER_MESSAGE): HTML.() -> Unit = {
         button {
-            +text
+            +model.text
 
-            onClick { _ ->messageBus.send(ButtonClick()) }
+            onClick { _ ->messageBus.send(map.invoke(ButtonClick())) }
 
             if (model.selected) {
                 classes = "ButtonComponentSelected"
             }
         }
-
     }
 
+}
+
+fun <CONTAINER_MESSAGE : Message> HTML.buttonComponent(messageBus: MessageBus, model: ButtonModel, map: (ButtonClick) -> CONTAINER_MESSAGE) {
+    ButtonComponent<CONTAINER_MESSAGE>().render(this, messageBus, model, map)
 }

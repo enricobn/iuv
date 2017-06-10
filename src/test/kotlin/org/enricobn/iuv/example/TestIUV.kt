@@ -5,47 +5,48 @@ import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
 
+// MODEL
 data class TestModel(val buttonModels: List<ButtonModel>)
 
-data class IndexedButtonComponent(val buttonComponent: ButtonComponent, val index: Int)
+// MESSAGE
+open class TestMessage : Message()
 
-class TestIUV : IUV<TestModel>() {
+class TestMessageClick(val click: ButtonClick, val index: Int) : TestMessage()
+
+class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
     companion object {
         private val height = 500
         private val width = 10
+        private val buttonComponent = ButtonComponent<TestMessage>()
     }
 
-    private val buttons = (1..height).map { y ->
-        (1..width).map { x ->
-            val index = index(y, x)
-            IndexedButtonComponent(ButtonComponent("Button " + index), index)
+    fun init(): TestModel {
+        return TestModel(
+                (1..height).map { y ->
+                    (1..width).map { x -> ButtonModel("Button " + index(y, x), false) }
+                }
+            .flatten())
+    }
+
+    override fun update(message: TestMessage, model: TestModel): TestModel {
+        if (message is TestMessageClick) {
+            val newButtonModels = model.buttonModels.toMutableList()
+            newButtonModels[message.index] = buttonComponent.update(message.click, model.buttonModels[message.index])
+
+            return TestModel(newButtonModels)
+        } else {
+            return model
         }
-    }.flatten()
-
-    override fun init(): TestModel {
-        return TestModel((1..height).map {
-            (1..width).map { ButtonModel(false) }
-        }.flatten())
     }
 
-    override fun update(message: Message, model: TestModel): TestModel {
-        val buttonModels = (1..height).map { y ->
-            (1..width).map { x ->
-                buttons[index(y, x)].buttonComponent.update(message, model.buttonModels[index(y, x)])
-            }
-        }.flatten()
-
-        return TestModel(buttonModels)
-    }
-
-    override fun view(messageBus: MessageBus, model: TestModel): HTML.() -> Unit = {
+    override fun view(messageBus: MessageBus, model: TestModel, map: (TestMessage) -> TestMessage): HTML.() -> Unit = {
         table {
             for (y in 1..height) {
                 tr {
                     for (x in 1..width) {
                         val index = index(y, x)
                         td {
-                            buttons[index].buttonComponent.render(this, messageBus, model.buttonModels[index])
+                            buttonComponent(messageBus, model.buttonModels[index], {click -> TestMessageClick(click, index)} )
                         }
                     }
                 }
