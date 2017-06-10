@@ -10,7 +10,7 @@ import org.w3c.dom.Text
 import org.w3c.dom.get
 import kotlin.browser.document
 
-class IUVLoop<MODEL,MESSAGE: Message>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, initialModel: MODEL) {
+class IUVLoop<MODEL, in MESSAGE: Message>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, initialModel: MODEL) {
     private var model = initialModel
     private val messageBus = MessageBusImpl(this::onMessage)
     private var view : HTMLElement? = null
@@ -22,7 +22,7 @@ class IUVLoop<MODEL,MESSAGE: Message>(private val iuv: IUV<MODEL, MESSAGE, MESSA
         updateDocument(true)
     }
 
-    fun onMessage(message: Message) {
+    fun onMessage(message: MESSAGE) {
         model = iuv.update(message.unsafeCast<MESSAGE>(), model)
         updateDocument(false)
     }

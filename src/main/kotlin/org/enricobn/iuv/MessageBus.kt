@@ -2,8 +2,8 @@ package org.enricobn.iuv
 
 open class Message
 
-interface MessageBus {
+interface MessageBus<in MESSAGE: Message> {
 
-    fun send(message: Message)
+    fun send(message: MESSAGE)
 
 }

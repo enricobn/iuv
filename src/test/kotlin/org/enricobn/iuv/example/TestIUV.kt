@@ -39,7 +39,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
         }
     }
 
-    override fun view(messageBus: MessageBus, model: TestModel, map: (TestMessage) -> TestMessage): HTML.() -> Unit = {
+    override fun view(messageBus: MessageBus<TestMessage>, model: TestModel, map: (TestMessage) -> TestMessage): HTML.() -> Unit = {
         table {
             for (y in 1..height) {
                 tr {

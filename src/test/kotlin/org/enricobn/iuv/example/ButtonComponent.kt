@@ -8,13 +8,13 @@ data class ButtonModel(val text: String, val selected: Boolean)
 // MESSAGES
 class ButtonClick : Message()
 
-class ButtonComponent<in CONTAINER_MESSAGE : Message> : IUV<ButtonModel, ButtonClick, CONTAINER_MESSAGE>() {
+class ButtonComponent<CONTAINER_MESSAGE : Message> : IUV<ButtonModel, ButtonClick, CONTAINER_MESSAGE>() {
 
     override fun update(message: ButtonClick, model: ButtonModel): ButtonModel {
         return ButtonModel(model.text, !model.selected)
     }
 
-    override fun view(messageBus: MessageBus, model: ButtonModel, map: (ButtonClick) -> CONTAINER_MESSAGE): HTML.() -> Unit = {
+    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, model: ButtonModel, map: (ButtonClick) -> CONTAINER_MESSAGE): HTML.() -> Unit = {
         button {
             +model.text
 
@@ -28,6 +28,6 @@ class ButtonComponent<in CONTAINER_MESSAGE : Message> : IUV<ButtonModel, ButtonC
 
 }
 
-fun <CONTAINER_MESSAGE : Message> HTML.buttonComponent(messageBus: MessageBus, model: ButtonModel, map: (ButtonClick) -> CONTAINER_MESSAGE) {
+fun <CONTAINER_MESSAGE : Message> HTML.buttonComponent(messageBus: MessageBus<CONTAINER_MESSAGE>, model: ButtonModel, map: (ButtonClick) -> CONTAINER_MESSAGE) {
     ButtonComponent<CONTAINER_MESSAGE>().render(this, messageBus, model, map)
 }
