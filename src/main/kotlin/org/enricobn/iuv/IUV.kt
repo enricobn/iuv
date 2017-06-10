@@ -1,6 +1,6 @@
 package org.enricobn.iuv
 
-abstract class IUV<MODEL, MESSAGE: Message, CONTAINER_MESSAGE : Message> {
+abstract class IUV<MODEL, MESSAGE, CONTAINER_MESSAGE> {
 
 //    abstract fun init() : MODEL
 

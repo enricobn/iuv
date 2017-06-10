@@ -2,16 +2,15 @@ package org.enricobn.iuv.example
 
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.IUV
-import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
 
 // MODEL
 data class TestModel(val buttonModels: List<ButtonModel>)
 
-// MESSAGE
-open class TestMessage : Message()
+// MESSAGES
+interface TestMessage
 
-class TestMessageClick(val click: ButtonClick, val index: Int) : TestMessage()
+class TestMessageClick(val click: ButtonClick, val index: Int) : TestMessage
 
 class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
     companion object {

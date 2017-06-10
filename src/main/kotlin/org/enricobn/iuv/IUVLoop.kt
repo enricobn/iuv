@@ -10,7 +10,7 @@ import org.w3c.dom.Text
 import org.w3c.dom.get
 import kotlin.browser.document
 
-class IUVLoop<MODEL, in MESSAGE: Message>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, initialModel: MODEL) {
+class IUVLoop<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, initialModel: MODEL) {
     private var model = initialModel
     private val messageBus = MessageBusImpl(this::onMessage)
     private var view : HTMLElement? = null
