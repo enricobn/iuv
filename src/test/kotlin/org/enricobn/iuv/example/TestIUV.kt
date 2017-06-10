@@ -30,6 +30,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
     override fun update(message: TestMessage, model: TestModel): TestModel {
         if (message is TestMessageClick) {
             val newButtonModels = model.buttonModels.toMutableList()
+
             newButtonModels[message.index] = buttonComponent.update(message.click, model.buttonModels[message.index])
 
             return TestModel(newButtonModels)

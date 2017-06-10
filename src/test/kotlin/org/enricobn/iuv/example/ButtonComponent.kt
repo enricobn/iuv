@@ -18,7 +18,7 @@ class ButtonComponent<CONTAINER_MESSAGE> : IUV<ButtonModel, ButtonClick, CONTAIN
         button {
             +model.text
 
-            onClick { _ ->messageBus.send(map.invoke(ButtonClick())) }
+            onClick { _ ->messageBus.send(map(ButtonClick())) }
 
             if (model.selected) {
                 classes = "ButtonComponentSelected"

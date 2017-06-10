@@ -29,7 +29,7 @@ class IUVLoop<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, 
 
     private fun updateDocument(first: Boolean) {
         val newView = HTML("div")
-        iuv.view(messageBus, model, {m -> m}).invoke(newView)
+        iuv.view(messageBus, model, {m -> m})(newView)
 
         val newH = newView.toH()
 
