@@ -11,7 +11,7 @@ data class IndexedButtonComponent(val buttonComponent: ButtonComponent, val inde
 
 class TestIUV : IUV<TestModel>() {
     companion object {
-        private val height = 200
+        private val height = 500
         private val width = 10
     }
 
@@ -22,8 +22,6 @@ class TestIUV : IUV<TestModel>() {
         }
     }.flatten()
 
-    private val buttonsMap = buttons.associateBy { it.buttonComponent.ID }
-
     override fun init(): TestModel {
         return TestModel((1..height).map {
             (1..width).map { ButtonModel(false) }
@@ -31,24 +29,11 @@ class TestIUV : IUV<TestModel>() {
     }
 
     override fun update(message: Message, model: TestModel): TestModel {
-//        if (message is ButtonClick) {
-//            val component = buttonsMap[message.id]
-//            if (component is IndexedButtonComponent) {
-//                val buttonModel = component.buttonComponent.update(message, model.buttonModels[component.index])
-//                val list = model.buttonModels.toMutableList().apply {
-//                    this[component.index] = buttonModel
-//                }
-//                return TestModel(list)
-//            }
-//        }
-//        return model
-
         val buttonModels = (1..height).map { y ->
             (1..width).map { x ->
                 buttons[index(y, x)].buttonComponent.update(message, model.buttonModels[index(y, x)])
             }
         }.flatten()
-
 
         return TestModel(buttonModels)
     }

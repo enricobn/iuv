@@ -53,7 +53,7 @@ private fun toH(element: Element) : dynamic {
     if (element.attributes.length > 0) {
         val attributes : dynamic = object {}
         for (i in 0..element.attributes.length - 1) {
-            val attr = element.attributes.get(i)
+            val attr = element.attributes[i]
             val attrName = attr?.name
             val attrValue = attr?.value
             attributes[attrName] = attrValue
@@ -88,7 +88,7 @@ private fun toH(element: Element) : dynamic {
 //        }
 
         for (i in 0..element.childNodes.length - 1) {
-            val child = element.childNodes.get(i)
+            val child = element.childNodes[i]
 
             if (child is Element) {
                 children.add(toH(child))

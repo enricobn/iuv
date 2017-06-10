@@ -2,8 +2,6 @@ package org.enricobn.iuv.example
 
 import org.enricobn.iuv.IUVLoop
 import org.enricobn.iuv.h
-import org.enricobn.iuv.patch
-import kotlin.browser.document
 
 fun main(args: Array<String>) {
 //    val vnode = h("span", "foobar")
@@ -23,7 +21,7 @@ fun main(args: Array<String>) {
 
 
 private fun a(number: Int, handler: (Int) -> Unit) : dynamic {
-    var o : dynamic = object {}
+    val o : dynamic = object {}
 
     newObject(o, "on")["click"] = arrayOf(handler, number)
     newObject(o, "attrs")["href"] = "#"

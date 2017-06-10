@@ -5,11 +5,14 @@ import org.enricobn.iuv.IUV
 import org.enricobn.iuv.Message
 import org.enricobn.iuv.MessageBus
 
-data class ButtonModel(val clicked: Boolean)
-
-class ButtonClick(_id: String) : Message(_id)
+// MODEL
+data class ButtonModel(val selected: Boolean)
 
 class ButtonComponent(val text: String) : IUV<ButtonModel>() {
+    val self = this
+
+    // MESSAGES
+    inner class ButtonClick : Message(self)
 
     override fun init(): ButtonModel {
         return ButtonModel(false)
@@ -17,9 +20,9 @@ class ButtonComponent(val text: String) : IUV<ButtonModel>() {
 
     override fun update(message: Message, model: ButtonModel): ButtonModel {
         var newModel = model
-        if (message.id == ID) {
+        if (message.sender == this) {
             if (message is ButtonClick) {
-                newModel = ButtonModel(!model.clicked)
+                newModel = ButtonModel(!model.selected)
             }
         }
         return newModel
@@ -29,10 +32,10 @@ class ButtonComponent(val text: String) : IUV<ButtonModel>() {
         button {
             +text
 
-            onClick { _ ->messageBus.send(ButtonClick(ID)) }
+            onClick { _ ->messageBus.send(ButtonClick()) }
 
-            if (model.clicked) {
-                classes("ButtonComponentSelected")
+            if (model.selected) {
+                classes = "ButtonComponentSelected"
             }
         }
 

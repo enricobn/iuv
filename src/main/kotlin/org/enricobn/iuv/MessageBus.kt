@@ -1,6 +1,6 @@
 package org.enricobn.iuv
 
-open class Message(val id: String)
+open class Message(val sender: IUV<*>)
 
 interface MessageBus {
 

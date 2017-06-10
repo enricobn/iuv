@@ -90,8 +90,9 @@ class ButtonH : HTML("button") {
         addHandler("click", handler)
     }
 
-    fun classes(classes: String) {
-        addAttr("class", classes)
-    }
+    var classes: String? = null
+        set(value) {
+            addAttr("class", value)
+        }
 }
 

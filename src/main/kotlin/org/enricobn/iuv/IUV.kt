@@ -1,8 +1,8 @@
 package org.enricobn.iuv
 
-object IdCounter {
-    var count = 0
-}
+//object IdCounter {
+//    var count = 0
+//}
 
 abstract class IUV<MODEL> {
 
@@ -16,6 +16,6 @@ abstract class IUV<MODEL> {
         view(messageBus, model).invoke(parent)
     }
 
-    val ID = (IdCounter.count++).toString()
+//    val ID = (IdCounter.count++).toString()
 
 }
