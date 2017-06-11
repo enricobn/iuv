@@ -2,12 +2,12 @@ package org.enricobn.iuv
 
 abstract class IUV<MODEL, MESSAGE, CONTAINER_MESSAGE> {
 
-    abstract fun update(message: MESSAGE, model: MODEL) : MODEL
+    abstract fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, message: MESSAGE, model: MODEL) : Pair<MODEL,(() -> Unit)?>
 
-    abstract fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, model: MODEL, map: (MESSAGE) -> CONTAINER_MESSAGE): HTML.() -> Unit
+    abstract fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL): HTML.() -> Unit
 
-    fun render(parent: HTML, messageBus: MessageBus<CONTAINER_MESSAGE>, model: MODEL, map: (MESSAGE) -> CONTAINER_MESSAGE) {
-        view(messageBus, model, map)(parent)
+    fun render(parent: HTML, messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL) {
+        view(messageBus, map, model)(parent)
     }
 
 }

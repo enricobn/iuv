@@ -23,13 +23,18 @@ class IUVLoop<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, 
     }
 
     fun onMessage(message: MESSAGE) {
-        model = iuv.update(message.unsafeCast<MESSAGE>(), model)
+        val update = iuv.update(messageBus, {m -> m}, message.unsafeCast<MESSAGE>(), model)
+        model = update.first
         updateDocument(false)
+
+        if (update.second != null) {
+            update.second!!.invoke()
+        }
     }
 
     private fun updateDocument(first: Boolean) {
         val newView = HTML("div")
-        iuv.view(messageBus, model, {m -> m})(newView)
+        iuv.view(messageBus, {m -> m }, model)(newView)
 
         val newH = newView.toH()
 
