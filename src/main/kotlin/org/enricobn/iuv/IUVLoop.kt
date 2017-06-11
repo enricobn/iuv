@@ -23,7 +23,7 @@ class IUVLoop<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>, 
     }
 
     fun onMessage(message: MESSAGE) {
-        val update = iuv.update(messageBus, {m -> m}, message.unsafeCast<MESSAGE>(), model)
+        val update = iuv.update(messageBus, {m -> m}, message, model)
         model = update.first
         updateDocument(false)
 
