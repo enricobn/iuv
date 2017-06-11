@@ -18,7 +18,6 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
         private val height = 500
         private val width = 10
         private val buttonComponent = ButtonComponent<TestMessage>()
-        private val time = document.ontimeupdate
     }
 
     fun init(): TestModel {
@@ -36,14 +35,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
             val updatedButton = buttonComponent.update(messageBus, {click -> TestButtonMessage(click, message.index)}, message.message, model.buttonModels[message.index])
             newButtonModels[message.index] = updatedButton.first
 
-            val cmd : (() -> Unit)? =
-                if (updatedButton.second != null) {
-                    { -> updatedButton.second!!.invoke() }
-                } else {
-                    null
-                }
-
-            return Pair(TestModel(newButtonModels), cmd)
+            return Pair(TestModel(newButtonModels), updatedButton.second)
         } else {
             return Pair(model, null)
         }
