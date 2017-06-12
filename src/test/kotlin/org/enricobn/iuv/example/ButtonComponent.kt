@@ -7,12 +7,12 @@ import org.w3c.xhr.XMLHttpRequest
 
 // MODEL
 
-data class ButtonModel(val text: String, val selected: Boolean)
+data class ButtonModel(val selectedButtonModel: SelectedButtonModel)
 
 // MESSAGES
 interface ButtonComponentMessage
 
-class ButtonClick : ButtonComponentMessage
+class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButtonMessage) : ButtonComponentMessage
 
 class ButtonCountry(val alpha3_code: String) : ButtonComponentMessage
 
@@ -25,41 +25,50 @@ data class CountryRestResponse(val RestResponse: CountryResponse)
 
 class ButtonComponent<CONTAINER_MESSAGE> : IUV<ButtonModel, ButtonComponentMessage, CONTAINER_MESSAGE>() {
 
+    private val selectedButton = SelectedButton<CONTAINER_MESSAGE>()
+
     override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, (() -> Unit)?> {
-        if (message is ButtonClick) {
-            if (model.selected) {
-                return Pair(model, { ->
-                    val url = "http://services.groupkt.com/country/get/iso2code/IT"
-                    val request = XMLHttpRequest()
-                    request.onreadystatechange = { _ ->
-                        if (request.readyState.toInt() == 4 && request.status.toInt() == 200) {
-                            val response = JSON.parse<CountryRestResponse>(request.responseText)
-                            messageBus.send(map(ButtonCountry(response.RestResponse.result.alpha3_code)))
-                        }
+        if (message is SelectedButtonMessageWrapper) {
+            val selectedButtonUpdateResult = selectedButton.update(messageBus, selectedButtonMap(map),
+                    message.selectedButtonMessage, model.selectedButtonModel)
+
+            if (model.selectedButtonModel.selected) {
+                return Pair(ButtonModel(selectedButtonUpdateResult.first), { ->
+                    callCountryService(messageBus, map)
+                    if (selectedButtonUpdateResult.second != null) {
+                        selectedButtonUpdateResult.second!!()
                     }
-                    request.open("get", url, true)
-                    request.send()
                 })
             } else {
-                return Pair(ButtonModel(model.text, !model.selected), null)
+                return Pair(ButtonModel(selectedButtonUpdateResult.first), selectedButtonUpdateResult.second)
             }
         } else if (message is ButtonCountry) {
-            return Pair(ButtonModel(model.text + " " + message.alpha3_code, model.selected), null)
+            val text = model.selectedButtonModel.text + " " + message.alpha3_code
+            return Pair(ButtonModel(SelectedButtonModel(text, model.selectedButtonModel.selected)), null)
         } else {
             return Pair(model, null)
         }
     }
 
-    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, model: ButtonModel): HTML.() -> Unit = {
-        button {
-            +model.text
-
-            onClick { _ -> messageBus.send(map(ButtonClick())) }
-
-            if (model.selected) {
-                classes = "ButtonComponentSelected"
+    private fun callCountryService(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
+        val url = "http://services.groupkt.com/country/get/iso2code/IT"
+        val request = XMLHttpRequest()
+        request.onreadystatechange = { _ ->
+            if (request.readyState.toInt() == 4 && request.status.toInt() == 200) {
+                val response = JSON.parse<CountryRestResponse>(request.responseText)
+                messageBus.send(map(ButtonCountry(response.RestResponse.result.alpha3_code)))
             }
         }
+        request.open("get", url, true)
+        request.send()
+    }
+
+    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, model: ButtonModel): HTML.() -> Unit = {
+        selectedButton(messageBus, model.selectedButtonModel, selectedButtonMap(map))
+    }
+
+    private fun selectedButtonMap(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) = { selectedButtonMessage: SelectedButtonMessage ->
+        map.invoke(SelectedButtonMessageWrapper(selectedButtonMessage))
     }
 
 }

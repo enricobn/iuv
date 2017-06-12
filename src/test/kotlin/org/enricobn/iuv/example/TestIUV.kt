@@ -3,7 +3,6 @@ package org.enricobn.iuv.example
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.IUV
 import org.enricobn.iuv.MessageBus
-import kotlin.browser.document
 
 // MODEL
 data class TestModel(val buttonModels: List<ButtonModel>)
@@ -23,7 +22,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
     fun init(): TestModel {
         return TestModel(
                 (1..height).map { y ->
-                    (1..width).map { x -> ButtonModel("Button " + index(y, x), false) }
+                    (1..width).map { x -> ButtonModel(SelectedButtonModel("Button " + index(y, x), false)) }
                 }
             .flatten())
     }
