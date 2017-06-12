@@ -27,6 +27,10 @@ class ButtonComponent<CONTAINER_MESSAGE> : IUV<ButtonModel, ButtonComponentMessa
 
     private val selectedButton = SelectedButton<CONTAINER_MESSAGE>()
 
+    fun init(text: String) : ButtonModel {
+        return ButtonModel(selectedButton.init(text))
+    }
+
     override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, (() -> Unit)?> {
         if (message is SelectedButtonMessageWrapper) {
             val selectedButtonUpdateResult = selectedButton.update(messageBus, selectedButtonMap(map),

@@ -5,7 +5,6 @@ import org.enricobn.iuv.IUV
 import org.enricobn.iuv.MessageBus
 
 // MODEL
-
 data class SelectedButtonModel(val text: String, val selected: Boolean)
 
 // MESSAGES
@@ -14,6 +13,10 @@ interface SelectedButtonMessage
 class SelectedButtonClick : SelectedButtonMessage
 
 class SelectedButton<CONTAINER_MESSAGE> : IUV<SelectedButtonModel, SelectedButtonMessage, CONTAINER_MESSAGE>() {
+
+    fun init(text: String): SelectedButtonModel {
+        return SelectedButtonModel(text, false)
+    }
 
     override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (SelectedButtonMessage) -> CONTAINER_MESSAGE,
                         message: SelectedButtonMessage, model: SelectedButtonModel): Pair<SelectedButtonModel, (() -> Unit)?> {

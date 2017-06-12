@@ -16,13 +16,14 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
     companion object {
         private val height = 500
         private val width = 10
+        private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
         private val buttonComponent = ButtonComponent<TestMessage>()
     }
 
     fun init(): TestModel {
         return TestModel(
                 (1..height).map { y ->
-                    (1..width).map { x -> ButtonModel(SelectedButtonModel("Button " + index(y, x), false)) }
+                    (1..width).map { x -> buttonComponent.init("Button " + index(y, x)) }
                 }
             .flatten())
     }
@@ -31,7 +32,8 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
         if (message is TestButtonMessage) {
             val newButtonModels = model.buttonModels.toMutableList()
 
-            val updatedButton = buttonComponent.update(messageBus, {click -> TestButtonMessage(click, message.index)}, message.message, model.buttonModels[message.index])
+            val updatedButton = buttonComponent.update(messageBus, {buttonMessage -> TestButtonMessage(buttonMessage, message.index)},
+                    message.message, model.buttonModels[message.index])
             newButtonModels[message.index] = updatedButton.first
 
             return Pair(TestModel(newButtonModels), updatedButton.second)
@@ -47,14 +49,12 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
                     for (x in 1..width) {
                         val index = index(y, x)
                         td {
-                            buttonComponent(messageBus, model.buttonModels[index], {click -> TestButtonMessage(click, index)} )
+                            buttonComponent(messageBus, model.buttonModels[index], {buttonMessage -> TestButtonMessage(buttonMessage, index)} )
                         }
                     }
                 }
             }
         }
     }
-
-    private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
 }
