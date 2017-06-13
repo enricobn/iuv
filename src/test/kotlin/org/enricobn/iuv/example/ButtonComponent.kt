@@ -3,7 +3,6 @@ package org.enricobn.iuv.example
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.IUV
 import org.enricobn.iuv.MessageBus
-import org.w3c.xhr.XMLHttpRequest
 
 // MODEL
 
@@ -31,14 +30,19 @@ class ButtonComponent<CONTAINER_MESSAGE> : IUV<ButtonModel, ButtonComponentMessa
         return ButtonModel(selectedButton.init(text))
     }
 
-    override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, (() -> Unit)?> {
+    override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE,
+                        message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, (() -> Unit)?> {
         if (message is SelectedButtonMessageWrapper) {
             val selectedButtonUpdateResult = selectedButton.update(messageBus, selectedButtonMap(map),
                     message.selectedButtonMessage, model.selectedButtonModel)
 
             if (model.selectedButtonModel.selected) {
                 return Pair(ButtonModel(selectedButtonUpdateResult.first), { ->
-                    callCountryService(messageBus, map)
+                    getAsync<CountryRestResponse>("http://services.groupkt.com/country/get/iso2code/IT", messageBus, map)
+                        { response ->
+                            ButtonCountry(response.RestResponse.result.alpha3_code)
+                        }
+
                     if (selectedButtonUpdateResult.second != null) {
                         selectedButtonUpdateResult.second!!()
                     }
@@ -54,20 +58,8 @@ class ButtonComponent<CONTAINER_MESSAGE> : IUV<ButtonModel, ButtonComponentMessa
         }
     }
 
-    private fun callCountryService(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
-        val url = "http://services.groupkt.com/country/get/iso2code/IT"
-        val request = XMLHttpRequest()
-        request.onreadystatechange = { _ ->
-            if (request.readyState.toInt() == 4 && request.status.toInt() == 200) {
-                val response = JSON.parse<CountryRestResponse>(request.responseText)
-                messageBus.send(map(ButtonCountry(response.RestResponse.result.alpha3_code)))
-            }
-        }
-        request.open("get", url, true)
-        request.send()
-    }
-
-    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, model: ButtonModel): HTML.() -> Unit = {
+    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE,
+                      model: ButtonModel): HTML.() -> Unit = {
         selectedButton(messageBus, model.selectedButtonModel, selectedButtonMap(map))
     }
 
