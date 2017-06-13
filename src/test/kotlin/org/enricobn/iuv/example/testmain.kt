@@ -1,7 +1,6 @@
 package org.enricobn.iuv.example
 
-import org.enricobn.iuv.IUV
-import org.enricobn.iuv.IUVLoop
+import org.enricobn.iuv.IUVApplication
 import org.enricobn.iuv.h
 
 fun main(args: Array<String>) {
@@ -16,8 +15,8 @@ fun main(args: Array<String>) {
 
     val vu = TestIUV()
 
-    val loop = IUVLoop(vu, vu.init())
-    loop.run()
+    val application = IUVApplication(vu)
+    application.run()
 }
 
 

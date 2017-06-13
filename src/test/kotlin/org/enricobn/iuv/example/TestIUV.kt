@@ -12,7 +12,7 @@ interface TestMessage
 
 class TestButtonMessage(val message: ButtonComponentMessage, val index: Int) : TestMessage
 
-class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
+class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
     companion object {
         private val height = 500
         private val width = 10
@@ -21,7 +21,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage>() {
         private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
     }
 
-    fun init(): TestModel {
+    override fun init(): TestModel {
         return TestModel(
                 (1..height).map { y ->
                     (1..width).map { x -> buttonComponent.init("Button " + index(y, x)) }

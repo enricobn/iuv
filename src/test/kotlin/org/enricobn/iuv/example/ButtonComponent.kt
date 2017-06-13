@@ -1,8 +1,8 @@
 package org.enricobn.iuv.example
 
 import org.enricobn.iuv.HTML
-import org.enricobn.iuv.IUV
 import org.enricobn.iuv.MessageBus
+import org.enricobn.iuv.UV
 
 // MODEL
 
@@ -22,7 +22,7 @@ data class CountryResponse(val messages: List<String>, val result: Country)
 
 data class CountryRestResponse(val RestResponse: CountryResponse)
 
-class ButtonComponent<CONTAINER_MESSAGE> : IUV<ButtonModel, ButtonComponentMessage, CONTAINER_MESSAGE>() {
+class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessage, CONTAINER_MESSAGE> {
 
     private val selectedButton = SelectedButton<CONTAINER_MESSAGE>()
 

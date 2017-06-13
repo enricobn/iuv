@@ -1,8 +1,8 @@
 package org.enricobn.iuv.example
 
 import org.enricobn.iuv.HTML
-import org.enricobn.iuv.IUV
 import org.enricobn.iuv.MessageBus
+import org.enricobn.iuv.UV
 
 // MODEL
 data class SelectedButtonModel(val text: String, val selected: Boolean)
@@ -12,7 +12,7 @@ interface SelectedButtonMessage
 
 class SelectedButtonClick : SelectedButtonMessage
 
-class SelectedButton<CONTAINER_MESSAGE> : IUV<SelectedButtonModel, SelectedButtonMessage, CONTAINER_MESSAGE>() {
+class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButtonMessage, CONTAINER_MESSAGE> {
 
     fun init(text: String): SelectedButtonModel {
         return SelectedButtonModel(text, false)
