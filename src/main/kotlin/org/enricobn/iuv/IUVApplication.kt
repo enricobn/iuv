@@ -9,30 +9,79 @@ import org.w3c.dom.Node.Companion.TEXT_NODE
 import org.w3c.dom.Text
 import org.w3c.dom.get
 import kotlin.browser.document
+import kotlin.js.Date
 
 class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>) {
-    private var model = iuv.init()
+
+    companion object {
+        val delay = 100
+    }
+
+    private var model : MODEL
+    private var subscription : (() -> Unit)?
     private val messageBus = MessageBusImpl(this::onMessage)
     private var view : HTMLElement? = null
     private var viewH : dynamic = null
+    private val messagesCache = mutableListOf<MESSAGE>()
+    private var time = Date().getTime()
+    private var handlingMessages = false
+    /**
+     * The next position of the message during update. It's used to preserve messages order.
+     */
+    private var handlingMessagesPos = 0
+
+    init {
+        val init = iuv.init()
+        model = init.first
+        subscription = null
+        init.second?.invoke(messageBus)
+    }
 
     fun run() {
         view = document.create.div()
         document.body!!.appendChild(view!!)
-        updateDocument(true)
+        updateDocument(messageBus, true)
     }
 
     fun onMessage(message: MESSAGE) {
-        val update = iuv.update(messageBus, {m -> m}, message, model)
+        if (handlingMessages) {
+            // during handling I collect new messages
+            messagesCache.add(handlingMessagesPos, message)
+            // preserving order
+            handlingMessagesPos++
+            return
+        } else {
+            messagesCache.add(message)
+        }
+
+        handlingMessages = true
+
+        val newTime = Date().getTime()
+
+        if (newTime - time > delay) {
+            while (!messagesCache.isEmpty()) {
+                val msg = messagesCache.removeAt(0)
+                handlingMessagesPos = 0
+                handleMessage(msg)
+            }
+            messagesCache.clear()
+            time = newTime
+        }
+
+        handlingMessages = false
+    }
+
+    private fun handleMessage(message: MESSAGE) {
+        val update = iuv.update({ m -> m }, message, model)
         model = update.first
-        updateDocument(false)
+        updateDocument(messageBus, false)
 
         if (update.second != null) {
-            update.second!!.invoke()
+            update.second!!(messageBus)
         }
     }
 
-    private fun updateDocument(first: Boolean) {
+    private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
         val newView = HTML("div")
         iuv.view(messageBus, {m -> m }, model)(newView)
 

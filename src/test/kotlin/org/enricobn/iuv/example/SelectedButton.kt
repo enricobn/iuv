@@ -1,5 +1,6 @@
 package org.enricobn.iuv.example
 
+import org.enricobn.iuv.Cmd
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.MessageBus
 import org.enricobn.iuv.UV
@@ -18,8 +19,8 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
         return SelectedButtonModel(text, false)
     }
 
-    override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (SelectedButtonMessage) -> CONTAINER_MESSAGE,
-                        message: SelectedButtonMessage, model: SelectedButtonModel): Pair<SelectedButtonModel, (() -> Unit)?> {
+    override fun update(map: (SelectedButtonMessage) -> CONTAINER_MESSAGE, message: SelectedButtonMessage,
+                        model: SelectedButtonModel): Pair<SelectedButtonModel, Cmd<CONTAINER_MESSAGE>?> {
         return Pair(SelectedButtonModel(model.text, !model.selected), null)
     }
 

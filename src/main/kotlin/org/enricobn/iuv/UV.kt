@@ -2,9 +2,12 @@ package org.enricobn.iuv
 
 import org.w3c.xhr.XMLHttpRequest
 
+typealias Cmd<MESSAGE> = (MessageBus<MESSAGE>) -> Unit
+
 interface UV<MODEL, MESSAGE, CONTAINER_MESSAGE> {
 
-    fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, message: MESSAGE, model: MODEL) : Pair<MODEL,(() -> Unit)?>
+    fun update(map: (MESSAGE) -> CONTAINER_MESSAGE, message: MESSAGE, model: MODEL) :
+            Pair<MODEL,Cmd<CONTAINER_MESSAGE>?>
 
     fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL): HTML.() -> Unit
 

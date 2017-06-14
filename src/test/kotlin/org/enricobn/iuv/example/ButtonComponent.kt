@@ -1,5 +1,6 @@
 package org.enricobn.iuv.example
 
+import org.enricobn.iuv.Cmd
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.MessageBus
 import org.enricobn.iuv.UV
@@ -30,21 +31,21 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
         return ButtonModel(selectedButton.init(text))
     }
 
-    override fun update(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE,
-                        message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, (() -> Unit)?> {
+    override fun update(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, message: ButtonComponentMessage,
+                        model: ButtonModel): Pair<ButtonModel, Cmd<CONTAINER_MESSAGE>?> {
         if (message is SelectedButtonMessageWrapper) {
-            val selectedButtonUpdateResult = selectedButton.update(messageBus, selectedButtonMap(map),
-                    message.selectedButtonMessage, model.selectedButtonModel)
+            val selectedButtonUpdateResult = selectedButton.update(selectedButtonMap(map), message.selectedButtonMessage,
+                    model.selectedButtonModel)
 
             if (model.selectedButtonModel.selected) {
-                return Pair(ButtonModel(selectedButtonUpdateResult.first), { ->
+                return Pair(ButtonModel(selectedButtonUpdateResult.first), { messageBus ->
                     getAsync<CountryRestResponse>("http://services.groupkt.com/country/get/iso2code/IT", messageBus, map)
                         { response ->
                             ButtonCountry(response.RestResponse.result.alpha3_code)
                         }
 
                     if (selectedButtonUpdateResult.second != null) {
-                        selectedButtonUpdateResult.second!!()
+                        selectedButtonUpdateResult.second!!(messageBus)
                     }
                 })
             } else {
@@ -64,7 +65,7 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
     }
 
     private fun selectedButtonMap(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) = { selectedButtonMessage: SelectedButtonMessage ->
-        map.invoke(SelectedButtonMessageWrapper(selectedButtonMessage))
+        map(SelectedButtonMessageWrapper(selectedButtonMessage))
     }
 
 }
