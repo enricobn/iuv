@@ -29,11 +29,11 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
     }
 
     override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (SelectedButtonMessage) -> CONTAINER_MESSAGE,
-                      model: SelectedButtonModel): HTML.() -> Unit = {
+                      model: SelectedButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
         button {
             +model.text
 
-            onClick { _ -> messageBus.send(map(SelectedButtonClick())) }
+            onClick { _ -> map(SelectedButtonClick()) }
 
             if (model.selected) {
                 classes = "ButtonComponentSelected"
@@ -43,7 +43,7 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
 
 }
 
-fun <CONTAINER_MESSAGE> HTML.selectedButton(messageBus: MessageBus<CONTAINER_MESSAGE>, model: SelectedButtonModel,
+fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.selectedButton(messageBus: MessageBus<CONTAINER_MESSAGE>, model: SelectedButtonModel,
                                             map: (SelectedButtonMessage) -> CONTAINER_MESSAGE) {
     SelectedButton<CONTAINER_MESSAGE>().render(this, messageBus, map, model)
 }

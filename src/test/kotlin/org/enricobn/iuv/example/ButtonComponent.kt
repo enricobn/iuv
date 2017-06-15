@@ -60,7 +60,7 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
     }
 
     override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE,
-                      model: ButtonModel): HTML.() -> Unit = {
+                      model: ButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
         selectedButton(messageBus, model.selectedButtonModel, selectedButtonMap(map))
     }
 
@@ -70,7 +70,7 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
 
 }
 
-fun <CONTAINER_MESSAGE> HTML.buttonComponent(messageBus: MessageBus<CONTAINER_MESSAGE>, model: ButtonModel,
+fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.buttonComponent(messageBus: MessageBus<CONTAINER_MESSAGE>, model: ButtonModel,
                                              map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
     ButtonComponent<CONTAINER_MESSAGE>().render(this, messageBus, map, model)
 }

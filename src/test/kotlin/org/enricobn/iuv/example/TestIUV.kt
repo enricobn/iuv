@@ -58,7 +58,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
         }
     }
 
-    override fun view(messageBus: MessageBus<TestMessage>, map: (TestMessage) -> TestMessage, model: TestModel): HTML.() -> Unit = {
+    override fun view(messageBus: MessageBus<TestMessage>, map: (TestMessage) -> TestMessage, model: TestModel): HTML<TestMessage>.() -> Unit = {
         div {
             if (handleMouseMove) {
                 button {

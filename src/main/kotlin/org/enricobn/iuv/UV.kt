@@ -9,9 +9,9 @@ interface UV<MODEL, MESSAGE, CONTAINER_MESSAGE> {
     fun update(map: (MESSAGE) -> CONTAINER_MESSAGE, message: MESSAGE, model: MODEL) :
             Pair<MODEL,Cmd<CONTAINER_MESSAGE>?>
 
-    fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL): HTML.() -> Unit
+    fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL): HTML<CONTAINER_MESSAGE>.() -> Unit
 
-    fun render(parent: HTML, messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL) {
+    fun render(parent: HTML<CONTAINER_MESSAGE>, messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL) {
         view(messageBus, map, model)(parent)
     }
 

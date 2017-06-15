@@ -88,7 +88,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
     }
 
     private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
-        val newView = html("div") {
+        val newView = html("div", messageBus) {
             iuv.view(messageBus, { m -> m }, model)(this)
 
             if (debug) {
@@ -98,10 +98,10 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
                         button {
                             classes = "IUVDebuggerButton"
                             +(message.toString())
-                            onClick {
-                                self.model = model
-                                updateDocument(self.messageBus, false)
-                            }
+//                            onClick {
+//                                self.model = model
+//                                updateDocument(self.messageBus, false)
+//                            }
                         }
                     }
                 }
