@@ -28,7 +28,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
     private var handlingMessages = false
     private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     /**
-     * The next position of the message during update. It's used to preserve messages order.
+     * The next position of the message while handling messages. It's used to preserve messages order.
      */
     private var handlingMessagesPos = 0
     private val self = this
@@ -48,7 +48,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
 
     fun onMessage(message: MESSAGE) {
         if (handlingMessages) {
-            // during handling I collect new messages
+            // while handling messages I collect new messages
             messagesCache.add(handlingMessagesPos, message)
             // preserving order
             handlingMessagesPos++
