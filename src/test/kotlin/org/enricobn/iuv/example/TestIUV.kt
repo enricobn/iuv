@@ -58,7 +58,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
         }
     }
 
-    override fun view(messageBus: MessageBus<TestMessage>, map: (TestMessage) -> TestMessage, model: TestModel): HTML<TestMessage>.() -> Unit = {
+    override fun view(map: (TestMessage) -> TestMessage, model: TestModel): HTML<TestMessage>.() -> Unit = {
         div {
             if (handleMouseMove) {
                 button {
@@ -71,7 +71,7 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
                         for (x in 1..width) {
                             val index = index(y, x)
                             td {
-                                buttonComponent(messageBus, model.buttonModels[index], { buttonMessage -> TestButtonMessage(buttonMessage, index) })
+                                buttonComponent(model.buttonModels[index], { buttonMessage -> TestButtonMessage(buttonMessage, index) })
                             }
                         }
                     }

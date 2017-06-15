@@ -28,8 +28,7 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
         return Pair(SelectedButtonModel(model.text, !model.selected), null)
     }
 
-    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (SelectedButtonMessage) -> CONTAINER_MESSAGE,
-                      model: SelectedButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
+    override fun view(map: (SelectedButtonMessage) -> CONTAINER_MESSAGE, model: SelectedButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
         button {
             +model.text
 
@@ -43,7 +42,6 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
 
 }
 
-fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.selectedButton(messageBus: MessageBus<CONTAINER_MESSAGE>, model: SelectedButtonModel,
-                                            map: (SelectedButtonMessage) -> CONTAINER_MESSAGE) {
-    SelectedButton<CONTAINER_MESSAGE>().render(this, messageBus, map, model)
+fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.selectedButton(model: SelectedButtonModel, map: (SelectedButtonMessage) -> CONTAINER_MESSAGE) {
+    SelectedButton<CONTAINER_MESSAGE>().render(this, map, model)
 }

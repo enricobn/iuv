@@ -9,10 +9,10 @@ interface UV<MODEL, MESSAGE, CONTAINER_MESSAGE> {
     fun update(map: (MESSAGE) -> CONTAINER_MESSAGE, message: MESSAGE, model: MODEL) :
             Pair<MODEL,Cmd<CONTAINER_MESSAGE>?>
 
-    fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL): HTML<CONTAINER_MESSAGE>.() -> Unit
+    fun view(map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL): HTML<CONTAINER_MESSAGE>.() -> Unit
 
-    fun render(parent: HTML<CONTAINER_MESSAGE>, messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL) {
-        view(messageBus, map, model)(parent)
+    fun render(parent: HTML<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE, model: MODEL) {
+        view(map, model)(parent)
     }
 
     fun <J> getAsync(url: String, messageBus: MessageBus<CONTAINER_MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE,

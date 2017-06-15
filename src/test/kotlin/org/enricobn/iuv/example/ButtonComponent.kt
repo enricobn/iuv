@@ -2,7 +2,6 @@ package org.enricobn.iuv.example
 
 import org.enricobn.iuv.Cmd
 import org.enricobn.iuv.HTML
-import org.enricobn.iuv.MessageBus
 import org.enricobn.iuv.UV
 
 // MODEL
@@ -59,9 +58,8 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
         }
     }
 
-    override fun view(messageBus: MessageBus<CONTAINER_MESSAGE>, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE,
-                      model: ButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
-        selectedButton(messageBus, model.selectedButtonModel, selectedButtonMap(map))
+    override fun view(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, model: ButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
+        selectedButton(model.selectedButtonModel, selectedButtonMap(map))
     }
 
     private fun selectedButtonMap(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) = { selectedButtonMessage: SelectedButtonMessage ->
@@ -70,7 +68,6 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
 
 }
 
-fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.buttonComponent(messageBus: MessageBus<CONTAINER_MESSAGE>, model: ButtonModel,
-                                             map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
-    ButtonComponent<CONTAINER_MESSAGE>().render(this, messageBus, map, model)
+fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.buttonComponent(model: ButtonModel, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
+    ButtonComponent<CONTAINER_MESSAGE>().render(this, map, model)
 }

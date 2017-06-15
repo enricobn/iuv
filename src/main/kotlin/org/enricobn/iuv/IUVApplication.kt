@@ -89,7 +89,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
 
     private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
         val newView = html("div", messageBus) {
-            iuv.view(messageBus, { m -> m }, model)(this)
+            iuv.view({ m -> m }, model)(this)
 
             if (debug) {
                 div {
