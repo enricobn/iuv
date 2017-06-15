@@ -10,15 +10,16 @@ data class TestModel(val buttonModels: List<ButtonModel>, val x : Int, val y : I
 // MESSAGES
 interface TestMessage
 
-class TestButtonMessage(val message: ButtonComponentMessage, val index: Int) : TestMessage
+data class TestButtonMessage(val message: ButtonComponentMessage, val index: Int) : TestMessage
 
-class TestMouseMove(val x: Int, val y: Int) : TestMessage
+data class TestMouseMove(val x: Int, val y: Int) : TestMessage
 
 class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
     companion object {
         private val height = 500
         private val width = 10
         private val buttonComponent = ButtonComponent<TestMessage>()
+        private val handleMouseMove = false
 
         private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
     }
@@ -28,13 +29,17 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
                 (1..height).map { y ->
                     (1..width).map { x -> buttonComponent.init("Button " + index(y, x)) }
                 }
-            .flatten(), 0, 0), { messageBus ->
-                    document.onmousemove = { event ->
-                        if (event is MouseEvent) {
-                            messageBus.send(TestMouseMove(event.screenX, event.screenY))
-                        }
-                    }
-            })
+            .flatten(), 0, 0), if (handleMouseMove) mouseMove() else null)
+    }
+
+    private fun mouseMove(): (MessageBus<TestMessage>) -> Unit {
+        return { messageBus ->
+            document.onmousemove = { event ->
+                if (event is MouseEvent) {
+                    messageBus.send(TestMouseMove(event.screenX, event.screenY))
+                }
+            }
+        }
     }
 
     override fun update(map: (TestMessage) -> TestMessage, message: TestMessage, model: TestModel): Pair<TestModel, Cmd<TestMessage>?> {
@@ -55,8 +60,10 @@ class TestIUV : IUV<TestModel,TestMessage, TestMessage> {
 
     override fun view(messageBus: MessageBus<TestMessage>, map: (TestMessage) -> TestMessage, model: TestModel): HTML.() -> Unit = {
         div {
-            button {
-                +("${model.x},${model.y}")
+            if (handleMouseMove) {
+                button {
+                    +("${model.x},${model.y}")
+                }
             }
             table {
                 for (y in 1..height) {

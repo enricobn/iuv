@@ -48,6 +48,12 @@ open class HTML(val name: String) {
         children.add(element.toH())
     }
 
+    fun span(init: SpanH.() -> Unit) {
+        val element = SpanH()
+        element.init()
+        children.add(element.toH())
+    }
+
     operator fun String.unaryPlus() {
         children.add(this)
     }
@@ -74,7 +80,19 @@ open class HTML(val name: String) {
         data["on"][name] = handler
     }
 
+    var classes: String? = null
+        set(value) {
+            addAttr("class", value)
+        }
 }
+
+fun html(name: String, init: HTML.() -> Unit) : HTML {
+    val element = HTML(name)
+    init.invoke(element)
+    return element
+}
+
+class SpanH : HTML("span")
 
 class DivH : HTML("div")
 
@@ -90,9 +108,5 @@ class ButtonH : HTML("button") {
         addHandler("click", handler)
     }
 
-    var classes: String? = null
-        set(value) {
-            addAttr("class", value)
-        }
 }
 

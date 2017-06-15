@@ -15,6 +15,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
 
     companion object {
         val delay = 100
+        val debug = false
     }
 
     private var model : MODEL
@@ -25,10 +26,12 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
     private val messagesCache = mutableListOf<MESSAGE>()
     private var time = Date().getTime()
     private var handlingMessages = false
+    private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     /**
      * The next position of the message during update. It's used to preserve messages order.
      */
     private var handlingMessagesPos = 0
+    private val self = this
 
     init {
         val init = iuv.init()
@@ -74,6 +77,9 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
     private fun handleMessage(message: MESSAGE) {
         val update = iuv.update({ m -> m }, message, model)
         model = update.first
+        if (debug) {
+            history.add(Pair(message, model))
+        }
         updateDocument(messageBus, false)
 
         if (update.second != null) {
@@ -82,8 +88,25 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
     }
 
     private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
-        val newView = HTML("div")
-        iuv.view(messageBus, {m -> m }, model)(newView)
+        val newView = html("div") {
+            iuv.view(messageBus, { m -> m }, model)(this)
+
+            if (debug) {
+                div {
+                    classes = "IUVDebugger"
+                    for ((message, model) in history.takeLast(10)) {
+                        button {
+                            classes = "IUVDebuggerButton"
+                            +(message.toString())
+                            onClick {
+                                self.model = model
+                                updateDocument(self.messageBus, false)
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
         val newH = newView.toH()
 

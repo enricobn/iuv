@@ -12,9 +12,9 @@ data class ButtonModel(val selectedButtonModel: SelectedButtonModel)
 // MESSAGES
 interface ButtonComponentMessage
 
-class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButtonMessage) : ButtonComponentMessage
+data class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButtonMessage) : ButtonComponentMessage
 
-class ButtonCountry(val alpha3_code: String) : ButtonComponentMessage
+data class ButtonCountry(val alpha3_code: String) : ButtonComponentMessage
 
 // SERVICE
 data class Country(val name: String, val alpha2_code: String, val alpha3_code: String)

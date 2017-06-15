@@ -11,7 +11,11 @@ data class SelectedButtonModel(val text: String, val selected: Boolean)
 // MESSAGES
 interface SelectedButtonMessage
 
-class SelectedButtonClick : SelectedButtonMessage
+class SelectedButtonClick : SelectedButtonMessage {
+    override fun toString(): String {
+        return "SelectedButtonClick"
+    }
+}
 
 class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButtonMessage, CONTAINER_MESSAGE> {
 
