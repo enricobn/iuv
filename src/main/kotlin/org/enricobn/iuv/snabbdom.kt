@@ -1,5 +1,6 @@
 package org.enricobn.iuv
 
+import org.enricobn.iuv.impl.MessageBusImpl
 import org.w3c.dom.events.Event
 
 
@@ -14,42 +15,42 @@ annotation class HtmlTagMarker
 
 @HtmlTagMarker
 open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) {
-    protected val data : dynamic = object {}
-    val children = mutableListOf<dynamic>()
-    protected var text : String? = null
+    private var data : dynamic = object {}
+    private val children = mutableListOf<dynamic>()
+    private var text : String? = null
 
     fun div(init: DivH<MESSAGE>.() -> Unit) {
-        val html = DivH<MESSAGE>(messageBus)
+        val html = DivH(messageBus)
         html.init()
         children.add(html.toH())
     }
 
     fun td(init: TDH<MESSAGE>.() -> Unit) {
-        val element = TDH<MESSAGE>(messageBus)
+        val element = TDH(messageBus)
         element.init()
         children.add(element.toH())
     }
 
     fun tr(init: TRH<MESSAGE>.() -> Unit) {
-        val element = TRH<MESSAGE>(messageBus)
+        val element = TRH(messageBus)
         element.init()
         children.add(element.toH())
     }
 
     fun table(init: TableH<MESSAGE>.() -> Unit) {
-        val element = TableH<MESSAGE>(messageBus)
+        val element = TableH(messageBus)
         element.init()
         children.add(element.toH())
     }
 
     fun button(init: ButtonH<MESSAGE>.() -> Unit) {
-        val element = ButtonH<MESSAGE>(messageBus)
+        val element = ButtonH(messageBus)
         element.init()
         children.add(element.toH())
     }
 
     fun span(init: SpanH<MESSAGE>.() -> Unit) {
-        val element = SpanH<MESSAGE>(messageBus)
+        val element = SpanH(messageBus)
         element.init()
         children.add(element.toH())
     }
@@ -58,13 +59,10 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         children.add(this)
     }
 
-    fun toH() : dynamic {
-        if (text != null) {
-            return h(name, data, text!!)
-        } else {
-            return h(name, data, children.toTypedArray())
+    var classes: String? = null
+        set(value) {
+            addAttr("class", value)
         }
-    }
 
     fun addAttr(name: String, attr: dynamic) {
         if (data["attrs"] == null) {
@@ -80,14 +78,25 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         data["on"][name] = { event -> messageBus.send(handler(event)) }
     }
 
-    var classes: String? = null
-        set(value) {
-            addAttr("class", value)
+    open fun toH() : dynamic {
+        if (text != null) {
+            return h(name, data, text!!)
+        } else {
+            return h(name, data, children.toTypedArray())
         }
+    }
+
+    fun <DEST_MESSAGE> map(f: (DEST_MESSAGE) -> MESSAGE, init: HTML<DEST_MESSAGE>.() -> Unit) : HTML<DEST_MESSAGE> {
+        val destMessageBus = MessageBusImpl<DEST_MESSAGE>({message -> messageBus.send(f(message))})
+        val result = HTML("div", destMessageBus)
+        result.init()
+        children.add(result.toH())
+        return result
+    }
 }
 
 fun <MESSAGE> html(name: String, messageBus: MessageBus<MESSAGE>, init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
-    val element = HTML<MESSAGE>(name, messageBus)
+    val element = HTML(name, messageBus)
     init.invoke(element)
     return element
 }

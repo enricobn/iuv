@@ -11,7 +11,7 @@ import org.w3c.dom.get
 import kotlin.browser.document
 import kotlin.js.Date
 
-class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MESSAGE>) {
+class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
 
     companion object {
         val delay = 100
@@ -75,7 +75,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
     }
 
     private fun handleMessage(message: MESSAGE) {
-        val update = iuv.update({ m -> m }, message, model)
+        val update = iuv.update(message, model)
         model = update.first
         if (debug) {
             history.add(Pair(message, model))
@@ -89,7 +89,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE, MES
 
     private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
         val newView = html("div", messageBus) {
-            iuv.view({ m -> m }, model)(this)
+            iuv.view(model)(this)
 
             if (debug) {
                 div {

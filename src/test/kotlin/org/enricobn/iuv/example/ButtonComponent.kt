@@ -3,6 +3,7 @@ package org.enricobn.iuv.example
 import org.enricobn.iuv.Cmd
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.UV
+import org.enricobn.iuv.mapCmd
 
 // MODEL
 
@@ -22,7 +23,7 @@ data class CountryResponse(val messages: List<String>, val result: Country)
 
 data class CountryRestResponse(val RestResponse: CountryResponse)
 
-class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessage, CONTAINER_MESSAGE> {
+class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessage> {
 
     private val selectedButton = SelectedButton<CONTAINER_MESSAGE>()
 
@@ -30,25 +31,25 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
         return ButtonModel(selectedButton.init(text))
     }
 
-    override fun update(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, message: ButtonComponentMessage,
-                        model: ButtonModel): Pair<ButtonModel, Cmd<CONTAINER_MESSAGE>?> {
+    override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>?> {
         if (message is SelectedButtonMessageWrapper) {
-            val selectedButtonUpdateResult = selectedButton.update(selectedButtonMap(map), message.selectedButtonMessage,
-                    model.selectedButtonModel)
+            val selectedButtonUpdateResult = selectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
+
+            val selectedButtonCmd = mapCmd(selectedButtonUpdateResult.second, ::SelectedButtonMessageWrapper)
 
             if (model.selectedButtonModel.selected) {
                 return Pair(ButtonModel(selectedButtonUpdateResult.first), { messageBus ->
-                    getAsync<CountryRestResponse>("http://services.groupkt.com/country/get/iso2code/IT", messageBus, map)
+                    getAsync<CountryRestResponse>("http://services.groupkt.com/country/get/iso2code/IT", messageBus)
                         { response ->
                             ButtonCountry(response.RestResponse.result.alpha3_code)
                         }
 
-                    if (selectedButtonUpdateResult.second != null) {
-                        selectedButtonUpdateResult.second!!(messageBus)
+                    if (selectedButtonCmd != null) {
+                        selectedButtonCmd(messageBus)
                     }
                 })
             } else {
-                return Pair(ButtonModel(selectedButtonUpdateResult.first), selectedButtonUpdateResult.second)
+                return Pair(ButtonModel(selectedButtonUpdateResult.first), selectedButtonCmd)
             }
         } else if (message is ButtonCountry) {
             val text = model.selectedButtonModel.text + " " + message.alpha3_code
@@ -58,16 +59,14 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
         }
     }
 
-    override fun view(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE, model: ButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
-        selectedButton(model.selectedButtonModel, selectedButtonMap(map))
-    }
-
-    private fun selectedButtonMap(map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) = { selectedButtonMessage: SelectedButtonMessage ->
-        map(SelectedButtonMessageWrapper(selectedButtonMessage))
+    override fun view(model: ButtonModel): HTML<ButtonComponentMessage>.() -> Unit = {
+        map(::SelectedButtonMessageWrapper) {
+            selectedButton.render(this, model.selectedButtonModel)
+        }
     }
 
 }
 
-fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.buttonComponent(model: ButtonModel, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
-    ButtonComponent<CONTAINER_MESSAGE>().render(this, map, model)
+fun <CONTAINER_MESSAGE> HTML<ButtonComponentMessage>.buttonComponent(model: ButtonModel, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
+    ButtonComponent<CONTAINER_MESSAGE>().render(this, model)
 }

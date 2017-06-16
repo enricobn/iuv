@@ -2,7 +2,6 @@ package org.enricobn.iuv.example
 
 import org.enricobn.iuv.Cmd
 import org.enricobn.iuv.HTML
-import org.enricobn.iuv.MessageBus
 import org.enricobn.iuv.UV
 
 // MODEL
@@ -17,22 +16,21 @@ class SelectedButtonClick : SelectedButtonMessage {
     }
 }
 
-class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButtonMessage, CONTAINER_MESSAGE> {
+class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButtonMessage> {
 
     fun init(text: String): SelectedButtonModel {
         return SelectedButtonModel(text, false)
     }
 
-    override fun update(map: (SelectedButtonMessage) -> CONTAINER_MESSAGE, message: SelectedButtonMessage,
-                        model: SelectedButtonModel): Pair<SelectedButtonModel, Cmd<CONTAINER_MESSAGE>?> {
+    override fun update(message: SelectedButtonMessage, model: SelectedButtonModel): Pair<SelectedButtonModel, Cmd<SelectedButtonMessage>?> {
         return Pair(SelectedButtonModel(model.text, !model.selected), null)
     }
 
-    override fun view(map: (SelectedButtonMessage) -> CONTAINER_MESSAGE, model: SelectedButtonModel): HTML<CONTAINER_MESSAGE>.() -> Unit = {
+    override fun view(model: SelectedButtonModel): HTML<SelectedButtonMessage>.() -> Unit = {
         button {
             +model.text
 
-            onClick { _ -> map(SelectedButtonClick()) }
+            onClick { _ -> SelectedButtonClick() }
 
             if (model.selected) {
                 classes = "ButtonComponentSelected"
@@ -42,6 +40,6 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
 
 }
 
-fun <CONTAINER_MESSAGE> HTML<CONTAINER_MESSAGE>.selectedButton(model: SelectedButtonModel, map: (SelectedButtonMessage) -> CONTAINER_MESSAGE) {
-    SelectedButton<CONTAINER_MESSAGE>().render(this, map, model)
+fun HTML<SelectedButtonMessage>.selectedButton(model: SelectedButtonModel) {
+    SelectedButton<SelectedButtonMessage>().render(this, model)
 }
