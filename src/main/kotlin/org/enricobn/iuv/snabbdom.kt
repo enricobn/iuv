@@ -86,12 +86,51 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         }
     }
 
-    fun <DEST_MESSAGE> map(f: (DEST_MESSAGE) -> MESSAGE, init: HTML<DEST_MESSAGE>.() -> Unit) : HTML<DEST_MESSAGE> {
-        val destMessageBus = MessageBusImpl<DEST_MESSAGE>({message -> messageBus.send(f(message))})
+    fun <CONTAINER_MODEL,CONTAINER_MESSAGE> map(uv: UV<CONTAINER_MODEL, CONTAINER_MESSAGE>,
+                                                model: CONTAINER_MODEL,
+                                                mapFun: (CONTAINER_MESSAGE) -> MESSAGE) {
+
+        val init: HTML<CONTAINER_MESSAGE>.() -> Unit = {
+            uv.render(this, model)
+        }
+
+        map(mapFun, init)
+    }
+
+    fun <CONTAINER_MESSAGE> map(mapFun: (CONTAINER_MESSAGE) -> MESSAGE, init: HTML<CONTAINER_MESSAGE>.() -> Unit) {
+        val destMessageBus = MessageBusImpl<CONTAINER_MESSAGE>({ message -> messageBus.send(mapFun(message)) })
         val result = HTML("div", destMessageBus)
+
         result.init()
-        children.add(result.toH())
-        return result
+
+        /* I throw away the div and, with it, all it's attributes.
+         * For example in the uv.view:
+         * view(...) {
+         *      classes = "AClass"
+         *      button {
+         *          ...
+         *      }
+         * }
+         *
+         * I throw away even the classes.
+         * I think it's not bad, since I'm changing the container's attributes, and if it's what I want,
+         * I can wrap all in a div:
+         *
+         * view(...) {
+         *      div {
+         *          classes = "AClass"
+         *          button {
+         *              ...
+         *          }
+         *      }
+         * }
+         *
+         * but it's different from what happens in the top level UV (IUV).
+         */
+        children.addAll(result.children)
+
+        // I don't throw away the div!
+        // children.add(result.toH())
     }
 }
 

@@ -57,9 +57,7 @@ class ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
     }
 
     override fun view(model: ButtonModel): HTML<ButtonComponentMessage>.() -> Unit = {
-        map(::SelectedButtonMessageWrapper) {
-            selectedButton.render(this, model.selectedButtonModel)
-        }
+        map(selectedButton, model.selectedButtonModel, ::SelectedButtonMessageWrapper)
     }
 
 }

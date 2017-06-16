@@ -80,8 +80,8 @@ class TestIUV : IUV<TestModel,TestMessage> {
                         for (x in 1..width) {
                             val index = index(y, x)
                             td {
-                                map({ message: ButtonComponentMessage -> TestButtonMessage(message, index) }) {
-                                    buttonComponent.render(this, model.buttonModels[index])
+                                map(buttonComponent, model.buttonModels[index]) { message: ButtonComponentMessage ->
+                                    TestButtonMessage(message, index)
                                 }
                             }
                         }
