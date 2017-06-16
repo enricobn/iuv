@@ -3,18 +3,30 @@ package org.enricobn.iuv
 import org.enricobn.iuv.impl.MessageBusImpl
 import org.w3c.xhr.XMLHttpRequest
 
-typealias Cmd<MESSAGE> = (MessageBus<MESSAGE>) -> Unit
+interface Cmd<out MESSAGE> {
 
-fun <MESSAGE,CONTAINER_MESSAGE> mapCmd(cmd: Cmd<MESSAGE>?, map: (MESSAGE) -> CONTAINER_MESSAGE) : Cmd<CONTAINER_MESSAGE>? {
-    if (cmd != null) {
-        return { messageBus ->
-            val newMessageBus = MessageBusImpl<MESSAGE>({ message -> messageBus.send(map(message)) })
-            cmd(newMessageBus)
+    companion object {
+        fun <MESSAGE> of(runFunction: (MessageBus<MESSAGE>) -> Unit) : Cmd<MESSAGE> {
+            return object : Cmd<MESSAGE> {
+                override fun run(messageBus: MessageBus<MESSAGE>) {
+                    runFunction(messageBus)
+                }
+
+            }
         }
-    } else {
-        return null
     }
+
+    fun run(messageBus: MessageBus<MESSAGE>)
+
+    fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE) : Cmd<CONTAINER_MESSAGE> {
+        return of { messageBus ->
+            val newMessageBus = MessageBusImpl<MESSAGE>({ message -> messageBus.send(map(message)) })
+            run(newMessageBus)
+        }
+    }
+
 }
+
 
 interface UV<MODEL, MESSAGE> {
 

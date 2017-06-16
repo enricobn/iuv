@@ -83,7 +83,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         updateDocument(messageBus, false)
 
         if (update.second != null) {
-            update.second!!(messageBus)
+            update.second!!.run(messageBus)
         }
     }
 

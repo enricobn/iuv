@@ -3,7 +3,6 @@ package org.enricobn.iuv.example
 import org.enricobn.iuv.Cmd
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.UV
-import org.enricobn.iuv.mapCmd
 
 // MODEL
 
@@ -35,18 +34,16 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
         if (message is SelectedButtonMessageWrapper) {
             val selectedButtonUpdateResult = selectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
 
-            val selectedButtonCmd = mapCmd(selectedButtonUpdateResult.second, ::SelectedButtonMessageWrapper)
+            val selectedButtonCmd = selectedButtonUpdateResult.second?.map(::SelectedButtonMessageWrapper)
 
             if (model.selectedButtonModel.selected) {
-                return Pair(ButtonModel(selectedButtonUpdateResult.first), { messageBus ->
+                return Pair(ButtonModel(selectedButtonUpdateResult.first), Cmd.of { messageBus ->
                     getAsync<CountryRestResponse>("http://services.groupkt.com/country/get/iso2code/IT", messageBus)
                         { response ->
                             ButtonCountry(response.RestResponse.result.alpha3_code)
                         }
 
-                    if (selectedButtonCmd != null) {
-                        selectedButtonCmd(messageBus)
-                    }
+                    selectedButtonCmd?.run(messageBus)
                 })
             } else {
                 return Pair(ButtonModel(selectedButtonUpdateResult.first), selectedButtonCmd)

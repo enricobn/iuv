@@ -55,7 +55,7 @@ class TestIUV : IUV<TestModel,TestMessage> {
             val updatedButton = buttonComponent.update(message.message,
                     model.buttonModels[message.index])
 
-            val updateButtonCmd = mapCmd(updatedButton.second, {msg -> TestButtonMessage(msg, message.index)})
+            val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index)}
 
             newButtonModels[message.index] = updatedButton.first
 
