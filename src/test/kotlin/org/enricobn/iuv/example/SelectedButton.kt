@@ -16,7 +16,7 @@ class SelectedButtonClick : SelectedButtonMessage {
     }
 }
 
-class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButtonMessage> {
+class SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
 
     fun init(text: String): SelectedButtonModel {
         return SelectedButtonModel(text, false)
@@ -38,8 +38,4 @@ class SelectedButton<CONTAINER_MESSAGE> : UV<SelectedButtonModel, SelectedButton
         }
     }
 
-}
-
-fun HTML<SelectedButtonMessage>.selectedButton(model: SelectedButtonModel) {
-    SelectedButton<SelectedButtonMessage>().render(this, model)
 }

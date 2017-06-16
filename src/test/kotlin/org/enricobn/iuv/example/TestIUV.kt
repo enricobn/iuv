@@ -24,7 +24,7 @@ class TestIUV : IUV<TestModel,TestMessage> {
     companion object {
         private val height = 500
         private val width = 10
-        private val buttonComponent = ButtonComponent<TestMessage>()
+        private val buttonComponent = ButtonComponent()
         private val handleMouseMove = false
 
         private fun index(y: Int, x: Int) = (y - 1) * width + x - 1

@@ -22,9 +22,9 @@ data class CountryResponse(val messages: List<String>, val result: Country)
 
 data class CountryRestResponse(val RestResponse: CountryResponse)
 
-class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessage> {
+class ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
 
-    private val selectedButton = SelectedButton<CONTAINER_MESSAGE>()
+    private val selectedButton = SelectedButton()
 
     fun init(text: String) : ButtonModel {
         return ButtonModel(selectedButton.init(text))
@@ -62,8 +62,4 @@ class ButtonComponent<CONTAINER_MESSAGE> : UV<ButtonModel, ButtonComponentMessag
         }
     }
 
-}
-
-fun <CONTAINER_MESSAGE> HTML<ButtonComponentMessage>.buttonComponent(model: ButtonModel, map: (ButtonComponentMessage) -> CONTAINER_MESSAGE) {
-    ButtonComponent<CONTAINER_MESSAGE>().render(this, model)
 }
