@@ -16,7 +16,7 @@ class SelectedButtonClick : SelectedButtonMessage {
     }
 }
 
-class SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
+object SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
 
     fun init(text: String): SelectedButtonModel {
         return SelectedButtonModel(text, false)

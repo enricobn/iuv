@@ -10,30 +10,21 @@ data class TestModel(val buttonModels: List<ButtonModel>, val x : Int, val y : I
 // MESSAGES
 interface TestMessage
 
-class TestMessageNop() : TestMessage {
-    override fun toString(): String {
-        return "TestMEssageNop"
-    }
-}
-
 data class TestButtonMessage(val message: ButtonComponentMessage, val index: Int) : TestMessage
 
 data class TestMouseMove(val x: Int, val y: Int) : TestMessage
 
-class TestIUV : IUV<TestModel,TestMessage> {
-    companion object {
-        private val height = 500
-        private val width = 10
-        private val buttonComponent = ButtonComponent()
-        private val handleMouseMove = false
+object TestIUV : IUV<TestModel,TestMessage> {
+    private val height = 500
+    private val width = 10
+    private val handleMouseMove = false
 
-        private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
-    }
+    private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
     override fun init(): Pair<TestModel, Subscription<TestMessage>?> {
         return Pair(TestModel(
                 (1..height).map { y ->
-                    (1..width).map { x -> buttonComponent.init("Button " + index(y, x)) }
+                    (1..width).map { x -> ButtonComponent.init("Button " + index(y, x)) }
                 }
             .flatten(), 0, 0), if (handleMouseMove) mouseMove() else null)
     }
@@ -52,7 +43,7 @@ class TestIUV : IUV<TestModel,TestMessage> {
         if (message is TestButtonMessage) {
             val newButtonModels = model.buttonModels.toMutableList()
 
-            val updatedButton = buttonComponent.update(message.message,
+            val updatedButton = ButtonComponent.update(message.message,
                     model.buttonModels[message.index])
 
             val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index)}
@@ -80,7 +71,7 @@ class TestIUV : IUV<TestModel,TestMessage> {
                         for (x in 1..width) {
                             val index = index(y, x)
                             td {
-                                map(buttonComponent, model.buttonModels[index]) { message: ButtonComponentMessage ->
+                                map(ButtonComponent, model.buttonModels[index]) { message: ButtonComponentMessage ->
                                     TestButtonMessage(message, index)
                                 }
                             }

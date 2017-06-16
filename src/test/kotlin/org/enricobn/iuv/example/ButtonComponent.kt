@@ -22,17 +22,15 @@ data class CountryResponse(val messages: List<String>, val result: Country)
 
 data class CountryRestResponse(val RestResponse: CountryResponse)
 
-class ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
-
-    private val selectedButton = SelectedButton()
+object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
 
     fun init(text: String) : ButtonModel {
-        return ButtonModel(selectedButton.init(text))
+        return ButtonModel(SelectedButton.init(text))
     }
 
     override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>?> {
         if (message is SelectedButtonMessageWrapper) {
-            val selectedButtonUpdateResult = selectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
+            val selectedButtonUpdateResult = SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
 
             val selectedButtonCmd = selectedButtonUpdateResult.second?.map(::SelectedButtonMessageWrapper)
 
@@ -57,7 +55,7 @@ class ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
     }
 
     override fun view(model: ButtonModel): HTML<ButtonComponentMessage>.() -> Unit = {
-        map(selectedButton, model.selectedButtonModel, ::SelectedButtonMessageWrapper)
+        map(SelectedButton, model.selectedButtonModel, ::SelectedButtonMessageWrapper)
     }
 
 }
