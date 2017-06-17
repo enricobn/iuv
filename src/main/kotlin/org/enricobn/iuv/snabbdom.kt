@@ -20,37 +20,38 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
     private var text : String? = null
 
     fun div(init: DivH<MESSAGE>.() -> Unit) {
-        val html = DivH(messageBus)
-        html.init()
-        children.add(html.toH())
+        element(DivH(messageBus), init)
     }
 
     fun td(init: TDH<MESSAGE>.() -> Unit) {
-        val element = TDH(messageBus)
-        element.init()
-        children.add(element.toH())
+        element(TDH(messageBus), init)
     }
 
     fun tr(init: TRH<MESSAGE>.() -> Unit) {
-        val element = TRH(messageBus)
-        element.init()
-        children.add(element.toH())
+        element(TRH(messageBus), init)
     }
 
     fun table(init: TableH<MESSAGE>.() -> Unit) {
-        val element = TableH(messageBus)
-        element.init()
-        children.add(element.toH())
+        element(TableH(messageBus), init)
     }
 
     fun button(init: ButtonH<MESSAGE>.() -> Unit) {
-        val element = ButtonH(messageBus)
-        element.init()
-        children.add(element.toH())
+        element(ButtonH(messageBus), init)
     }
 
     fun span(init: SpanH<MESSAGE>.() -> Unit) {
-        val element = SpanH(messageBus)
+        element(SpanH(messageBus), init)
+    }
+
+    fun thead(init: TheadH<MESSAGE>.() -> Unit) {
+        element(TheadH(messageBus), init)
+    }
+
+    fun th(init: THH<MESSAGE>.() -> Unit) {
+        element(THH(messageBus), init)
+    }
+
+    private fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         children.add(element.toH())
     }
@@ -86,11 +87,11 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         }
     }
 
-    fun <CONTAINER_MODEL,CONTAINER_MESSAGE> map(uv: UV<CONTAINER_MODEL, CONTAINER_MESSAGE>,
-                                                model: CONTAINER_MODEL,
-                                                mapFun: (CONTAINER_MESSAGE) -> MESSAGE) {
+    fun <COMPONENT_MODEL,COMPONENT_MESSAGE> map(uv: UV<COMPONENT_MODEL, COMPONENT_MESSAGE>,
+                                                model: COMPONENT_MODEL,
+                                                mapFun: (COMPONENT_MESSAGE) -> MESSAGE) {
 
-        val init: HTML<CONTAINER_MESSAGE>.() -> Unit = {
+        val init: HTML<COMPONENT_MESSAGE>.() -> Unit = {
             uv.render(this, model)
         }
 
@@ -145,6 +146,10 @@ class SpanH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("span", me
 class DivH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("div", messageBus)
 
 class TableH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("table", messageBus)
+
+class TheadH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("thead", messageBus)
+
+class THH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("th", messageBus)
 
 class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messageBus)
 

@@ -27,7 +27,6 @@ interface Cmd<out MESSAGE> {
 
 }
 
-
 interface UV<MODEL, MESSAGE> {
 
     fun update(message: MESSAGE, model: MODEL) : Pair<MODEL,Cmd<MESSAGE>?>
