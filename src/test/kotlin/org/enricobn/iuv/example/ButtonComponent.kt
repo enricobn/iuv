@@ -1,6 +1,7 @@
 package org.enricobn.iuv.example
 
 import org.enricobn.iuv.Cmd
+import org.enricobn.iuv.GetAsync
 import org.enricobn.iuv.HTML
 import org.enricobn.iuv.UV
 
@@ -34,18 +35,18 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
 
             val selectedButtonCmd = selectedButtonUpdateResult.second?.map(::SelectedButtonMessageWrapper)
 
-            if (model.selectedButtonModel.selected) {
-                return Pair(ButtonModel(selectedButtonUpdateResult.first), Cmd.of { messageBus ->
-                    getAsync<CountryRestResponse>("http://services.groupkt.com/country/get/iso2code/IT", messageBus)
-                        { response ->
-                            ButtonCountry(response.RestResponse.result.alpha3_code)
-                        }
-
-                    selectedButtonCmd?.run(messageBus)
-                })
-            } else {
-                return Pair(ButtonModel(selectedButtonUpdateResult.first), selectedButtonCmd)
-            }
+            val cmd =
+                if (model.selectedButtonModel.selected) {
+                    val getAsync = GetAsync<CountryRestResponse,ButtonComponentMessage>(
+                                "http://services.groupkt.com/country/get/iso2code/IT")
+                            { response ->
+                                ButtonCountry(response.RestResponse.result.alpha3_code)
+                            }
+                    Cmd.cmdOf(getAsync, selectedButtonCmd)
+                } else {
+                    selectedButtonCmd
+                }
+            return Pair(ButtonModel(selectedButtonUpdateResult.first), cmd)
         } else if (message is ButtonCountry) {
             val text = model.selectedButtonModel.text + " " + message.alpha3_code
             return Pair(ButtonModel(SelectedButtonModel(text, model.selectedButtonModel.selected)), null)
