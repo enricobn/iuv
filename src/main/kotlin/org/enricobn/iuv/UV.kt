@@ -63,8 +63,4 @@ interface UV<MODEL, MESSAGE> {
 
     fun view(model: MODEL): HTML<MESSAGE>.() -> Unit
 
-    fun render(parent: HTML<MESSAGE>, model: MODEL) {
-        view(model)(parent)
-    }
-
 }

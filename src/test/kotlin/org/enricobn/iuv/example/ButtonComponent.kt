@@ -7,7 +7,7 @@ import org.enricobn.iuv.UV
 
 // MODEL
 
-data class ButtonModel(val selectedButtonModel: SelectedButtonModel)
+data class ButtonModel(val country: String, val selectedButtonModel: SelectedButtonModel)
 
 // MESSAGES
 interface ButtonComponentMessage
@@ -25,8 +25,8 @@ data class CountryRestResponse(val RestResponse: CountryResponse)
 
 object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
 
-    fun init(text: String) : ButtonModel {
-        return ButtonModel(SelectedButton.init(text))
+    fun init(text: String, country: String) : ButtonModel {
+        return ButtonModel(country, SelectedButton.init(text))
     }
 
     override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>?> {
@@ -38,7 +38,7 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
             val cmd =
                 if (model.selectedButtonModel.selected) {
                     val getAsync = GetAsync<CountryRestResponse,ButtonComponentMessage>(
-                                "http://services.groupkt.com/country/get/iso2code/IT")
+                                "http://services.groupkt.com/country/get/iso2code/${model.country}")
                             { response ->
                                 ButtonCountry(response.RestResponse.result.alpha3_code)
                             }
@@ -46,10 +46,10 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
                 } else {
                     selectedButtonCmd
                 }
-            return Pair(ButtonModel(selectedButtonUpdateResult.first), cmd)
+            return Pair(model.copy(selectedButtonModel = selectedButtonUpdateResult.first), cmd)
         } else if (message is ButtonCountry) {
             val text = model.selectedButtonModel.text + " " + message.alpha3_code
-            return Pair(ButtonModel(SelectedButtonModel(text, model.selectedButtonModel.selected)), null)
+            return Pair(model.copy(selectedButtonModel = model.selectedButtonModel.copy(text = text)), null)
         } else {
             return Pair(model, null)
         }

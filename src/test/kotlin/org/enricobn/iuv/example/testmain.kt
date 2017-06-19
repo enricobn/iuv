@@ -13,7 +13,7 @@ fun main(args: Array<String>) {
 //
 //    patch(vnode, newVnode)
 
-    val application = IUVApplication(TestIUV)
+    val application = IUVApplication(TestIUV("IT"))
     application.run()
 }
 

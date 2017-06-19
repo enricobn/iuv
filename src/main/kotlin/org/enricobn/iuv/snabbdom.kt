@@ -51,6 +51,10 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         element(THH(messageBus), init)
     }
 
+    fun input(init: InputH<MESSAGE>.() -> Unit) {
+        element(InputH(messageBus), init)
+    }
+
     private fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         children.add(element.toH())
@@ -72,7 +76,7 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         data["attrs"][name] = attr
     }
 
-    fun addHandler(name: String, handler: (Event) -> MESSAGE) {
+    fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE) {
         if (data["on"] == null) {
             data["on"] = object {}
         }
@@ -92,14 +96,14 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
                                                 mapFun: (COMPONENT_MESSAGE) -> MESSAGE) {
 
         val init: HTML<COMPONENT_MESSAGE>.() -> Unit = {
-            uv.render(this, model)
+            uv.view(model)(this)
         }
 
         map(mapFun, init)
     }
 
     fun <CONTAINER_MESSAGE> map(mapFun: (CONTAINER_MESSAGE) -> MESSAGE, init: HTML<CONTAINER_MESSAGE>.() -> Unit) {
-        val destMessageBus = MessageBusImpl<CONTAINER_MESSAGE>({ message -> messageBus.send(mapFun(message)) })
+        val destMessageBus = MessageBusImpl<CONTAINER_MESSAGE>({ messageBus.send(mapFun(it)) })
         val result = HTML("div", destMessageBus)
 
         result.init()
@@ -133,6 +137,7 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
         // I don't throw away the div!
         // children.add(result.toH())
     }
+
 }
 
 fun <MESSAGE> html(name: String, messageBus: MessageBus<MESSAGE>, init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
@@ -155,6 +160,35 @@ class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messag
 
 class TRH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("tr", messageBus)
 
+data class InputEvent(val value: String)
+
+class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input", messageBus) {
+    var value: String = ""
+        set(value) {
+            addAttr("value", value)
+        }
+
+    var autofocus: Boolean = false
+        set(value) {
+            if (value) {
+                addAttr("autofocus", "autofocus")
+            }
+        }
+
+    fun onInput(handler: (org.enricobn.iuv.InputEvent) -> MESSAGE) : Unit {
+        addHandler("input", { event: Event ->
+            handler(org.enricobn.iuv.InputEvent(event.target?.asDynamic().value))
+        })
+    }
+
+    fun onBlur(handler: (org.enricobn.iuv.InputEvent) -> MESSAGE) : Unit {
+        addHandler("blur", { event: Event ->
+            handler(org.enricobn.iuv.InputEvent(event.target?.asDynamic().value))
+        })
+    }
+
+}
+
 class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button", messageBus) {
 
     fun onClick(handler: (Event) -> MESSAGE) : Unit {
@@ -162,4 +196,3 @@ class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button"
     }
 
 }
-
