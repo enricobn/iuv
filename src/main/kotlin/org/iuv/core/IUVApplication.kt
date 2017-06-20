@@ -16,19 +16,19 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         val delay = 100
     }
 
+    private val messageBus = MessageBusImpl(this::onMessage)
+    private val messagesCache = mutableListOf<MESSAGE>()
+    private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
     private var subscription : (() -> Unit)?
-    private val messageBus = MessageBusImpl(this::onMessage)
     private var view : Element? = null
     private var viewH : dynamic = null
-    private val messagesCache = mutableListOf<MESSAGE>()
     private var updatingDocument = false
-    private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     /**
-     * The next position of the message while handling messages. It's used to preserve messages order.
+     * The next position of the message while updating document. It's used to preserve messages order.
      */
-    private var handlingMessagesPos = 0
+    private var updatingDocumentMessagesPos = 0
 
     init {
         val init = iuv.init()
@@ -47,9 +47,9 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     fun onMessage(message: MESSAGE) {
         if (updatingDocument) {
             // while updating document I collect new messages
-            messagesCache.add(handlingMessagesPos, message)
+            messagesCache.add(updatingDocumentMessagesPos, message)
             // preserving order
-            handlingMessagesPos++
+            updatingDocumentMessagesPos++
             return
         } else {
             handleMessage(message)
@@ -63,7 +63,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         updatingDocument = true
         while (!messagesCache.isEmpty()) {
             val msg = messagesCache.removeAt(0)
-            handlingMessagesPos = 0
+            updatingDocumentMessagesPos = 0
             handleMessage(msg)
         }
 
