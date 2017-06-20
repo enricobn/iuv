@@ -13,15 +13,17 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
 
     companion object {
         val debug = false
+        val delay = 100
     }
 
     private var model : MODEL
+    private var lastViewedModel: MODEL? = null
     private var subscription : (() -> Unit)?
     private val messageBus = MessageBusImpl(this::onMessage)
     private var view : Element? = null
     private var viewH : dynamic = null
     private val messagesCache = mutableListOf<MESSAGE>()
-    private var handlingMessages = false
+    private var updatingDocument = false
     private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     /**
      * The next position of the message while handling messages. It's used to preserve messages order.
@@ -39,39 +41,43 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         view = document.createElement("div")
         document.body!!.appendChild(view!!)
         updateDocument(messageBus, true)
-        window.setInterval(this::onTimer, 100)
+        window.setInterval(this::onTimer, delay)
     }
 
     fun onMessage(message: MESSAGE) {
-        if (handlingMessages) {
-            // while handling messages I collect new messages
+        if (updatingDocument) {
+            // while updating document I collect new messages
             messagesCache.add(handlingMessagesPos, message)
             // preserving order
             handlingMessagesPos++
             return
         } else {
-            messagesCache.add(message)
+            handleMessage(message)
         }
     }
 
     private fun onTimer() {
-        handlingMessages = true
+        if (updatingDocument) {
+            return
+        }
+        updatingDocument = true
         while (!messagesCache.isEmpty()) {
             val msg = messagesCache.removeAt(0)
             handlingMessagesPos = 0
             handleMessage(msg)
         }
-        messagesCache.clear()
-        handlingMessages = false
+
+        updateDocument(messageBus, false)
+        updatingDocument = false
     }
 
     private fun handleMessage(message: MESSAGE) {
         val update = iuv.update(message, model)
         model = update.first
+
         if (debug) {
             history.add(Pair(message, model))
         }
-        updateDocument(messageBus, false)
 
         if (update.second != null) {
             update.second!!.run(messageBus)
@@ -79,8 +85,13 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     }
 
     private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
+        if (lastViewedModel != null && lastViewedModel!! == model) {
+            return
+        }
         val newView = html("div", messageBus) {
             iuv.view(model)(this)
+
+            lastViewedModel = model
 
             if (debug) {
                 div {
