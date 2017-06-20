@@ -44,7 +44,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         window.setInterval(this::onTimer, delay)
     }
 
-    fun onMessage(message: MESSAGE) {
+    private fun onMessage(message: MESSAGE) {
         if (updatingDocument) {
             // while updating document I collect new messages
             messagesCache.add(updatingDocumentMessagesPos, message)
