@@ -1,6 +1,6 @@
-package org.enricobn.iuv.example
+package org.iuv.core.example
 
-import org.enricobn.iuv.*
+import org.iuv.core.*
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
 
@@ -16,7 +16,7 @@ data class TestMouseMove(val x: Int, val y: Int) : TestMessage
 
 data class CountryChanged(val country: String) : TestMessage
 
-class TestIUV(val initialCountry: String) : IUV<TestModel,TestMessage> {
+class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
     private val height = 500
     private val width = 10
     private val handleMouseMove = false
@@ -48,7 +48,7 @@ class TestIUV(val initialCountry: String) : IUV<TestModel,TestMessage> {
             val updatedButton = ButtonComponent.update(message.message,
                     model.buttonModels[message.index])
 
-            val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index)}
+            val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index) }
 
             newButtonModels[message.index] = updatedButton.first
 

@@ -1,6 +1,6 @@
-package org.enricobn.iuv.impl
+package org.iuv.core.impl
 
-import org.enricobn.iuv.MessageBus
+import org.iuv.core.MessageBus
 
 class MessageBusImpl<in MESSAGE>(val handler: (MESSAGE) -> Unit) : MessageBus<MESSAGE> {
 

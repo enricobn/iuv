@@ -1,7 +1,7 @@
-package org.enricobn.iuv.example
+package org.iuv.core.example
 
-import org.enricobn.iuv.IUVApplication
-import org.enricobn.iuv.h
+import org.iuv.core.IUVApplication
+import org.iuv.core.h
 
 fun main(args: Array<String>) {
 //    val vnode = h("span", "foobar")

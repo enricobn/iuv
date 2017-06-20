@@ -1,9 +1,9 @@
-package org.enricobn.iuv.example
+package org.iuv.core.example
 
-import org.enricobn.iuv.Cmd
-import org.enricobn.iuv.HTML
-import org.enricobn.iuv.IUV
-import org.enricobn.iuv.Subscription
+import org.iuv.core.Cmd
+import org.iuv.core.HTML
+import org.iuv.core.IUV
+import org.iuv.core.Subscription
 
 // MESSAGES
 interface TestGridMessage
@@ -17,7 +17,7 @@ data class Match(val home: String, val visitor: String, val result: Result)
 
 data class TestGridModel(val gridModel: GridModel<Match>)
 
-class TestGrid : IUV<TestGridModel,TestGridMessage> {
+class TestGrid : IUV<TestGridModel, TestGridMessage> {
 
     companion object {
         val rows = listOf(

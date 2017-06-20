@@ -1,9 +1,7 @@
-package org.enricobn.iuv
+package org.iuv.core
 
-import kotlinx.html.div
-import kotlinx.html.dom.create
+import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.HTMLElement
-import org.enricobn.iuv.impl.MessageBusImpl
 import org.w3c.dom.Element
 import org.w3c.dom.Node.Companion.TEXT_NODE
 import org.w3c.dom.Text
@@ -21,7 +19,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     private var model : MODEL
     private var subscription : (() -> Unit)?
     private val messageBus = MessageBusImpl(this::onMessage)
-    private var view : HTMLElement? = null
+    private var view : Element? = null
     private var viewH : dynamic = null
     private val messagesCache = mutableListOf<MESSAGE>()
     private var time = Date().getTime()
@@ -41,7 +39,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     }
 
     fun run() {
-        view = document.create.div()
+        view = document.createElement("div")
         document.body!!.appendChild(view!!)
         updateDocument(messageBus, true)
     }

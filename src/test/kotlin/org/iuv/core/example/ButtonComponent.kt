@@ -1,9 +1,10 @@
-package org.enricobn.iuv.example
+package org.iuv.core.example
 
-import org.enricobn.iuv.Cmd
-import org.enricobn.iuv.GetAsync
-import org.enricobn.iuv.HTML
-import org.enricobn.iuv.UV
+import org.iuv.core.Cmd
+import org.iuv.core.Cmd.Companion.cmdOf
+import org.iuv.core.GetAsync
+import org.iuv.core.HTML
+import org.iuv.core.UV
 
 // MODEL
 
@@ -42,7 +43,7 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
                             { response ->
                                 ButtonCountry(response.RestResponse.result.alpha3_code)
                             }
-                    Cmd.cmdOf(getAsync, selectedButtonCmd)
+                    cmdOf(getAsync, selectedButtonCmd)
                 } else {
                     selectedButtonCmd
                 }

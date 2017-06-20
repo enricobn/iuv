@@ -1,8 +1,8 @@
-package org.enricobn.iuv.example
+package org.iuv.core.example
 
-import org.enricobn.iuv.Cmd
-import org.enricobn.iuv.HTML
-import org.enricobn.iuv.UV
+import org.iuv.core.Cmd
+import org.iuv.core.HTML
+import org.iuv.core.UV
 
 // MODEL
 data class SelectedButtonModel(val text: String, val selected: Boolean)

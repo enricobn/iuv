@@ -1,4 +1,4 @@
-package org.enricobn.iuv
+package org.iuv.core
 
 interface MessageBus<in MESSAGE> {
 

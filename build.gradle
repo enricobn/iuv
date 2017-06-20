@@ -1,8 +1,8 @@
-group 'org.enricobn'
-version '1.0-SNAPSHOT'
+group 'org.iuv'
+version '0.1-SNAPSHOT'
 
 buildscript {
-    ext.kotlin_version = '1.1.2-2'
+    ext.kotlin_version = '1.1.2-5'
 
     repositories {
         mavenCentral()
@@ -13,6 +13,7 @@ buildscript {
 }
 
 apply plugin: 'kotlin2js'
+apply plugin: 'maven'
 
 repositories {
     mavenCentral()
@@ -23,5 +24,5 @@ repositories {
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
+    //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
 }

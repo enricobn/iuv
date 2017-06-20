@@ -1,6 +1,6 @@
-package org.enricobn.iuv
+package org.iuv.core
 
-import org.enricobn.iuv.impl.MessageBusImpl
+import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.events.Event
 
 
@@ -175,15 +175,15 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input", 
             }
         }
 
-    fun onInput(handler: (org.enricobn.iuv.InputEvent) -> MESSAGE) : Unit {
+    fun onInput(handler: (InputEvent) -> MESSAGE) : Unit {
         addHandler("input", { event: Event ->
-            handler(org.enricobn.iuv.InputEvent(event.target?.asDynamic().value))
+            handler(InputEvent(event.target?.asDynamic().value))
         })
     }
 
-    fun onBlur(handler: (org.enricobn.iuv.InputEvent) -> MESSAGE) : Unit {
+    fun onBlur(handler: (InputEvent) -> MESSAGE) : Unit {
         addHandler("blur", { event: Event ->
-            handler(org.enricobn.iuv.InputEvent(event.target?.asDynamic().value))
+            handler(InputEvent(event.target?.asDynamic().value))
         })
     }
 

@@ -1,6 +1,6 @@
-package org.enricobn.iuv
+package org.iuv.core
 
-import org.enricobn.iuv.impl.MessageBusImpl
+import org.iuv.core.impl.MessageBusImpl
 import org.w3c.xhr.XMLHttpRequest
 
 interface Cmd<out MESSAGE> {
@@ -59,7 +59,7 @@ class GetAsync<in J, out MESSAGE>(val url: String, val handler: (J) -> MESSAGE) 
 
 interface UV<MODEL, MESSAGE> {
 
-    fun update(message: MESSAGE, model: MODEL) : Pair<MODEL,Cmd<MESSAGE>?>
+    fun update(message: MESSAGE, model: MODEL) : Pair<MODEL, Cmd<MESSAGE>?>
 
     fun view(model: MODEL): HTML<MESSAGE>.() -> Unit
 

@@ -1,8 +1,8 @@
-package org.enricobn.iuv.example
+package org.iuv.core.example
 
-import org.enricobn.iuv.Cmd
-import org.enricobn.iuv.HTML
-import org.enricobn.iuv.UV
+import org.iuv.core.Cmd
+import org.iuv.core.HTML
+import org.iuv.core.UV
 
 // MESSAGES
 interface GridMessage
@@ -12,7 +12,7 @@ data class Column<in ROW>(val header: String, val classes: ((ROW) -> String?)? =
 
 data class GridModel<ROW>(val rows: List<ROW>, val columns: List<Column<ROW>>)
 
-class Grid<ROW> : UV<GridModel<ROW>,GridMessage> {
+class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
 
     fun init(rows: List<ROW>, columns: List<Column<ROW>>) : GridModel<ROW> {
         return GridModel(rows, columns)
