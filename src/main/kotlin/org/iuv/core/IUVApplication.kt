@@ -7,12 +7,11 @@ import org.w3c.dom.Node.Companion.TEXT_NODE
 import org.w3c.dom.Text
 import org.w3c.dom.get
 import kotlin.browser.document
-import kotlin.js.Date
+import kotlin.browser.window
 
 class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
 
     companion object {
-        val delay = 100
         val debug = false
     }
 
@@ -22,14 +21,12 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     private var view : Element? = null
     private var viewH : dynamic = null
     private val messagesCache = mutableListOf<MESSAGE>()
-    private var time = Date().getTime()
     private var handlingMessages = false
     private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     /**
      * The next position of the message while handling messages. It's used to preserve messages order.
      */
     private var handlingMessagesPos = 0
-    private val self = this
 
     init {
         val init = iuv.init()
@@ -42,6 +39,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         view = document.createElement("div")
         document.body!!.appendChild(view!!)
         updateDocument(messageBus, true)
+        window.setInterval(this::onTimer, 100)
     }
 
     fun onMessage(message: MESSAGE) {
@@ -54,21 +52,16 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         } else {
             messagesCache.add(message)
         }
+    }
 
+    private fun onTimer() {
         handlingMessages = true
-
-        val newTime = Date().getTime()
-
-        if (newTime - time > delay) {
-            while (!messagesCache.isEmpty()) {
-                val msg = messagesCache.removeAt(0)
-                handlingMessagesPos = 0
-                handleMessage(msg)
-            }
-            messagesCache.clear()
-            time = newTime
+        while (!messagesCache.isEmpty()) {
+            val msg = messagesCache.removeAt(0)
+            handlingMessagesPos = 0
+            handleMessage(msg)
         }
-
+        messagesCache.clear()
         handlingMessages = false
     }
 
