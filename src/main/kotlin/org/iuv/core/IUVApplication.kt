@@ -17,18 +17,12 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     }
 
     private val messageBus = MessageBusImpl(this::onMessage)
-    private val messagesCache = mutableListOf<MESSAGE>()
     private val history = mutableListOf<Pair<MESSAGE,MODEL>>()
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
     private var subscription : (() -> Unit)?
     private var view : Element? = null
     private var viewH : dynamic = null
-    private var updatingDocument = false
-    /**
-     * The next position of the message while updating document. It's used to preserve messages order.
-     */
-    private var updatingDocumentMessagesPos = 0
 
     init {
         val init = iuv.init()
@@ -45,43 +39,18 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     }
 
     private fun onMessage(message: MESSAGE) {
-        if (updatingDocument) {
-            // while updating document I collect new messages
-            messagesCache.add(updatingDocumentMessagesPos, message)
-            // preserving order
-            updatingDocumentMessagesPos++
-            return
-        } else {
-            handleMessage(message)
+        val update = iuv.update(message, model)
+        model = update.first
+        if (debug) {
+            history.add(Pair(message, model))
+        }
+        if (update.second != null) {
+            update.second!!.run(messageBus)
         }
     }
 
     private fun onTimer() {
-        if (updatingDocument) {
-            return
-        }
-        updatingDocument = true
-        while (!messagesCache.isEmpty()) {
-            val msg = messagesCache.removeAt(0)
-            updatingDocumentMessagesPos = 0
-            handleMessage(msg)
-        }
-
         updateDocument(messageBus, false)
-        updatingDocument = false
-    }
-
-    private fun handleMessage(message: MESSAGE) {
-        val update = iuv.update(message, model)
-        model = update.first
-
-        if (debug) {
-            history.add(Pair(message, model))
-        }
-
-        if (update.second != null) {
-            update.second!!.run(messageBus)
-        }
     }
 
     private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
