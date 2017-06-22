@@ -1,6 +1,7 @@
 package org.iuv.core.example
 
 import org.iuv.core.*
+import org.iuv.core.Cmd.Companion.cmdOf
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
 
@@ -23,7 +24,7 @@ class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
 
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
-    override fun init(): Pair<TestModel, Subscription<TestMessage>?> {
+    override fun init(): Pair<TestModel, Cmd<TestMessage>?> {
         return Pair(TestModel(initialCountry,
                 (1..height).map { y ->
                     (1..width).map { x -> ButtonComponent.init("Button " + index(y, x), initialCountry) }
@@ -31,8 +32,8 @@ class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
             .flatten(), 0, 0), if (handleMouseMove) mouseMove() else null)
     }
 
-    private fun mouseMove(): (MessageBus<TestMessage>) -> Unit {
-        return { messageBus ->
+    private fun mouseMove(): Cmd<TestMessage> {
+        return cmdOf { messageBus ->
             document.onmousemove = { event ->
                 if (event is MouseEvent) {
                     messageBus.send(TestMouseMove(event.screenX, event.screenY))

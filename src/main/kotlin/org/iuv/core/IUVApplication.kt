@@ -28,7 +28,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         val init = iuv.init()
         model = init.first
         subscription = null
-        init.second?.invoke(messageBus)
+        init.second?.run(messageBus)
     }
 
     fun run() {

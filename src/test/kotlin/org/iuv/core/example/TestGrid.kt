@@ -3,7 +3,6 @@ package org.iuv.core.example
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.IUV
-import org.iuv.core.Subscription
 
 // MESSAGES
 interface TestGridMessage
@@ -34,7 +33,7 @@ class TestGrid : IUV<TestGridModel, TestGridMessage> {
 
     private val grid = Grid<Match>()
 
-    override fun init(): Pair<TestGridModel, Subscription<TestGridMessage>?> {
+    override fun init(): Pair<TestGridModel, Cmd<TestGridMessage>?> {
         return Pair(TestGridModel(grid.init(rows, columns)), null)
     }
 
