@@ -14,7 +14,7 @@ external fun patch(old: dynamic, new: dynamic) : Unit = definedExternally
 annotation class HtmlTagMarker
 
 @HtmlTagMarker
-open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) {
+open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<MESSAGE>) {
     private var data : dynamic = object {}
     private val children = mutableListOf<dynamic>()
     private var text : String? = null
@@ -84,10 +84,10 @@ open class HTML<MESSAGE>(val name: String, val messageBus: MessageBus<MESSAGE>) 
     }
 
     open fun toH() : dynamic {
-        if (text != null) {
-            return h(name, data, text!!)
+        return if (text != null) {
+            h(name, data, text!!)
         } else {
-            return h(name, data, children.toTypedArray())
+            h(name, data, children.toTypedArray())
         }
     }
 
@@ -175,13 +175,13 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input", 
             }
         }
 
-    fun onInput(handler: (InputEvent) -> MESSAGE) : Unit {
+    fun onInput(handler: (InputEvent) -> MESSAGE) {
         addHandler("input", { event: Event ->
             handler(InputEvent(event.target?.asDynamic().value))
         })
     }
 
-    fun onBlur(handler: (InputEvent) -> MESSAGE) : Unit {
+    fun onBlur(handler: (InputEvent) -> MESSAGE) {
         addHandler("blur", { event: Event ->
             handler(InputEvent(event.target?.asDynamic().value))
         })
@@ -191,7 +191,7 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input", 
 
 class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button", messageBus) {
 
-    fun onClick(handler: (Event) -> MESSAGE) : Unit {
+    fun onClick(handler: (Event) -> MESSAGE) {
         addHandler("click", handler)
     }
 

@@ -18,10 +18,10 @@ interface Cmd<out MESSAGE> {
         fun <MESSAGE> cmdOf(vararg cmds: Cmd<MESSAGE>?) : Cmd<MESSAGE>? {
             val notNull = cmds.filter { cmd -> cmd != null }
 
-            if (notNull.isEmpty()) {
-                return null
+            return if (notNull.isEmpty()) {
+                null
             } else {
-                return object : Cmd<MESSAGE> {
+                object : Cmd<MESSAGE> {
                     override fun run(messageBus: MessageBus<MESSAGE>) {
                         notNull.forEach { cmd -> cmd?.run(messageBus) }
                     }
@@ -41,7 +41,7 @@ interface Cmd<out MESSAGE> {
 }
 
 
-class GetAsync<in J, out MESSAGE>(val url: String, val handler: (J) -> MESSAGE) : Cmd<MESSAGE> {
+class GetAsync<in J, out MESSAGE>(private val url: String, private val handler: (J) -> MESSAGE) : Cmd<MESSAGE> {
 
     override fun run(messageBus: MessageBus<MESSAGE>) {
         val request = XMLHttpRequest()

@@ -25,9 +25,9 @@ class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
     override fun view(model: GridModel<ROW>): HTML<GridMessage>.() -> Unit = {
         table {
             thead {
-                for (column in model.columns) {
+                for ((header) in model.columns) {
                     th {
-                        +column.header
+                        +header
                     }
                 }
             }

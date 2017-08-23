@@ -100,7 +100,7 @@ private fun toH(element: Element) : dynamic {
 
     if (element.attributes.length > 0) {
         val attributes : dynamic = object {}
-        for (i in 0..element.attributes.length - 1) {
+        for (i in 0 until element.attributes.length) {
             val attr = element.attributes[i]
             val attrName = attr?.name
             val attrValue = attr?.value
@@ -135,16 +135,16 @@ private fun toH(element: Element) : dynamic {
 //            }
 //        }
 
-        for (i in 0..element.childNodes.length - 1) {
+        for (i in 0 until element.childNodes.length) {
             val child = element.childNodes[i]
 
-            if (child is Element) {
-                children.add(toH(child))
-            } else if (child is Text) {
-                children.add(child.wholeText)
-            } else {
-                console.log("unknown type")
-                console.log(child)
+            when (child) {
+                is Element -> children.add(toH(child))
+                is Text -> children.add(child.wholeText)
+                else -> {
+                    console.log("unknown type")
+                    console.log(child)
+                }
             }
         }
 

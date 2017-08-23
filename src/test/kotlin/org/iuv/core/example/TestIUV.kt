@@ -17,7 +17,7 @@ data class TestMouseMove(val x: Int, val y: Int) : TestMessage
 
 data class CountryChanged(val country: String) : TestMessage
 
-class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
+class TestIUV(private val initialCountry: String) : IUV<TestModel, TestMessage> {
     private val height = 500
     private val width = 10
     private val handleMouseMove = false
@@ -25,11 +25,14 @@ class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
     override fun init(): Pair<TestModel, Cmd<TestMessage>?> {
-        return Pair(TestModel(initialCountry,
-                (1..height).map { y ->
+        val model = TestModel(initialCountry,
+            (1..height)
+                .map { y ->
                     (1..width).map { x -> ButtonComponent.init("Button " + index(y, x), initialCountry) }
                 }
-            .flatten(), 0, 0), if (handleMouseMove) mouseMove() else null)
+                .flatten(), 0, 0)
+
+        return Pair(model, if (handleMouseMove) mouseMove() else null)
     }
 
     private fun mouseMove(): Cmd<TestMessage> {
@@ -43,23 +46,22 @@ class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
     }
 
     override fun update(message: TestMessage, model: TestModel): Pair<TestModel, Cmd<TestMessage>?> {
-        if (message is TestButtonMessage) {
-            val newButtonModels = model.buttonModels.toMutableList()
+        when (message) {
+            is TestButtonMessage -> {
+                val newButtonModels = model.buttonModels.toMutableList()
 
-            val updatedButton = ButtonComponent.update(message.message,
-                    model.buttonModels[message.index])
+                val updatedButton = ButtonComponent.update(message.message,
+                        model.buttonModels[message.index])
 
-            val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index) }
+                val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index) }
 
-            newButtonModels[message.index] = updatedButton.first
+                newButtonModels[message.index] = updatedButton.first
 
-            return Pair(model.copy(buttonModels = newButtonModels), updateButtonCmd)
-        } else if (message is TestMouseMove) {
-            return Pair(model.copy(x = message.x,y = message.y), null)
-        } else if (message is CountryChanged) {
-            return Pair(model.copy(country = message.country, buttonModels = model.buttonModels.map { buttonModel -> buttonModel.copy(country = message.country) }), null)
-        } else {
-            return Pair(model, null)
+                return Pair(model.copy(buttonModels = newButtonModels), updateButtonCmd)
+            }
+            is TestMouseMove -> return Pair(model.copy(x = message.x,y = message.y), null)
+            is CountryChanged -> return Pair(model.copy(country = message.country, buttonModels = model.buttonModels.map { buttonModel -> buttonModel.copy(country = message.country) }), null)
+            else -> return Pair(model, null)
         }
     }
 
@@ -79,14 +81,15 @@ class TestIUV(val initialCountry: String) : IUV<TestModel, TestMessage> {
             table {
                 for (y in 1..height) {
                     tr {
-                        for (x in 1..width) {
-                            val index = index(y, x)
-                            td {
-                                map(ButtonComponent, model.buttonModels[index]) { message: ButtonComponentMessage ->
-                                    TestButtonMessage(message, index)
+                        (1..width)
+                            .map { index(y, it) }
+                            .forEach {
+                                td {
+                                    map(ButtonComponent, model.buttonModels[it]) { message: ButtonComponentMessage ->
+                                        TestButtonMessage(message, it)
+                                    }
                                 }
                             }
-                        }
                     }
                 }
             }
