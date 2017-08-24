@@ -1,4 +1,4 @@
-package org.iuv.core.example
+package org.iuv.core.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.Cmd.Companion.cmdOf
@@ -20,9 +20,9 @@ data class ButtonCountry(val alpha3_code: String) : ButtonComponentMessage
 // SERVICE
 data class Country(val name: String, val alpha2_code: String, val alpha3_code: String)
 
-data class CountryResponse(val messages: List<String>, val result: Country)
+data class  CountryResponse(val messages: List<String>, val result: Country)
 
-data class CountryRestResponse(val restResponse: CountryResponse)
+data class CountryRestResponse(val RestResponse: CountryResponse)
 
 object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
 
@@ -35,14 +35,14 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
             is SelectedButtonMessageWrapper -> {
                 val selectedButtonUpdateResult = SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
 
-                val selectedButtonCmd = selectedButtonUpdateResult.second!!.map(::SelectedButtonMessageWrapper)
+                val selectedButtonCmd = selectedButtonUpdateResult.second?.map(::SelectedButtonMessageWrapper)
 
                 val cmd =
                         if (model.selectedButtonModel.selected) {
                             val getAsync = GetAsync<CountryRestResponse,ButtonComponentMessage>(
                                     "http://services.groupkt.com/country/get/iso2code/${model.country}")
-                            { (restResponse) ->
-                                ButtonCountry(restResponse.result.alpha3_code)
+                            { response ->
+                                ButtonCountry(response.RestResponse.result.alpha3_code)
                             }
                             cmdOf(getAsync, selectedButtonCmd)
                         } else {

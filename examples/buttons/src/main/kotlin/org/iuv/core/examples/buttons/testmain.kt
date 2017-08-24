@@ -1,4 +1,4 @@
-package org.iuv.core.example
+package org.iuv.core.examples.buttons
 
 import org.iuv.core.IUVApplication
 import org.iuv.core.h
