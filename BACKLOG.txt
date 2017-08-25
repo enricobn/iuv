@@ -1,6 +1,13 @@
 Doing
 -------
+
+Done
+------
 - on branch commands
   - handle commands
-  - on branch multiple-projects
-    - trying to make an example project examples/buttons works
+
+- on branch multiple-projects
+  - example project examples/buttons works
+
+- on branch multiple-projects
+ - initialize snabbdom in IUVApplication.init, to get rid of client code
