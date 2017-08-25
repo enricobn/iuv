@@ -23,9 +23,9 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     private var subscription : (() -> Unit)?
     private var view : Element? = null
     private var viewH : dynamic = null
+    private val patch: (old: dynamic, new: dynamic) -> Unit = snabbdomInit()
 
     init {
-        snabbdomInit()
         val init = iuv.init()
         model = init.first
         subscription = null
@@ -83,9 +83,9 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         val newH = newView.toH()
 
         if (first) {
-            patch!!(view!!, newH)
+            patch(view!!, newH)
         } else {
-            patch!!(viewH, newH)
+            patch(viewH, newH)
         }
 
         viewH = newH

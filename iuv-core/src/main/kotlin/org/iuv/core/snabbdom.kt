@@ -3,9 +3,19 @@ package org.iuv.core
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.events.Event
 
-var patch: ((old: dynamic, new: dynamic) -> Unit)? = null
+external object snabbdom {
 
-fun snabbdomInit() {
+    fun init(props: dynamic) : dynamic = definedExternally
+
+}
+
+external var snabbdom_style: dynamic = definedExternally
+external var snabbdom_class: dynamic = definedExternally
+external var snabbdom_props: dynamic = definedExternally
+external var snabbdom_attributes: dynamic = definedExternally
+external var snabbdom_eventlisteners: dynamic = definedExternally
+
+fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
     val props = arrayOf(
             org.iuv.core.snabbdom_style,
             org.iuv.core.snabbdom_class,
@@ -13,20 +23,8 @@ fun snabbdomInit() {
             org.iuv.core.snabbdom_attributes,
             org.iuv.core.snabbdom_eventlisteners
     )
-    patch = snabbdom.init(props)
+    return snabbdom.init(props)
 }
-
-external object snabbdom {
-
-    fun init(props: dynamic) : dynamic = definedExternally
-}
-
-external var snabbdom_style: dynamic = definedExternally
-
-external var snabbdom_class: dynamic = definedExternally
-external var snabbdom_props: dynamic = definedExternally
-external var snabbdom_attributes: dynamic = definedExternally
-external var snabbdom_eventlisteners: dynamic = definedExternally
 
 external fun h(sel: String) : dynamic = definedExternally
 external fun h(sel: String, a: dynamic, b: dynamic) : dynamic = definedExternally
