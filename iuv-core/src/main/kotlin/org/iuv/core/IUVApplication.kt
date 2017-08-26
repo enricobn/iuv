@@ -149,7 +149,7 @@ private fun toH(element: Element) : dynamic {
             }
         }
 
-        return h(name, data, children.toTypedArray())
+        return snabbdom.h(name, data, children.toTypedArray())
     }
 
 }

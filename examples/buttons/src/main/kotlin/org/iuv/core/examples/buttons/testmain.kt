@@ -1,7 +1,7 @@
 package org.iuv.core.examples.buttons
 
 import org.iuv.core.IUVApplication
-import org.iuv.core.h
+import org.iuv.core.snabbdom
 
 fun main(args: Array<String>) {
 //    val vnode = h("span", "foobar")
@@ -33,7 +33,7 @@ private fun a(number: Int, handler: (Int) -> Unit) : dynamic {
 //            val href = "#"
 //        }
 //    }
-    return h("a", o, number.toString())
+    return snabbdom.h("a", o, number.toString())
 }
 
 private fun newObject(d: dynamic, name: String) : dynamic {

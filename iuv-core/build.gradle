@@ -28,7 +28,7 @@ dependencies {
 }
 
 compileKotlin2Js {
-//    kotlinOptions.moduleKind = "amd"
+    kotlinOptions.moduleKind = "umd"
     kotlinOptions.sourceMap = true
     kotlinOptions.metaInfo = true
 }

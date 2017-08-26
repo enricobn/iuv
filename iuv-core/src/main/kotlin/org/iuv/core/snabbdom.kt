@@ -7,6 +7,10 @@ external object snabbdom {
 
     fun init(props: dynamic) : dynamic = definedExternally
 
+    fun h(sel: String) : dynamic = definedExternally
+    fun h(sel: String, a: dynamic, b: dynamic) : dynamic = definedExternally
+    fun h(sel: String, a: dynamic) : dynamic = definedExternally
+
 }
 
 external var snabbdom_style: dynamic = definedExternally
@@ -17,18 +21,14 @@ external var snabbdom_eventlisteners: dynamic = definedExternally
 
 fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
     val props = arrayOf(
-            org.iuv.core.snabbdom_style,
-            org.iuv.core.snabbdom_class,
-            org.iuv.core.snabbdom_props,
-            org.iuv.core.snabbdom_attributes,
-            org.iuv.core.snabbdom_eventlisteners
+            snabbdom_style.default,
+            snabbdom_class.default,
+            snabbdom_props.default,
+            snabbdom_attributes.default,
+            snabbdom_eventlisteners.default
     )
     return snabbdom.init(props)
 }
-
-external fun h(sel: String) : dynamic = definedExternally
-external fun h(sel: String, a: dynamic, b: dynamic) : dynamic = definedExternally
-external fun h(sel: String, a: dynamic) : dynamic = definedExternally
 
 @DslMarker
 annotation class HtmlTagMarker
@@ -105,9 +105,9 @@ open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<ME
 
     open fun toH() : dynamic {
         return if (text != null) {
-            h(name, data, text!!)
+            snabbdom.h(name, data, text!!)
         } else {
-            h(name, data, children.toTypedArray())
+            snabbdom.h(name, data, children.toTypedArray())
         }
     }
 
