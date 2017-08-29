@@ -33,9 +33,9 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
     override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>?> {
         when (message) {
             is SelectedButtonMessageWrapper -> {
-                val selectedButtonUpdateResult = SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
+                val (updatedModel, updateCmd) = SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
 
-                val selectedButtonCmd = selectedButtonUpdateResult.second?.map(::SelectedButtonMessageWrapper)
+                val updateCmdMapped = updateCmd?.map(::SelectedButtonMessageWrapper)
 
                 val cmd =
                         if (model.selectedButtonModel.selected) {
@@ -44,11 +44,11 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
                             { response ->
                                 ButtonCountry(response.RestResponse.result.alpha3_code)
                             }
-                            cmdOf(getAsync, selectedButtonCmd)
+                            cmdOf(getAsync, updateCmdMapped)
                         } else {
-                            selectedButtonCmd
+                            updateCmdMapped
                         }
-                return Pair(model.copy(selectedButtonModel = selectedButtonUpdateResult.first), cmd)
+                return Pair(model.copy(selectedButtonModel = updatedModel), cmd)
             }
             is ButtonCountry -> {
                 val text = model.selectedButtonModel.text + " " + message.alpha3_code

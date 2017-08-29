@@ -1,10 +1,11 @@
 Doing
 -------
-
+- refactoring
 
 TODO
 -----
-snabbdom files in examples/buttons/web/js must be replaced with the ones from version 0.7.0.
+- snabbdom files in examples/buttons/web/js must be replaced with the ones from version 0.7.0.
+- Cmd.None
 
 Done
 ------

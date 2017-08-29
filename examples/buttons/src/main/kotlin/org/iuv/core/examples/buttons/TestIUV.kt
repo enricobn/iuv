@@ -48,19 +48,21 @@ class TestIUV(private val initialCountry: String) : IUV<TestModel, TestMessage> 
     override fun update(message: TestMessage, model: TestModel): Pair<TestModel, Cmd<TestMessage>?> {
         when (message) {
             is TestButtonMessage -> {
+                val (updateModel, updateCmd) = ButtonComponent
+                        .update(message.message, model.buttonModels[message.index])
+
+                val updateCmdMapped = updateCmd?.map {TestButtonMessage(it, message.index) }
+
                 val newButtonModels = model.buttonModels.toMutableList()
+                newButtonModels[message.index] = updateModel
 
-                val updatedButton = ButtonComponent.update(message.message,
-                        model.buttonModels[message.index])
-
-                val updateButtonCmd = updatedButton.second?.map {msg -> TestButtonMessage(msg, message.index) }
-
-                newButtonModels[message.index] = updatedButton.first
-
-                return Pair(model.copy(buttonModels = newButtonModels), updateButtonCmd)
+                return Pair(model.copy(buttonModels = newButtonModels), updateCmdMapped)
             }
-            is TestMouseMove -> return Pair(model.copy(x = message.x,y = message.y), null)
-            is CountryChanged -> return Pair(model.copy(country = message.country, buttonModels = model.buttonModels.map { buttonModel -> buttonModel.copy(country = message.country) }), null)
+            is TestMouseMove -> return Pair(model.copy(x = message.x, y = message.y), null)
+            is CountryChanged -> {
+                val newButtonModels = model.buttonModels.map { it.copy(country = message.country) }
+                return Pair(model.copy(country = message.country, buttonModels = newButtonModels), null)
+            }
             else -> return Pair(model, null)
         }
     }
