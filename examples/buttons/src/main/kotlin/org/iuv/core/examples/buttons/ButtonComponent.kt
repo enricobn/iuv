@@ -2,32 +2,27 @@ package org.iuv.core.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.Cmd.Companion.cmdOf
-import org.iuv.core.GetAsync
 import org.iuv.core.HTML
 import org.iuv.core.UV
 
 // MODEL
 
-data class ButtonModel(val country: String, val selectedButtonModel: SelectedButtonModel)
+data class ButtonModel(val postId: Int, val selectedButtonModel: SelectedButtonModel)
 
 // MESSAGES
 interface ButtonComponentMessage
 
 data class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButtonMessage) : ButtonComponentMessage
 
-data class ButtonCountry(val alpha3_code: String) : ButtonComponentMessage
+data class PostTitle(val title: String) : ButtonComponentMessage
 
 // SERVICE
-data class Country(val name: String, val alpha2_code: String, val alpha3_code: String)
+data class Post(val userId: Int, val id: Int, val title: String, val body: String)
 
-data class  CountryResponse(val messages: List<String>, val result: Country)
+class ButtonComponent(private val postService: PostService) : UV<ButtonModel, ButtonComponentMessage> {
 
-data class CountryRestResponse(val RestResponse: CountryResponse)
-
-object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
-
-    fun init(text: String, country: String) : ButtonModel {
-        return ButtonModel(country, SelectedButton.init(text))
+    fun init(text: String, postId: Int) : ButtonModel {
+        return ButtonModel(postId, SelectedButton.init(text))
     }
 
     override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>?> {
@@ -39,19 +34,19 @@ object ButtonComponent : UV<ButtonModel, ButtonComponentMessage> {
 
                 val cmd =
                         if (model.selectedButtonModel.selected) {
-                            val getAsync = GetAsync<CountryRestResponse,ButtonComponentMessage>(
-                                    "http://services.groupkt.com/country/get/iso2code/${model.country}")
-                            { response ->
-                                ButtonCountry(response.RestResponse.result.alpha3_code)
-                            }
-                            cmdOf(getAsync, updateCmdMapped)
+                            val postCmd = postService.getPost(model.postId)
+                                // Don't deconstruct the response parameter: it does not work, I don't know why!
+                                { response ->
+                                    PostTitle(response.title)
+                                }
+                            cmdOf(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped
                         }
                 return Pair(model.copy(selectedButtonModel = updatedModel), cmd)
             }
-            is ButtonCountry -> {
-                val text = model.selectedButtonModel.text + " " + message.alpha3_code
+            is PostTitle -> {
+                val text = model.selectedButtonModel.text + " " + message.title
                 return Pair(model.copy(selectedButtonModel = model.selectedButtonModel.copy(text = text)), null)
             }
             else -> return Pair(model, null)

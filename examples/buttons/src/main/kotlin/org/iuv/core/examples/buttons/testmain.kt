@@ -3,7 +3,9 @@ package org.iuv.core.examples.buttons
 import org.iuv.core.IUVApplication
 import org.iuv.core.snabbdom
 
-fun main(args: Array<String>) {
+@JsName("ButtonsMain")
+class ButtonsMain {
+    fun run() {
 //    val vnode = h("span", "foobar")
 //    val container = document.body
 //
@@ -13,10 +15,10 @@ fun main(args: Array<String>) {
 //
 //    patch(vnode, newVnode)
 
-    val application = IUVApplication(TestIUV("IT"))
-    application.run()
+        val application = IUVApplication(TestIUV(1, PostServiceImpl()))
+        application.run()
+    }
 }
-
 
 private fun a(number: Int, handler: (Int) -> Unit) : dynamic {
     val o : dynamic = object {}
