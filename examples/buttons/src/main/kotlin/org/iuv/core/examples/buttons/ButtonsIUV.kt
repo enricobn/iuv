@@ -6,18 +6,18 @@ import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
 
 // MODEL
-data class TestModel(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
+data class ButtonsModel(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
 
 // MESSAGES
-interface TestMessage
+interface ButtonsMessage
 
-data class TestButtonMessage(val message: ButtonComponentMessage, val index: Int) : TestMessage
+data class ButtonsButtonMessage(val message: ButtonComponentMessage, val index: Int) : ButtonsMessage
 
-data class TestMouseMove(val x: Int, val y: Int) : TestMessage
+data class ButtonsMouseMove(val x: Int, val y: Int) : ButtonsMessage
 
-data class CountryChanged(val postId: Int) : TestMessage
+data class PostIdChanged(val postId: Int) : ButtonsMessage
 
-class TestIUV(private val initialPostId: Int, postService: PostService) : IUV<TestModel, TestMessage> {
+class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsModel, ButtonsMessage> {
     private val height = 500
     private val width = 10
     private val handleMouseMove = false
@@ -25,8 +25,8 @@ class TestIUV(private val initialPostId: Int, postService: PostService) : IUV<Te
 
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
-    override fun init(): Pair<TestModel, Cmd<TestMessage>?> {
-        val model = TestModel(initialPostId,
+    override fun init(): Pair<ButtonsModel, Cmd<ButtonsMessage>?> {
+        val model = ButtonsModel(initialPostId,
             (1..height)
                 .map { y ->
                     (1..width).map { x -> buttonComponent.init("Button " + index(y, x), initialPostId) }
@@ -36,31 +36,31 @@ class TestIUV(private val initialPostId: Int, postService: PostService) : IUV<Te
         return Pair(model, if (handleMouseMove) mouseMove() else null)
     }
 
-    private fun mouseMove(): Cmd<TestMessage> {
+    private fun mouseMove(): Cmd<ButtonsMessage> {
         return cmdOf { messageBus ->
             document.onmousemove = { event ->
                 if (event is MouseEvent) {
-                    messageBus.send(TestMouseMove(event.screenX, event.screenY))
+                    messageBus.send(ButtonsMouseMove(event.screenX, event.screenY))
                 }
             }
         }
     }
 
-    override fun update(message: TestMessage, model: TestModel): Pair<TestModel, Cmd<TestMessage>?> {
+    override fun update(message: ButtonsMessage, model: ButtonsModel): Pair<ButtonsModel, Cmd<ButtonsMessage>?> {
         when (message) {
-            is TestButtonMessage -> {
+            is ButtonsButtonMessage -> {
                 val (updateModel, updateCmd) = buttonComponent
                         .update(message.message, model.buttonModels[message.index])
 
-                val updateCmdMapped = updateCmd?.map {TestButtonMessage(it, message.index) }
+                val updateCmdMapped = updateCmd?.map { ButtonsButtonMessage(it, message.index) }
 
                 val newButtonModels = model.buttonModels.toMutableList()
                 newButtonModels[message.index] = updateModel
 
                 return Pair(model.copy(buttonModels = newButtonModels), updateCmdMapped)
             }
-            is TestMouseMove -> return Pair(model.copy(x = message.x, y = message.y), null)
-            is CountryChanged -> {
+            is ButtonsMouseMove -> return Pair(model.copy(x = message.x, y = message.y), null)
+            is PostIdChanged -> {
                 val newButtonModels = model.buttonModels.map { it.copy(postId = message.postId) }
                 return Pair(model.copy(postId = message.postId, buttonModels = newButtonModels), null)
             }
@@ -68,12 +68,12 @@ class TestIUV(private val initialPostId: Int, postService: PostService) : IUV<Te
         }
     }
 
-    override fun view(model: TestModel): HTML<TestMessage>.() -> Unit = {
-        +"Country: "
+    override fun view(model: ButtonsModel): HTML<ButtonsMessage>.() -> Unit = {
+        +"Post ID: "
         input {
             autofocus = true
             value = model.postId.toString()
-            onBlur { CountryChanged(it.value.toInt()) }
+            onBlur { PostIdChanged(it.value.toInt()) }
         }
         div {
             if (handleMouseMove) {
@@ -89,7 +89,7 @@ class TestIUV(private val initialPostId: Int, postService: PostService) : IUV<Te
                             .forEach {
                                 td {
                                     map(buttonComponent, model.buttonModels[it]) { message: ButtonComponentMessage ->
-                                        TestButtonMessage(message, it)
+                                        ButtonsButtonMessage(message, it)
                                     }
                                 }
                             }

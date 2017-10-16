@@ -10,8 +10,8 @@ class ButtonComponentTest {
 
     @Test
     fun init() {
-        val countryService = MockedPostService()
-        val buttonComponent = ButtonComponent(countryService)
+        val service = MockedPostService()
+        val buttonComponent = ButtonComponent(service)
 
         val buttonModel = buttonComponent.init("hello", 1)
 
@@ -19,9 +19,9 @@ class ButtonComponentTest {
     }
 
     @Test
-    fun updateCountry() {
-        val countryService = MockedPostService()
-        val buttonComponent = ButtonComponent(countryService)
+    fun updatePostTitle() {
+        val service = MockedPostService()
+        val buttonComponent = ButtonComponent(service)
         val buttonModel = buttonComponent.init("hello", 1)
 
         val (updatedButtonModel, cmd) = buttonComponent.update(PostTitle("title"), buttonModel)
