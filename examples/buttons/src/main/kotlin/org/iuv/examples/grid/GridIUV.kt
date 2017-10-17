@@ -14,9 +14,9 @@ data class Result(val home: Int, val visitor: Int)
 
 data class Match(val home: String, val visitor: String, val result: Result)
 
-data class TestGridModel(val gridModel: GridModel<Match>)
+data class GridIUVModel(val gridModel: GridModel<Match>)
 
-class GridIUV : IUV<TestGridModel, GridIUVMessage> {
+class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
 
     companion object {
         val rows = listOf(
@@ -33,15 +33,15 @@ class GridIUV : IUV<TestGridModel, GridIUVMessage> {
 
     private val grid = Grid<Match>()
 
-    override fun init(): Pair<TestGridModel, Cmd<GridIUVMessage>?> {
-        return Pair(TestGridModel(grid.init(rows, columns)), null)
+    override fun init(): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
+        return Pair(GridIUVModel(grid.init(rows, columns)), null)
     }
 
-    override fun update(message: GridIUVMessage, model: TestGridModel): Pair<TestGridModel, Cmd<GridIUVMessage>?> {
+    override fun update(message: GridIUVMessage, model: GridIUVModel): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
         return Pair(model, null)
     }
 
-    override fun view(model: TestGridModel): HTML<GridIUVMessage>.() -> Unit = {
+    override fun view(model: GridIUVModel): HTML<GridIUVMessage>.() -> Unit = {
         map(grid, model.gridModel, ::GridMessageWrapper)
     }
 }
