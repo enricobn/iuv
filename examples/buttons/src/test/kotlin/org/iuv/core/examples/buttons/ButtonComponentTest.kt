@@ -1,5 +1,6 @@
 package org.iuv.core.examples.buttons
 
+import org.iuv.core.Cmd
 import org.iuv.core.GetAsync
 import org.iuv.core.MessageBus
 import kotlin.test.Test
@@ -32,8 +33,8 @@ class ButtonComponentTest {
 }
 
 class MockedPostService : PostService {
-    override fun <MESSAGE> getPost(id: Int, handler: (Post) -> MESSAGE): GetAsync<Post, MESSAGE> {
-        return object: GetAsync<Post, MESSAGE>("", handler) {
+    override fun <MESSAGE> getPost(id: Int, handler: (Post) -> MESSAGE): Cmd<MESSAGE> {
+        return object: Cmd<MESSAGE> {
             override fun run(messageBus: MessageBus<MESSAGE>) {
                 messageBus.send(handler.invoke(Post(1, 1, "Hello", "World")))
             }

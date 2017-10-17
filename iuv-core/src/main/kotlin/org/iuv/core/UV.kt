@@ -41,7 +41,7 @@ interface Cmd<out MESSAGE> {
 }
 
 
-open class GetAsync<in J, out MESSAGE>(private val url: String, private val handler: (J) -> MESSAGE) : Cmd<MESSAGE> {
+class GetAsync<in J, out MESSAGE>(private val url: String, private val handler: (J) -> MESSAGE) : Cmd<MESSAGE> {
 
     override fun run(messageBus: MessageBus<MESSAGE>) {
         val request = XMLHttpRequest()

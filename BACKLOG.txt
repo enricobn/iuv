@@ -3,12 +3,17 @@ Doing
 
 Next
 -----
-- I don't like that class GetAsync is open: make an interface or simply mock a Cmd?
 - snabbdom files in examples/buttons/web/js must be replaced with the ones from version 0.7.0.
 - Cmd.None
+- debugger (look at IUVApplication)
 
 Done
 ------
+- on branch multiple-projects
+  - I don't like that class GetAsync is open: make an interface or simply mock a Cmd?
+  - created a PostService for ButtonComponent
+  - tested init and simple update
+
 - on branch commands
   - handle commands
 
@@ -17,8 +22,3 @@ Done
 
 - on branch multiple-projects
  - initialize snabbdom in IUVApplication.init, to get rid of client code
-
- - test:
-   - created a PostService for ButtonComponent
-   - tested init and simple update
-
