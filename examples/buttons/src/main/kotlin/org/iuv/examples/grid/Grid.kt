@@ -1,4 +1,4 @@
-package org.iuv.core.examples.buttons
+package org.iuv.examples.grid
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML

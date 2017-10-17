@@ -1,13 +1,13 @@
-package org.iuv.core.examples.buttons
+package org.iuv.examples.grid
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.IUV
 
 // MESSAGES
-interface TestGridMessage
+interface GridIUVMessage
 
-class TestGridGridMessage(val gridMessage: GridMessage) : TestGridMessage
+class GridMessageWrapper(val gridMessage: GridMessage) : GridIUVMessage
 
 // MODEL
 data class Result(val home: Int, val visitor: Int)
@@ -16,7 +16,7 @@ data class Match(val home: String, val visitor: String, val result: Result)
 
 data class TestGridModel(val gridModel: GridModel<Match>)
 
-class TestGrid : IUV<TestGridModel, TestGridMessage> {
+class GridIUV : IUV<TestGridModel, GridIUVMessage> {
 
     companion object {
         val rows = listOf(
@@ -27,21 +27,21 @@ class TestGrid : IUV<TestGridModel, TestGridMessage> {
         val columns = listOf(
                 Column("Home", fn = Match::home),
                 Column("Visitor", fn = Match::visitor),
-                Column("Result", classes = {_ -> "Center"}) {row : Match -> "${row.result.home} - ${row.result.visitor}"}
+                Column("Result", classes = { _ -> "Center" }) { row: Match -> "${row.result.home} - ${row.result.visitor}" }
         )
     }
 
     private val grid = Grid<Match>()
 
-    override fun init(): Pair<TestGridModel, Cmd<TestGridMessage>?> {
+    override fun init(): Pair<TestGridModel, Cmd<GridIUVMessage>?> {
         return Pair(TestGridModel(grid.init(rows, columns)), null)
     }
 
-    override fun update(message: TestGridMessage, model: TestGridModel): Pair<TestGridModel, Cmd<TestGridMessage>?> {
+    override fun update(message: GridIUVMessage, model: TestGridModel): Pair<TestGridModel, Cmd<GridIUVMessage>?> {
         return Pair(model, null)
     }
 
-    override fun view(model: TestGridModel): HTML<TestGridMessage>.() -> Unit = {
-        map(grid, model.gridModel, ::TestGridGridMessage)
+    override fun view(model: TestGridModel): HTML<GridIUVMessage>.() -> Unit = {
+        map(grid, model.gridModel, ::GridMessageWrapper)
     }
 }
