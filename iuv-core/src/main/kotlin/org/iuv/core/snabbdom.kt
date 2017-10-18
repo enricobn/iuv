@@ -176,7 +176,13 @@ class TheadH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("thead", 
 
 class THH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("th", messageBus)
 
-class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messageBus)
+class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messageBus) {
+
+    fun onClick(handler: (Event) -> MESSAGE) {
+        addHandler("click", handler)
+    }
+
+}
 
 class TRH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("tr", messageBus)
 

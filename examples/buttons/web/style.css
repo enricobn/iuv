@@ -17,3 +17,7 @@
 .Center {
     text-align: center;
 }
+
+.SelectedRow {
+    background-color: YELLOW;
+}

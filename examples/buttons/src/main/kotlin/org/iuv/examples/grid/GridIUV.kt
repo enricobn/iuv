@@ -9,6 +9,8 @@ interface GridIUVMessage
 
 class GridMessageWrapper(val gridMessage: GridMessage) : GridIUVMessage
 
+class DetailMessageWrapper(val detailMessage: DetailMessage) : GridIUVMessage
+
 // MODEL
 data class Result(val home: Int, val visitor: Int)
 
@@ -32,16 +34,30 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
     }
 
     private val grid = Grid<Match>()
+    private val detail = Detail<Match>()
 
     override fun init(): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
-        return Pair(GridIUVModel(grid.init(rows, columns)), null)
+        val gridModel = grid.init(rows, columns)
+        return Pair(GridIUVModel(gridModel), null)
     }
 
     override fun update(message: GridIUVMessage, model: GridIUVModel): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
-        return Pair(model, null)
+        return when(message) {
+            is GridMessageWrapper -> {
+                val update = grid.update(message.gridMessage, model.gridModel)
+                Pair(model.copy(gridModel = update.first), null)
+            }
+            else -> {
+                Pair(model, null)
+            }
+        }
     }
 
     override fun view(model: GridIUVModel): HTML<GridIUVMessage>.() -> Unit = {
-        map(grid, model.gridModel, ::GridMessageWrapper)
+        div {
+            map(grid, model.gridModel, ::GridMessageWrapper)
+            map(detail, detail.init(model.gridModel.selectedRow, columns), ::DetailMessageWrapper)
+        }
+
     }
 }
