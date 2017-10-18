@@ -24,10 +24,10 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
                 Match("Roma", "Milan", Result(1, 1))
         )
 
-        val columns = listOf(
-                Column("Home", fn = Match::home),
-                Column("Visitor", fn = Match::visitor),
-                Column("Result", classes = { _ -> "Center" }) { row: Match -> "${row.result.home} - ${row.result.visitor}" }
+        val columns : List<Column<Match>> = listOf(
+                Column("Home") { it.home },
+                Column("Visitor") { it.visitor },
+                Column("Result", { _ -> "Center" }) { "${it.result.home} - ${it.result.visitor}" }
         )
     }
 
