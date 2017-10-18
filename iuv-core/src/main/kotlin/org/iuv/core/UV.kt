@@ -23,7 +23,7 @@ interface Cmd<out MESSAGE> {
             } else {
                 object : Cmd<MESSAGE> {
                     override fun run(messageBus: MessageBus<MESSAGE>) {
-                        notNull.forEach { cmd -> cmd?.run(messageBus) }
+                        notNull.forEach { it?.run(messageBus) }
                     }
                 }
             }
@@ -39,7 +39,6 @@ interface Cmd<out MESSAGE> {
         }
     }
 }
-
 
 class GetAsync<in J, out MESSAGE>(private val url: String, private val handler: (J) -> MESSAGE) : Cmd<MESSAGE> {
 

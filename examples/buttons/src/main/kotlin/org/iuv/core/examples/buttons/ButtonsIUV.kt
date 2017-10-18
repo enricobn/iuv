@@ -18,8 +18,12 @@ data class ButtonsMouseMove(val x: Int, val y: Int) : ButtonsMessage
 data class PostIdChanged(val postId: Int) : ButtonsMessage
 
 class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsModel, ButtonsMessage> {
-    private val height = 500
-    private val width = 10
+
+    companion object {
+        private val height = 500
+        private val width = 10
+    }
+
     private val handleMouseMove = false
     private val buttonComponent = ButtonComponent(postService)
 

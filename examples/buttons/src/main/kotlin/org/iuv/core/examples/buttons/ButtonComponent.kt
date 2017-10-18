@@ -6,7 +6,6 @@ import org.iuv.core.HTML
 import org.iuv.core.UV
 
 // MODEL
-
 data class ButtonModel(val postId: Int, val selectedButtonModel: SelectedButtonModel)
 
 // MESSAGES
@@ -15,9 +14,6 @@ interface ButtonComponentMessage
 data class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButtonMessage) : ButtonComponentMessage
 
 data class PostTitle(val title: String) : ButtonComponentMessage
-
-// SERVICE
-data class Post(val userId: Int, val id: Int, val title: String, val body: String)
 
 class ButtonComponent(private val postService: PostService) : UV<ButtonModel, ButtonComponentMessage> {
 
@@ -34,15 +30,12 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
 
                 val cmd =
                         if (model.selectedButtonModel.selected) {
-                            val postCmd = postService.getPost(model.postId)
-                                // Don't deconstruct the response parameter: it does not work, I don't know why!
-                                { response ->
-                                    PostTitle(response.title)
-                                }
+                            val postCmd = postService.getPost(model.postId) { PostTitle(it.title) }
                             cmdOf(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped
                         }
+
                 return Pair(model.copy(selectedButtonModel = updatedModel), cmd)
             }
             is PostTitle -> {
