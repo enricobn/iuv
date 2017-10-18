@@ -45,8 +45,8 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
     override fun update(message: GridIUVMessage, model: GridIUVModel): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
         return when(message) {
             is GridMessageWrapper -> {
-                val update = grid.update(message.gridMessage, model.gridModel)
-                Pair(model.copy(gridModel = update.first), update.second?.map(::GridMessageWrapper) )
+                val (updatedModel, updateCmd) = grid.update(message.gridMessage, model.gridModel)
+                Pair(model.copy(gridModel = updatedModel), updateCmd?.map(::GridMessageWrapper) )
             }
             else -> {
                 Pair(model, null)
@@ -60,7 +60,8 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
             childView(grid, model.gridModel, ::GridMessageWrapper)
         }
         div {
-            style = "float: none; "
+            style = "float: none;"
+            // TODO I don't like to make the init every time, better to have a detailModel in GridIUVModel then update it.
             childView(detail, detail.init(model.gridModel.selectedRow, columns), ::DetailMessageWrapper)
         }
     }
