@@ -1,4 +1,4 @@
-package org.iuv.core.examples.buttons
+package org.iuv.examples.buttons
 
 import org.iuv.core.*
 import org.iuv.core.Cmd.Companion.cmdOf
@@ -31,11 +31,11 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
 
     override fun init(): Pair<ButtonsModel, Cmd<ButtonsMessage>?> {
         val model = ButtonsModel(initialPostId,
-            (1..height)
-                .map { y ->
-                    (1..width).map { x -> buttonComponent.init("Button " + index(y, x), initialPostId) }
-                }
-                .flatten(), 0, 0)
+                (1..height)
+                        .map { y ->
+                            (1..width).map { x -> buttonComponent.init("Button " + index(y, x), initialPostId) }
+                        }
+                        .flatten(), 0, 0)
 
         return Pair(model, if (handleMouseMove) mouseMove() else null)
     }

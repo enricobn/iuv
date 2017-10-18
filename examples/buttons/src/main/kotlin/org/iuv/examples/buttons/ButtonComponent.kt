@@ -1,4 +1,4 @@
-package org.iuv.core.examples.buttons
+package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.Cmd.Companion.cmdOf

@@ -1,7 +1,8 @@
-package org.iuv.core.examples.buttons
+package org.iuv.examples.buttons
 
 import org.iuv.core.IUVApplication
-import org.iuv.core.snabbdom
+import org.iuv.examples.buttons.ButtonsIUV
+import org.iuv.examples.buttons.PostServiceImpl
 
 @JsName("ButtonsMain")
 class ButtonsMain {
