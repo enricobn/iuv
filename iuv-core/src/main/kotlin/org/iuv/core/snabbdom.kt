@@ -75,6 +75,10 @@ open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<ME
         element(InputH(messageBus), init)
     }
 
+    fun b(init: BH<MESSAGE>.() -> Unit) {
+        element(BH(messageBus), init)
+    }
+
     private fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         children.add(element.toH())
@@ -87,6 +91,11 @@ open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<ME
     var classes: String? = null
         set(value) {
             addAttr("class", value)
+        }
+
+    var style: String? = null
+        set(value) {
+            addAttr("style", value)
         }
 
     fun addAttr(name: String, attr: dynamic) {
@@ -111,24 +120,25 @@ open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<ME
         }
     }
 
-    fun <COMPONENT_MODEL,COMPONENT_MESSAGE> map(uv: UV<COMPONENT_MODEL, COMPONENT_MESSAGE>,
-                                                model: COMPONENT_MODEL,
-                                                mapFun: (COMPONENT_MESSAGE) -> MESSAGE) {
+    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: UV<CHILD_MODEL, CHILD_MESSAGE>,
+                                                model: CHILD_MODEL,
+                                                mapFun: (CHILD_MESSAGE) -> MESSAGE) {
 
-        val init: HTML<COMPONENT_MESSAGE>.() -> Unit = {
+        val init: HTML<CHILD_MESSAGE>.() -> Unit = {
             uv.view(model)(this)
         }
 
         map(mapFun, init)
     }
 
-    fun <CONTAINER_MESSAGE> map(mapFun: (CONTAINER_MESSAGE) -> MESSAGE, init: HTML<CONTAINER_MESSAGE>.() -> Unit) {
-        val destMessageBus = MessageBusImpl<CONTAINER_MESSAGE>({ messageBus.send(mapFun(it)) })
+    private fun <CHILD_MESSAGE> map(mapFun: (CHILD_MESSAGE) -> MESSAGE, init: HTML<CHILD_MESSAGE>.() -> Unit) {
+        val destMessageBus = MessageBusImpl<CHILD_MESSAGE>({ messageBus.send(mapFun(it)) })
         val result = HTML("div", destMessageBus)
 
         result.init()
 
-        /* I throw away the div and, with it, all it's attributes.
+        /* In this way I throw away the div and, with it, all it's attributes.
+         *
          * For example in the uv.view:
          * view(...) {
          *      classes = "AClass"
@@ -175,6 +185,8 @@ class TableH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("table", 
 class TheadH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("thead", messageBus)
 
 class THH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("th", messageBus)
+
+class BH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("b", messageBus)
 
 class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messageBus) {
 

@@ -3,6 +3,7 @@ package org.iuv.examples.grid
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.IUV
+import kotlin.reflect.KFunction1
 
 // MESSAGES
 interface GridIUVMessage
@@ -45,7 +46,7 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
         return when(message) {
             is GridMessageWrapper -> {
                 val update = grid.update(message.gridMessage, model.gridModel)
-                Pair(model.copy(gridModel = update.first), null)
+                Pair(model.copy(gridModel = update.first), update.second?.map(::GridMessageWrapper) )
             }
             else -> {
                 Pair(model, null)
@@ -55,9 +56,12 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
 
     override fun view(model: GridIUVModel): HTML<GridIUVMessage>.() -> Unit = {
         div {
-            map(grid, model.gridModel, ::GridMessageWrapper)
-            map(detail, detail.init(model.gridModel.selectedRow, columns), ::DetailMessageWrapper)
+            style = "float: left; margin-right: 10px;"
+            childView(grid, model.gridModel, ::GridMessageWrapper)
         }
-
+        div {
+            style = "float: none; "
+            childView(detail, detail.init(model.gridModel.selectedRow, columns), ::DetailMessageWrapper)
+        }
     }
 }

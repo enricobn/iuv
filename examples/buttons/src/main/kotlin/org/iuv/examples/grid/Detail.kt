@@ -22,10 +22,14 @@ class Detail<ROW> : UV<DetailModel<ROW>, DetailMessage> {
 
     override fun view(model: DetailModel<ROW>): HTML<DetailMessage>.() -> Unit = {
         table {
+            style = "border: solid; border-width: thin;"
+
             for (column in model.columns) {
                 tr {
                     td {
-                        +column.header
+                        b {
+                            +column.header
+                        }
                     }
                     td {
                         if (model.row == null) {
