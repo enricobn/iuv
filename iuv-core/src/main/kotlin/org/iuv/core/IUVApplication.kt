@@ -35,7 +35,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     fun run() {
         view = document.createElement("div")
         document.body!!.appendChild(view!!)
-        updateDocument(messageBus, true)
+        updateDocument(true)
         window.setInterval(this::onTimer, delay)
     }
 
@@ -51,14 +51,14 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     }
 
     private fun onTimer() {
-        updateDocument(messageBus, false)
+        updateDocument(false)
     }
 
-    private fun updateDocument(messageBus: MessageBus<MESSAGE>, first: Boolean) {
+    private fun updateDocument(first: Boolean) {
         if (lastViewedModel != null && lastViewedModel!! == model) {
             return
         }
-        val newView = html("div", messageBus) {
+        val newView = HTML.html("div", messageBus) {
             iuv.view(model)(this)
 
             lastViewedModel = model

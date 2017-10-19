@@ -13,7 +13,6 @@ buildscript {
 }
 
 apply plugin: 'kotlin2js'
-apply plugin: 'maven'
 
 repositories {
     mavenLocal()

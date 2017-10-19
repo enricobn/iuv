@@ -34,10 +34,18 @@ fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
 annotation class HtmlTagMarker
 
 @HtmlTagMarker
-open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<MESSAGE>) {
+open class HTML<MESSAGE>(private val name: String, private val messageBus: MessageBus<MESSAGE>) {
     private var data : dynamic = object {}
     private val children = mutableListOf<dynamic>()
     private var text : String? = null
+
+    companion object {
+        fun <MESSAGE> html(name: String, messageBus: MessageBus<MESSAGE>, init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
+            val element = HTML(name, messageBus)
+            init.invoke(element)
+            return element
+        }
+    }
 
     fun div(init: DivH<MESSAGE>.() -> Unit) {
         element(DivH(messageBus), init)
@@ -168,12 +176,6 @@ open class HTML<MESSAGE>(val name: String, private val messageBus: MessageBus<ME
         // children.add(result.toH())
     }
 
-}
-
-fun <MESSAGE> html(name: String, messageBus: MessageBus<MESSAGE>, init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
-    val element = HTML(name, messageBus)
-    init.invoke(element)
-    return element
 }
 
 class SpanH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("span", messageBus)
