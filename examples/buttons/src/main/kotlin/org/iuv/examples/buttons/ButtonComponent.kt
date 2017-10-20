@@ -46,8 +46,10 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
         }
     }
 
-    override fun view(model: ButtonModel): HTML<ButtonComponentMessage>.() -> Unit = {
-        childView(SelectedButton, model.selectedButtonModel, ::SelectedButtonMessageWrapper)
+    override fun view(model: ButtonModel): HTML<ButtonComponentMessage> {
+        return html {
+            SelectedButton.view(model.selectedButtonModel).map(this, ::SelectedButtonMessageWrapper)
+        }
     }
 
 }

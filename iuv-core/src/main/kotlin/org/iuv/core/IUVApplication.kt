@@ -58,27 +58,32 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         if (lastViewedModel != null && lastViewedModel!! == model) {
             return
         }
-        val newView = HTML.html("div", messageBus) {
-            iuv.view(model)(this)
+        val newView = iuv.view(model)
+        newView.nullableMessageBus = messageBus
 
-            lastViewedModel = model
+        lastViewedModel = model
 
-            if (debug) {
-                div {
-                    classes = "IUVDebugger"
-                    for ((message, model) in history.takeLast(10)) {
-                        button {
-                            classes = "IUVDebuggerButton"
-                            +(message.toString())
-//                            onClick {
-//                                self.model = model
-//                                updateDocument(self.messageBus, false)
-//                            }
-                        }
-                    }
-                }
-            }
-        }
+//        HTML.html("div", messageBus) {
+//            iuv.view(model)(this)
+//
+//            lastViewedModel = model
+//
+//            if (debug) {
+//                div {
+//                    classes = "IUVDebugger"
+//                    for ((message, model) in history.takeLast(10)) {
+//                        button {
+//                            classes = "IUVDebuggerButton"
+//                            +(message.toString())
+////                            onClick {
+////                                self.model = model
+////                                updateDocument(self.messageBus, false)
+////                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
 
         val newH = newView.toH()
 

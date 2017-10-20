@@ -26,14 +26,16 @@ object SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
         return Pair(SelectedButtonModel(model.text, !model.selected), null)
     }
 
-    override fun view(model: SelectedButtonModel): HTML<SelectedButtonMessage>.() -> Unit = {
-        button {
-            +model.text
+    override fun view(model: SelectedButtonModel): HTML<SelectedButtonMessage> {
+        return html {
+            button {
+                +model.text
 
-            onClick { _ -> SelectedButtonClick() }
+                onClick { _ -> SelectedButtonClick() }
 
-            if (model.selected) {
-                classes = "ButtonComponentSelected"
+                if (model.selected) {
+                    classes = "ButtonComponentSelected"
+                }
             }
         }
     }

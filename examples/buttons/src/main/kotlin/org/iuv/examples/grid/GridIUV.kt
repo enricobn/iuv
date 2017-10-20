@@ -54,15 +54,17 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
         }
     }
 
-    override fun view(model: GridIUVModel): HTML<GridIUVMessage>.() -> Unit = {
-        div {
-            style = "float: left; margin-right: 10px;"
-            childView(grid, model.gridModel, ::GridMessageWrapper)
-        }
-        div {
-            style = "float: none;"
-            // TODO I don't like to make the init every time, better to have a detailModel in GridIUVModel then update it.
-            childView(detail, detail.init(model.gridModel.selectedRow, columns), ::DetailMessageWrapper)
+    override fun view(model: GridIUVModel): HTML<GridIUVMessage> {
+        return html {
+            div {
+                style = "float: left; margin-right: 10px;"
+                grid.view(model.gridModel).map(this, ::GridMessageWrapper)
+            }
+            div {
+                style = "float: none;"
+                // TODO I don't like to make the init every time, better to have a detailModel in GridIUVModel then update it.
+                detail.view(detail.init(model.gridModel.selectedRow, columns)).map(this, ::DetailMessageWrapper)
+            }
         }
     }
 }

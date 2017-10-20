@@ -72,31 +72,33 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         }
     }
 
-    override fun view(model: ButtonsModel): HTML<ButtonsMessage>.() -> Unit = {
-        +"Post ID: "
-        input {
-            autofocus = true
-            value = model.postId.toString()
-            onBlur { PostIdChanged(it.value.toInt()) }
-        }
-        div {
-            if (handleMouseMove) {
-                button {
-                    +("${model.x},${model.y}")
-                }
+    override fun view(model: ButtonsModel): HTML<ButtonsMessage> {
+        return html {
+            +"Post ID: "
+            input {
+                autofocus = true
+                value = model.postId.toString()
+                onBlur { PostIdChanged(it.value.toInt()) }
             }
-            table {
-                for (y in 1..height) {
-                    tr {
-                        (1..width)
-                            .map { index(y, it) }
-                            .forEach {
-                                td {
-                                    childView(buttonComponent, model.buttonModels[it]) { message: ButtonComponentMessage ->
-                                        ButtonsButtonMessage(message, it)
+            div {
+                if (handleMouseMove) {
+                    button {
+                        +("${model.x},${model.y}")
+                    }
+                }
+                table {
+                    for (y in 1..height) {
+                        tr {
+                            (1..width)
+                                .map { index(y, it) }
+                                .forEach {
+                                    td {
+                                        buttonComponent.view(model.buttonModels[it]).map(this) { message: ButtonComponentMessage ->
+                                            ButtonsButtonMessage(message, it)
+                                        }
                                     }
                                 }
-                            }
+                        }
                     }
                 }
             }

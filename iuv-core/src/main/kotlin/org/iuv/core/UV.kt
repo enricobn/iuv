@@ -60,6 +60,12 @@ interface UV<MODEL, MESSAGE> {
 
     fun update(message: MESSAGE, model: MODEL) : Pair<MODEL, Cmd<MESSAGE>?>
 
-    fun view(model: MODEL): HTML<MESSAGE>.() -> Unit
+    fun view(model: MODEL): HTML<MESSAGE>
+
+    fun html(init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
+        val html = HTML<MESSAGE>("div")
+        init(html)
+        return html
+    }
 
 }

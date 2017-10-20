@@ -34,16 +34,14 @@ fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
 annotation class HtmlTagMarker
 
 @HtmlTagMarker
-open class HTML<MESSAGE>(private val name: String, private val messageBus: MessageBus<MESSAGE>) {
+open class HTML<MESSAGE>(private val name: String) {
     private var data : dynamic = object {}
     private val children = mutableListOf<dynamic>()
     private var text : String? = null
-
-    companion object {
-        fun <MESSAGE> html(name: String, messageBus: MessageBus<MESSAGE>, init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
-            val element = HTML(name, messageBus)
-            init.invoke(element)
-            return element
+    var nullableMessageBus : MessageBus<MESSAGE>? = null
+    private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
+        override fun send(message: MESSAGE) {
+            nullableMessageBus!!.send(message)
         }
     }
 
@@ -92,6 +90,19 @@ open class HTML<MESSAGE>(private val name: String, private val messageBus: Messa
         children.add(element.toH())
     }
 
+//    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
+//        val newMessageBus = MessageBusImpl<CHILD_MESSAGE> {message -> messageBus.send(mapFun.invoke(message))}
+//        html.nullableMessageBus = newMessageBus
+//        children.add(html.toH())
+//    }
+
+    fun <PARENT_MESSAGE> map(parent: HTML<PARENT_MESSAGE>, mapFun: (MESSAGE) -> PARENT_MESSAGE) {
+        val newMessageBus = MessageBusImpl<MESSAGE> {message -> parent.messageBus.send(mapFun.invoke(message))}
+        nullableMessageBus = newMessageBus
+
+        parent.children.addAll(children)
+    }
+
     operator fun String.unaryPlus() {
         children.add(this)
     }
@@ -128,69 +139,98 @@ open class HTML<MESSAGE>(private val name: String, private val messageBus: Messa
         }
     }
 
-    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: UV<CHILD_MODEL, CHILD_MESSAGE>,
-                                                model: CHILD_MODEL,
-                                                mapFun: (CHILD_MESSAGE) -> MESSAGE) {
-
-        val init: HTML<CHILD_MESSAGE>.() -> Unit = {
-            uv.view(model)(this)
-        }
-
-        map(mapFun, init)
-    }
-
-    private fun <CHILD_MESSAGE> map(mapFun: (CHILD_MESSAGE) -> MESSAGE, init: HTML<CHILD_MESSAGE>.() -> Unit) {
-        val destMessageBus = MessageBusImpl<CHILD_MESSAGE>({ messageBus.send(mapFun(it)) })
-        val result = HTML("div", destMessageBus)
-
-        result.init()
-
-        /* In this way I throw away the div and, with it, all it's attributes.
-         *
-         * For example in the uv.view:
-         * view(...) {
-         *      classes = "AClass"
-         *      button {
-         *          ...
-         *      }
-         * }
-         *
-         * I throw away even the classes.
-         * I think it's not bad, since I'm changing the container's attributes, and if it's what I want,
-         * I can wrap all in a div:
-         *
-         * view(...) {
-         *      div {
-         *          classes = "AClass"
-         *          button {
-         *              ...
-         *          }
-         *      }
-         * }
-         *
-         * but it's different from what happens in the top level UV (IUV).
-         */
-        children.addAll(result.children)
-
-        // I don't throw away the div!
-        // children.add(result.toH())
-    }
+//    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: UV<CHILD_MODEL, CHILD_MESSAGE>,
+//                                                model: CHILD_MODEL,
+//                                                mapFun: (CHILD_MESSAGE) -> MESSAGE) {
+//
+//        val init: HTML<CHILD_MESSAGE>.() -> Unit = {
+//            uv.view(model)(this)
+//        }
+//
+//        map(mapFun, init)
+//    }
+//
+//    private fun <CHILD_MESSAGE> map(mapFun: (CHILD_MESSAGE) -> MESSAGE, init: HTML<CHILD_MESSAGE>.() -> Unit) {
+//        val destMessageBus = MessageBusImpl<CHILD_MESSAGE>({ messageBus.send(mapFun(it)) })
+//        val result = HTML<CHILD_MESSAGE>("div")
+//        result.nullableMessageBus = destMessageBus
+//
+//        result.init()
+//
+//        /* In this way I throw away the div and, with it, all it's attributes.
+//         *
+//         * For example in the uv.view:
+//         * view(...) {
+//         *      classes = "AClass"
+//         *      button {
+//         *          ...
+//         *      }
+//         * }
+//         *
+//         * I throw away even the classes.
+//         * I think it's not bad, since I'm changing the container's attributes, and if it's what I want,
+//         * I can wrap all in a div:
+//         *
+//         * view(...) {
+//         *      div {
+//         *          classes = "AClass"
+//         *          button {
+//         *              ...
+//         *          }
+//         *      }
+//         * }
+//         *
+//         * but it's different from what happens in the top level UV (IUV).
+//         */
+//        children.addAll(result.children)
+//
+//        // I don't throw away the div!
+//        // children.add(result.toH())
+//    }
 
 }
 
-class SpanH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("span", messageBus)
+class SpanH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("span") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
-class DivH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("div", messageBus)
+class DivH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("div") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
-class TableH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("table", messageBus)
+class TableH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("table") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
-class TheadH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("thead", messageBus)
+class TheadH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("thead") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
-class THH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("th", messageBus)
+class THH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("th") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
-class BH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("b", messageBus)
+class BH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("b") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
-class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messageBus) {
+class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td") {
+
+    init {
+        nullableMessageBus = messageBus
+    }
 
     fun onClick(handler: (Event) -> MESSAGE) {
         addHandler("click", handler)
@@ -198,11 +238,20 @@ class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td", messag
 
 }
 
-class TRH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("tr", messageBus)
+class TRH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("tr") {
+    init {
+        nullableMessageBus = messageBus
+    }
+}
 
 data class InputEvent(val value: String)
 
-class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input", messageBus) {
+class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input") {
+
+    init {
+        nullableMessageBus = messageBus
+    }
+
     var value: String = ""
         set(value) {
             addAttr("value", value)
@@ -229,7 +278,11 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input", 
 
 }
 
-class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button", messageBus) {
+class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button") {
+
+    init {
+        nullableMessageBus = messageBus
+    }
 
     fun onClick(handler: (Event) -> MESSAGE) {
         addHandler("click", handler)

@@ -20,22 +20,24 @@ class Detail<ROW> : UV<DetailModel<ROW>, DetailMessage> {
         return Pair(model, null)
     }
 
-    override fun view(model: DetailModel<ROW>): HTML<DetailMessage>.() -> Unit = {
-        table {
-            style = "border: solid; border-width: thin;"
+    override fun view(model: DetailModel<ROW>): HTML<DetailMessage> {
+        return html {
+            table {
+                style = "border: solid; border-width: thin;"
 
-            for (column in model.columns) {
-                tr {
-                    td {
-                        b {
-                            +column.header
+                for (column in model.columns) {
+                    tr {
+                        td {
+                            b {
+                                +column.header
+                            }
                         }
-                    }
-                    td {
-                        if (model.row == null) {
-                            +" "
-                        } else {
-                            +column.fn(model.row)
+                        td {
+                            if (model.row == null) {
+                                +" "
+                            } else {
+                                +column.fn(model.row)
+                            }
                         }
                     }
                 }

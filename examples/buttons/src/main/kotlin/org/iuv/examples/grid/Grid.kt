@@ -31,32 +31,34 @@ class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
         }
     }
 
-    override fun view(model: GridModel<ROW>): HTML<GridMessage>.() -> Unit = {
-        table {
-            thead {
-                for ((header) in model.columns) {
-                    th {
-                        +header
+    override fun view(model: GridModel<ROW>): HTML<GridMessage> {
+        return html {
+            table {
+                thead {
+                    for ((header) in model.columns) {
+                        th {
+                            +header
+                        }
                     }
                 }
-            }
 
-            for (row in model.rows) {
-                tr {
-                    if (row == model.selectedRow) {
-                        classes = "SelectedRow"
-                    }
+                for (row in model.rows) {
+                    tr {
+                        if (row == model.selectedRow) {
+                            classes = "SelectedRow"
+                        }
 
-                    for (column in model.columns) {
-                        td {
-                            onClick {_ -> GridOnRowClick(row) }
+                        for (column in model.columns) {
+                            td {
+                                onClick { _ -> GridOnRowClick(row) }
 
-                            val cl = column.classes?.invoke(row)
-                            if (cl != null) {
-                                classes = cl
+                                val cl = column.classes?.invoke(row)
+                                if (cl != null) {
+                                    classes = cl
+                                }
+
+                                +column.fn(row)
                             }
-
-                            +column.fn(row)
                         }
                     }
                 }
