@@ -11,8 +11,10 @@ import org.iuv.examples.grid.GridIUV
 import org.iuv.examples.grid.GridIUVMessage
 import org.iuv.examples.grid.GridIUVModel
 
-data class ExamplesModel(val buttonsModel: ButtonsModel, val gridModel: GridIUVModel)
+// Model
+data class ExamplesModel(val buttonsModel: ButtonsModel, val gridModel: GridIUVModel, val currentIUV : IUV<*,*>?)
 
+// Messages
 interface ExamplesMessage
 
 data class ButtonsIUVMessageWrapper(val buttonsIUVMessage: ButtonsIUVMessage) : ExamplesMessage
@@ -31,23 +33,57 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         val (buttonsModel, buttonsCmd) = buttonsIUV.init()
         val (gridModel, gridCmd) = gridIUV.init()
 
-        return Pair(ExamplesModel(buttonsModel, gridModel),
+        return Pair(ExamplesModel(buttonsModel, gridModel, null),
                 Cmd.cmdOf(
                         buttonsCmd.map(::ButtonsIUVMessageWrapper),
                         gridCmd.map(::GridIUVMessageWrapper)))
     }
 
-    override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
-        return Pair(model, Cmd.none())
-    }
+    override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
+        when (message) {
+            is LinkToButtons -> {
+                Pair(model.copy(currentIUV = buttonsIUV), Cmd.none())
+            }
+            is LinkToGrid -> {
+                Pair(model.copy(currentIUV = gridIUV), Cmd.none())
+            }
+            is ButtonsIUVMessageWrapper -> {
+                val (childModel,childCmd) = buttonsIUV.update(message.buttonsIUVMessage, model.buttonsModel)
+                Pair(model.copy(buttonsModel = childModel), childCmd.map(::ButtonsIUVMessageWrapper))
+            }
+            is GridIUVMessageWrapper -> {
+                val (childModel,childCmd) = gridIUV.update(message.gridIUVMessage, model.gridModel)
+                Pair(model.copy(gridModel = childModel), childCmd.map(::GridIUVMessageWrapper))
+            }
+            else -> {
+                Pair(model, Cmd.none())
+            }
+        }
 
     override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
         html {
-            div {
-                button { +"Buttons" }
-            }
-            div {
-                button { +"Grid" }
+            if (model.currentIUV == null) {
+                div {
+                    button {
+                        +"Buttons"
+                        onClick { _ -> LinkToButtons }
+                    }
+                }
+                div {
+                    button {
+                        +"Grid"
+                        onClick { _ -> LinkToGrid }
+                    }
+                }
+            } else {
+                when (model.currentIUV) {
+                    is ButtonsIUV -> {
+                        model.currentIUV.view(model.buttonsModel).map(this, ::ButtonsIUVMessageWrapper)
+                    }
+                    is GridIUV -> {
+                        model.currentIUV.view(model.gridModel).map(this, ::GridIUVMessageWrapper)
+                    }
+                }
             }
         }
 }
