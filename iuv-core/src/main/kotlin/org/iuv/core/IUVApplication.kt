@@ -29,7 +29,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         val init = iuv.init()
         model = init.first
         subscription = null
-        init.second?.run(messageBus)
+        init.second.run(messageBus)
     }
 
     fun run() {
@@ -45,9 +45,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         if (debug) {
             history.add(Pair(message, model))
         }
-        if (update.second != null) {
-            update.second!!.run(messageBus)
-        }
+        update.second.run(messageBus)
     }
 
     private fun onTimer() {

@@ -9,15 +9,15 @@ import kotlin.browser.document
 data class ButtonsModel(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
 
 // MESSAGES
-interface ButtonsMessage
+interface ButtonsIUVMessage
 
-data class ButtonsButtonMessage(val message: ButtonComponentMessage, val index: Int) : ButtonsMessage
+data class ButtonsButtonMessage(val message: ButtonComponentMessage, val index: Int) : ButtonsIUVMessage
 
-data class ButtonsMouseMove(val x: Int, val y: Int) : ButtonsMessage
+data class ButtonsMouseMove(val x: Int, val y: Int) : ButtonsIUVMessage
 
-data class PostIdChanged(val postId: Int) : ButtonsMessage
+data class PostIdChanged(val postId: Int) : ButtonsIUVMessage
 
-class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsModel, ButtonsMessage> {
+class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsModel, ButtonsIUVMessage> {
 
     companion object {
         private val height = 500
@@ -29,7 +29,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
 
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
-    override fun init(): Pair<ButtonsModel, Cmd<ButtonsMessage>?> {
+    override fun init(): Pair<ButtonsModel, Cmd<ButtonsIUVMessage>> {
         val model = ButtonsModel(initialPostId,
                 (1..height)
                         .map { y ->
@@ -37,10 +37,10 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
                         }
                         .flatten(), 0, 0)
 
-        return Pair(model, if (handleMouseMove) mouseMove() else null)
+        return Pair(model, if (handleMouseMove) mouseMove() else Cmd.none())
     }
 
-    private fun mouseMove(): Cmd<ButtonsMessage> {
+    private fun mouseMove(): Cmd<ButtonsIUVMessage> {
         return cmdOf { messageBus ->
             document.onmousemove = { event ->
                 if (event is MouseEvent) {
@@ -50,29 +50,29 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         }
     }
 
-    override fun update(message: ButtonsMessage, model: ButtonsModel): Pair<ButtonsModel, Cmd<ButtonsMessage>?> {
+    override fun update(message: ButtonsIUVMessage, model: ButtonsModel): Pair<ButtonsModel, Cmd<ButtonsIUVMessage>> {
         when (message) {
             is ButtonsButtonMessage -> {
                 val (updateModel, updateCmd) = buttonComponent
                         .update(message.message, model.buttonModels[message.index])
 
-                val updateCmdMapped = updateCmd?.map { ButtonsButtonMessage(it, message.index) }
+                val updateCmdMapped = updateCmd.map { ButtonsButtonMessage(it, message.index) }
 
                 val newButtonModels = model.buttonModels.toMutableList()
                 newButtonModels[message.index] = updateModel
 
                 return Pair(model.copy(buttonModels = newButtonModels), updateCmdMapped)
             }
-            is ButtonsMouseMove -> return Pair(model.copy(x = message.x, y = message.y), null)
+            is ButtonsMouseMove -> return Pair(model.copy(x = message.x, y = message.y), Cmd.none())
             is PostIdChanged -> {
                 val newButtonModels = model.buttonModels.map { it.copy(postId = message.postId) }
-                return Pair(model.copy(postId = message.postId, buttonModels = newButtonModels), null)
+                return Pair(model.copy(postId = message.postId, buttonModels = newButtonModels), Cmd.none())
             }
-            else -> return Pair(model, null)
+            else -> return Pair(model, Cmd.none())
         }
     }
 
-    override fun view(model: ButtonsModel): HTML<ButtonsMessage> {
+    override fun view(model: ButtonsModel): HTML<ButtonsIUVMessage> {
         return html {
             +"Post ID: "
             input {

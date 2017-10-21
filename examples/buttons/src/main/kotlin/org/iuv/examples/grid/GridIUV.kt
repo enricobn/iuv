@@ -37,19 +37,19 @@ class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
     private val grid = Grid<Match>()
     private val detail = Detail<Match>()
 
-    override fun init(): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
+    override fun init(): Pair<GridIUVModel, Cmd<GridIUVMessage>> {
         val gridModel = grid.init(rows, columns)
-        return Pair(GridIUVModel(gridModel), null)
+        return Pair(GridIUVModel(gridModel), Cmd.none())
     }
 
-    override fun update(message: GridIUVMessage, model: GridIUVModel): Pair<GridIUVModel, Cmd<GridIUVMessage>?> {
+    override fun update(message: GridIUVMessage, model: GridIUVModel): Pair<GridIUVModel, Cmd<GridIUVMessage>> {
         return when(message) {
             is GridMessageWrapper -> {
                 val (updatedModel, updateCmd) = grid.update(message.gridMessage, model.gridModel)
-                Pair(model.copy(gridModel = updatedModel), updateCmd?.map(::GridMessageWrapper) )
+                Pair(model.copy(gridModel = updatedModel), updateCmd.map(::GridMessageWrapper) )
             }
             else -> {
-                Pair(model, null)
+                Pair(model, Cmd.none())
             }
         }
     }

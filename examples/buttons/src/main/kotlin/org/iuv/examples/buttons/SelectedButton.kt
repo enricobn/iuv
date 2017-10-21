@@ -22,8 +22,8 @@ object SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
         return SelectedButtonModel(text, false)
     }
 
-    override fun update(message: SelectedButtonMessage, model: SelectedButtonModel): Pair<SelectedButtonModel, Cmd<SelectedButtonMessage>?> {
-        return Pair(SelectedButtonModel(model.text, !model.selected), null)
+    override fun update(message: SelectedButtonMessage, model: SelectedButtonModel): Pair<SelectedButtonModel, Cmd<SelectedButtonMessage>> {
+        return Pair(SelectedButtonModel(model.text, !model.selected), Cmd.none())
     }
 
     override fun view(model: SelectedButtonModel): HTML<SelectedButtonMessage> {

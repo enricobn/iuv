@@ -3,6 +3,15 @@ package org.iuv.core
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.xhr.XMLHttpRequest
 
+private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
+    override fun run(messageBus: MessageBus<MESSAGE>) {
+    }
+
+    override fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE): Cmd<CONTAINER_MESSAGE> {
+        return Cmd.none()
+    }
+}
+
 interface Cmd<out MESSAGE> {
 
     companion object {
@@ -15,19 +24,18 @@ interface Cmd<out MESSAGE> {
             }
         }
 
-        fun <MESSAGE> cmdOf(vararg cmds: Cmd<MESSAGE>?) : Cmd<MESSAGE>? {
-            val notNull = cmds.filter { cmd -> cmd != null }
+        fun <MESSAGE> cmdOf(vararg cmds: Cmd<MESSAGE>) : Cmd<MESSAGE> {
+            val notNone = cmds.filter { cmd -> !(cmd is CmdNone) }
 
-            return if (notNull.isEmpty()) {
-                null
-            } else {
-                object : Cmd<MESSAGE> {
-                    override fun run(messageBus: MessageBus<MESSAGE>) {
-                        notNull.forEach { it?.run(messageBus) }
-                    }
+            return object : Cmd<MESSAGE> {
+                override fun run(messageBus: MessageBus<MESSAGE>) {
+                    notNone.forEach { it.run(messageBus) }
                 }
             }
         }
+
+        fun <MESSAGE> none() : Cmd<MESSAGE> = CmdNone()
+
     }
 
     fun run(messageBus: MessageBus<MESSAGE>)
@@ -58,7 +66,7 @@ class GetAsync<in J, out MESSAGE>(private val url: String, private val handler: 
 
 interface UV<MODEL, MESSAGE> {
 
-    fun update(message: MESSAGE, model: MODEL) : Pair<MODEL, Cmd<MESSAGE>?>
+    fun update(message: MESSAGE, model: MODEL) : Pair<MODEL, Cmd<MESSAGE>>
 
     fun view(model: MODEL): HTML<MESSAGE>
 

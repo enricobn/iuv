@@ -20,13 +20,13 @@ class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
         return GridModel(rows, columns, null)
     }
 
-    override fun update(message: GridMessage, model: GridModel<ROW>): Pair<GridModel<ROW>, Cmd<GridMessage>?> {
+    override fun update(message: GridMessage, model: GridModel<ROW>): Pair<GridModel<ROW>, Cmd<GridMessage>> {
         when(message) {
             is GridOnRowClick<*> -> {
-                return Pair(model.copy(selectedRow = message.row as ROW), null)
+                return Pair(model.copy(selectedRow = message.row as ROW), Cmd.none())
             }
             else -> {
-                return Pair(model, null)
+                return Pair(model, Cmd.none())
             }
         }
     }

@@ -16,8 +16,8 @@ class Detail<ROW> : UV<DetailModel<ROW>, DetailMessage> {
         return DetailModel(row, columns)
     }
 
-    override fun update(message: DetailMessage, model: DetailModel<ROW>): Pair<DetailModel<ROW>, Cmd<DetailMessage>?> {
-        return Pair(model, null)
+    override fun update(message: DetailMessage, model: DetailModel<ROW>): Pair<DetailModel<ROW>, Cmd<DetailMessage>> {
+        return Pair(model, Cmd.none())
     }
 
     override fun view(model: DetailModel<ROW>): HTML<DetailMessage> {

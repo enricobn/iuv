@@ -21,12 +21,12 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
         return ButtonModel(postId, SelectedButton.init(text))
     }
 
-    override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>?> {
+    override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>> {
         when (message) {
             is SelectedButtonMessageWrapper -> {
                 val (updatedModel, updateCmd) = SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
 
-                val updateCmdMapped = updateCmd?.map(::SelectedButtonMessageWrapper)
+                val updateCmdMapped = updateCmd.map(::SelectedButtonMessageWrapper)
 
                 val cmd =
                         if (model.selectedButtonModel.selected) {
@@ -40,9 +40,9 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
             }
             is PostTitle -> {
                 val text = model.selectedButtonModel.text + " " + message.title
-                return Pair(model.copy(selectedButtonModel = model.selectedButtonModel.copy(text = text)), null)
+                return Pair(model.copy(selectedButtonModel = model.selectedButtonModel.copy(text = text)), Cmd.none())
             }
-            else -> return Pair(model, null)
+            else -> return Pair(model, Cmd.none())
         }
     }
 
