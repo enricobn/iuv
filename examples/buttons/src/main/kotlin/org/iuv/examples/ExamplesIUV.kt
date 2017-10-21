@@ -21,30 +21,33 @@ data class ButtonsIUVMessageWrapper(val buttonsIUVMessage: ButtonsIUVMessage) : 
 
 data class GridIUVMessageWrapper(val gridIUVMessage: GridIUVMessage) : ExamplesMessage
 
-object LinkToButtons : ExamplesMessage
+object GoToButtons : ExamplesMessage
 
-object LinkToGrid : ExamplesMessage
+object GoToGrid : ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
     private val buttonsIUV = ButtonsIUV(1, PostServiceImpl())
     private val gridIUV = GridIUV()
 
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
+        // TODO I don't like to initialize the child IUV here, I don't want child commands to be fired here!
         val (buttonsModel, buttonsCmd) = buttonsIUV.init()
         val (gridModel, gridCmd) = gridIUV.init()
 
         return Pair(ExamplesModel(buttonsModel, gridModel, null),
-                Cmd.cmdOf(
-                        buttonsCmd.map(::ButtonsIUVMessageWrapper),
-                        gridCmd.map(::GridIUVMessageWrapper)))
+            Cmd.cmdOf(
+                    buttonsCmd.map(::ButtonsIUVMessageWrapper),
+                    gridCmd.map(::GridIUVMessageWrapper)
+            )
+        )
     }
 
     override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
         when (message) {
-            is LinkToButtons -> {
+            is GoToButtons -> {
                 Pair(model.copy(currentIUV = buttonsIUV), Cmd.none())
             }
-            is LinkToGrid -> {
+            is GoToGrid -> {
                 Pair(model.copy(currentIUV = gridIUV), Cmd.none())
             }
             is ButtonsIUVMessageWrapper -> {
@@ -66,21 +69,23 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 div {
                     button {
                         +"Buttons"
-                        onClick { _ -> LinkToButtons }
+                        onClick { _ -> GoToButtons }
                     }
                 }
                 div {
                     button {
                         +"Grid"
-                        onClick { _ -> LinkToGrid }
+                        onClick { _ -> GoToGrid }
                     }
                 }
             } else {
                 when (model.currentIUV) {
                     is ButtonsIUV -> {
+                        // TODO if i forget to do the map I see nothing, the resulting html is not added to the parent!
                         model.currentIUV.view(model.buttonsModel).map(this, ::ButtonsIUVMessageWrapper)
                     }
                     is GridIUV -> {
+                        // TODO if i forget to do the map I see nothing, the resulting html is not added to the parent!
                         model.currentIUV.view(model.gridModel).map(this, ::GridIUVMessageWrapper)
                     }
                 }
