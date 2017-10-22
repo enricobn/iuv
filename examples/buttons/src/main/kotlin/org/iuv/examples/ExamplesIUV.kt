@@ -66,18 +66,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
     override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
         html {
             if (model.currentIUV == null) {
-                div {
-                    button {
-                        +"Buttons"
-                        onClick { _ -> GoToButtons }
-                    }
-                }
-                div {
-                    button {
-                        +"Grid"
-                        onClick { _ -> GoToGrid }
-                    }
-                }
+                doMenu()
             } else {
                 when (model.currentIUV) {
                     is ButtonsIUV -> {
@@ -91,4 +80,19 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 }
             }
         }
+
+    private fun HTML<ExamplesMessage>.doMenu() {
+        div {
+            button {
+                +"Buttons"
+                onClick { _ -> GoToButtons }
+            }
+        }
+        div {
+            button {
+                +"Grid"
+                onClick { _ -> GoToGrid }
+            }
+        }
+    }
 }
