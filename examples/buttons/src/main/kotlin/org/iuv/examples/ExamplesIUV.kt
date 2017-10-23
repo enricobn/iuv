@@ -22,23 +22,22 @@ data class ButtonsIUVMessageWrapper(val buttonsIUVMessage: ButtonsIUVMessage) : 
 
 data class GridIUVMessageWrapper(val gridIUVMessage: GridIUVMessage) : ExamplesMessage
 
-object GoToButtons : ExamplesMessage
-
-object GoToGrid : ExamplesMessage
+data class GoTo(val page: String) : ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
-    private val buttonsIUV = ChildIUV<ExamplesModel,ExamplesMessage, ButtonsIUVModel,ButtonsIUVMessage>(
-            ButtonsIUV(1, PostServiceImpl()),
-            ::ButtonsIUVMessageWrapper,
-            { it.buttonsModel!! },
-            { parentModel,childModel -> parentModel.copy(buttonsModel = childModel) }
+    private val buttonsIUV = ChildIUV<ExamplesModel, ExamplesMessage, ButtonsIUVModel, ButtonsIUVMessage>(
+        ButtonsIUV(1, PostServiceImpl()),
+        ::ButtonsIUVMessageWrapper,
+        { it.buttonsModel!! },
+        { parentModel, childModel -> parentModel.copy(buttonsModel = childModel) }
     )
-    private val gridIUV = ChildIUV<ExamplesModel,ExamplesMessage,GridIUVModel,GridIUVMessage>(
-            GridIUV(),
-            ::GridIUVMessageWrapper,
-            { it.gridModel!! },
-            { parentModel,childModel -> parentModel.copy(gridModel = childModel) }
+    private val gridIUV = ChildIUV<ExamplesModel, ExamplesMessage, GridIUVModel, GridIUVMessage>(
+        GridIUV(),
+        ::GridIUVMessageWrapper,
+        { it.gridModel!! },
+        { parentModel, childModel -> parentModel.copy(gridModel = childModel) }
     )
+    private val children = mapOf("buttons" to buttonsIUV, "grid" to gridIUV)
 
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
         return Pair(ExamplesModel(null, null, null), Cmd.none())
@@ -46,13 +45,11 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
 
     override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
         when (message) {
-            is GoToButtons -> {
-                val (newModel,cmd) = buttonsIUV.init(model)
-                Pair(newModel.copy(currentIUV = buttonsIUV), cmd)
-            }
-            is GoToGrid -> {
-                val (newModel,cmd) = gridIUV.init(model)
-                Pair(newModel.copy(currentIUV = gridIUV), cmd)
+            is GoTo -> {
+                // TODO check that page exists
+                val childIUV = children[message.page]!!
+                val (newModel,cmd) = childIUV.init(model)
+                Pair(newModel.copy(currentIUV = childIUV), cmd)
             }
             is ButtonsIUVMessageWrapper -> {
                 buttonsIUV.update(message.buttonsIUVMessage, model)
@@ -78,13 +75,13 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         div {
             button {
                 +"Buttons"
-                onClick { _ -> GoToButtons }
+                onClick { _ -> GoTo("buttons") }
             }
         }
         div {
             button {
                 +"Grid"
-                onClick { _ -> GoToGrid }
+                onClick { _ -> GoTo("grid") }
             }
         }
     }
