@@ -5,14 +5,14 @@ import org.iuv.core.HTML
 import org.iuv.core.IUV
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.ButtonsIUVMessage
-import org.iuv.examples.buttons.ButtonsModel
+import org.iuv.examples.buttons.ButtonsIUVModel
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.grid.GridIUV
 import org.iuv.examples.grid.GridIUVMessage
 import org.iuv.examples.grid.GridIUVModel
 
 // Model
-data class ExamplesModel(val buttonsModel: ButtonsModel?, val gridModel: GridIUVModel?,
+data class ExamplesModel(val buttonsModel: ButtonsIUVModel?, val gridModel: GridIUVModel?,
                          val currentIUV : ChildUV<ExamplesModel,ExamplesMessage,*,*>?)
 
 // Messages
@@ -27,17 +27,17 @@ object GoToButtons : ExamplesMessage
 object GoToGrid : ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
-    private val buttonsIUV = ChildIUV(
+    private val buttonsIUV = ChildIUV<ExamplesModel,ExamplesMessage, ButtonsIUVModel,ButtonsIUVMessage>(
             ButtonsIUV(1, PostServiceImpl()),
             ::ButtonsIUVMessageWrapper,
-            { it.buttonsModel!!},
-            { parentModel:ExamplesModel,childModel -> parentModel.copy(buttonsModel = childModel)}
+            { it.buttonsModel!! },
+            { parentModel,childModel -> parentModel.copy(buttonsModel = childModel) }
     )
-    private val gridIUV = ChildIUV(
+    private val gridIUV = ChildIUV<ExamplesModel,ExamplesMessage,GridIUVModel,GridIUVMessage>(
             GridIUV(),
             ::GridIUVMessageWrapper,
-            { it.gridModel!!},
-            { parentModel:ExamplesModel,childModel -> parentModel.copy(gridModel = childModel)}
+            { it.gridModel!! },
+            { parentModel,childModel -> parentModel.copy(gridModel = childModel) }
     )
 
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
@@ -48,11 +48,11 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         when (message) {
             is GoToButtons -> {
                 val (newModel,cmd) = buttonsIUV.init(model)
-                Pair(newModel.copy(currentIUV = buttonsIUV as ChildUV<ExamplesModel,ExamplesMessage,*,*>), cmd)
+                Pair(newModel.copy(currentIUV = buttonsIUV), cmd)
             }
             is GoToGrid -> {
                 val (newModel,cmd) = gridIUV.init(model)
-                Pair(newModel.copy(currentIUV = gridIUV as ChildUV<ExamplesModel,ExamplesMessage,*,*>), cmd)
+                Pair(newModel.copy(currentIUV = gridIUV), cmd)
             }
             is ButtonsIUVMessageWrapper -> {
                 buttonsIUV.update(message.buttonsIUVMessage, model)

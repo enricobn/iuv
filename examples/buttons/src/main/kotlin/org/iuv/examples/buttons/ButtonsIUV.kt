@@ -6,7 +6,7 @@ import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
 
 // MODEL
-data class ButtonsModel(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
+data class ButtonsIUVModel(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
 
 // MESSAGES
 interface ButtonsIUVMessage
@@ -17,7 +17,7 @@ data class ButtonsMouseMove(val x: Int, val y: Int) : ButtonsIUVMessage
 
 data class PostIdChanged(val postId: Int) : ButtonsIUVMessage
 
-class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsModel, ButtonsIUVMessage> {
+class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsIUVModel, ButtonsIUVMessage> {
 
     companion object {
         private val height = 500
@@ -29,8 +29,8 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
 
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
-    override fun init(): Pair<ButtonsModel, Cmd<ButtonsIUVMessage>> {
-        val model = ButtonsModel(initialPostId,
+    override fun init(): Pair<ButtonsIUVModel, Cmd<ButtonsIUVMessage>> {
+        val model = ButtonsIUVModel(initialPostId,
                 (1..height)
                         .map { y ->
                             (1..width).map { x -> buttonComponent.init("Button " + index(y, x), initialPostId) }
@@ -50,7 +50,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         }
     }
 
-    override fun update(message: ButtonsIUVMessage, model: ButtonsModel): Pair<ButtonsModel, Cmd<ButtonsIUVMessage>> {
+    override fun update(message: ButtonsIUVMessage, model: ButtonsIUVModel): Pair<ButtonsIUVModel, Cmd<ButtonsIUVMessage>> {
         when (message) {
             is ButtonsButtonMessage -> {
                 val (updateModel, updateCmd) = buttonComponent
@@ -72,7 +72,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         }
     }
 
-    override fun view(model: ButtonsModel): HTML<ButtonsIUVMessage> {
+    override fun view(model: ButtonsIUVModel): HTML<ButtonsIUVMessage> {
         return html {
             +"Post ID: "
             input {

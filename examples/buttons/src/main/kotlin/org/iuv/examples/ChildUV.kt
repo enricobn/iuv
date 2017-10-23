@@ -8,7 +8,7 @@ import org.iuv.core.UV
 class ChildIUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(
         val childIUV: IUV<CHILD_MODEL, CHILD_MESSAGE>,
         private val messageMapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE,
-        private val toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL,
+        toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL,
         private val modelUpdateFun: (PARENT_MODEL,CHILD_MODEL) -> PARENT_MODEL
 ) : ChildUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(childIUV,messageMapFun,toChildModelFun,modelUpdateFun) {
 
