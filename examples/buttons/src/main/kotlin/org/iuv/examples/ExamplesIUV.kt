@@ -12,7 +12,8 @@ import org.iuv.examples.grid.GridIUVMessage
 import org.iuv.examples.grid.GridIUVModel
 
 // Model
-data class ExamplesModel(val buttonsModel: ButtonsModel, val gridModel: GridIUVModel, val currentIUV : IUV<*,*>?)
+data class ExamplesModel(val buttonsModel: ButtonsModel?, val gridModel: GridIUVModel?,
+                         val currentIUV : ChildUV<ExamplesModel,ExamplesMessage,*,*>?)
 
 // Messages
 interface ExamplesMessage
@@ -26,37 +27,38 @@ object GoToButtons : ExamplesMessage
 object GoToGrid : ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
-    private val buttonsIUV = ButtonsIUV(1, PostServiceImpl())
-    private val gridIUV = GridIUV()
+    private val buttonsIUV = ChildIUV(
+            ButtonsIUV(1, PostServiceImpl()),
+            ::ButtonsIUVMessageWrapper,
+            { it.buttonsModel!!},
+            { parentModel:ExamplesModel,childModel -> parentModel.copy(buttonsModel = childModel)}
+    )
+    private val gridIUV = ChildIUV(
+            GridIUV(),
+            ::GridIUVMessageWrapper,
+            { it.gridModel!!},
+            { parentModel:ExamplesModel,childModel -> parentModel.copy(gridModel = childModel)}
+    )
 
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
-        // TODO I don't like to initialize the child IUV here, I don't want child commands to be fired here!
-        val (buttonsModel, buttonsCmd) = buttonsIUV.init()
-        val (gridModel, gridCmd) = gridIUV.init()
-
-        return Pair(ExamplesModel(buttonsModel, gridModel, null),
-            Cmd.cmdOf(
-                    buttonsCmd.map(::ButtonsIUVMessageWrapper),
-                    gridCmd.map(::GridIUVMessageWrapper)
-            )
-        )
+        return Pair(ExamplesModel(null, null, null), Cmd.none())
     }
 
     override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
         when (message) {
             is GoToButtons -> {
-                Pair(model.copy(currentIUV = buttonsIUV), Cmd.none())
+                val (newModel,cmd) = buttonsIUV.init(model)
+                Pair(newModel.copy(currentIUV = buttonsIUV as ChildUV<ExamplesModel,ExamplesMessage,*,*>), cmd)
             }
             is GoToGrid -> {
-                Pair(model.copy(currentIUV = gridIUV), Cmd.none())
+                val (newModel,cmd) = gridIUV.init(model)
+                Pair(newModel.copy(currentIUV = gridIUV as ChildUV<ExamplesModel,ExamplesMessage,*,*>), cmd)
             }
             is ButtonsIUVMessageWrapper -> {
-                val (childModel,childCmd) = buttonsIUV.update(message.buttonsIUVMessage, model.buttonsModel)
-                Pair(model.copy(buttonsModel = childModel), childCmd.map(::ButtonsIUVMessageWrapper))
+                buttonsIUV.update(message.buttonsIUVMessage, model)
             }
             is GridIUVMessageWrapper -> {
-                val (childModel,childCmd) = gridIUV.update(message.gridIUVMessage, model.gridModel)
-                Pair(model.copy(gridModel = childModel), childCmd.map(::GridIUVMessageWrapper))
+                gridIUV.update(message.gridIUVMessage, model)
             }
             else -> {
                 Pair(model, Cmd.none())
@@ -68,16 +70,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
             if (model.currentIUV == null) {
                 doMenu()
             } else {
-                when (model.currentIUV) {
-                    is ButtonsIUV -> {
-                        // TODO if i forget to do the map I see nothing, the resulting html is not added to the parent!
-                        model.currentIUV.view(model.buttonsModel).map(this, ::ButtonsIUVMessageWrapper)
-                    }
-                    is GridIUV -> {
-                        // TODO if i forget to do the map I see nothing, the resulting html is not added to the parent!
-                        model.currentIUV.view(model.gridModel).map(this, ::GridIUVMessageWrapper)
-                    }
-                }
+                model.currentIUV.view(model, this)
             }
         }
 

@@ -23,6 +23,7 @@ class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
     override fun update(message: GridMessage, model: GridModel<ROW>): Pair<GridModel<ROW>, Cmd<GridMessage>> {
         when(message) {
             is GridOnRowClick<*> -> {
+                // TODO unchecked cast
                 return Pair(model.copy(selectedRow = message.row as ROW), Cmd.none())
             }
             else -> {

@@ -95,6 +95,10 @@ open class HTML<MESSAGE>(private val name: String) {
 //        html.nullableMessageBus = newMessageBus
 //        children.add(html.toH())
 //    }
+//
+//    fun add(html: HTML<MESSAGE>) {
+//        children.addAll(html.children)
+//    }
 
     fun <PARENT_MESSAGE> map(parent: HTML<PARENT_MESSAGE>, mapFun: (MESSAGE) -> PARENT_MESSAGE) {
         val newMessageBus = MessageBusImpl<MESSAGE> {message -> parent.messageBus.send(mapFun.invoke(message))}
