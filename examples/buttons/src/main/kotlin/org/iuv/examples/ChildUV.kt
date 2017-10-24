@@ -30,8 +30,12 @@ open class ChildUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(
         childUV.view(toChildModelFun(model)).map(parentHtml, messageMapFun)
     }
 
-    fun update(message: CHILD_MESSAGE, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> {
-        val (newModel,newCmd) = childUV.update(message, toChildModelFun(parentModel))
-        return Pair(modelUpdateFun(parentModel,newModel), newCmd.map(messageMapFun))
-    }
+    fun update(message: Any, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> =
+        try {
+            val childMessage = message as CHILD_MESSAGE
+            val (newModel,newCmd) = childUV.update(childMessage, toChildModelFun(parentModel))
+            Pair(modelUpdateFun(parentModel,newModel), newCmd.map(messageMapFun))
+        } catch (e: Exception) {
+            Pair(parentModel, Cmd.none())
+        }
 }
