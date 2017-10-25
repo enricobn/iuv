@@ -4,7 +4,6 @@ import org.iuv.core.Cmd
 import org.iuv.core.MessageBus
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 
 class ButtonComponentTest {
 
@@ -27,7 +26,7 @@ class ButtonComponentTest {
         val (updatedButtonModel, cmd) = buttonComponent.update(PostTitle("title"), buttonModel)
 
         assertEquals("hello title", updatedButtonModel.selectedButtonModel.text)
-        assertNull(cmd)
+        assertEquals(Cmd.none(), cmd)
     }
 }
 

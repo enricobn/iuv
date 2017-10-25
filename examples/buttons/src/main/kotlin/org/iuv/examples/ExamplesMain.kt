@@ -9,8 +9,7 @@ import org.iuv.core.IUVRouter
 class ExamplesMain {
 
     fun run() {
-        val router = IUVRouter()
-        router.add("/", ExamplesIUV())
+        val router = IUVRouter(ExamplesIUV())
         router.add("/buttons", ButtonsIUV(1, PostServiceImpl()))
         router.add("/grid", GridIUV())
 

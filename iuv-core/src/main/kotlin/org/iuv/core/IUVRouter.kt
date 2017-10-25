@@ -15,9 +15,16 @@ interface GotoMessage {
 }
 
 private data class Goto(val url: String) : RouterMessage
+
 private data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
-class IUVRouter : IUV<RouterModel, RouterMessage> {
+
+class IUVRouter(rootIUV: IUV<*,*>) : IUV<RouterModel, RouterMessage> {
     private var routes = HashMap<String, ChildIUV<RouterModel, RouterMessage, *, *>>()
+    private var errorMessage: String? = null
+
+    init {
+        add("/", rootIUV)
+    }
 
     override fun init() : Pair<RouterModel, Cmd<RouterMessage>> {
         return Pair(RouterModel(null, null, null), object : Cmd<RouterMessage> {
@@ -31,15 +38,20 @@ class IUVRouter : IUV<RouterModel, RouterMessage> {
     }
 
     fun add(path: String, iuv: ChildIUV<RouterModel, RouterMessage, *, *>) {
+        if (routes.containsKey(path)) {
+            errorMessage = "Duplicate path: $path"
+            return
+        }
         routes[path] = iuv
     }
 
     fun <CHILD_MODEL,CHILD_MESSAGE>add(path: String, iuv: IUV<CHILD_MODEL, CHILD_MESSAGE>) {
-        routes[path] = ChildIUV<RouterModel, RouterMessage, CHILD_MODEL, CHILD_MESSAGE>(
+        add(path, ChildIUV<RouterModel, RouterMessage, CHILD_MODEL, CHILD_MESSAGE>(
                 iuv,
                 { RouterMessageWrapper(it as Any) },
                 { it.currentIUVModel as CHILD_MODEL },
                 { parentModel, childModel -> parentModel.copy(currentIUVModel = childModel) })
+        )
     }
 
     override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
@@ -69,6 +81,11 @@ class IUVRouter : IUV<RouterModel, RouterMessage> {
 
     override fun view(model: RouterModel): HTML<RouterMessage> =
         html {
+            errorMessage?.let {
+                +it
+                return@html
+            }
+
             if (model.errorMessage != null) {
                 +model.errorMessage
             } else {

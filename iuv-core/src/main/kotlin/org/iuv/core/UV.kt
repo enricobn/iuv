@@ -10,6 +10,7 @@ private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
     override fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE): Cmd<CONTAINER_MESSAGE> {
         return Cmd.none()
     }
+
 }
 
 interface Cmd<out MESSAGE> {
@@ -20,12 +21,15 @@ interface Cmd<out MESSAGE> {
                 override fun run(messageBus: MessageBus<MESSAGE>) {
                     runFunction(messageBus)
                 }
-
             }
         }
 
         fun <MESSAGE> cmdOf(vararg cmds: Cmd<MESSAGE>) : Cmd<MESSAGE> {
-            val notNone = cmds.filter { cmd -> !(cmd is CmdNone) }
+            val notNone = cmds.filter { it !is CmdNone }
+
+            if (notNone.isEmpty()) {
+                return none()
+            }
 
             return object : Cmd<MESSAGE> {
                 override fun run(messageBus: MessageBus<MESSAGE>) {
@@ -34,7 +38,9 @@ interface Cmd<out MESSAGE> {
             }
         }
 
-        fun <MESSAGE> none() : Cmd<MESSAGE> = CmdNone()
+        private val none = CmdNone<Any>()
+
+        fun <MESSAGE> none() : Cmd<MESSAGE> = none as Cmd<MESSAGE>
 
     }
 
