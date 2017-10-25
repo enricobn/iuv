@@ -20,16 +20,17 @@ interface GotoMessage {
 
 private data class Goto(val url: String) : RouterMessage
 
-data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
+private data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 
 class IUVRouter : IUV<RouterModel, RouterMessage> {
     private var routes = HashMap<String, ChildIUV<RouterModel,RouterMessage,*,*>>()
+    private var id = 0
 
     override fun init() : Pair<RouterModel, Cmd<RouterMessage>> {
         return Pair(RouterModel(null, emptyMap(), null), object : Cmd<RouterMessage> {
             override fun run(messageBus: MessageBus<RouterMessage>) {
                 messageBus.send(Goto("/"))
-                window.addEventListener("popstate", {event : Event ->
+                window.addEventListener("popstate", { _: Event ->
                     console.log("popstate " + window.location)
                     messageBus.send(Goto(window.location.pathname))
                 })
@@ -39,6 +40,15 @@ class IUVRouter : IUV<RouterModel, RouterMessage> {
 
     fun add(path: String, iuv: ChildIUV<RouterModel,RouterMessage,*,*>) {
         routes[path] = iuv
+    }
+
+    fun <CHILD_MODEL,CHILD_MESSAGE>add(path: String, iuv: IUV<CHILD_MODEL,CHILD_MESSAGE>) {
+        routes[path] = ChildIUV<RouterModel,RouterMessage,CHILD_MODEL,CHILD_MESSAGE>(
+                iuv,
+                { RouterMessageWrapper(it as Any) },
+                { (it.childModels[id.toString()] as CHILD_MODEL?)!! },
+                { parentModel, childModel -> parentModel.copy(childModels = (parentModel.childModels + (id.toString() to childModel)) as Map<String, Any>) })
+        id++
     }
 
     override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
