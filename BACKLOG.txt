@@ -1,8 +1,6 @@
 Doing
 -------
 - I'm on branch view-returns-HTML
-  - ExamplesIUV:
-    - trying to make a kind of routing
 
 Next
 -----
@@ -16,6 +14,8 @@ Next
 Done
 ------
 - on branch view-returns-HTML
+  - IUVRouter
+  - ChildIUV
   - Cmd.none
   - now view returns an HTML instead of HTML extension function
 - on branch multiple-projects

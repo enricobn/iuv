@@ -24,7 +24,6 @@ class IUVRouter : IUV<RouterModel, RouterMessage> {
             override fun run(messageBus: MessageBus<RouterMessage>) {
                 messageBus.send(Goto("/"))
                 window.addEventListener("popstate", { _: Event ->
-                    console.log("popstate " + window.location)
                     messageBus.send(Goto(window.location.pathname))
                 })
             }
@@ -48,7 +47,6 @@ class IUVRouter : IUV<RouterModel, RouterMessage> {
             is Goto -> {
                 window.history.pushState(object {}, "", message.url)
 
-                console.log("IUVRouter " + message)
                 val childIUV = routes[message.url]
 
                 if (childIUV == null) {
