@@ -8,7 +8,7 @@ import org.w3c.dom.events.Event
 import kotlin.browser.window
 
 // Model
-data class RouterModel(val currentIUV : ChildIUV<RouterModel,RouterMessage,*,*>?, val childModels: Map<String,Any>,
+data class RouterModel(val currentIUV : ChildIUV<RouterModel,RouterMessage,*,*>?, val currentIUVModel: Any?,
                        val errorMessage: String?)
 
 // Messages
@@ -24,10 +24,9 @@ private data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 
 class IUVRouter : IUV<RouterModel, RouterMessage> {
     private var routes = HashMap<String, ChildIUV<RouterModel,RouterMessage,*,*>>()
-    private var id = 0
 
     override fun init() : Pair<RouterModel, Cmd<RouterMessage>> {
-        return Pair(RouterModel(null, emptyMap(), null), object : Cmd<RouterMessage> {
+        return Pair(RouterModel(null, null, null), object : Cmd<RouterMessage> {
             override fun run(messageBus: MessageBus<RouterMessage>) {
                 messageBus.send(Goto("/"))
                 window.addEventListener("popstate", { _: Event ->
@@ -46,9 +45,8 @@ class IUVRouter : IUV<RouterModel, RouterMessage> {
         routes[path] = ChildIUV<RouterModel,RouterMessage,CHILD_MODEL,CHILD_MESSAGE>(
                 iuv,
                 { RouterMessageWrapper(it as Any) },
-                { (it.childModels[id.toString()] as CHILD_MODEL?)!! },
-                { parentModel, childModel -> parentModel.copy(childModels = (parentModel.childModels + (id.toString() to childModel)) as Map<String, Any>) })
-        id++
+                { it.currentIUVModel as CHILD_MODEL },
+                { parentModel, childModel -> parentModel.copy(currentIUVModel = childModel) })
     }
 
     override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
