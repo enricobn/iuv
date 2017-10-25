@@ -1,6 +1,7 @@
 package org.iuv.examples
 
 import org.iuv.core.Cmd
+import org.iuv.core.GotoMessage
 import org.iuv.core.HTML
 import org.iuv.core.IUV
 

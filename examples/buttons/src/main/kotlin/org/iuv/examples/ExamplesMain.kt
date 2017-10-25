@@ -4,6 +4,7 @@ import org.iuv.core.IUVApplication
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.grid.GridIUV
+import org.iuv.core.IUVRouter
 
 class ExamplesMain {
 
