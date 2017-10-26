@@ -1,9 +1,9 @@
 package org.iuv.examples
 
 import org.iuv.core.Cmd
-import org.iuv.core.GotoMessage
 import org.iuv.core.HTML
 import org.iuv.core.IUV
+import org.iuv.core.route.GotoMessage
 
 // Model
 class ExamplesModel
@@ -23,25 +23,21 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
 
     override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
         html {
-            div {
-                button {
-                    +"Buttons"
-                    onClick { _ -> ExamplesGoto("/buttons") }
-                }
-            }
-            div {
-                button {
-                    +"Grid"
-                    onClick { _ -> ExamplesGoto("/grid") }
-                }
-            }
-            div {
-                button {
-                    +"Error"
-                    onClick { _ -> ExamplesGoto("/error") }
-                }
-            }
-
+            linkToButtons(1)
+            linkToButtons(2)
+            link("Grid","/grid")
+            link("Error","/error")
         }
+
+    private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
+
+    private fun HTML<ExamplesMessage>.link(text: String, url: String) {
+        div {
+            button {
+                +text
+                onClick { _ -> ExamplesGoto(url) }
+            }
+        }
+    }
 
 }

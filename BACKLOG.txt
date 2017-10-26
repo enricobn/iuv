@@ -1,15 +1,15 @@
 Doing
 -------
 - I'm on branch view-returns-HTML
+  - parametric routes
 
 Next
 -----
-- routing
 - fix IntelliJ problems (related to build system?):
   F3 to a core class from examples does not work, nor implement interface methods
 - trying to have a singleton MessageBus
 - snabbdom files in examples/buttons/web/js must be replaced with the ones from version 0.7.0.
-- debugger (look at IUVApplication)
+- time travelling debugger (look at IUVApplication)
 
 Done
 ------
