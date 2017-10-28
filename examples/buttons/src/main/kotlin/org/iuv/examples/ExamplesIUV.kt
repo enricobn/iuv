@@ -1,9 +1,9 @@
 package org.iuv.examples
 
 import org.iuv.core.Cmd
+import org.iuv.core.GotoMessage
 import org.iuv.core.HTML
 import org.iuv.core.IUV
-import org.iuv.core.route.GotoMessage
 
 // Model
 class ExamplesModel
@@ -25,8 +25,10 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         html {
             linkToButtons(1)
             linkToButtons(2)
+            link("Invalid buttons 3 with error","/buttons3")
             link("Grid","/grid")
-            link("Error","/error")
+            link("Not existent route","/notExistentRoute")
+            link("Error","/buttons/hello")
         }
 
     private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")

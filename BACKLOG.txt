@@ -1,7 +1,6 @@
 Doing
 -------
 - I'm on branch view-returns-HTML
-  - parametric routes
 
 Next
 -----
@@ -13,6 +12,8 @@ Next
 
 Done
 ------
+- on branch view-returns-HTML
+  - parametric routes
 - on branch view-returns-HTML
   - IUVRouter
   - ChildIUV
