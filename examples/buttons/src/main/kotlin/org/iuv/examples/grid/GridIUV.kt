@@ -8,9 +8,9 @@ import kotlin.reflect.KFunction1
 // MESSAGES
 interface GridIUVMessage
 
-class GridMessageWrapper(val gridMessage: GridMessage) : GridIUVMessage
+data class GridMessageWrapper(val gridMessage: GridMessage) : GridIUVMessage
 
-class DetailMessageWrapper(val detailMessage: DetailMessage) : GridIUVMessage
+data class DetailMessageWrapper(val detailMessage: DetailMessage) : GridIUVMessage
 
 // MODEL
 data class Result(val home: Int, val visitor: Int)

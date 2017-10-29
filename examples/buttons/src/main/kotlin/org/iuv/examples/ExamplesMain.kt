@@ -14,7 +14,7 @@ class ExamplesMain {
         router.add("/buttons1", ButtonsIUV(1, PostServiceImpl()))
         router.add("/grid", GridIUV())
 
-        val application = IUVApplication(router)
+        val application = IUVApplication(router, true)
         application.run()
     }
 

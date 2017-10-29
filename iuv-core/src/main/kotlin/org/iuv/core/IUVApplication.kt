@@ -9,10 +9,9 @@ import org.w3c.dom.get
 import kotlin.browser.document
 import kotlin.browser.window
 
-class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
+class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>, private val debug : Boolean = false) {
 
     companion object {
-        val debug = false
         val delay = 100
     }
 
@@ -56,32 +55,36 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
         if (lastViewedModel != null && lastViewedModel!! == model) {
             return
         }
-        val newView = iuv.view(model)
+        val newView =
+            if (debug) {
+                val html = HTML<MESSAGE>("div")
+
+                val init: HTML<MESSAGE>.() -> Unit = {
+                    val view = iuv.view(model)
+                    view.nullableMessageBus = messageBus
+                    add(view)
+                    div {
+                        classes = "IUVDebugger"
+                        for ((message, model) in history.takeLast(10)) {
+                            button {
+                                classes = "IUVDebuggerButton"
+                                +(message.toString())
+    //                            onClick {
+    //                                self.model = model
+    //                                updateDocument(self.messageBus, false)
+    //                            }
+                            }
+                        }
+                    }
+                }
+                init(html)
+                html
+            } else {
+                iuv.view(model)
+            }
         newView.nullableMessageBus = messageBus
 
         lastViewedModel = model
-
-//        HTML.html("div", messageBus) {
-//            iuv.view(model)(this)
-//
-//            lastViewedModel = model
-//
-//            if (debug) {
-//                div {
-//                    classes = "IUVDebugger"
-//                    for ((message, model) in history.takeLast(10)) {
-//                        button {
-//                            classes = "IUVDebuggerButton"
-//                            +(message.toString())
-////                            onClick {
-////                                self.model = model
-////                                updateDocument(self.messageBus, false)
-////                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
 
         val newH = newView.toH()
 
