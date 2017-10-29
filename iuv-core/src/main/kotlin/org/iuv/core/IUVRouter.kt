@@ -6,7 +6,7 @@ import kotlin.browser.window
 typealias IUVRoute<MODEL, MESSAGE> = (List<String>) -> IUV<MODEL,MESSAGE>
 
 // Model
-data class RouterModel(val currentIUV : ChildIUV<RouterModel, RouterMessage, *, *>?, val currentIUVModel: Any?,
+data class RouterModel(val currentBaseURL : String?, val currentParameters: String?, val currentIUVModel: Any?,
                        val errorMessage: String?)
 
 // Messages
@@ -32,7 +32,7 @@ class IUVRouter(rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterM
     }
 
     override fun init() : Pair<RouterModel, Cmd<RouterMessage>> =
-        Pair(RouterModel(null, null, null), object : Cmd<RouterMessage> {
+        Pair(RouterModel(null, null, null, null), object : Cmd<RouterMessage> {
             override fun run(messageBus: MessageBus<RouterMessage>) {
                 messageBus.send(Goto("/"))
 
@@ -65,31 +65,19 @@ class IUVRouter(rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterM
                 val baseUrl = routes.keys.sorted().reversed().find { message.url.startsWith(it) }
 
                 if (baseUrl == null) {
-                    Pair(model.copy(currentIUV = null, errorMessage = "Cannot find URL ${message.url}."), Cmd.none<RouterMessage>())
+                    Pair(model.copy(errorMessage = "Cannot find URL ${message.url}."), Cmd.none())
                 } else {
                     val parameters = message.url.substring(baseUrl.length)
 
-                    console.log(parameters)
-
                     if (baseUrl != message.url && !parameters.startsWith("/")) {
-                       Pair(model.copy(currentIUV = null, errorMessage = "Cannot find URL ${message.url}."), Cmd.none())
+                       Pair(model.copy(errorMessage = "Cannot find URL ${message.url}."), Cmd.none())
                     } else {
-                        val route = routes[baseUrl]
-
                         try {
-                            val iuv = route!!.invoke(parameters.substring(1).split("/").toList())
-
-                            val childIUV = ChildIUV<RouterModel, RouterMessage, Any, Any>(
-                                    iuv as IUV<Any, Any>,
-                                    { RouterMessageWrapper(it) },
-                                    { it.currentIUVModel!! },
-                                    { parentModel, childModel -> parentModel.copy(currentIUVModel = childModel) }
-                            )
-
+                            val childIUV = createChildIUV(baseUrl, parameters)
                             val (newModel, cmd) = childIUV.init(model)
-                            Pair(newModel.copy(currentIUV = childIUV, errorMessage = null), cmd)
+                            Pair(newModel.copy(currentBaseURL = baseUrl, currentParameters = parameters, errorMessage = null), cmd)
                         } catch (e: Exception) {
-                            Pair(model.copy(currentIUV = null, errorMessage = e.message), Cmd.none<RouterMessage>())
+                            Pair(model.copy(errorMessage = e.message), Cmd.none<RouterMessage>())
                         }
                     }
                 }
@@ -97,7 +85,11 @@ class IUVRouter(rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterM
             is RouterMessageWrapper -> {
                 when (message.childMessage) {
                     is GotoMessage -> update(Goto(message.childMessage.url), model)
-                    else -> model.currentIUV!!.update(message.childMessage, model)
+                    else -> {
+                        val childIUV = createChildIUV(model)
+
+                        childIUV.update(message.childMessage, model)
+                    }
                 }
             }
             else -> {
@@ -115,8 +107,25 @@ class IUVRouter(rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterM
             if (model.errorMessage != null) {
                 +model.errorMessage
             } else {
-                model.currentIUV!!.view(model, this)
+                val childIUV = createChildIUV(model)
+                childIUV.view(model, this)
             }
         }
+
+    private fun createChildIUV(model: RouterModel): ChildIUV<RouterModel, RouterMessage, Any, Any> =
+            createChildIUV(model.currentBaseURL!!, model.currentParameters!!)
+
+    private fun createChildIUV(baseURL: String, parameters: String): ChildIUV<RouterModel, RouterMessage, Any, Any> {
+        val route = routes[baseURL]
+
+        val iuv = route!!.invoke(parameters.substring(1).split("/").toList())
+
+        return ChildIUV(
+                iuv as IUV<Any, Any>,
+                { RouterMessageWrapper(it) },
+                { it.currentIUVModel!! },
+                { parentModel, childModel -> parentModel.copy(currentIUVModel = childModel) }
+        )
+    }
 
 }
