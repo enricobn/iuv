@@ -268,8 +268,37 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input") 
             }
         }
 
+    var type: String = "text"
+        set(value) {
+            addAttr("type", value)
+        }
+
+    var min: Int? = null
+        set(value) {
+            if (value != null) {
+                addAttr("min", value.toString())
+            }
+        }
+
+    var max: Int? = null
+        set(value) {
+            if (value != null) {
+                addAttr("max", value.toString())
+            }
+        }
+
+    var step: Int? = null
+        set(value) {
+            if (value != null) {
+                addAttr("step", value.toString())
+            }
+        }
+
     fun onInput(handler: (InputEvent) -> MESSAGE) {
         addHandler("input", { event: Event ->
+            handler(InputEvent(event.target?.asDynamic().value))
+        })
+        addHandler("change", { event: Event ->
             handler(InputEvent(event.target?.asDynamic().value))
         })
     }
