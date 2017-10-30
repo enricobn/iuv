@@ -1,7 +1,7 @@
 Doing
 -------
 - I'm on branch view-returns-HTML
-    - time travelling debugger (look at IUVApplication)
+    - time travelling debugger
 
 Next
 -----

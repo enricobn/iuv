@@ -1,6 +1,7 @@
 package org.iuv.examples
 
 import org.iuv.core.IUVApplication
+import org.iuv.core.IUVDebugger
 import org.iuv.core.IUVRouter
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.PostServiceImpl
@@ -14,7 +15,7 @@ class ExamplesMain {
         router.add("/buttons1", ButtonsIUV(1, PostServiceImpl()))
         router.add("/grid", GridIUV())
 
-        val application = IUVApplication(router, true)
+        val application = IUVApplication(IUVDebugger(router))
         application.run()
     }
 
