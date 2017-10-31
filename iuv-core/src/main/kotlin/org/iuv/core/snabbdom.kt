@@ -38,7 +38,7 @@ open class HTML<MESSAGE>(private val name: String) {
     private var data : dynamic = object {}
     private val children = mutableListOf<dynamic>()
     private var text : String? = null
-    var nullableMessageBus : MessageBus<MESSAGE>? = null
+    internal var nullableMessageBus : MessageBus<MESSAGE>? = null
     private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
         override fun send(message: MESSAGE) {
             nullableMessageBus!!.send(message)
@@ -96,9 +96,9 @@ open class HTML<MESSAGE>(private val name: String) {
 //        children.add(html.toH())
 //    }
 //
-    internal fun add(html: HTML<MESSAGE>) {
-        children.addAll(html.children)
-    }
+//    internal fun add(html: HTML<MESSAGE>) {
+//        children.addAll(html.children)
+//    }
 
     fun <PARENT_MESSAGE> map(parent: HTML<PARENT_MESSAGE>, mapFun: (MESSAGE) -> PARENT_MESSAGE) {
         val newMessageBus = MessageBusImpl<MESSAGE> {message -> parent.messageBus.send(mapFun.invoke(message))}
@@ -268,6 +268,7 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input") 
             }
         }
 
+    // TODO enum?
     var type: String = "text"
         set(value) {
             addAttr("type", value)

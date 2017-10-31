@@ -1,7 +1,5 @@
 Doing
 -------
-- I'm on branch view-returns-HTML
-    - time travelling debugger
 
 Next
 -----
@@ -13,8 +11,8 @@ Next
 Done
 ------
 - on branch view-returns-HTML
+  - time travelling debugger
   - parametric routes
-- on branch view-returns-HTML
   - IUVRouter
   - ChildIUV
   - Cmd.none
