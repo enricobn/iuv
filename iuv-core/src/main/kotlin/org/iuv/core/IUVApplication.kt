@@ -54,7 +54,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
 
         lastViewedModel = model
 
-        val newH = newView.toH()
+        val newH = newView.render(SnabbdomRenderer)
 
         if (first) {
             patch(view!!, newH)

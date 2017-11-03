@@ -10,7 +10,7 @@ data class SelectedButtonModel(val text: String, val selected: Boolean)
 // MESSAGES
 interface SelectedButtonMessage
 
-class SelectedButtonClick : SelectedButtonMessage {
+object SelectedButtonClick : SelectedButtonMessage {
     override fun toString(): String {
         return "SelectedButtonClick"
     }
@@ -31,7 +31,7 @@ object SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
             button {
                 +model.text
 
-                onClick { _ -> SelectedButtonClick() }
+                onClick { _ -> SelectedButtonClick }
 
                 if (model.selected) {
                     classes = "ButtonComponentSelected"
