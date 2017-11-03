@@ -47,7 +47,7 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
             }
         }
 
-        assertTrue(expectedHtml.same(html))
+        assertTrue(same(html, expectedHtml))
     }
 
     @Test
@@ -58,17 +58,11 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
         val model = ButtonModel(1, selectedButtonModel)
         val html = buttonComponent.view(model)
 
-        val htmlElementData = html.findData { it.name == "button" }
-
-        assertNotNull(htmlElementData)
-
         val testHtml = test(html)
 
-        assertTrue(testHtml.getMessages().isEmpty())
+        val testButton = testHtml.find(withName("button"))
 
-        htmlElementData!!.handlers["click"](null)
-
-        assertFalse(testHtml.getMessages().isEmpty())
+        testButton!!.callHandler("click", null)
 
         assertEquals(SelectedButtonMessageWrapper(SelectedButtonClick), testHtml.getMessages().first())
     }

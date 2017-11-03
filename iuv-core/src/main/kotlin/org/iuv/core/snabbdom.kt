@@ -1,7 +1,6 @@
 package org.iuv.core
 
 import org.iuv.core.impl.MessageBusImpl
-import org.w3c.dom.HTMLDataElement
 import org.w3c.dom.events.Event
 
 external object snabbdom {
@@ -35,13 +34,13 @@ fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
 annotation class HtmlTagMarker
 
 @HtmlTagMarker
-open class HTML<MESSAGE>(private val name: String) {
-//    private var data : dynamic = object {}
-    private val attrs = mutableMapOf<String,dynamic>()
-    private val handlers = mutableMapOf<String,dynamic>()
-    private val children = mutableListOf<HTMLData>()
-    private var text : String? = null
+open class HTML<MESSAGE>(internal val name: String) {
+    internal val attrs = mutableMapOf<String,dynamic>()
+    internal val handlers = mutableMapOf<String,dynamic>()
+    internal val children = mutableListOf<HTMLChild>()
+    internal var text : String? = null
     internal var nullableMessageBus : MessageBus<MESSAGE>? = null
+
     private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
         override fun send(message: MESSAGE) {
             nullableMessageBus!!.send(message)
@@ -90,7 +89,7 @@ open class HTML<MESSAGE>(private val name: String) {
 
     private fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
-        children.add(HTMLElementData(element.name, element.text, element.attrs, element.handlers, element.children))
+        children.add(element.getElementData())
     }
 
 //    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
@@ -111,7 +110,7 @@ open class HTML<MESSAGE>(private val name: String) {
     }
 
     operator fun String.unaryPlus() {
-        children.add(HTMLTextData(this))
+        children.add(HTMLTextChild(this))
     }
 
     var classes: String? = null
@@ -143,31 +142,17 @@ open class HTML<MESSAGE>(private val name: String) {
     open fun render(renderer: HTMLRenderer) : dynamic =
         renderer.render(getElementData())
 
-    private fun getElementData() = HTMLElementData(name, text, attrs, handlers, children)
+    internal fun getElementData() = HTMLElementChild(this as HTML<Any>)
 
     override fun toString(): String {
-        return "HTML(name='$name', attrs=$attrs, children=$children, text=$text, classes=$classes, style=$style)"
-    }
-
-    fun same(other: HTML<MESSAGE>) : Boolean =
-        getElementData().same(other.getElementData())
-
-    fun findData(predicate: (HTMLElementData) -> Boolean) : HTMLElementData? =
-        if (predicate(this.getElementData())) {
-            this.getElementData()
-        } else {
-            val found = children.filter {
-                when(it) {
-                    is HTMLElementData -> predicate(it)
-                    else -> false
-                }
-            }
-            if (found.size == 1) {
-                found.first() as HTMLElementData
+        val txt =
+            if (text == null) {
+                ""
             } else {
-                null
+                ", text='$text'"
             }
-        }
+        return "HTML(name='$name', attrs=$attrs, children.size=${children.size}$txt)"
+    }
 
 //    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: UV<CHILD_MODEL, CHILD_MESSAGE>,
 //                                                model: CHILD_MODEL,
@@ -353,22 +338,22 @@ class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button"
 }
 
 interface HTMLRenderer {
-    fun render(htmlData: HTMLData): dynamic
+    fun render(htmlChild: HTMLChild): dynamic
 }
 
-interface HTMLData {
+interface HTMLChild {
 
-    fun same(other: HTMLData): Boolean {
+    fun same(other: HTMLChild): Boolean {
         if (this === other) return true
         if (this::class.js != other::class.js) return false
 
         when(this) {
-            is HTMLTextData -> return this == other
-            is HTMLElementData ->
+            is HTMLTextChild -> return this == other
+            is HTMLElementChild ->
                 when(other) {
-                    is HTMLElementData -> {
-                        if (name != other.name) return false
-                        if (text != other.text) return false
+                    is HTMLElementChild -> {
+                        if (html.name != other.html.name) return false
+                        if (html.text != other.html.text) return false
                         if (!sameData(other)) return false
                         if (!sameChildren(other)) return false
                     }
@@ -382,26 +367,26 @@ interface HTMLData {
 
 }
 
-data class HTMLTextData(val text: String) : HTMLData
+data class HTMLTextChild(val text: String) : HTMLChild
 
-data class HTMLElementData(val name: String, val text: String?, val attrs: Map<String,dynamic>, val handlers: Map<String,dynamic>, val children: List<HTMLData>) : HTMLData {
+data class HTMLElementChild(val html: HTML<Any>) : HTMLChild {
 
-    fun sameChildren(other: HTMLElementData) : Boolean {
-        if (other.children.size != children.size) {
+    fun sameChildren(other: HTMLElementChild) : Boolean {
+        if (other.html.children.size != html.children.size) {
             return false
         }
-        if (children.filterIndexed { i, htmlData -> !htmlData.same(other.children[i])}.isNotEmpty()) {
+        if (html.children.filterIndexed { i, htmlData -> !htmlData.same(other.html.children[i])}.isNotEmpty()) {
             return false
         }
         return true
     }
 
-    fun sameData(other: HTMLElementData) : Boolean {
-        if (attrs != other.attrs) {
+    fun sameData(other: HTMLElementChild) : Boolean {
+        if (html.attrs != other.html.attrs) {
             return false
         }
 
-        if (handlers.keys != other.handlers.keys) {
+        if (html.handlers.keys != other.html.handlers.keys) {
             return false
         }
 
@@ -412,13 +397,13 @@ data class HTMLElementData(val name: String, val text: String?, val attrs: Map<S
 
 object SnabbdomRenderer : HTMLRenderer {
 
-    override fun render(htmlData: HTMLData): dynamic =
-        when (htmlData) {
-            is HTMLElementData ->
-                if (htmlData.text != null) {
-                    snabbdom.h(htmlData.name, getData(htmlData), htmlData.text)
+    override fun render(htmlChild: HTMLChild): dynamic =
+        when (htmlChild) {
+            is HTMLElementChild ->
+                if (htmlChild.html.text != null) {
+                    snabbdom.h(htmlChild.html.name, getData(htmlChild), htmlChild.html.text)
                 } else {
-                    val renderedChildren = htmlData.children.map { render(it) }
+                    val renderedChildren = htmlChild.html.children.map { render(it) }
 
                     // is this faster?
 //                    val renderedChildren = htmlData.children.map { child ->
@@ -429,30 +414,30 @@ object SnabbdomRenderer : HTMLRenderer {
 //                        }
 //                    }
 
-                    snabbdom.h(htmlData.name, getData(htmlData), renderedChildren.toTypedArray())
+                    snabbdom.h(htmlChild.html.name, getData(htmlChild), renderedChildren.toTypedArray())
                 }
-            is HTMLTextData -> htmlData.text
+            is HTMLTextChild -> htmlChild.text
             else -> throw IllegalStateException()
         }
 
-    fun getData(elementData: HTMLElementData) : dynamic {
+    fun getData(elementChild: HTMLElementChild) : dynamic {
         val data: dynamic = object {}
 
         val dynAttrs: dynamic
 
-        if (!elementData.attrs.isEmpty()) {
+        if (!elementChild.html.attrs.isEmpty()) {
             dynAttrs = object {}
             data["attrs"] = dynAttrs
-            elementData.attrs.forEach { (key, value) -> dynAttrs[key] = value }
+            elementChild.html.attrs.forEach { (key, value) -> dynAttrs[key] = value }
         }
 
         val on: dynamic
 
-        if (!elementData.handlers.isEmpty()) {
+        if (!elementChild.html.handlers.isEmpty()) {
             on = object {}
             data["on"] = on
 
-            elementData.handlers.forEach { (key, value) -> on[key] = value }
+            elementChild.html.handlers.forEach { (key, value) -> on[key] = value }
         }
 
         return data
