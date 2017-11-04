@@ -34,7 +34,7 @@ fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
 annotation class HtmlTagMarker
 
 @HtmlTagMarker
-open class HTML<MESSAGE>(internal val name: String) {
+open class HTML<MESSAGE>(internal val name: String) : HTMLChild {
     internal val attrs = mutableMapOf<String,dynamic>()
     internal val handlers = mutableMapOf<String,dynamic>()
     internal val children = mutableListOf<HTMLChild>()
@@ -89,7 +89,7 @@ open class HTML<MESSAGE>(internal val name: String) {
 
     private fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
-        children.add(element.getElementData())
+        children.add(element)
     }
 
 //    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
@@ -115,15 +115,15 @@ open class HTML<MESSAGE>(internal val name: String) {
 
     var classes: String? = null
         set(value) {
-            addAttr("class", value)
+            addAttribute("class", value)
         }
 
     var style: String? = null
         set(value) {
-            addAttr("style", value)
+            addAttribute("style", value)
         }
 
-    fun addAttr(name: String, attr: dynamic) {
+    fun addAttribute(name: String, attr: dynamic) {
         attrs[name] = attr
 //        if (data["attrs"] == null) {
 //            data["attrs"] = object {}
@@ -140,9 +140,9 @@ open class HTML<MESSAGE>(internal val name: String) {
     }
 
     open fun render(renderer: HTMLRenderer) : dynamic =
-        renderer.render(getElementData())
+        renderer.render(this)
 
-    internal fun getElementData() = HTMLElementChild(this as HTML<Any>)
+//    internal fun getElementData() = HTMLElementChild(this as HTML<Any>)
 
     override fun toString(): String {
         val txt =
@@ -271,40 +271,40 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input") 
 
     var value: String = ""
         set(value) {
-            addAttr("value", value)
+            addAttribute("value", value)
         }
 
     var autofocus: Boolean = false
         set(value) {
             if (value) {
-                addAttr("autofocus", "autofocus")
+                addAttribute("autofocus", "autofocus")
             }
         }
 
     // TODO enum?
     var type: String = "text"
         set(value) {
-            addAttr("type", value)
+            addAttribute("type", value)
         }
 
     var min: Int? = null
         set(value) {
             if (value != null) {
-                addAttr("min", value.toString())
+                addAttribute("min", value.toString())
             }
         }
 
     var max: Int? = null
         set(value) {
             if (value != null) {
-                addAttr("max", value.toString())
+                addAttribute("max", value.toString())
             }
         }
 
     var step: Int? = null
         set(value) {
             if (value != null) {
-                addAttr("step", value.toString())
+                addAttribute("step", value.toString())
             }
         }
 
@@ -341,69 +341,45 @@ interface HTMLRenderer {
     fun render(htmlChild: HTMLChild): dynamic
 }
 
-interface HTMLChild {
-
-    fun same(other: HTMLChild): Boolean {
-        if (this === other) return true
-        if (this::class.js != other::class.js) return false
-
-        when(this) {
-            is HTMLTextChild -> return this == other
-            is HTMLElementChild ->
-                when(other) {
-                    is HTMLElementChild -> {
-                        if (html.name != other.html.name) return false
-                        if (html.text != other.html.text) return false
-                        if (!sameData(other)) return false
-                        if (!sameChildren(other)) return false
-                    }
-                    else -> return false
-                }
-            else -> return false
-        }
-
-        return true
-    }
-
-}
+interface HTMLChild
 
 data class HTMLTextChild(val text: String) : HTMLChild
 
-data class HTMLElementChild(val html: HTML<Any>) : HTMLChild {
-
-    fun sameChildren(other: HTMLElementChild) : Boolean {
-        if (other.html.children.size != html.children.size) {
-            return false
-        }
-        if (html.children.filterIndexed { i, htmlData -> !htmlData.same(other.html.children[i])}.isNotEmpty()) {
-            return false
-        }
-        return true
-    }
-
-    fun sameData(other: HTMLElementChild) : Boolean {
-        if (html.attrs != other.html.attrs) {
-            return false
-        }
-
-        if (html.handlers.keys != other.html.handlers.keys) {
-            return false
-        }
-
-        return true
-    }
-
-}
+//data class HTMLElementChild(val html: HTML<Any>) : HTMLChild {
+//
+//    fun sameChildren(other: HTMLElementChild) : Boolean {
+//        if (other.html.children.size != html.children.size) {
+//            return false
+//        }
+//        if (html.children.filterIndexed { i, htmlData -> !htmlData.same(other.html.children[i])}.isNotEmpty()) {
+//            return false
+//        }
+//        return true
+//    }
+//
+//    fun sameData(other: HTMLElementChild) : Boolean {
+//        if (html.attrs != other.html.attrs) {
+//            return false
+//        }
+//
+//        if (html.handlers.keys != other.html.handlers.keys) {
+//            return false
+//        }
+//
+//        return true
+//    }
+//
+//}
 
 object SnabbdomRenderer : HTMLRenderer {
 
     override fun render(htmlChild: HTMLChild): dynamic =
         when (htmlChild) {
-            is HTMLElementChild ->
-                if (htmlChild.html.text != null) {
-                    snabbdom.h(htmlChild.html.name, getData(htmlChild), htmlChild.html.text)
+            is HTML<*> ->
+                if (htmlChild.text != null) {
+                    snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.text)
                 } else {
-                    val renderedChildren = htmlChild.html.children.map { render(it) }
+                    val renderedChildren = htmlChild.children.map { render(it) }
 
                     // is this faster?
 //                    val renderedChildren = htmlData.children.map { child ->
@@ -414,30 +390,30 @@ object SnabbdomRenderer : HTMLRenderer {
 //                        }
 //                    }
 
-                    snabbdom.h(htmlChild.html.name, getData(htmlChild), renderedChildren.toTypedArray())
+                    snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
                 }
             is HTMLTextChild -> htmlChild.text
             else -> throw IllegalStateException()
         }
 
-    fun getData(elementChild: HTMLElementChild) : dynamic {
+    private fun getData(html: HTML<*>) : dynamic {
         val data: dynamic = object {}
 
         val dynAttrs: dynamic
 
-        if (!elementChild.html.attrs.isEmpty()) {
+        if (!html.attrs.isEmpty()) {
             dynAttrs = object {}
             data["attrs"] = dynAttrs
-            elementChild.html.attrs.forEach { (key, value) -> dynAttrs[key] = value }
+            html.attrs.forEach { (key, value) -> dynAttrs[key] = value }
         }
 
         val on: dynamic
 
-        if (!elementChild.html.handlers.isEmpty()) {
+        if (!html.handlers.isEmpty()) {
             on = object {}
             data["on"] = on
 
-            elementChild.html.handlers.forEach { (key, value) -> on[key] = value }
+            html.handlers.forEach { (key, value) -> on[key] = value }
         }
 
         return data
