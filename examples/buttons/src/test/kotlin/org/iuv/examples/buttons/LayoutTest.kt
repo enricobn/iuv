@@ -8,8 +8,6 @@ import org.iuv.examples.simplecomponents.vBox
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
-
 
 class LayoutTest : IUVTest<TestLayoutMessage>() {
 
@@ -59,7 +57,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
             }
         }
 
-        assertTrue(html.same(expectedHtml))
+        assertSameHTML(expectedHtml, html)
 
     }
 }

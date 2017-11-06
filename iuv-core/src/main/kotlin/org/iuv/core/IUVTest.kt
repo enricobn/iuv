@@ -16,22 +16,9 @@ open class IUVTest<MESSAGE> {
             this(html) && other(html)
         }
 
-
-
-//        fun or(pred1: HTMLPredicate, pred2: HTMLPredicate) : HTMLPredicate = { html ->
-//            pred1(html) || pred2(html)
-//        }
-//
-//        fun and(pred1: HTMLPredicate, pred2: HTMLPredicate) : HTMLPredicate = { html ->
-//            pred1(html) && pred2(html)
-//        }
-
         fun not(predicate: HTMLPredicate) : HTMLPredicate = { html ->
             !predicate(html)
         }
-
-//        fun <MESSAGE> same(actual: HTML<MESSAGE>, expected: HTML<MESSAGE>) : Boolean =
-//                actual.getElementData().same(expected.getElementData())
 
         fun withAttribute(name: String, value: dynamic) : (HTML<Any>) -> Boolean = { html ->
             if (html.attrs.containsKey(name)) {
@@ -49,115 +36,93 @@ open class IUVTest<MESSAGE> {
             html.name == name
         }
 
-        private fun sameChildren(html: HTML<*>, other: HTML<*>) : Boolean {
+        private fun sameChildren(html: HTML<*>, other: HTML<*>) : SameResult {
             if (other.children.size != html.children.size) {
-                console.log(html.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log(" not same children size")
-                return false
+                return SameResult("Not same children size.")
             }
-            if (html.children.filterIndexed { i, child -> !same(child, other.children[i])}.isNotEmpty()) {
-                console.log(html.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log(" not same children")
-                return false
+
+            val childrenSameResults = html.children.mapIndexed { i, child -> same(child, other.children[i]) }
+
+            val errors = childrenSameResults.filter { !it.same }
+
+            if (errors.isNotEmpty()) {
+                return errors.first()
             }
-            return true
+            return SameResult()
         }
 
-        private fun sameData(html: HTML<*>, other: HTML<*>) : Boolean {
+        private fun sameData(html: HTML<*>, other: HTML<*>) : SameResult {
             if (html.attrs != other.attrs) {
-                console.log(html.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log(" not same attrs")
-                return false
+                return SameResult("Not same attributes, '${html.attrs}' vs '${other.attrs}'.")
             }
 
             if (html.handlers.keys != other.handlers.keys) {
-                console.log(html.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log(" not same keys")
-                return false
+                return SameResult("Not same name handlers (keys), '${html.handlers.keys}' vs '${other.handlers.keys}'.")
             }
 
-            return true
+            return SameResult()
         }
 
-        private fun same(child: HTMLChild, other: HTMLChild): Boolean {
-            if (child === other) return true
+        private fun same(child: HTMLChild, other: HTMLChild): SameResult {
+            if (child === other) return SameResult()
 
             when (child) {
-                is HTMLTextChild -> {
-                    val result = child == other
-                    if (!result) {
-                        console.log(child.toString())
-                        console.log(other.toString())
-                        console.log("not same text child")
-                    }
-                    return result
+                is HTMLTextChild -> when (other) {
+                    is HTMLTextChild -> {
+                        val result = child == other
+                        if (!result) {
+                            return SameResult("Not same text child, '${child.text}' vs '${other.text}'.")
+                        }
+                        return SameResult()
+                    } else -> return SameResult("Not same child type.")
                 }
                 is HTML<*> -> when(other) {
                     is HTML<*> -> return child.same(other)
-                    else -> {
-                        console.log(child.toString())
-                        console.log(other.toString())
-                        console.log("not same type")
-                        return false
-                    }
+                    else -> return SameResult("Not same child type.")
                 }
                 else -> {
-                    console.log(child.toString())
-                    console.log(other.toString())
-                    console.log("unknown type")
-
-                    return false
+                    return SameResult("Unknown child type.")
                 }
             }
         }
 
-        fun HTML<*>.same(other: HTML<*>): Boolean {
-            if (this === other) return true
 
-            if (name != other.name) {
-                console.log(this.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log("not same name")
-                return false
-            }
-            if (text != other.text) {
-                console.log(this.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log("not same text")
-                return false
-            }
-            if (!sameData(this, other)) {
-                console.log(this.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log("not same data")
-                return false
-            }
-            if (!sameChildren(this, other)) {
-                console.log(this.toStringDeep())
-                console.log(other.toStringDeep())
-                console.log("not same children")
-                return false
-            }
+        fun assertSameHTML(expected: HTML<*>, actual: HTML<*>) {
+            val sameResult = expected.same(actual)
 
-            return true
+            if (!sameResult.same) {
+                console.log(sameResult.message)
+                console.log("Expected:")
+                console.log(expected.toStringDeep())
+                console.log("Actual:")
+                console.log(actual.toStringDeep())
+                throw AssertionError(sameResult.message + " Look at the console for more details.")
+            }
         }
 
+        fun HTML<*>.same(other: HTML<*>): SameResult {
+            if (this === other) return SameResult()
 
-//        fun <MESSAGE> HTML<MESSAGE>.same(other: HTML<MESSAGE>): Boolean {
-//            if (this === other) return true
-//            if (this::class.js != other::class.js) return false
-//
-//            if (name != other.name) return false
-//            if (text != other.text) return false
-//            if (!sameData(this, other)) return false
-//            if (!sameChildren(this, other)) return false
-//
-//            return true
-//        }
+            if (name != other.name) {
+                return SameResult("Not same name, '$name' vs '${other.name}'.")
+            }
+
+            if (text != other.text) {
+                return SameResult("Not same text, '$text' vs '${other.text}'.")
+            }
+
+            val sameData = sameData(this, other)
+            if (!sameData.same) {
+                return sameData
+            }
+
+            val sameChildren = sameChildren(this, other)
+            if (!sameChildren.same) {
+                return sameChildren
+            }
+
+            return SameResult()
+        }
 
     }
 
@@ -232,4 +197,8 @@ private class SimpleMessageBus<MESSAGE> : MessageBus<MESSAGE> {
 
     fun getMessages() = messages.toList()
 
+}
+
+data class SameResult(val message: String? = null) {
+    val same = message == null
 }

@@ -45,7 +45,7 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
             }
         }
 
-        assertTrue(html.same(expectedHtml))
+        assertSameHTML(expectedHtml, html)
     }
 
     @Test
