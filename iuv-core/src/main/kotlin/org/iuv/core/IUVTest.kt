@@ -51,9 +51,15 @@ open class IUVTest<MESSAGE> {
 
         private fun sameChildren(html: HTML<*>, other: HTML<*>) : Boolean {
             if (other.children.size != html.children.size) {
+                console.log(html.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log(" not same children size")
                 return false
             }
-            if (html.children.filterIndexed { i, htmlData -> !same(htmlData, other.children[i])}.isNotEmpty()) {
+            if (html.children.filterIndexed { i, child -> !same(child, other.children[i])}.isNotEmpty()) {
+                console.log(html.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log(" not same children")
                 return false
             }
             return true
@@ -61,10 +67,16 @@ open class IUVTest<MESSAGE> {
 
         private fun sameData(html: HTML<*>, other: HTML<*>) : Boolean {
             if (html.attrs != other.attrs) {
+                console.log(html.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log(" not same attrs")
                 return false
             }
 
             if (html.handlers.keys != other.handlers.keys) {
+                console.log(html.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log(" not same keys")
                 return false
             }
 
@@ -73,62 +85,79 @@ open class IUVTest<MESSAGE> {
 
         private fun same(child: HTMLChild, other: HTMLChild): Boolean {
             if (child === other) return true
-            if (child::class.js != other::class.js) return false
 
             when (child) {
-                is HTMLTextChild -> return child == other
+                is HTMLTextChild -> {
+                    val result = child == other
+                    if (!result) {
+                        console.log(child.toString())
+                        console.log(other.toString())
+                        console.log("not same text child")
+                    }
+                    return result
+                }
                 is HTML<*> -> when(other) {
                     is HTML<*> -> return child.same(other)
-                    else -> return false
+                    else -> {
+                        console.log(child.toString())
+                        console.log(other.toString())
+                        console.log("not same type")
+                        return false
+                    }
                 }
-                else -> return false
+                else -> {
+                    console.log(child.toString())
+                    console.log(other.toString())
+                    console.log("unknown type")
+
+                    return false
+                }
             }
         }
 
         fun HTML<*>.same(other: HTML<*>): Boolean {
             if (this === other) return true
-            if (this::class.js != other::class.js) return false
 
-//            when(this) {
-//                is HTMLTextChild -> return this == other
-//                is HTMLElementChild ->
-//                    when(other) {
-//                        is HTMLElementChild -> {
-            if (name != other.name) return false
-            if (text != other.text) return false
-            if (!sameData(this, other)) return false
-            if (!sameChildren(this, other)) return false
-//                        }
-//                        else -> return false
-//                    }
-//                else -> return false
-//            }
-
-            return true
-        }
-
-
-        fun <MESSAGE> HTML<MESSAGE>.same(other: HTML<MESSAGE>): Boolean {
-            if (this === other) return true
-            if (this::class.js != other::class.js) return false
-
-//            when(this) {
-//                is HTMLTextChild -> return this == other
-//                is HTMLElementChild ->
-//                    when(other) {
-//                        is HTMLElementChild -> {
-                            if (name != other.name) return false
-                            if (text != other.text) return false
-                            if (!sameData(this, other)) return false
-                            if (!sameChildren(this, other)) return false
-//                        }
-//                        else -> return false
-//                    }
-//                else -> return false
-//            }
+            if (name != other.name) {
+                console.log(this.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log("not same name")
+                return false
+            }
+            if (text != other.text) {
+                console.log(this.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log("not same text")
+                return false
+            }
+            if (!sameData(this, other)) {
+                console.log(this.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log("not same data")
+                return false
+            }
+            if (!sameChildren(this, other)) {
+                console.log(this.toStringDeep())
+                console.log(other.toStringDeep())
+                console.log("not same children")
+                return false
+            }
 
             return true
         }
+
+
+//        fun <MESSAGE> HTML<MESSAGE>.same(other: HTML<MESSAGE>): Boolean {
+//            if (this === other) return true
+//            if (this::class.js != other::class.js) return false
+//
+//            if (name != other.name) return false
+//            if (text != other.text) return false
+//            if (!sameData(this, other)) return false
+//            if (!sameChildren(this, other)) return false
+//
+//            return true
+//        }
 
     }
 
@@ -141,24 +170,32 @@ open class IUVTest<MESSAGE> {
     fun test(html: HTML<MESSAGE>) = TestingMainHTML(html)
 }
 
-open class TestingHTML<MESSAGE>(val html: HTML<MESSAGE>) {
+open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
 
-    fun find(predicate: HTMLPredicate) : TestingHTML<Any>? =
-        if (predicate(html as HTML<Any>)) {
-            this as TestingHTML<Any>
-        } else {
-            val found = html.children.filter { child ->
-                when(child) {
-                    is HTML<*> -> predicate(child as HTML<Any>)
-                    else -> false
+    fun find(predicate: HTMLPredicate) : TestingHTML? = find(null, html, predicate)
+
+    companion object {
+
+        private fun find(parent: TestingHTML?, html: HTML<*>, predicate: HTMLPredicate) : TestingHTML? =
+            if (predicate(html as HTML<Any>)) {
+                TestingHTML(html, parent)
+            } else {
+                val found = html.children.map { child ->
+                    when (child) {
+                        is HTML<*> -> {
+                            find(TestingHTML(html, parent), child, predicate)
+                        }
+                        else -> null
+                    }
+                }.filter { it != null }
+
+                if (found.size == 1) {
+                    found.first()
+                } else {
+                    null
                 }
             }
-            if (found.size == 1) {
-                TestingHTML(found.first() as HTML<Any>)
-            } else {
-                null
-            }
-        }
+    }
 
     fun callHandler(name: String, event: Any?) {
         html.handlers[name](event)
@@ -175,7 +212,7 @@ open class TestingHTML<MESSAGE>(val html: HTML<MESSAGE>) {
     }
 }
 
-class TestingMainHTML<MESSAGE>(html: HTML<MESSAGE>) : TestingHTML<MESSAGE>(html) {
+class TestingMainHTML<MESSAGE>(html: HTML<MESSAGE>) : TestingHTML(html) {
     private val messageBus: SimpleMessageBus<MESSAGE> = SimpleMessageBus()
 
     init {

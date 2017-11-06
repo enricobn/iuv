@@ -1,8 +1,6 @@
 package org.iuv.examples.buttons
 
-import org.iuv.core.Cmd
-import org.iuv.core.IUVTest
-import org.iuv.core.MessageBus
+import org.iuv.core.*
 import kotlin.test.*
 
 class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {

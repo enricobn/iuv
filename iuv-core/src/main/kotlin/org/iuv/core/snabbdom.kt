@@ -34,7 +34,7 @@ fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
 annotation class HtmlTagMarker
 
 @HtmlTagMarker
-open class HTML<MESSAGE>(internal val name: String) : HTMLChild {
+open class HTML<MESSAGE>(val name: String) : HTMLChild {
     internal val attrs = mutableMapOf<String,dynamic>()
     internal val handlers = mutableMapOf<String,dynamic>()
     internal val children = mutableListOf<HTMLChild>()
@@ -47,49 +47,55 @@ open class HTML<MESSAGE>(internal val name: String) : HTMLChild {
         }
     }
 
+    fun getChildren() = children.toList()
+
+    fun getAttrs() = attrs.toMap()
+
+    fun getHandlers() = handlers.toMap()
+
     fun div(init: DivH<MESSAGE>.() -> Unit) {
-        element(DivH(messageBus), init)
+        element(DivH(), init)
     }
 
     fun td(init: TDH<MESSAGE>.() -> Unit) {
-        element(TDH(messageBus), init)
+        element(TDH(), init)
     }
 
     fun tr(init: TRH<MESSAGE>.() -> Unit) {
-        element(TRH(messageBus), init)
+        element(TRH(), init)
     }
 
     fun table(init: TableH<MESSAGE>.() -> Unit) {
-        element(TableH(messageBus), init)
+        element(TableH(), init)
     }
 
     fun button(init: ButtonH<MESSAGE>.() -> Unit) {
-        element(ButtonH(messageBus), init)
+        element(ButtonH(), init)
     }
 
     fun span(init: SpanH<MESSAGE>.() -> Unit) {
-        element(SpanH(messageBus), init)
+        element(SpanH(), init)
     }
 
     fun thead(init: TheadH<MESSAGE>.() -> Unit) {
-        element(TheadH(messageBus), init)
+        element(TheadH(), init)
     }
 
     fun th(init: THH<MESSAGE>.() -> Unit) {
-        element(THH(messageBus), init)
+        element(THH(), init)
     }
 
     fun input(init: InputH<MESSAGE>.() -> Unit) {
-        element(InputH(messageBus), init)
+        element(InputH(), init)
     }
 
     fun b(init: BH<MESSAGE>.() -> Unit) {
-        element(BH(messageBus), init)
+        element(BH(), init)
     }
 
-    private fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
+    fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
-        children.add(element)
+        add(element)
     }
 
 //    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
@@ -98,15 +104,24 @@ open class HTML<MESSAGE>(internal val name: String) : HTMLChild {
 //        children.add(html.toH())
 //    }
 //
-//    internal fun add(html: HTML<MESSAGE>) {
-//        children.addAll(html.children)
-//    }
+    open fun add(html: HTMLChild) {
+        when(html) {
+            is HTMLTextChild -> children.add(html)
+            is HTML<*> -> {
+                if (html.nullableMessageBus == null) {
+                    html.nullableMessageBus = messageBus as MessageBus<Any?>
+                }
+                children.add(html)
+            }
+        }
+    }
 
     fun <PARENT_MESSAGE> map(parent: HTML<PARENT_MESSAGE>, mapFun: (MESSAGE) -> PARENT_MESSAGE) {
         val newMessageBus = MessageBusImpl<MESSAGE> {message -> parent.messageBus.send(mapFun.invoke(message))}
         nullableMessageBus = newMessageBus
 
-        parent.children.addAll(children)
+//        parent.children.addAll(children)
+        children.forEach { parent.add(it) }
     }
 
     operator fun String.unaryPlus() {
@@ -143,6 +158,27 @@ open class HTML<MESSAGE>(internal val name: String) : HTMLChild {
         renderer.render(this)
 
 //    internal fun getElementData() = HTMLElementChild(this as HTML<Any>)
+
+    fun toStringDeep(indent: Int = 0): String {
+        val sb = StringBuilder()
+
+        sb.indent(indent).append(name).append(" {").append("\n")
+        attrs.forEach { sb.indent(indent + 1).append(it.key).append("=").append(it.value.toString()).append("\n") }
+        handlers.forEach { sb.indent(indent + 1).append("-> ").append(it.key).append("\n") }
+        children.forEach {
+            when(it) {
+                is HTMLTextChild -> sb.indent(indent +1).append(it.text).append("\n")
+                is HTML<*> -> sb.append(it.toStringDeep(indent + 1))
+            }
+        }
+        sb.indent(indent).append("}\n")
+        return sb.toString()
+    }
+
+    private fun StringBuilder.indent(indent: Int) : StringBuilder {
+        this.append("  ".repeat(indent))
+        return this
+    }
 
     override fun toString(): String {
         val txt =
@@ -207,47 +243,19 @@ open class HTML<MESSAGE>(internal val name: String) : HTMLChild {
 
 }
 
-class SpanH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("span") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class SpanH<MESSAGE> : HTML<MESSAGE>("span")
 
-class DivH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("div") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class DivH<MESSAGE> : HTML<MESSAGE>("div")
 
-class TableH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("table") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class TableH<MESSAGE> : HTML<MESSAGE>("table")
 
-class TheadH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("thead") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class TheadH<MESSAGE> : HTML<MESSAGE>("thead")
 
-class THH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("th") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class THH<MESSAGE> : HTML<MESSAGE>("th")
 
-class BH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("b") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class BH<MESSAGE> : HTML<MESSAGE>("b")
 
-class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td") {
-
-    init {
-        nullableMessageBus = messageBus
-    }
+class TDH<MESSAGE> : HTML<MESSAGE>("td") {
 
     fun onClick(handler: (Event) -> MESSAGE) {
         addHandler("click", handler)
@@ -255,19 +263,11 @@ class TDH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("td") {
 
 }
 
-class TRH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("tr") {
-    init {
-        nullableMessageBus = messageBus
-    }
-}
+class TRH<MESSAGE> : HTML<MESSAGE>("tr")
 
 data class InputEvent(val value: String)
 
-class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input") {
-
-    init {
-        nullableMessageBus = messageBus
-    }
+class InputH<MESSAGE> : HTML<MESSAGE>("input") {
 
     var value: String = ""
         set(value) {
@@ -325,11 +325,7 @@ class InputH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("input") 
 
 }
 
-class ButtonH<MESSAGE>(messageBus: MessageBus<MESSAGE>) : HTML<MESSAGE>("button") {
-
-    init {
-        nullableMessageBus = messageBus
-    }
+class ButtonH<MESSAGE> : HTML<MESSAGE>("button") {
 
     fun onClick(handler: (Event) -> MESSAGE) {
         addHandler("click", handler)
