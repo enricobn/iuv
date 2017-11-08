@@ -1,4 +1,4 @@
-package org.iuv.examples.simplecomponents
+package org.iuv.examples.components
 
 import org.iuv.core.HTML
 import org.iuv.core.HTMLChild

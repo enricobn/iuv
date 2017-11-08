@@ -73,6 +73,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
     }
 
     override fun view(model: ButtonsIUVModel): HTML<ButtonsIUVMessage> {
+        console.log(model::class.simpleName)
         return html {
             +"Post ID: "
             input {

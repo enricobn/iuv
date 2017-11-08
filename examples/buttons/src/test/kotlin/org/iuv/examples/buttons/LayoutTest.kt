@@ -4,7 +4,7 @@ import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.IUVTest
 import org.iuv.core.UV
-import org.iuv.examples.simplecomponents.vBox
+import org.iuv.examples.components.vBox
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -36,7 +36,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
         assertNotNull(testButton)
 
-        assertEquals("testclass", testButton!!.parent!!.parent!!.html.getAttrs().get("class"))
+        assertEquals("testclass", testButton!!.parent!!.parent!!.html.getAttrs()["class"])
     }
 
     @Test

@@ -5,7 +5,7 @@ import org.iuv.core.IUVApplication
 class GridMain {
 
     fun run() {
-        val application = IUVApplication(GridIUV())
+        val application = IUVApplication(GridIUV)
         application.run()
     }
 

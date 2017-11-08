@@ -19,20 +19,18 @@ data class Match(val home: String, val visitor: String, val result: Result)
 
 data class GridIUVModel(val gridModel: GridModel<Match>)
 
-class GridIUV : IUV<GridIUVModel, GridIUVMessage> {
+object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
 
-    companion object {
-        val rows = listOf(
-                Match("Juventus", "Napoli", Result(1, 0)),
-                Match("Roma", "Milan", Result(1, 1))
-        )
+    val rows = listOf(
+            Match("Juventus", "Napoli", Result(1, 0)),
+            Match("Roma", "Milan", Result(1, 1))
+    )
 
-        val columns : List<Column<Match>> = listOf(
-                Column("Home") { it.home },
-                Column("Visitor") { it.visitor },
-                Column("Result", { _ -> "Center" }) { "${it.result.home} - ${it.result.visitor}" }
-        )
-    }
+    val columns : List<Column<Match>> = listOf(
+            Column("Home") { it.home },
+            Column("Visitor") { it.visitor },
+            Column("Result", { _ -> "Center" }) { "${it.result.home} - ${it.result.visitor}" }
+    )
 
     private val grid = Grid<Match>()
     private val detail = Detail<Match>()

@@ -4,17 +4,26 @@ import org.iuv.core.Cmd
 import org.iuv.core.GotoMessage
 import org.iuv.core.HTML
 import org.iuv.core.IUV
-import org.iuv.examples.simplecomponents.vBox
+import org.iuv.examples.buttons.ButtonsIUV
+import org.iuv.examples.buttons.PostServiceImpl
+import org.iuv.examples.components.Tab
+import org.iuv.examples.components.TabMessage
+import org.iuv.examples.components.TabModel
+import org.iuv.examples.components.vBox
+import org.iuv.examples.grid.GridIUV
 
 // Model
-class ExamplesModel
+data class ExamplesModel(val tabModel: TabModel)
 
 // Messages
 interface ExamplesMessage
 
+data class ExamplesTabMessageWrapper(val message: TabMessage) : ExamplesMessage
+
 private data class ExamplesGoto(override val url: String) : GotoMessage, ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
+    private val tab : Tab = Tab()
 
     companion object {
 
@@ -29,13 +38,25 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
 
     }
 
+    init {
+        tab.add("Buttons", ButtonsIUV(1, PostServiceImpl()))
+        tab.add("Grid", GridIUV)
+    }
+
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
-        return Pair(ExamplesModel(), Cmd.none())
+        console.log("ExamplesIUV init")
+        val (tabModel,tabCmd) = tab.init()
+        return Pair(ExamplesModel(tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
     }
 
     override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
-        Pair(model, Cmd.none())
-
+        when (message) {
+            is ExamplesTabMessageWrapper -> {
+                val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
+                Pair(model.copy(tabModel = tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
+            }
+            else -> Pair(model, Cmd.none())
+        }
 
     override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
         html {
@@ -46,6 +67,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 link("Grid", "/grid")
                 link("Not existent route", "/notExistentRoute")
                 link("Error", "/buttons/hello")
+                tab.view(model.tabModel).map(this, ::ExamplesTabMessageWrapper)
             }
         }
 
