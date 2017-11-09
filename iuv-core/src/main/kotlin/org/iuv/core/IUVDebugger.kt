@@ -26,8 +26,8 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
     override fun update(message: IUVDebuggerMessage, model: IUVDebuggerModel): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> =
         when(message) {
             is IUVDebuggerChildMessage -> {
-                val (newModel, cmd) = childIUV.update(message.message, model)
-                val messagesAndModels = newModel.messagesAndModels + Pair(message.message, newModel.iuvModel!!)
+                val (newModel, cmd) = childIUV.update(message.message as IUV_MESSAGE, model)
+                val messagesAndModels = newModel.messagesAndModels + Pair(message.message!!, newModel.iuvModel!!)
                 Pair(newModel.copy(messagesAndModels = messagesAndModels, index = messagesAndModels.size - 1), cmd)
             }
             is SetIUVModel ->
