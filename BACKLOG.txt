@@ -1,7 +1,5 @@
 Doing
 -------
-- on branch testable-html
- - material
 
 Next
 -----
@@ -14,6 +12,7 @@ Next
 Done
 ------
 - on branch view-returns-HTML
+  - Material Design Lite
   - test HTML
   - time travelling debugger
   - parametric routes
