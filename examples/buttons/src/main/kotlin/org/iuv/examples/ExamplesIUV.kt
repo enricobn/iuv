@@ -6,10 +6,7 @@ import org.iuv.core.HTML
 import org.iuv.core.IUV
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.PostServiceImpl
-import org.iuv.examples.components.Tab
-import org.iuv.examples.components.TabMessage
-import org.iuv.examples.components.TabModel
-import org.iuv.examples.components.vBox
+import org.iuv.examples.components.*
 import org.iuv.examples.grid.GridIUV
 
 // Model
@@ -30,7 +27,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
         private fun HTML<ExamplesMessage>.link(text: String, url: String) {
-            button {
+            mtButton {
                 +text
                 onClick { ExamplesGoto(url) }
             }
@@ -44,7 +41,6 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
     }
 
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
-        console.log("ExamplesIUV init")
         val (tabModel,tabCmd) = tab.init()
         return Pair(ExamplesModel(tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
     }

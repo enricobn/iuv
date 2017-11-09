@@ -5,7 +5,8 @@ import org.w3c.dom.Element
 import kotlin.browser.document
 import kotlin.browser.window
 
-class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
+class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
+                                        private val renderer: HTMLRenderer) {
 
     companion object {
         val delay = 100
@@ -16,8 +17,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     private var lastViewedModel: MODEL? = null
     private var subscription : (() -> Unit)?
     private var view : Element? = null
-    private var viewH : dynamic = null
-    private val patch: (old: dynamic, new: dynamic) -> Unit = snabbdomInit()
 
     init {
         val init = iuv.init()
@@ -29,7 +28,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     fun run() {
         view = document.createElement("div")
         document.body!!.appendChild(view!!)
-        updateDocument(true)
+        updateDocument()
         window.setInterval(this::onTimer, delay)
     }
 
@@ -40,10 +39,10 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
     }
 
     private fun onTimer() {
-        updateDocument(false)
+        updateDocument()
     }
 
-    private fun updateDocument(first: Boolean) {
+    private fun updateDocument() {
         if (lastViewedModel != null && lastViewedModel!! == model) {
             return
         }
@@ -54,15 +53,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>) {
 
         lastViewedModel = model
 
-        val newH = newView.render(SnabbdomRenderer)
-
-        if (first) {
-            patch(view!!, newH)
-        } else {
-            patch(viewH, newH)
-        }
-
-        viewH = newH
+        renderer.render(view!!, newView)
     }
 
 }

@@ -43,8 +43,10 @@ class Tab : IUV<TabModel, TabMessage> {
             vBox {
                 div {
                     tabs.forEachIndexed { index, data ->
-                        button {
+                        mtButton {
                             +data.text
+
+                            classes = "mdl-button--accent"
 
                             onClick { SelectTab(index) }
                         }

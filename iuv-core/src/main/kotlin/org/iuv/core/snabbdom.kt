@@ -1,6 +1,7 @@
 package org.iuv.core
 
 import org.iuv.core.impl.MessageBusImpl
+import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 
 external object snabbdom {
@@ -128,15 +129,17 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         children.add(HTMLTextChild(this))
     }
 
-    var classes: String? = null
+    var classes: String?
         set(value) {
             addAttribute("class", value)
         }
+        get() = attrs["class"]
 
-    var style: String? = null
+    var style: String?
         set(value) {
             addAttribute("style", value)
         }
+        get() = attrs["style"]
 
     fun addAttribute(name: String, attr: dynamic) {
         attrs[name] = attr
@@ -153,11 +156,6 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 //        }
 //        data["on"][name] = { event -> messageBus.send(handler(event)) }
     }
-
-    open fun render(renderer: HTMLRenderer) : dynamic =
-        renderer.render(this)
-
-//    internal fun getElementData() = HTMLElementChild(this as HTML<Any>)
 
     fun toStringDeep(indent: Int = 0): String {
         val sb = StringBuilder()
@@ -269,44 +267,50 @@ data class InputEvent(val value: String)
 
 class InputH<MESSAGE> : HTML<MESSAGE>("input") {
 
-    var value: String = ""
+    var value: String?
         set(value) {
             addAttribute("value", value)
         }
+        get() = attrs["value"]
 
-    var autofocus: Boolean = false
+    var autofocus: Boolean
         set(value) {
             if (value) {
                 addAttribute("autofocus", "autofocus")
             }
         }
+        get() = attrs.containsKey("autofocus")
 
     // TODO enum?
-    var type: String = "text"
+    var type: String
         set(value) {
             addAttribute("type", value)
         }
+        get() = (attrs["type"] as String?) ?: "text"
 
-    var min: Int? = null
+    var min: Int?
         set(value) {
             if (value != null) {
                 addAttribute("min", value.toString())
             }
         }
+        get() = (attrs["min"] as String?)?.toInt()
 
-    var max: Int? = null
+    var max: Int?
         set(value) {
             if (value != null) {
                 addAttribute("max", value.toString())
             }
         }
+        get() = (attrs["max"] as String?)?.toInt()
 
-    var step: Int? = null
+    var step: Int?
         set(value) {
             if (value != null) {
                 addAttribute("step", value.toString())
             }
         }
+        get() = (attrs["step"] as String?)?.toInt()
 
     fun onInput(handler: (InputEvent) -> MESSAGE) {
         addHandler("input", { event: Event ->
@@ -334,50 +338,54 @@ class ButtonH<MESSAGE> : HTML<MESSAGE>("button") {
 }
 
 interface HTMLRenderer {
-    fun render(htmlChild: HTMLChild): dynamic
+    fun render(element: Element, htmlChild: HTMLChild)
 }
 
 interface HTMLChild
 
 data class HTMLTextChild(val text: String) : HTMLChild
 
-//data class HTMLElementChild(val html: HTML<Any>) : HTMLChild {
-//
-//    fun sameChildren(other: HTMLElementChild) : Boolean {
-//        if (other.html.children.size != html.children.size) {
-//            return false
-//        }
-//        if (html.children.filterIndexed { i, htmlData -> !htmlData.same(other.html.children[i])}.isNotEmpty()) {
-//            return false
-//        }
-//        return true
-//    }
-//
-//    fun sameData(other: HTMLElementChild) : Boolean {
-//        if (html.attrs != other.html.attrs) {
-//            return false
-//        }
-//
-//        if (html.handlers.keys != other.html.handlers.keys) {
-//            return false
-//        }
-//
-//        return true
-//    }
-//
-//}
+class SnabbdomRenderer : HTMLRenderer {
+    private var viewH : dynamic = null
+    private val onFirstPatchHandlers = mutableListOf<() -> Unit>()
+    private val onSubsequentPatchHandlers = mutableListOf<() -> Unit>()
 
-object SnabbdomRenderer : HTMLRenderer {
+    fun onFirstPatch(handler: () -> Unit) {
+        onFirstPatchHandlers += handler
+    }
 
-    override fun render(htmlChild: HTMLChild): dynamic =
-        when (htmlChild) {
-            is HTML<*> ->
-                if (htmlChild.text != null) {
-                    snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.text)
-                } else {
-                    val renderedChildren = htmlChild.children.map { render(it) }
+    fun onSubsequentPatch(handler: () -> Unit) {
+        onSubsequentPatchHandlers += handler
+    }
 
-                    // is this faster?
+    companion object {
+        private val patch: (old: dynamic, new: dynamic) -> Unit = snabbdomInit()
+    }
+
+    override fun render(element: Element, htmlChild: HTMLChild) {
+        val newH = toH(htmlChild)
+
+        if (viewH == null) {
+            patch(element, newH)
+            onFirstPatchHandlers.forEach { it.invoke() }
+        } else {
+            patch(viewH, newH)
+            onSubsequentPatchHandlers.forEach { it.invoke() }
+        }
+
+        viewH = newH
+
+    }
+
+    private fun toH(htmlChild: HTMLChild): dynamic =
+            when (htmlChild) {
+                is HTML<*> ->
+                    if (htmlChild.text != null) {
+                        snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.text)
+                    } else {
+                        val renderedChildren = htmlChild.children.map { toH(it) }
+
+                        // is this faster?
 //                    val renderedChildren = htmlData.children.map { child ->
 //                        when (child) {
 //                            is HTMLElementData -> render(child)
@@ -386,11 +394,12 @@ object SnabbdomRenderer : HTMLRenderer {
 //                        }
 //                    }
 
-                    snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
-                }
-            is HTMLTextChild -> htmlChild.text
-            else -> throw IllegalStateException()
-        }
+                        snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
+                    }
+                is HTMLTextChild -> htmlChild.text
+                else -> throw IllegalStateException()
+            }
+
 
     private fun getData(html: HTML<*>) : dynamic {
         val data: dynamic = object {}

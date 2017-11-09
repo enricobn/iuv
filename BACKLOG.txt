@@ -1,10 +1,11 @@
 Doing
 -------
 - on branch testable-html
- - test HTML
+ - material
 
 Next
 -----
+- move HTML stuff to a separate file independent from snabbdom
 - fix IntelliJ problems (related to build system?):
   F3 to a core class from examples does not work, nor implement interface methods
 - trying to have a singleton MessageBus
@@ -13,6 +14,7 @@ Next
 Done
 ------
 - on branch view-returns-HTML
+  - test HTML
   - time travelling debugger
   - parametric routes
   - IUVRouter
