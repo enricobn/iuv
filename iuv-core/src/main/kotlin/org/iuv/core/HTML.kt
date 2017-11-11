@@ -9,10 +9,10 @@ annotation class HtmlTagMarker
 
 @HtmlTagMarker
 open class HTML<MESSAGE>(val name: String) : HTMLChild {
-    internal val attrs = mutableMapOf<String,dynamic>()
-    internal val handlers = mutableMapOf<String,dynamic>()
-    internal val children = mutableListOf<HTMLChild>()
-    internal var text : String? = null
+    private val attrs = mutableMapOf<String,dynamic>()
+    private val handlers = mutableMapOf<String,dynamic>()
+    private val children = mutableListOf<HTMLChild>()
+    private var text : String? = null
     internal var nullableMessageBus : MessageBus<MESSAGE>? = null
 
     private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
@@ -26,6 +26,12 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     fun getAttrs() = attrs.toMap()
 
     fun getHandlers() = handlers.toMap()
+
+    fun hasHandler(name: String) = handlers.containsKey(name)
+
+    fun gethandler(name: String) = handlers[name]
+
+    fun getText() = text
 
     fun div(init: DivH<MESSAGE>.() -> Unit) {
         element(DivH(), init)
@@ -121,6 +127,11 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 //        }
 //        data["attrs"][name] = attr
     }
+
+    fun getAttribute(key: String) : dynamic =
+        attrs[key]
+
+    fun hasAttribute(key: String) = attrs.containsKey(key)
 
     fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE) {
         handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
@@ -242,7 +253,7 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
         set(value) {
             addAttribute("value", value)
         }
-        get() = attrs["value"]
+        get() = getAttribute("value")
 
     var autofocus: Boolean
         set(value) {
@@ -250,14 +261,14 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
                 addAttribute("autofocus", "autofocus")
             }
         }
-        get() = attrs.containsKey("autofocus")
+        get() = getAttribute("autofocus") == null
 
     // TODO enum?
     var type: String
         set(value) {
             addAttribute("type", value)
         }
-        get() = (attrs["type"] as String?) ?: "text"
+        get() = (getAttribute("type") as String?) ?: "text"
 
     var min: Int?
         set(value) {
@@ -265,7 +276,7 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
                 addAttribute("min", value.toString())
             }
         }
-        get() = (attrs["min"] as String?)?.toInt()
+        get() = (getAttribute("min") as String?)?.toInt()
 
     var max: Int?
         set(value) {
@@ -273,7 +284,7 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
                 addAttribute("max", value.toString())
             }
         }
-        get() = (attrs["max"] as String?)?.toInt()
+        get() = (getAttribute("max") as String?)?.toInt()
 
     var step: Int?
         set(value) {
@@ -281,7 +292,7 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
                 addAttribute("step", value.toString())
             }
         }
-        get() = (attrs["step"] as String?)?.toInt()
+        get() = (getAttribute("step") as String?)?.toInt()
 
     fun onInput(handler: (InputEvent) -> MESSAGE) {
         addHandler("input", { event: Event ->

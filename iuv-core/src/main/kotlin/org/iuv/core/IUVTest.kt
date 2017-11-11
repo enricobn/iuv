@@ -19,15 +19,11 @@ open class IUVTest<MESSAGE> {
         }
 
         fun withAttribute(name: String, value: dynamic) : (HTML<Any>) -> Boolean = { html ->
-            if (html.attrs.containsKey(name)) {
-                html.attrs[name] == value
-            } else {
-                false
-            }
+            html.getAttribute(name) == value
         }
 
         fun withAttribute(name: String) : HTMLPredicate = { html ->
-            html.attrs.containsKey(name)
+            html.getAttribute(name) != null
         }
 
         fun withName(name: String) : HTMLPredicate = { html ->
@@ -35,11 +31,11 @@ open class IUVTest<MESSAGE> {
         }
 
         private fun sameChildren(html: HTML<*>, other: HTML<*>) : SameResult {
-            if (other.children.size != html.children.size) {
+            if (other.getChildren().size != html.getChildren().size) {
                 return SameResult("Not same children size.")
             }
 
-            val childrenSameResults = html.children.mapIndexed { i, child -> same(child, other.children[i]) }
+            val childrenSameResults = html.getChildren().mapIndexed { i, child -> same(child, other.getChildren()[i]) }
 
             val errors = childrenSameResults.filter { !it.same }
 
@@ -50,12 +46,12 @@ open class IUVTest<MESSAGE> {
         }
 
         private fun sameData(html: HTML<*>, other: HTML<*>) : SameResult {
-            if (html.attrs != other.attrs) {
-                return SameResult("Not same attributes, '${html.attrs}' vs '${other.attrs}'.")
+            if (html.getAttrs() != other.getAttrs()) {
+                return SameResult("Not same attributes, '${html.getAttrs()}' vs '${other.getAttrs()}'.")
             }
 
-            if (html.handlers.keys != other.handlers.keys) {
-                return SameResult("Not same name handlers (keys), '${html.handlers.keys}' vs '${other.handlers.keys}'.")
+            if (html.getHandlers().keys != other.getHandlers().keys) {
+                return SameResult("Not same name handlers (keys), '${html.getHandlers().keys}' vs '${other.getHandlers().keys}'.")
             }
 
             return SameResult()
@@ -105,8 +101,8 @@ open class IUVTest<MESSAGE> {
                 return SameResult("Not same name, '$name' vs '${other.name}'.")
             }
 
-            if (text != other.text) {
-                return SameResult("Not same text, '$text' vs '${other.text}'.")
+            if (getText() != other.getText()) {
+                return SameResult("Not same text, '${getText()}' vs '${other.getText()}'.")
             }
 
             val sameData = sameData(this, other)
@@ -143,7 +139,7 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
             if (predicate(html as HTML<Any>)) {
                 TestingHTML(html, parent)
             } else {
-                val found = html.children.map { child ->
+                val found = html.getChildren().map { child ->
                     when (child) {
                         is HTML<*> -> {
                             find(TestingHTML(html, parent), child, predicate)
@@ -161,14 +157,14 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
     }
 
     fun callHandler(name: String, event: Any?) {
-        html.handlers[name](event)
+        html.gethandler(name)(event)
     }
 
-    fun hasProperty(name: String) = html.attrs.containsKey(name)
+    fun hasAttribute(name: String) = html.hasAttribute(name)
 
-    fun hasHandler(name: String) = html.handlers.containsKey(name)
+    fun hasHandler(name: String) = html.hasHandler(name)
 
-    fun getProperty(name: String) = html.attrs[name]
+    fun getAttribute(name: String) = html.getAttribute(name)
 
     override fun toString(): String {
         return html.toString()

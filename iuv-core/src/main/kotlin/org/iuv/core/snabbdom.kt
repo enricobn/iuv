@@ -1,7 +1,6 @@
 package org.iuv.core
 
 import org.w3c.dom.Element
-import org.w3c.dom.events.Event
 
 external object snabbdom {
 
@@ -65,10 +64,10 @@ class SnabbdomRenderer : HTMLRenderer {
     private fun toH(htmlChild: HTMLChild): dynamic =
             when (htmlChild) {
                 is HTML<*> ->
-                    if (htmlChild.text != null) {
-                        snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.text)
+                    if (htmlChild.getText() != null) {
+                        snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.getText())
                     } else {
-                        val renderedChildren = htmlChild.children.map { toH(it) }
+                        val renderedChildren = htmlChild.getChildren().map { toH(it) }
 
                         // is this faster?
 //                    val renderedChildren = htmlData.children.map { child ->
@@ -91,19 +90,19 @@ class SnabbdomRenderer : HTMLRenderer {
 
         val dynAttrs: dynamic
 
-        if (!html.attrs.isEmpty()) {
+        if (!html.getAttrs().isEmpty()) {
             dynAttrs = object {}
             data["attrs"] = dynAttrs
-            html.attrs.forEach { (key, value) -> dynAttrs[key] = value }
+            html.getAttrs().forEach { (key, value) -> dynAttrs[key] = value }
         }
 
         val on: dynamic
 
-        if (!html.handlers.isEmpty()) {
+        if (!html.getHandlers().isEmpty()) {
             on = object {}
             data["on"] = on
 
-            html.handlers.forEach { (key, value) -> on[key] = value }
+            html.getHandlers().forEach { (key, value) -> on[key] = value }
         }
 
         return data
