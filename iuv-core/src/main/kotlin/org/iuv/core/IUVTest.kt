@@ -1,7 +1,5 @@
 package org.iuv.core
 
-import org.iuv.core.IUVTest.Companion.same
-
 typealias HTMLPredicate = (HTML<Any>) -> Boolean
 
 open class IUVTest<MESSAGE> {

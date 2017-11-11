@@ -12,7 +12,7 @@ class SimpleIUV(val initialId: Int) : IUV<Model, Message> {
 
     override fun init() : Pair<Model, Cmd<Message>> = Pair(Model(initialId), Cmd.none())
 
-    override fun view(model: Model): HTML<Message>  =
+    override fun view(model: Model): HTML<Message> =
             html {}
 
     override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> =

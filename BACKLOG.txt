@@ -3,7 +3,6 @@ Doing
 
 Next
 -----
-- move HTML stuff to a separate file independent from snabbdom
 - fix IntelliJ problems (related to build system?):
   F3 to a core class from examples does not work, nor implement interface methods
 - trying to have a singleton MessageBus
@@ -11,6 +10,7 @@ Next
 
 Done
 ------
+- move HTML stuff to a separate file independent from snabbdom
 - on branch view-returns-HTML
   - Material Design Lite
   - test HTML
