@@ -13,7 +13,7 @@ class SimpleIUV(val initialId: Int) : IUV<Model, Message> {
     override fun init() : Pair<Model, Cmd<Message>> = Pair(Model(initialId), Cmd.none())
 
     override fun view(model: Model): HTML<Message> =
-            html {}
+            html {+"SimpleIUV"}
 
     override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> =
             Pair(model, Cmd.none())
@@ -26,11 +26,11 @@ class IUVRouterTest {
     fun givenARouterWhenISendAGotoWithARouteThatDoesNotExistsThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("/simple1", SimpleIUV(1))
-        router.add("/simple") { SimpleIUV(it.first().toInt())}
+        router.add("simple1", SimpleIUV(1))
+        router.add("simple") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
-        val (newModel, _) = router.update(Goto("/dummy"), model)
+        val (newModel, _) = router.update(Goto("/dummy", false), model)
 
         assertNotNull(newModel.errorMessage)
     }
@@ -39,11 +39,11 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithSimilarPathButNotMatchedThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("/simple1", SimpleIUV(1))
-        router.add("/simple") { SimpleIUV(it.first().toInt())}
+        router.add("simple1", SimpleIUV(1))
+        router.add("simple") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
-        val (newModel, _) = router.update(Goto("/simple0"), model)
+        val (newModel, _) = router.update(Goto("/simple0", false), model)
 
         assertNotNull(newModel.errorMessage)
     }
@@ -52,11 +52,11 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithSimilarPathMatchedThenItSucceed() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("/simple1", SimpleIUV(1))
-        router.add("/simple") { SimpleIUV(it.first().toInt())}
+        router.add("simple1", SimpleIUV(1))
+        router.add("simple") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
-        val (newModel, _) = router.update(Goto("/simple1"), model)
+        val (newModel, _) = router.update(Goto("/simple1", false), model)
 
         assertEquals(1, (newModel.currentIUVModel as Model).id)
     }
@@ -65,11 +65,11 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithParameterThenTheParameterMustBePresentInSimpleIUV() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("/simple1", SimpleIUV(1))
-        router.add("/simple") { SimpleIUV(it.first().toInt())}
+        router.add("simple1", SimpleIUV(1))
+        router.add("simple") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
-        val (newModel, _) = router.update(Goto("/simple/5"), model)
+        val (newModel, _) = router.update(Goto("/simple/5", false), model)
 
         assertEquals(5, (newModel.currentIUVModel as Model).id)
     }
@@ -78,10 +78,10 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("/simple") { SimpleIUV(it.first().toInt())}
+        router.add("simple") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
-        val (newModel, _) = router.update(Goto("/simple/hello"), model)
+        val (newModel, _) = router.update(Goto("/simple/hello", false), model)
 
         assertNotNull(newModel.errorMessage)
     }

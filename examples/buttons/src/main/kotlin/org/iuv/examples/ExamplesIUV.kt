@@ -24,7 +24,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
 
     companion object {
 
-        private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "buttons/$id")
+        private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
         private fun HTML<ExamplesMessage>.link(text: String, url: String) {
             mtButton {
@@ -59,10 +59,10 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
             vBox {
                 linkToButtons(1)
                 linkToButtons(2)
-                link("Invalid buttons 3 with error", "buttons3")
-                link("Grid", "grid")
-                link("Not existent route", "notExistentRoute")
-                link("Error", "buttons/hello")
+                link("Invalid buttons 3 with error", "/buttons3")
+                link("Grid", "/grid")
+                link("Not existent route", "/notExistentRoute")
+                link("Error", "/buttons/hello")
                 tab.view(model.tabModel).map(this, ::ExamplesTabMessageWrapper)
             }
         }

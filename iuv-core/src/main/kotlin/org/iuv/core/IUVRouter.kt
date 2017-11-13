@@ -23,7 +23,7 @@ internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
  * @param testMode if true no window history events are captured nor sent.
  */
 class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterModel, RouterMessage> {
-    private var routes = HashMap<String, IUVRoute<*, *>>()
+    private var routes = HashMap<String, IUVRoute<*,*>>()
     private var errorMessage: String? = null
     private var baseUrl : String? = null
 
@@ -33,6 +33,9 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
 
     override fun init() : Pair<RouterModel, Cmd<RouterMessage>> {
         val (baseUrl, path) = parseHref(window.location.href)
+
+        console.log(path)
+
         this.baseUrl = baseUrl
         val childIUV = createChildIUV(path)
 
@@ -48,8 +51,13 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
 
                                 if (!testMode) {
                                     window.addEventListener("popstate", { _: Event ->
+                                        console.log("From popstate")
                                         val (_,path) = parseHref(window.location.href)
-                                        messageBus.send(Goto(path, true))
+                                        if (path == null) {
+                                            messageBus.send(Goto(null, true))
+                                        } else {
+                                            messageBus.send(Goto("/" + path, true))
+                                        }
                                     })
                                 }
                             }
@@ -83,24 +91,31 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
         when (message) {
             is Goto -> {
+                val path =
+                        when {
+                            message.path == null -> null
+                            message.path.startsWith("/") -> message.path.substring(1)
+                            else -> model.path + message.path
+                        }
+
                 if (!testMode && !message.fromBrowser) {
                     if (message.path == null) {
                         window.location.href = baseUrl!!
 //                        window.history.pushState(object {}, "", baseUrl)
                     } else {
-                        window.location.href = baseUrl + "#/${message.path}"
+                        window.location.href = baseUrl + "#/$path"
 //                        window.history.pushState(object {}, "", baseUrl + "#/${message.url}")
                     }
                 }
 
                 val childIUV: ChildIUV<RouterModel, RouterMessage, Any, Any>? =
-                        createChildIUV(message.path)
+                        createChildIUV(path)
 
                 if (childIUV == null) {
                     Pair(model.copy(errorMessage = "Cannot find path '${message.path}'."), Cmd.none())
                 } else {
                     val (newModel, cmd) = childIUV.init(model)
-                    Pair(newModel.copy(path = message.path, errorMessage = null), cmd)
+                    Pair(newModel.copy(path = path, errorMessage = null), cmd)
                 }
 
             }
