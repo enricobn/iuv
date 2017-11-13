@@ -2,10 +2,13 @@ package org.iuv.core
 
 import kotlin.test.*
 
+// Model
 class Model(val id: Int)
 
+// Messages
 interface Message
 
+// IUV
 class SimpleIUV(val initialId: Int) : IUV<Model, Message> {
 
     override fun init() : Pair<Model, Cmd<Message>> = Pair(Model(initialId), Cmd.none())

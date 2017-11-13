@@ -20,7 +20,7 @@ internal data class Goto(val path: String, val fromBrowser: Boolean) : RouterMes
 internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 
 /**
- * @param testMode if true no window history events are captured nor sent.
+ * @param testMode if true no window history events are captured and the browser's location is not changed.
  */
 class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterModel, RouterMessage> {
     private var routes = HashMap<String, IUVRoute<*,*>>()
