@@ -6,7 +6,7 @@ import kotlin.browser.window
 typealias IUVRoute<MODEL, MESSAGE> = (List<String>) -> IUV<MODEL,MESSAGE>
 
 // Model
-data class RouterModel(val path : String?, val currentIUVModel: Any?, val errorMessage: String?)
+data class RouterModel(val path : String, val currentIUVModel: Any?, val errorMessage: String?)
 
 // Messages
 interface RouterMessage
@@ -15,7 +15,7 @@ interface GotoMessage {
     val path: String
 }
 
-internal data class Goto(val path: String?, val fromBrowser: Boolean) : RouterMessage
+internal data class Goto(val path: String, val fromBrowser: Boolean) : RouterMessage
 
 internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 
@@ -47,27 +47,21 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
      *
      */
     internal fun init(href: String) : Pair<RouterModel, Cmd<RouterMessage>> {
-        val (baseUrl, path) = parseHref(href)
+        val (baseUrl, absolutePath) = parseHref(href)
 
         this.baseUrl = baseUrl
 
-        val model = RouterModel(null, null, null)
+        val model = RouterModel("/", null, null)
 
         return Pair(model,
                 Cmd.cmdOf(
-                        if (path == null) sendMessage(Goto(null, true))
-                        else sendMessage(Goto("/" + path, true)),
+                        sendMessage(Goto(absolutePath, true)),
                     object : Cmd<RouterMessage> {
                         override fun run(messageBus: MessageBus<RouterMessage>) {
                             if (!testMode) {
                                 window.addEventListener("popstate", { _: Event ->
                                     val (_,poppedPath) = parseHref(window.location.href)
-
-                                    if (poppedPath == null) {
-                                        messageBus.send(Goto(null, true))
-                                    } else {
-                                        messageBus.send(Goto("/" + poppedPath, true))
-                                    }
+                                    messageBus.send(Goto(poppedPath, true))
                                 })
                             }
                         }
@@ -79,28 +73,28 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
         when (message) {
             is Goto -> {
-                val path =
+                val absolutePath =
                         when {
-                            message.path == null -> null
-                            message.path.startsWith("/") -> message.path.substring(1)
-                            else -> model.path + message.path
+                            message.path == "/" -> "/" // root
+                            message.path.startsWith("/") -> message.path // absolute path
+                            else -> model.path + message.path // relative path
                         }
 
                 if (!testMode && !message.fromBrowser) {
-                    if (path == null) {
+                    if (absolutePath == "/") {
                         window.location.href = baseUrl!!
                     } else {
-                        window.location.href = baseUrl + "#/$path"
+                        window.location.href = baseUrl + "#$absolutePath"
                     }
                 }
 
-                val (childIUV, error) = createChildIUV(path)
+                val (childIUV, error) = createChildIUV(absolutePath)
 
                 if (childIUV == null) {
                     Pair(model.copy(errorMessage = error), Cmd.none())
                 } else {
                     val (newModel, cmd) = childIUV.init(model)
-                    Pair(newModel.copy(path = path, errorMessage = null), cmd)
+                    Pair(newModel.copy(path = absolutePath, errorMessage = null), cmd)
                 }
 
             }
@@ -142,36 +136,43 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             }
         }
 
-    private fun parseHref(href: String) : Pair<String, String?> {
+    /**
+     * Returns a pair with baseURL and path
+     */
+    private fun parseHref(href: String) : Pair<String, String> {
         val hash = href.indexOf("#/")
         return if (hash >= 0)
-            Pair(href.substring(0, hash), href.substring(hash + 2))
+            Pair(href.substring(0, hash), href.substring(hash + 1))
         else
-            Pair(href, null)
+            Pair(href, "/")
     }
 
-    private fun createChildIUV(path: String?): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?,String?> {
+    private fun createChildIUV(absolutePath: String): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?,String?> {
         val childIUV: ChildIUV<RouterModel, RouterMessage, Any, Any>?
 
-        if (path == null) {
+        if (absolutePath == "/") {
             childIUV = createChildIUV(rootIUV)
         } else {
-            val baseUrl = routes.keys.sorted().reversed().find { path.startsWith(it) }
+            val baseUrl = routes.keys.sorted().reversed().find { absolutePath.startsWith("/" + it) }
+
+            console.log(baseUrl)
 
             if (baseUrl != null) {
-                val parameters = path.substring(baseUrl.length)
+                val parameters = absolutePath.substring(baseUrl.length + 1)
 
-                if (baseUrl == path || parameters.startsWith("/")) {
+                console.log(parameters)
+
+                if (("/" + baseUrl) == absolutePath || parameters.startsWith("/")) {
                     try {
                         childIUV = createChildIUV(baseUrl, parameters)
                     } catch (e: Exception) {
                         return Pair(null, e.message)
                     }
                 } else {
-                    return Pair(null, "Cannot find path '$path'.")
+                    return Pair(null, "Cannot find path '$absolutePath'.")
                 }
             } else {
-                return Pair(null, "Cannot find path '$path'.")
+                return Pair(null, "Cannot find path '$absolutePath'.")
             }
         }
 
@@ -179,7 +180,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     }
 
     private fun createChildIUV(model: RouterModel): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?, String?> =
-            if (model.path == null)
+            if (model.path == "/")
                 Pair(createChildIUV(rootIUV), null)
             else
                 createChildIUV(model.path)

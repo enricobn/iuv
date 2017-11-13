@@ -1,6 +1,5 @@
 package org.iuv.core
 
-import kotlin.browser.window
 import kotlin.test.*
 
 class Model(val id: Int)
@@ -81,8 +80,6 @@ class IUVRouterTest {
 
         val (model, _) = router.init()
 
-        assertNull(model.errorMessage)
-
         val (newModel, _) = router.update(Goto("/simple/hello", false), model)
 
         assertNotNull(newModel.errorMessage)
@@ -115,8 +112,6 @@ class IUVRouterTest {
         val (model, cmd) = router.init("http://hello.com#/simple/1")
 
         assertNull(model.errorMessage)
-
-        assertNull(model.path)
 
         val messages = mutableListOf<RouterMessage>()
 
