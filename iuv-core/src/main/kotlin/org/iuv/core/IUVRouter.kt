@@ -27,56 +27,6 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     private var errorMessage: String? = null
     private var baseUrl : String? = null
 
-    init {
-//        add("/", rootIUV)
-    }
-
-    override fun init() : Pair<RouterModel, Cmd<RouterMessage>> {
-        val (baseUrl, path) = parseHref(window.location.href)
-
-        console.log(path)
-
-        this.baseUrl = baseUrl
-        val childIUV = createChildIUV(path)
-
-        if (childIUV == null) {
-            return Pair(RouterModel(path, null, "Cannot find path '$path'."), Cmd.none())
-        } else {
-            val (newModel, cmd) = childIUV.init(RouterModel(path, null, null))
-            return Pair(newModel,
-                    Cmd.cmdOf(cmd,
-                        object : Cmd<RouterMessage> {
-                            override fun run(messageBus: MessageBus<RouterMessage>) {
-    //                        messageBus.send(Goto(null, false))
-
-                                if (!testMode) {
-                                    window.addEventListener("popstate", { _: Event ->
-                                        console.log("From popstate")
-                                        val (_,path) = parseHref(window.location.href)
-                                        if (path == null) {
-                                            messageBus.send(Goto(null, true))
-                                        } else {
-                                            messageBus.send(Goto("/" + path, true))
-                                        }
-                                    })
-                                }
-                            }
-                        }
-                    )
-            )
-
-        }
-
-    }
-
-    private fun parseHref(href: String) : Pair<String, String?> {
-        val hash = href.indexOf("#/")
-        return if (hash >= 0)
-            Pair(href.substring(0, hash), href.substring(hash + 2))
-        else
-            Pair(href, null)
-    }
-
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
         if (routes.containsKey(path)) {
             errorMessage = "Duplicate path: $path"
@@ -86,7 +36,45 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     }
 
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuv: IUV<CHILD_MODEL, CHILD_MESSAGE>) =
-        add(path, { iuv })
+            add(path, { iuv })
+
+    override fun init() : Pair<RouterModel, Cmd<RouterMessage>> =
+        init(window.location.href)
+
+
+    /**
+     * For test purposes
+     *
+     */
+    internal fun init(href: String) : Pair<RouterModel, Cmd<RouterMessage>> {
+        val (baseUrl, path) = parseHref(href)
+
+        this.baseUrl = baseUrl
+
+        val model = RouterModel(null, null, null)
+
+        return Pair(model,
+                Cmd.cmdOf(
+                        if (path == null) sendMessage(Goto(null, true))
+                        else sendMessage(Goto("/" + path, true)),
+                    object : Cmd<RouterMessage> {
+                        override fun run(messageBus: MessageBus<RouterMessage>) {
+                            if (!testMode) {
+                                window.addEventListener("popstate", { _: Event ->
+                                    val (_,poppedPath) = parseHref(window.location.href)
+
+                                    if (poppedPath == null) {
+                                        messageBus.send(Goto(null, true))
+                                    } else {
+                                        messageBus.send(Goto("/" + poppedPath, true))
+                                    }
+                                })
+                            }
+                        }
+                    }
+                )
+        )
+    }
 
     override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
         when (message) {
@@ -99,20 +87,17 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                         }
 
                 if (!testMode && !message.fromBrowser) {
-                    if (message.path == null) {
+                    if (path == null) {
                         window.location.href = baseUrl!!
-//                        window.history.pushState(object {}, "", baseUrl)
                     } else {
                         window.location.href = baseUrl + "#/$path"
-//                        window.history.pushState(object {}, "", baseUrl + "#/${message.url}")
                     }
                 }
 
-                val childIUV: ChildIUV<RouterModel, RouterMessage, Any, Any>? =
-                        createChildIUV(path)
+                val (childIUV, error) = createChildIUV(path)
 
                 if (childIUV == null) {
-                    Pair(model.copy(errorMessage = "Cannot find path '${message.path}'."), Cmd.none())
+                    Pair(model.copy(errorMessage = error), Cmd.none())
                 } else {
                     val (newModel, cmd) = childIUV.init(model)
                     Pair(newModel.copy(path = path, errorMessage = null), cmd)
@@ -123,9 +108,13 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                 when (message.childMessage) {
                     is GotoMessage -> update(Goto(message.childMessage.path, false), model)
                     else -> {
-                        val childIUV = createChildIUV(model)
+                        val (childIUV, error) = createChildIUV(model)
 
-                        childIUV!!.update(message.childMessage, model)
+                        if (childIUV != null) {
+                            childIUV.update(message.childMessage, model)
+                        } else {
+                            Pair(model.copy(errorMessage = error), Cmd.none())
+                        }
                     }
                 }
             }
@@ -134,8 +123,35 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             }
         }
 
-    private fun createChildIUV(path: String?): ChildIUV<RouterModel, RouterMessage, Any, Any>? {
-        var childIUV: ChildIUV<RouterModel, RouterMessage, Any, Any>? = null
+    override fun view(model: RouterModel): HTML<RouterMessage> =
+        html {
+            errorMessage?.let {
+                +it
+                return@html
+            }
+
+            if (model.errorMessage != null) {
+                +model.errorMessage
+            } else {
+                val (childIUV, error) = createChildIUV(model)
+                if (childIUV != null) {
+                    childIUV.view(model, this)
+                } else {
+                    +error!!
+                }
+            }
+        }
+
+    private fun parseHref(href: String) : Pair<String, String?> {
+        val hash = href.indexOf("#/")
+        return if (hash >= 0)
+            Pair(href.substring(0, hash), href.substring(hash + 2))
+        else
+            Pair(href, null)
+    }
+
+    private fun createChildIUV(path: String?): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?,String?> {
+        val childIUV: ChildIUV<RouterModel, RouterMessage, Any, Any>?
 
         if (path == null) {
             childIUV = createChildIUV(rootIUV)
@@ -149,32 +165,22 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                     try {
                         childIUV = createChildIUV(baseUrl, parameters)
                     } catch (e: Exception) {
-                        errorMessage = e.message
+                        return Pair(null, e.message)
                     }
+                } else {
+                    return Pair(null, "Cannot find path '$path'.")
                 }
+            } else {
+                return Pair(null, "Cannot find path '$path'.")
             }
         }
-        return childIUV
+
+        return Pair(childIUV, null)
     }
 
-    override fun view(model: RouterModel): HTML<RouterMessage> =
-        html {
-            errorMessage?.let {
-                +it
-                return@html
-            }
-
-            if (model.errorMessage != null) {
-                +model.errorMessage
-            } else {
-                val childIUV = createChildIUV(model)
-                childIUV!!.view(model, this)
-            }
-        }
-
-    private fun createChildIUV(model: RouterModel): ChildIUV<RouterModel, RouterMessage, Any, Any>? =
+    private fun createChildIUV(model: RouterModel): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?, String?> =
             if (model.path == null)
-                createChildIUV(rootIUV)
+                Pair(createChildIUV(rootIUV), null)
             else
                 createChildIUV(model.path)
 

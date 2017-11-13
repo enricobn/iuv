@@ -1,8 +1,7 @@
 package org.iuv.core
 
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
+import kotlin.browser.window
+import kotlin.test.*
 
 class Model(val id: Int)
 
@@ -78,11 +77,58 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple") { SimpleIUV(it.first().toInt())}
+        router.add("simple") { SimpleIUV(it.first().toInt()) }
+
+        val (model, _) = router.init()
+
+        assertNull(model.errorMessage)
+
+        val (newModel, _) = router.update(Goto("/simple/hello", false), model)
+
+        assertNotNull(newModel.errorMessage)
+
+        assertTrue(newModel.errorMessage!!.toLowerCase().contains("invalid number format"))
+    }
+
+    @Test
+    fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterAndISendAValidGotoThenThereIsNotAnErrorInRouterModel() {
+        val router = IUVRouter(SimpleIUV(0), true)
+
+        router.add("simple") { SimpleIUV(it.first().toInt()) }
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple/hello", false), model)
 
         assertNotNull(newModel.errorMessage)
+
+        val (newModel1, _) = router.update(Goto("/simple/1", false), newModel)
+
+        assertEquals(1, (newModel1.currentIUVModel as Model).id)
+    }
+
+    @Test
+    fun givenARouteWithParameterWhenIInitTheRouterWithAMatchingPathThenAGotoIsSentWithThePath() {
+        val router = IUVRouter(SimpleIUV(0), true)
+
+        router.add("simple") { SimpleIUV(it.first().toInt()) }
+
+        val (model, cmd) = router.init("http://hello.com#/simple/1")
+
+        assertNull(model.errorMessage)
+
+        assertNull(model.path)
+
+        val messages = mutableListOf<RouterMessage>()
+
+        val messagetBus = object : MessageBus<RouterMessage> {
+            override fun send(message: RouterMessage) {
+                messages += message
+            }
+
+        }
+
+        cmd.run(messagetBus)
+
+        assertEquals(Goto("/simple/1", true), messages.first())
     }
 }

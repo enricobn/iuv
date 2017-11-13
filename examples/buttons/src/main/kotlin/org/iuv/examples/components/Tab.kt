@@ -31,7 +31,6 @@ class Tab : IUV<TabModel, TabMessage> {
                         val iuv = createChildIUV(message.tab)
                         iuv.init(model)
                     }
-//                console.log(newModel.toString())
                 Pair(newModel.copy(activeTab = message.tab), newCmd)
             }
             else -> Pair(model, Cmd.none())

@@ -82,4 +82,11 @@ interface UV<MODEL, MESSAGE> {
         return html
     }
 
+    fun sendMessage(msg: MESSAGE) = object : Cmd<MESSAGE> {
+        override fun run(messageBus: MessageBus<MESSAGE>) {
+            messageBus.send(msg)
+        }
+    }
+
+
 }
