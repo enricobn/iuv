@@ -155,12 +155,8 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         } else {
             val baseUrl = routes.keys.sorted().reversed().find { absolutePath.startsWith("/" + it) }
 
-            console.log(baseUrl)
-
             if (baseUrl != null) {
                 val parameters = absolutePath.substring(baseUrl.length + 1)
-
-                console.log(parameters)
 
                 if (("/" + baseUrl) == absolutePath || parameters.startsWith("/")) {
                     try {
