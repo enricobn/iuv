@@ -7,9 +7,7 @@ private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
     override fun run(messageBus: MessageBus<MESSAGE>) {
     }
 
-    override fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE): Cmd<CONTAINER_MESSAGE> {
-        return Cmd.none()
-    }
+    override fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE): Cmd<CONTAINER_MESSAGE> = Cmd.none()
 
 }
 
