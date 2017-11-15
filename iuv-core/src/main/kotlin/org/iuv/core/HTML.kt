@@ -61,6 +61,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(TheadH(), init)
     }
 
+    fun tbody(init: TbodyH<MESSAGE>.() -> Unit) {
+        element(TbodyH(), init)
+    }
+
     fun th(init: THH<MESSAGE>.() -> Unit) {
         element(THH(), init)
     }
@@ -73,7 +77,11 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(BH(), init)
     }
 
-    fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
+    fun label(init: LabelH<MESSAGE>.() -> Unit) {
+        element(LabelH(), init)
+    }
+
+    protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
     }
@@ -114,11 +122,29 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
         get() = attrs["class"]
 
+    fun appendClasses(classesToAppend: String) {
+        val allClasses = classesToAppend +
+                this.classes.let {
+                    if (it != null && it.isNotEmpty()) {
+                        " " + it
+                    } else {
+                        ""
+                    }
+                }
+        classes = allClasses
+    }
+
     var style: String?
         set(value) {
             addAttribute("style", value)
         }
-        get() = attrs["style"]
+        get() = attrs["style"] as String?
+
+    var id: String?
+        set(value) {
+            addAttribute("id", value)
+        }
+        get() = attrs["id"] as String?
 
     fun addAttribute(name: String, attr: dynamic) {
         attrs[name] = attr
@@ -135,10 +161,6 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE) {
         handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
-//        if (data["on"] == null) {
-//            data["on"] = object {}
-//        }
-//        data["on"][name] = { event -> messageBus.send(handler(event)) }
     }
 
     fun toStringDeep(indent: Int = 0): String {
@@ -231,6 +253,8 @@ class TableH<MESSAGE> : HTML<MESSAGE>("table")
 
 class TheadH<MESSAGE> : HTML<MESSAGE>("thead")
 
+class TbodyH<MESSAGE> : HTML<MESSAGE>("tbody")
+
 class THH<MESSAGE> : HTML<MESSAGE>("th")
 
 class BH<MESSAGE> : HTML<MESSAGE>("b")
@@ -243,7 +267,11 @@ class TDH<MESSAGE> : HTML<MESSAGE>("td") {
 
 }
 
-class TRH<MESSAGE> : HTML<MESSAGE>("tr")
+class TRH<MESSAGE> : HTML<MESSAGE>("tr") {
+    fun onClick(handler: (Event) -> MESSAGE) {
+        addHandler("click", handler)
+    }
+}
 
 data class InputEvent(val value: String)
 
@@ -317,6 +345,15 @@ class ButtonH<MESSAGE> : HTML<MESSAGE>("button") {
         addHandler("click", handler)
     }
 
+}
+
+class LabelH<MESSAGE> : HTML<MESSAGE>("label") {
+
+    var forElement: String?
+        set(value) {
+            addAttribute("for", value)
+        }
+        get() = getAttribute("for") as String?
 }
 
 interface HTMLRenderer {

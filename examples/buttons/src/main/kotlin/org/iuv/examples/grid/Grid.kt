@@ -1,64 +1,112 @@
 package org.iuv.examples.grid
 
-import org.iuv.core.Cmd
-import org.iuv.core.HTML
-import org.iuv.core.UV
+import org.iuv.core.*
+import org.iuv.examples.components.IUVMDL
+import org.iuv.examples.components.mdlTable
+import org.iuv.examples.components.mdlTableCheckbox
 
 // MESSAGES
 interface GridMessage
 
-data class GridOnRowClick<out ROW>(val row: ROW) : GridMessage
+data class GridOnRowClick(val row: Int) : GridMessage
+
+object GridOnAllRowsClick : GridMessage
 
 // MODEL
 data class Column<in ROW>(val header: String, val classes: ((ROW) -> String?)? = null, val fn: (ROW) -> String)
 
-data class GridModel<ROW>(val rows: List<ROW>, val columns: List<Column<ROW>>, val selectedRow: ROW?)
-
-class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
-
-    fun init(rows: List<ROW>, columns: List<Column<ROW>>) : GridModel<ROW> {
-        return GridModel(rows, columns, null)
+data class GridModel<ROW>(val rows: List<ROW>, val columns: List<Column<ROW>>, val selectedRows: Set<Int>) {
+    fun getSelectedRow() : ROW? = if (selectedRows.size == 1) {
+        rows[selectedRows.first()]
+    } else {
+        null
     }
+}
 
-    override fun update(message: GridMessage, model: GridModel<ROW>): Pair<GridModel<ROW>, Cmd<GridMessage>> {
-        when(message) {
-            is GridOnRowClick<*> -> {
-                // TODO unchecked cast
-                return Pair(model.copy(selectedRow = message.row as ROW), Cmd.none())
+class Grid<ROW>(private val multiSelect : Boolean) : UV<GridModel<ROW>, GridMessage> {
+
+    fun init(rows: List<ROW>, columns: List<Column<ROW>>) : GridModel<ROW> =
+        GridModel(rows, columns,
+            if (multiSelect || rows.isEmpty()) {
+                emptySet()
+            } else {
+                setOf(0)
             }
+        )
+
+    override fun update(message: GridMessage, model: GridModel<ROW>): Pair<GridModel<ROW>, Cmd<GridMessage>> =
+        when (message) {
+            is GridOnRowClick -> {
+                val newSelectedRows =
+                        if (multiSelect) {
+                            if (model.selectedRows.contains(message.row)) {
+                                model.selectedRows.minus(message.row)
+                            } else {
+                                model.selectedRows.plus(message.row)
+                            }
+                        } else {
+                            setOf(message.row)
+                        }
+
+                Pair(model.copy(selectedRows = newSelectedRows), Cmd.none())
+            }
+            is GridOnAllRowsClick -> Pair(model, Cmd.none()) // TODO
             else -> {
-                return Pair(model, Cmd.none())
+                Pair(model, Cmd.none())
             }
         }
-    }
 
     override fun view(model: GridModel<ROW>): HTML<GridMessage> {
         return html {
-            table {
+            mdlTable {
                 thead {
-                    for ((header) in model.columns) {
-                        th {
-                            +header
+                    tr {
+                        if (multiSelect) {
+                            th {
+                                mdlTableCheckbox {
+                                    onInput { _ -> GridOnAllRowsClick }
+                                }
+                            }
+                        }
+
+                        for ((header) in model.columns) {
+                            th {
+                                classes = IUVMDL.dataTableNonNumeric
+                                +header
+                            }
                         }
                     }
                 }
 
-                for (row in model.rows) {
-                    tr {
-                        if (row == model.selectedRow) {
-                            classes = "SelectedRow"
-                        }
+                tbody {
+                    for ((i, row) in model.rows.withIndex()) {
 
-                        for (column in model.columns) {
-                            td {
-                                onClick { _ -> GridOnRowClick(row) }
+                        tr {
+                            if (model.selectedRows.contains(i)) {
+                                classes = IUVMDL.isSelected
+                            }
 
-                                val cl = column.classes?.invoke(row)
-                                if (cl != null) {
-                                    classes = cl
+                            if (multiSelect) {
+                                td {
+                                    mdlTableCheckbox {
+                                        onInput { _ -> GridOnRowClick(i) }
+                                    }
                                 }
+                            } else {
+                                onClick { _ -> GridOnRowClick(i) }
+                            }
 
-                                +column.fn(row)
+                            for (column in model.columns) {
+                                td {
+                                    classes = IUVMDL.dataTableNonNumeric
+
+                                    val cl = column.classes?.invoke(row)
+                                    if (cl != null) {
+                                        classes = classes + " " + cl
+                                    }
+
+                                    +column.fn(row)
+                                }
                             }
                         }
                     }
@@ -66,4 +114,5 @@ class Grid<ROW> : UV<GridModel<ROW>, GridMessage> {
             }
         }
     }
+
 }

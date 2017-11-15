@@ -22,7 +22,7 @@ data class GridIUVModel(val gridModel: GridModel<Match>)
 object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
 
     val rows = listOf(
-            Match("Juventus", "Napoli", Result(1, 0)),
+            Match("Juventus", "Napoli", Result(0, 0)),
             Match("Roma", "Milan", Result(1, 1))
     )
 
@@ -32,7 +32,7 @@ object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
             Column("Result", { _ -> "Center" }) { "${it.result.home} - ${it.result.visitor}" }
     )
 
-    private val grid = Grid<Match>()
+    private val grid = Grid<Match>(false)
     private val detail = Detail<Match>()
 
     override fun init(): Pair<GridIUVModel, Cmd<GridIUVMessage>> {
@@ -61,7 +61,7 @@ object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
             div {
                 style = "float: none;"
                 // TODO I don't like to make the init every time, better to have a detailModel in GridIUVModel then update it.
-                detail.view(detail.init(model.gridModel.selectedRow, columns)).map(this, ::DetailMessageWrapper)
+                detail.view(detail.init(model.gridModel.getSelectedRow(), columns)).map(this, ::DetailMessageWrapper)
             }
         }
     }

@@ -2,26 +2,50 @@ package org.iuv.examples.components
 
 import org.iuv.core.ButtonH
 import org.iuv.core.HTML
+import org.iuv.core.InputH
+import org.iuv.core.TableH
 
-fun <MESSAGE> HTML<MESSAGE>.mtButton(init: ButtonH<MESSAGE>.() -> Unit) {
-    val button = ButtonH<MESSAGE>()
+/*
+    A file for Material Design Lite components.
+ */
 
-    init(button)
-
-    val appendClasses = button.classes.let {
-        if (it != null && it.isNotEmpty()) {
-            " " + it
-        } else {
-            ""
-        }
-    }
-
-    button.classes = "mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect" + appendClasses//mdl-button--accent
-
-    add(button)
+object IUVMDL {
+    val dataTableNonNumeric = "mdl-data-table__cell--non-numeric"
+    val isSelected = "is-selected"
 }
 
-fun <MESSAGE> HTML<MESSAGE>.mtCard(title: String,text: String) {
+fun <MESSAGE> HTML<MESSAGE>.mtButton(init: ButtonH<MESSAGE>.() -> Unit) {
+    button {
+        init()
+
+        appendClasses("mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect")//mdl-button--accent
+    }
+
+}
+
+fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(init: InputH<MESSAGE>.() -> Unit) {
+    label {
+        classes = "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select"
+
+        input {
+            init()
+
+            appendClasses("mdl-checkbox__input")
+
+            type = "checkbox"
+        }
+    }
+}
+
+fun <MESSAGE> HTML<MESSAGE>.mdlTable(init: TableH<MESSAGE>.() -> Unit) {
+    table {
+        init()
+
+        appendClasses("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
+    }
+}
+
+fun <MESSAGE> HTML<MESSAGE>.mdlCard(title: String, text: String) {
         div {
             classes ="demo-card-square mdl-card mdl-shadow--2dp"
             div {
