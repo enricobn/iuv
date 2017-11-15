@@ -47,11 +47,13 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
             return
         }
 
+        // I do it before so if there's an error, the model is updated, otherwise when the updateDocument
+        // is called again, by the timer, the model is still different and the error is raised again and again ...
+        lastViewedModel = model
+
         val newView = iuv.view(model)
 
         newView.nullableMessageBus = messageBus
-
-        lastViewedModel = model
 
         renderer.render(view!!, newView)
     }
