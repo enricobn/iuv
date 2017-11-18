@@ -7,25 +7,42 @@ import org.iuv.core.TableH
 
 /*
     A file for Material Design Lite components.
- */
+*/
 
 object IUVMDL {
     val dataTableNonNumeric = "mdl-data-table__cell--non-numeric"
     val isSelected = "is-selected"
+    val isChecked = "is-checked"
 }
 
 fun <MESSAGE> HTML<MESSAGE>.mtButton(init: ButtonH<MESSAGE>.() -> Unit) {
     button {
         init()
 
-        appendClasses("mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect")//mdl-button--accent
+        appendClasses(
+ "mdl-button",
+                "mdl-js-button",
+                "mdl-button--raised",
+                "mdl-js-ripple-effect"
+        )//mdl-button--accent
     }
 
 }
 
-fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(init: InputH<MESSAGE>.() -> Unit) {
+fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, init: InputH<MESSAGE>.() -> Unit) {
     label {
-        classes = "mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select"
+        appendClasses(
+ "mdl-checkbox",
+                "mdl-js-checkbox",
+                "mdl-js-ripple-effect",
+                "mdl-data-table__select"
+        )
+
+        id = labelId
+
+        if (checked) {
+            runJs("window.document.getElementById('$labelId').MaterialCheckbox.check()")
+        }
 
         input {
             init()
@@ -34,6 +51,7 @@ fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(init: InputH<MESSAGE>.() -> Unit) {
 
             type = "checkbox"
         }
+
     }
 }
 
@@ -41,7 +59,11 @@ fun <MESSAGE> HTML<MESSAGE>.mdlTable(init: TableH<MESSAGE>.() -> Unit) {
     table {
         init()
 
-        appendClasses("mdl-data-table mdl-js-data-table mdl-shadow--2dp")
+        appendClasses(
+ "mdl-data-table",
+                "mdl-js-data-table",
+                "mdl-shadow--2dp"
+        )
     }
 }
 

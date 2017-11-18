@@ -52,14 +52,26 @@ class SnabbdomRenderer : HTMLRenderer {
         if (viewH == null) {
             patch(element, newH)
             onFirstPatchHandlers.forEach { it.invoke() }
+            getJsToRun(htmlChild).forEach { eval(it) }
         } else {
             patch(viewH, newH)
             onSubsequentPatchHandlers.forEach { it.invoke() }
+            getJsToRun(htmlChild).forEach { eval(it) }
         }
 
         viewH = newH
 
     }
+
+    private fun getJsToRun(htmlChild: HTMLChild) : List<String> =
+        when (htmlChild) {
+            is HTML<*> -> {
+                val allJs = htmlChild.getJsTorRun().toMutableList()
+                allJs.addAll(htmlChild.getChildren().flatMap { getJsToRun(it) })
+                allJs
+            }
+            else ->  emptyList()
+        }
 
     private fun toH(htmlChild: HTMLChild): dynamic =
             when (htmlChild) {

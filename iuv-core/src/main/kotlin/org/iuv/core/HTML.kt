@@ -13,6 +13,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     private val handlers = mutableMapOf<String,dynamic>()
     private val children = mutableListOf<HTMLChild>()
     private var text : String? = null
+    private var jsToRun = mutableListOf<String>()
     internal var nullableMessageBus : MessageBus<MESSAGE>? = null
 
     private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
@@ -29,9 +30,11 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     fun hasHandler(name: String) = handlers.containsKey(name)
 
-    fun gethandler(name: String) = handlers[name]
+    fun getHandler(name: String) = handlers[name]
 
     fun getText() = text
+
+    fun getJsTorRun() = jsToRun.toList()
 
     fun div(init: DivH<MESSAGE>.() -> Unit) {
         element(DivH(), init)
@@ -112,6 +115,13 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         children.forEach { parent.add(it) }
     }
 
+    /**
+     * TODO experimental
+     */
+    fun runJs(code: String) {
+        jsToRun.add(code)
+    }
+
     operator fun String.unaryPlus() {
         children.add(HTMLTextChild(this))
     }
@@ -122,8 +132,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
         get() = attrs["class"]
 
-    fun appendClasses(classesToAppend: String) {
-        val allClasses = classesToAppend +
+    fun appendClasses(vararg classesToAppend: String) {
+        val allClasses = classesToAppend.joinToString(" ") +
                 this.classes.let {
                     if (it != null && it.isNotEmpty()) {
                         " " + it

@@ -157,7 +157,7 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
     }
 
     fun callHandler(name: String, event: Any?) {
-        html.gethandler(name)(event)
+        html.getHandler(name)(event)
     }
 
     fun hasAttribute(name: String) = html.hasAttribute(name)

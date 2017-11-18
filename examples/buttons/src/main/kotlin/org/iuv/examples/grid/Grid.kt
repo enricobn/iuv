@@ -1,6 +1,8 @@
 package org.iuv.examples.grid
 
-import org.iuv.core.*
+import org.iuv.core.Cmd
+import org.iuv.core.HTML
+import org.iuv.core.UV
 import org.iuv.examples.components.IUVMDL
 import org.iuv.examples.components.mdlTable
 import org.iuv.examples.components.mdlTableCheckbox
@@ -63,7 +65,7 @@ class Grid<ROW>(private val multiSelect : Boolean) : UV<GridModel<ROW>, GridMess
                     tr {
                         if (multiSelect) {
                             th {
-                                mdlTableCheckbox {
+                                mdlTableCheckbox("0", model.rows.size == model.selectedRows.size) {
                                     onInput { _ -> GridOnAllRowsClick }
                                 }
                             }
@@ -83,12 +85,12 @@ class Grid<ROW>(private val multiSelect : Boolean) : UV<GridModel<ROW>, GridMess
 
                         tr {
                             if (model.selectedRows.contains(i)) {
-                                classes = IUVMDL.isSelected
+                                appendClasses(IUVMDL.isSelected)
                             }
 
                             if (multiSelect) {
                                 td {
-                                    mdlTableCheckbox {
+                                    mdlTableCheckbox((i + 1).toString(), model.selectedRows.contains(i)) {
                                         onInput { _ -> GridOnRowClick(i) }
                                     }
                                 }
