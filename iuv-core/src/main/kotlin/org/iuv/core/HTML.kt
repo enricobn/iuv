@@ -84,6 +84,30 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(LabelH(), init)
     }
 
+    fun ul(init: UlH<MESSAGE>.() -> Unit) {
+        element(UlH(), init)
+    }
+
+    fun li(init: LiH<MESSAGE>.() -> Unit) {
+        element(LiH(), init)
+    }
+
+    fun header(init: HeaderH<MESSAGE>.() -> Unit) {
+        element(HeaderH(), init)
+    }
+
+    fun nav(init: NavH<MESSAGE>.() -> Unit) {
+        element(NavH(), init)
+    }
+
+    fun a(init: AH<MESSAGE>.() -> Unit) {
+        element(AH(), init)
+    }
+
+    fun main(init: MainH<MESSAGE>.() -> Unit) {
+        element(MainH(), init)
+    }
+
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
@@ -365,6 +389,24 @@ class LabelH<MESSAGE> : HTML<MESSAGE>("label") {
         }
         get() = getAttribute("for") as String?
 }
+
+class UlH<MESSAGE> : HTML<MESSAGE>("ul")
+
+class LiH<MESSAGE> : HTML<MESSAGE>("li")
+
+class HeaderH<MESSAGE> : HTML<MESSAGE>("header")
+
+class NavH<MESSAGE> : HTML<MESSAGE>("nav")
+
+class AH<MESSAGE> : HTML<MESSAGE>("a") {
+    var href: String?
+        set(value) {
+            addAttribute("href", value)
+        }
+        get() = getAttribute("href") as String?
+}
+
+class MainH<MESSAGE> : HTML<MESSAGE>("main")
 
 interface HTMLRenderer {
     fun render(element: Element, htmlChild: HTMLChild)
