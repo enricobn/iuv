@@ -3,6 +3,7 @@ package org.iuv.core
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
+import kotlin.browser.window
 
 @DslMarker
 annotation class HtmlTagMarker
@@ -193,8 +194,13 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     fun hasAttribute(key: String) = attrs.containsKey(key)
 
-    fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE) {
-        handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
+    fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE, preventDefault: Boolean = false) {
+        handlers[name] = { event : EVENT ->
+            messageBus.send(handler(event))
+            if (preventDefault) {
+                event.preventDefault()
+            }
+        }
     }
 
     fun toStringDeep(indent: Int = 0): String {
@@ -404,6 +410,19 @@ class AH<MESSAGE> : HTML<MESSAGE>("a") {
             addAttribute("href", value)
         }
         get() = getAttribute("href") as String?
+
+    fun onClick(handler: (Event) -> MESSAGE) {
+        addHandler("click", handler, true)
+    }
+
+    fun navigate(path: String) {
+        if (path.startsWith("/")) {
+            addAttribute("href", "#" + path)
+        } else {
+            addAttribute("href", "#" + window.location.hash + "/" + path)
+        }
+    }
+
 }
 
 class MainH<MESSAGE> : HTML<MESSAGE>("main")

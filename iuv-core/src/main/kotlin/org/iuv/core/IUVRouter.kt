@@ -11,11 +11,7 @@ data class RouterModel(val path : String, val currentIUVModel: Any?, val errorMe
 // Messages
 interface RouterMessage
 
-interface GotoMessage {
-    val path: String
-}
-
-internal data class Goto(val path: String, val fromBrowser: Boolean) : RouterMessage
+data class Goto(val path: String, val fromBrowser: Boolean) : RouterMessage
 
 internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 
@@ -70,7 +66,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         )
     }
 
-    override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> =
+    override fun update(message: RouterMessage, model: RouterModel) : Pair<RouterModel, Cmd<RouterMessage>> {
         when (message) {
             is Goto -> {
                 val absolutePath =
@@ -82,7 +78,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
 
                 if (!testMode && !message.fromBrowser) {
                     if (absolutePath == "/") {
-                        window.location.href = baseUrl!!
+                        window.location.href = baseUrl + "#"
                     } else {
                         window.location.href = baseUrl + "#$absolutePath"
                     }
@@ -91,31 +87,27 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                 val (childIUV, error) = createChildIUV(absolutePath)
 
                 if (childIUV == null) {
-                    Pair(model.copy(errorMessage = error), Cmd.none())
+                    return Pair(model.copy(errorMessage = error), Cmd.none())
                 } else {
                     val (newModel, cmd) = childIUV.init(model)
-                    Pair(newModel.copy(path = absolutePath, errorMessage = null), cmd)
+                    return Pair(newModel.copy(path = absolutePath, errorMessage = null), cmd)
                 }
 
             }
             is RouterMessageWrapper -> {
-                when (message.childMessage) {
-                    is GotoMessage -> update(Goto(message.childMessage.path, false), model)
-                    else -> {
-                        val (childIUV, error) = createChildIUV(model)
+                val (childIUV, error) = createChildIUV(model)
 
-                        if (childIUV != null) {
-                            childIUV.update(message.childMessage, model)
-                        } else {
-                            Pair(model.copy(errorMessage = error), Cmd.none())
-                        }
-                    }
+                return if (childIUV != null) {
+                    childIUV.update(message.childMessage, model)
+                } else {
+                    Pair(model.copy(errorMessage = error), Cmd.none())
                 }
             }
             else -> {
-                Pair(model, Cmd.none())
+                return Pair(model, Cmd.none())
             }
         }
+    }
 
     override fun view(model: RouterModel): HTML<RouterMessage> =
         html {

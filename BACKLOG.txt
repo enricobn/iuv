@@ -1,6 +1,7 @@
 Doing
 -------
 
+
 Next
 -----
 - fix IntelliJ problems (related to build system?):
@@ -10,6 +11,10 @@ Next
 
 Done
 ------
+- for router:
+    - added navigate to UV that returns Cmd
+    - added navigate method in "a" element
+
 - move HTML stuff to a separate file independent from snabbdom
 - on branch view-returns-HTML
   - Material Design Lite

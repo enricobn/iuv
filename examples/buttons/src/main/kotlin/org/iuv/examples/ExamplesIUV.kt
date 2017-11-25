@@ -1,7 +1,6 @@
 package org.iuv.examples
 
 import org.iuv.core.Cmd
-import org.iuv.core.GotoMessage
 import org.iuv.core.HTML
 import org.iuv.core.IUV
 import org.iuv.examples.buttons.ButtonsIUV
@@ -17,7 +16,7 @@ interface ExamplesMessage
 
 data class ExamplesTabMessageWrapper(val message: TabMessage) : ExamplesMessage
 
-private data class ExamplesGoto(override val path: String) : GotoMessage, ExamplesMessage
+private data class ExamplesGoto(val path: String) : ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
     private val tab : Tab = Tab()
@@ -51,6 +50,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
                 Pair(model.copy(tabModel = tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
             }
+            is ExamplesGoto -> Pair(model, navigate(message.path))
             else -> Pair(model, Cmd.none())
         }
 
