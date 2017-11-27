@@ -438,6 +438,12 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
             )
         })
     }
+
+    fun onFocus(handler: (IUVInputEvent) -> MESSAGE) {
+        addHandler("focus", { event: Event ->
+            handler(IUVInputEvent(event.target?.asDynamic().value))
+        })
+    }
 }
 
 class ButtonH<MESSAGE> : HTML<MESSAGE>("button") {
