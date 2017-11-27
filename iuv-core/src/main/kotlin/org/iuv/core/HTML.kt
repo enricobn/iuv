@@ -3,6 +3,7 @@ package org.iuv.core
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
+import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
 
 @DslMarker
@@ -338,7 +339,18 @@ class TRH<MESSAGE> : HTML<MESSAGE>("tr") {
     }
 }
 
-data class InputEvent(val value: String)
+data class IUVInputEvent(val value: String)
+
+data class IUVKeyboardEvent(
+        val altKey: Boolean,
+        val ctrlKey: Boolean,
+        val metaKey: Boolean,
+        val shiftKey: Boolean,
+        val keyCode : Int,
+        val key: String,
+        val charCode: Int,
+        val code: String,
+        val value: String)
 
 class InputH<MESSAGE> : HTML<MESSAGE>("input") {
 
@@ -346,7 +358,7 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
         set(value) {
             if (value == null) {
 //                addAttribute("value", "")
-                addProperty("value", "")
+                removeProperty("value")
             } else {
 //                addAttribute("value", value)
                 addProperty("value", value)
@@ -394,21 +406,38 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
         }
         get() = (getAttribute("step") as String?)?.toInt()
 
-    fun onInput(handler: (InputEvent) -> MESSAGE) {
+    fun onInput(handler: (IUVInputEvent) -> MESSAGE) {
         addHandler("input", { event: Event ->
-            handler(InputEvent(event.target?.asDynamic().value))
+            handler(IUVInputEvent(event.target?.asDynamic().value))
         })
         addHandler("change", { event: Event ->
-            handler(InputEvent(event.target?.asDynamic().value))
+            handler(IUVInputEvent(event.target?.asDynamic().value))
         })
     }
 
-    fun onBlur(handler: (InputEvent) -> MESSAGE) {
+    fun onBlur(handler: (IUVInputEvent) -> MESSAGE) {
         addHandler("blur", { event: Event ->
-            handler(InputEvent(event.target?.asDynamic().value))
+            handler(IUVInputEvent(event.target?.asDynamic().value))
         })
     }
 
+    fun onKeydown(handler: (IUVKeyboardEvent) -> MESSAGE) {
+        addHandler("keydown", { event: KeyboardEvent ->
+            handler(
+                IUVKeyboardEvent(
+                    event.altKey,
+                    event.ctrlKey,
+                    event.metaKey,
+                    event.shiftKey,
+                    event.keyCode,
+                    event.key,
+                    event.charCode,
+                    event.code,
+                    event.target?.asDynamic().value
+                )
+            )
+        })
+    }
 }
 
 class ButtonH<MESSAGE> : HTML<MESSAGE>("button") {
