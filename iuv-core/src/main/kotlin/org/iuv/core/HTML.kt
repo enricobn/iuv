@@ -11,6 +11,7 @@ annotation class HtmlTagMarker
 @HtmlTagMarker
 open class HTML<MESSAGE>(val name: String) : HTMLChild {
     private val attrs = mutableMapOf<String,dynamic>()
+    private val props = mutableMapOf<String,dynamic>()
     private val handlers = mutableMapOf<String,dynamic>()
     private val children = mutableListOf<HTMLChild>()
     private var text : String? = null
@@ -26,6 +27,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     fun getChildren() = children.toList()
 
     fun getAttrs() = attrs.toMap()
+
+    fun getProps() = props.toMap()
 
     fun getHandlers() = handlers.toMap()
 
@@ -109,6 +112,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(MainH(), init)
     }
 
+    fun br() {
+        add(HTML<MESSAGE>("br"))
+    }
+
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
@@ -181,18 +188,36 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
         get() = attrs["id"] as String?
 
+    var key: String?
+        set(value) {
+            addAttribute("key", value)
+        }
+        get() = attrs["key"] as String?
+
     fun addAttribute(name: String, attr: dynamic) {
         attrs[name] = attr
-//        if (data["attrs"] == null) {
-//            data["attrs"] = object {}
-//        }
-//        data["attrs"][name] = attr
     }
+
+    fun removeAttribute(name: String) =
+        attrs.remove(name)
 
     fun getAttribute(key: String) : dynamic =
         attrs[key]
 
     fun hasAttribute(key: String) = attrs.containsKey(key)
+
+    fun addProperty(name: String, prop: dynamic) {
+        props[name] = prop
+    }
+
+    fun removeProperty(name: String) =
+            props.remove(name)
+
+    fun getProperty(key: String) : dynamic =
+            props[key]
+
+    fun hasProperty(key: String) = props.containsKey(key)
+
 
     fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE, preventDefault: Boolean = false) {
         handlers[name] = { event : EVENT ->
@@ -319,9 +344,16 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
 
     var value: String?
         set(value) {
-            addAttribute("value", value)
+            if (value == null) {
+//                addAttribute("value", "")
+                addProperty("value", "")
+            } else {
+//                addAttribute("value", value)
+                addProperty("value", value)
+            }
         }
-        get() = getAttribute("value")
+//        get() = getAttribute("value")
+        get() = getProperty("value")
 
     var autofocus: Boolean
         set(value) {

@@ -11,6 +11,7 @@ Next
 
 Done
 ------
+- HTML distinguish between attributes an properties
 - for router:
     - added navigate to UV that returns Cmd
     - added navigate method in "a" element

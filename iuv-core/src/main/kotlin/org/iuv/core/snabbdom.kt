@@ -100,12 +100,23 @@ class SnabbdomRenderer : HTMLRenderer {
     private fun getData(html: HTML<*>) : dynamic {
         val data: dynamic = object {}
 
-        val dynAttrs: dynamic
-
         if (!html.getAttrs().isEmpty()) {
-            dynAttrs = object {}
+            val dynAttrs: dynamic = object {}
             data["attrs"] = dynAttrs
             html.getAttrs().forEach { (key, value) -> dynAttrs[key] = value }
+        }
+
+        if (!html.getProps().isEmpty()) {
+            val dynProps: dynamic = object {}
+            data["props"] = dynProps
+            html.getProps().forEach { (key, value) -> dynProps[key] = value }
+        }
+
+        // key is a special value for snabbdom, it's used to distinguish vtrees
+        val key = html.getAttrs()["key"]
+
+        if (key != null) {
+            data["key"] = key
         }
 
         val on: dynamic
