@@ -50,8 +50,8 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
                         min = 0
                         max = model.messagesAndModels.size - 1
                         value = model.index.toString()
-                        onInput {
-                            SetIUVModel(it.value.toInt())
+                        onInput { _ , value ->
+                            SetIUVModel(value.toInt())
                         }
                     }
                     div {

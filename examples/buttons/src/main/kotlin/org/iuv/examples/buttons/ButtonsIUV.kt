@@ -1,7 +1,9 @@
 package org.iuv.examples.buttons
 
-import org.iuv.core.*
+import org.iuv.core.Cmd
 import org.iuv.core.Cmd.Companion.cmdOf
+import org.iuv.core.HTML
+import org.iuv.core.IUV
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
 
@@ -78,7 +80,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
             input {
                 autofocus = true
                 value = model.postId.toString()
-                onBlur { PostIdChanged(it.value.toInt()) }
+                onBlur { _,value -> PostIdChanged(value.toInt()) }
             }
             div {
                 if (handleMouseMove) {

@@ -3,6 +3,7 @@ package org.iuv.core
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
+import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
 
@@ -220,13 +221,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     fun hasProperty(key: String) = props.containsKey(key)
 
 
-    fun <EVENT : Event> addHandler(name: String, handler: (EVENT) -> MESSAGE, preventDefault: Boolean = false) {
-        handlers[name] = { event : EVENT ->
-            messageBus.send(handler(event))
-            if (preventDefault) {
-                event.preventDefault()
-            }
-        }
+    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE) {
+        handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
     }
 
     fun toStringDeep(indent: Int = 0): String {
@@ -325,32 +321,9 @@ class THH<MESSAGE> : HTML<MESSAGE>("th")
 
 class BH<MESSAGE> : HTML<MESSAGE>("b")
 
-class TDH<MESSAGE> : HTML<MESSAGE>("td") {
+class TDH<MESSAGE> : HTML<MESSAGE>("td"),ClickableHTML<MESSAGE>
 
-    fun onClick(handler: (Event) -> MESSAGE) {
-        addHandler("click", handler)
-    }
-
-}
-
-class TRH<MESSAGE> : HTML<MESSAGE>("tr") {
-    fun onClick(handler: (Event) -> MESSAGE) {
-        addHandler("click", handler)
-    }
-}
-
-data class IUVInputEvent(val value: String)
-
-data class IUVKeyboardEvent(
-        val altKey: Boolean,
-        val ctrlKey: Boolean,
-        val metaKey: Boolean,
-        val shiftKey: Boolean,
-        val keyCode : Int,
-        val key: String,
-        val charCode: Int,
-        val code: String,
-        val value: String)
+class TRH<MESSAGE> : HTML<MESSAGE>("tr"),ClickableHTML<MESSAGE>
 
 class InputH<MESSAGE> : HTML<MESSAGE>("input") {
 
@@ -359,8 +332,9 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
             if (value == null) {
 //                addAttribute("value", "")
                 removeProperty("value")
+                removeAttribute("value")
             } else {
-//                addAttribute("value", value)
+                addAttribute("value", value)
                 addProperty("value", value)
             }
         }
@@ -406,53 +380,48 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
         }
         get() = (getAttribute("step") as String?)?.toInt()
 
-    fun onInput(handler: (IUVInputEvent) -> MESSAGE) {
-        addHandler("input", { event: Event ->
-            handler(IUVInputEvent(event.target?.asDynamic().value))
+    fun onInput(handler: (InputEvent,String) -> MESSAGE) {
+        on("input", { event: InputEvent ->
+            handler(event, event.target?.asDynamic().value)
         })
-        addHandler("change", { event: Event ->
-            handler(IUVInputEvent(event.target?.asDynamic().value))
-        })
-    }
-
-    fun onBlur(handler: (IUVInputEvent) -> MESSAGE) {
-        addHandler("blur", { event: Event ->
-            handler(IUVInputEvent(event.target?.asDynamic().value))
+        on("change", { event: InputEvent ->
+            handler(event, event.target?.asDynamic().value)
         })
     }
 
-    fun onKeydown(handler: (IUVKeyboardEvent) -> MESSAGE) {
-        addHandler("keydown", { event: KeyboardEvent ->
-            handler(
-                IUVKeyboardEvent(
-                    event.altKey,
-                    event.ctrlKey,
-                    event.metaKey,
-                    event.shiftKey,
-                    event.keyCode,
-                    event.key,
-                    event.charCode,
-                    event.code,
-                    event.target?.asDynamic().value
-                )
-            )
+    fun onInput(message: MESSAGE) {
+        on("input", { _: InputEvent -> message })
+        on("change", { _: InputEvent -> message })
+    }
+
+    fun onBlur(handler: (InputEvent,String) -> MESSAGE) {
+        on("blur", { event: InputEvent ->
+            handler(event, event.target?.asDynamic().value)
         })
     }
 
-    fun onFocus(handler: (IUVInputEvent) -> MESSAGE) {
-        addHandler("focus", { event: Event ->
-            handler(IUVInputEvent(event.target?.asDynamic().value))
+    fun onBlur(message: MESSAGE) {
+        on("blur", { _: InputEvent -> message })
+    }
+
+    fun onKeydown(handler: (KeyboardEvent, String) -> MESSAGE) {
+        on("keydown", { event: KeyboardEvent ->
+            handler(event, event.target?.asDynamic().value)
         })
+    }
+
+    fun onFocus(handler: (InputEvent, String) -> MESSAGE) {
+        on("focus", { event: InputEvent ->
+            handler(event, event.target?.asDynamic().value)
+        })
+    }
+
+    fun onFocus(message: MESSAGE) {
+        on("focus") { _: InputEvent -> message }
     }
 }
 
-class ButtonH<MESSAGE> : HTML<MESSAGE>("button") {
-
-    fun onClick(handler: (Event) -> MESSAGE) {
-        addHandler("click", handler)
-    }
-
-}
+class ButtonH<MESSAGE> : HTML<MESSAGE>("button"),ClickableHTML<MESSAGE>
 
 class LabelH<MESSAGE> : HTML<MESSAGE>("label") {
 
@@ -471,16 +440,12 @@ class HeaderH<MESSAGE> : HTML<MESSAGE>("header")
 
 class NavH<MESSAGE> : HTML<MESSAGE>("nav")
 
-class AH<MESSAGE> : HTML<MESSAGE>("a") {
+class AH<MESSAGE> : HTML<MESSAGE>("a"),ClickableHTML<MESSAGE> {
     var href: String?
         set(value) {
             addAttribute("href", value)
         }
         get() = getAttribute("href") as String?
-
-    fun onClick(handler: (Event) -> MESSAGE) {
-        addHandler("click", handler, true)
-    }
 
     fun navigate(path: String) {
         if (path.startsWith("/")) {
@@ -496,6 +461,21 @@ class MainH<MESSAGE> : HTML<MESSAGE>("main")
 
 interface HTMLRenderer {
     fun render(element: Element, htmlChild: HTMLChild)
+}
+
+interface OnHTMLEvent<in MESSAGE> {
+    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE)
+}
+
+interface ClickableHTML<in MESSAGE> : OnHTMLEvent<MESSAGE> {
+
+    fun onClick(handler: (Event) -> MESSAGE) {
+        on("click", handler)
+    }
+
+    fun onClick(message: MESSAGE) {
+        on("click") { _ : Event -> message }
+    }
 }
 
 interface HTMLChild
