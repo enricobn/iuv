@@ -44,6 +44,9 @@ class SnabbdomRenderer : HTMLRenderer {
 
     companion object {
         private val patch: (old: dynamic, new: dynamic) -> Unit = snabbdomInit()
+        private fun checkedRun(runnable: () -> Unit) {
+            try {runnable.invoke()}catch(e:Throwable){ console.error(e.message) }
+        }
     }
 
     override fun render(element: Element, htmlChild: HTMLChild) {
@@ -51,12 +54,12 @@ class SnabbdomRenderer : HTMLRenderer {
 
         if (viewH == null) {
             patch(element, newH)
-            onFirstPatchHandlers.forEach { it.invoke() }
-            getJsToRun(htmlChild).forEach { eval(it) }
+            onFirstPatchHandlers.forEach { checkedRun(it) }
+            getJsToRun(htmlChild).forEach { checkedRun { eval(it) } }
         } else {
             patch(viewH, newH)
-            onSubsequentPatchHandlers.forEach { it.invoke() }
-            getJsToRun(htmlChild).forEach { eval(it) }
+            onSubsequentPatchHandlers.forEach { checkedRun(it) }
+            getJsToRun(htmlChild).forEach { checkedRun { eval(it) } }
         }
 
         viewH = newH
@@ -110,6 +113,14 @@ class SnabbdomRenderer : HTMLRenderer {
             val dynProps: dynamic = object {}
             data["props"] = dynProps
             html.getProps().forEach { (key, value) -> dynProps[key] = value }
+
+            // it seems that snabbdom does not handle correctly value so we force the update
+            if (html.getProps().containsKey("value")) {
+                val hook = js("({})")
+                data["hook"] = hook
+
+                hook["update"] = this::hookToUpdateValue
+            }
         }
 
         // key is a special value for snabbdom, it's used to distinguish vtrees
@@ -119,15 +130,17 @@ class SnabbdomRenderer : HTMLRenderer {
             data["key"] = key
         }
 
-        val on: dynamic
-
         if (!html.getHandlers().isEmpty()) {
-            on = object {}
+            val on: dynamic = object {}
             data["on"] = on
 
             html.getHandlers().forEach { (key, value) -> on[key] = value }
         }
 
         return data
+    }
+
+    private fun hookToUpdateValue(oldVnode : dynamic, vnode : dynamic ) {
+        vnode.elm.value = vnode.data.props.value
     }
 }

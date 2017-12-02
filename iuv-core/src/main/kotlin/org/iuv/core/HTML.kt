@@ -307,7 +307,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
 }
 
-class SpanH<MESSAGE> : HTML<MESSAGE>("span")
+class SpanH<MESSAGE> : HTML<MESSAGE>("span"),ClickableHTML<MESSAGE>
 
 class DivH<MESSAGE> : HTML<MESSAGE>("div")
 
@@ -332,14 +332,29 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
             if (value == null) {
 //                addAttribute("value", "")
                 removeProperty("value")
-                removeAttribute("value")
+//                removeAttribute("value")
             } else {
-                addAttribute("value", value)
+//                addAttribute("value", value)
                 addProperty("value", value)
             }
         }
 //        get() = getAttribute("value")
         get() = getProperty("value")
+
+    var defaultValue: String?
+        set(value) {
+            if (value == null) {
+//                addAttribute("value", "")
+//                removeProperty("value")
+                removeAttribute("defaultValue")
+            } else {
+                addAttribute("defaultValue", value)
+//                addProperty("value", value)
+            }
+        }
+//        get() = getAttribute("value")
+        get() = getProperty("defaultValue")
+
 
     var autofocus: Boolean
         set(value) {

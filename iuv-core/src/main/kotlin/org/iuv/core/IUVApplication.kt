@@ -16,9 +16,10 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
     private var subscription : (() -> Unit)?
-    private var view : Element? = null
+    private var view : Element = document.createElement("div")
 
     init {
+        document.body!!.appendChild(view)
         val init = iuv.init()
         model = init.first
         subscription = null
@@ -26,8 +27,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     }
 
     fun run() {
-        view = document.createElement("div")
-        document.body!!.appendChild(view!!)
         updateDocument()
         window.setInterval(this::onTimer, delay)
     }
@@ -55,7 +54,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
 
         newView.nullableMessageBus = messageBus
 
-        renderer.render(view!!, newView)
+        renderer.render(view, newView)
     }
 
 }

@@ -27,7 +27,7 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
         when(message) {
             is IUVDebuggerChildMessage -> {
                 val (newModel, cmd) = childIUV.update(message.message as IUV_MESSAGE, model)
-                val messagesAndModels = newModel.messagesAndModels + Pair(message.message!!, newModel.iuvModel!!)
+                val messagesAndModels = newModel.messagesAndModels + (message.message!! to newModel.iuvModel!!)
                 Pair(newModel.copy(messagesAndModels = messagesAndModels, index = messagesAndModels.size - 1), cmd)
             }
             is SetIUVModel ->
@@ -46,6 +46,7 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
                 if (!model.messagesAndModels.isEmpty()) {
                     +"History: "
                     input {
+                        key = "IUVDebugger-slider"
                         type = "range"
                         min = 0
                         max = model.messagesAndModels.size - 1
