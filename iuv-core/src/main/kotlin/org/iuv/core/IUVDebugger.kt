@@ -12,12 +12,15 @@ private data class SetIUVModel(val index: Int) : IUVDebuggerMessage
 
 class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<IUVDebuggerModel,IUVDebuggerMessage> {
 
-    val childIUV = ChildIUV<IUVDebuggerModel,IUVDebuggerMessage, IUV_MODEL, IUV_MESSAGE>(
+    private val childIUV = ChildIUV<IUVDebuggerModel,IUVDebuggerMessage, IUV_MODEL, IUV_MESSAGE>(
             iuv,
             { IUVDebuggerChildMessage(it!!) },
             { it.iuvModel as IUV_MODEL},
             { parentModel,childModel -> parentModel.copy(iuvModel = childModel)}
     )
+
+    override fun subscriptions(model: IUVDebuggerModel): Sub<IUVDebuggerMessage> =
+        childIUV.subscriptions(model)
 
     override fun init(): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> =
         childIUV.init(IUVDebuggerModel(null, emptyList(), 0))
@@ -39,7 +42,6 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
     override fun view(model: IUVDebuggerModel): HTML<IUVDebuggerMessage> =
         html {
             childIUV.view(model, this)
-
             div {
                 classes = "IUVDebugger"
 

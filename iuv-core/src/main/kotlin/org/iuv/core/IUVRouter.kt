@@ -34,9 +34,18 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuv: IUV<CHILD_MODEL, CHILD_MESSAGE>) =
             add(path, { iuv })
 
+    override fun subscriptions(model: RouterModel): Sub<RouterMessage> {
+        if (model.currentIUVModel != null) {
+            val (childIUV, error) = createChildIUV(model)
+            if (childIUV != null) {
+                return childIUV.subscriptions(model)
+            }
+        }
+        return Sub.none()
+    }
+
     override fun init() : Pair<RouterModel, Cmd<RouterMessage>> =
         init(window.location.href)
-
 
     /**
      * For test purposes

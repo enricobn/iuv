@@ -6,7 +6,7 @@ import kotlin.browser.document
 import kotlin.browser.window
 
 class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
-                                        private val renderer: HTMLRenderer) {
+                                        private val renderer: HTMLRenderer) : SubListener<MESSAGE> {
 
     companion object {
         val delay = 100
@@ -15,14 +15,13 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     private val messageBus = MessageBusImpl(this::onMessage)
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
-    private var subscription : (() -> Unit)?
     private var view : Element = document.createElement("div")
+    private var lastSub: Sub<MESSAGE>? = null
 
     init {
         document.body!!.appendChild(view)
         val init = iuv.init()
         model = init.first
-        subscription = null
         init.second.run(messageBus)
     }
 
@@ -31,9 +30,24 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         window.setInterval(this::onTimer, delay)
     }
 
-    private fun onMessage(message: MESSAGE) {
+    override fun onMessage(message: MESSAGE) {
+        val modelBeforeUpdate = model
+
         val update = iuv.update(message, model)
         model = update.first
+
+        if (modelBeforeUpdate != model) {
+            val newSub = iuv.subscriptions(model)
+
+            lastSub.let {
+                it?.removeListener(this)
+            }
+
+            newSub.addListener(this)
+
+            lastSub = newSub
+        }
+
         update.second.run(messageBus)
     }
 

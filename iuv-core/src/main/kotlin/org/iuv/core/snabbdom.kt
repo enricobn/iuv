@@ -115,6 +115,7 @@ class SnabbdomRenderer : HTMLRenderer {
             html.getProps().forEach { (key, value) -> dynProps[key] = value }
 
             // it seems that snabbdom does not handle correctly value so we force the update
+            // https://github.com/snabbdom/snabbdom/issues/53
             if (html.getProps().containsKey("value")) {
                 val hook = js("({})")
                 data["hook"] = hook

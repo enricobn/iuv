@@ -21,6 +21,9 @@ open class ChildUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, in CHILD_MESSAGE>(
         private val modelUpdateFun: (PARENT_MODEL,CHILD_MODEL) -> PARENT_MODEL
 ) {
 
+    fun subscriptions(model: PARENT_MODEL) : Sub<PARENT_MESSAGE> =
+        childUV.subscriptions(toChildModelFun(model)).map(messageMapFun)
+
     fun view(model: PARENT_MODEL, parentHtml: HTML<PARENT_MESSAGE>) {
         childUV.view(toChildModelFun(model)).map(parentHtml, messageMapFun)
     }
