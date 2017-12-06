@@ -167,14 +167,14 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         get() = attrs["class"]
 
     fun appendClasses(vararg classesToAppend: String) {
-        val allClasses = classesToAppend.joinToString(" ") +
-                this.classes.let {
+        val allClasses =
+                classes.let {
                     if (it != null && it.isNotEmpty()) {
-                        " " + it
+                        it + " "
                     } else {
                         ""
                     }
-                }
+                } + classesToAppend.joinToString(" ")
         classes = allClasses
     }
 
@@ -478,11 +478,11 @@ interface HTMLRenderer {
     fun render(element: Element, htmlChild: HTMLChild)
 }
 
-interface OnHTMLEvent<in MESSAGE> {
+interface OnHTMLEvents<in MESSAGE> {
     fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE)
 }
 
-interface ClickableHTML<in MESSAGE> : OnHTMLEvent<MESSAGE> {
+interface ClickableHTML<in MESSAGE> : OnHTMLEvents<MESSAGE> {
 
     fun onClick(handler: (Event) -> MESSAGE) {
         on("click", handler)
@@ -492,6 +492,34 @@ interface ClickableHTML<in MESSAGE> : OnHTMLEvent<MESSAGE> {
         on("click") { _ : Event -> message }
     }
 }
+
+interface DataAttributesHTML<MESSAGE> : WithAttributesHTML<MESSAGE> {
+
+    var dataToggle: String?
+        set(value) {
+            if (value != null) {
+                addAttribute("data-toggle", value.toString())
+            }
+        }
+        get() = getAttribute("data-toggle") as String?
+
+    var dataTarget: String?
+        set(value) {
+            if (value != null) {
+                addAttribute("data-target", value.toString())
+            }
+        }
+        get() = getAttribute("data-target") as String?
+}
+
+interface WithAttributesHTML<MESSAGE> {
+    fun addAttribute(name: String, attr: dynamic)
+
+    fun removeAttribute(name: String)
+
+    fun getAttribute(key: String) : dynamic
+}
+
 
 interface HTMLChild
 
