@@ -3,6 +3,7 @@ package org.iuv.examples
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.IUV
+import org.iuv.core.IUVRouter
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.components.*
@@ -50,7 +51,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
                 Pair(model.copy(tabModel = tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
             }
-            is ExamplesGoto -> Pair(model, navigate(message.path))
+            is ExamplesGoto -> Pair(model, IUVRouter.navigate(message.path))
             else -> Pair(model, Cmd.none())
         }
 

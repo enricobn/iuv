@@ -23,6 +23,19 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     private var errorMessage: String? = null
     private var baseUrl : String? = null
 
+    companion object {
+        fun <MESSAGE> navigate(path: String) = object : Cmd<MESSAGE> {
+            override fun run(messageBus: MessageBus<MESSAGE>) {
+                if (path.startsWith("/")) {
+                    window.location.hash = path
+                } else {
+                    window.location.hash = window.location.hash + "/" + path
+                }
+
+            }
+        }
+    }
+
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
         if (routes.containsKey(path)) {
             errorMessage = "Duplicate path: $path"
@@ -59,19 +72,18 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         val model = RouterModel("/", null, null)
 
         return Pair(model,
-                Cmd.cmdOf(
-                        sendMessage(Goto(absolutePath, true)),
-                    object : Cmd<RouterMessage> {
-                        override fun run(messageBus: MessageBus<RouterMessage>) {
-                            if (!testMode) {
-                                window.addEventListener("popstate", { _: Event ->
-                                    val (_,poppedPath) = parseHref(window.location.href)
-                                    messageBus.send(Goto(poppedPath, true))
-                                })
-                            }
+            Cmd.cmdOf(sendMessage(Goto(absolutePath, true)),
+                object : Cmd<RouterMessage> {
+                    override fun run(messageBus: MessageBus<RouterMessage>) {
+                        if (!testMode) {
+                            window.addEventListener("popstate", { _: Event ->
+                                val (_,poppedPath) = parseHref(window.location.href)
+                                messageBus.send(Goto(poppedPath, true))
+                            })
                         }
                     }
-                )
+                }
+            )
         )
     }
 

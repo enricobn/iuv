@@ -2,7 +2,6 @@ package org.iuv.core
 
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.xhr.XMLHttpRequest
-import kotlin.browser.window
 
 private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
     override fun run(messageBus: MessageBus<MESSAGE>) {
@@ -161,17 +160,6 @@ interface UV<MODEL, MESSAGE> {
     fun sendMessage(msg: MESSAGE) = object : Cmd<MESSAGE> {
         override fun run(messageBus: MessageBus<MESSAGE>) {
             messageBus.send(msg)
-        }
-    }
-
-    fun navigate(path: String) = object : Cmd<MESSAGE> {
-        override fun run(messageBus: MessageBus<MESSAGE>) {
-            if (path.startsWith("/")) {
-                window.location.hash = path
-            } else {
-                window.location.hash = window.location.hash + "/" + path
-            }
-
         }
     }
 
