@@ -325,7 +325,7 @@ class TDH<MESSAGE> : HTML<MESSAGE>("td"),ClickableHTML<MESSAGE>
 
 class TRH<MESSAGE> : HTML<MESSAGE>("tr"),ClickableHTML<MESSAGE>
 
-class InputH<MESSAGE> : HTML<MESSAGE>("input") {
+class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
 
     var value: String?
         set(value) {
@@ -394,6 +394,14 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input") {
             }
         }
         get() = (getAttribute("step") as String?)?.toInt()
+
+    var checked: Boolean
+        set(value) {
+//                addAttribute("value", value)
+            addProperty("checked", value)
+        }
+//        get() = getAttribute("value")
+        get() = getProperty("checked") ?: false
 
     fun onInput(handler: (InputEvent,String) -> MESSAGE) {
         on("input", { event: InputEvent ->
