@@ -89,7 +89,7 @@ interface Sub<MESSAGE> {
 interface Cmd<out MESSAGE> {
 
     companion object {
-        fun <MESSAGE> cmdOf(runFunction: (MessageBus<MESSAGE>) -> Unit) : Cmd<MESSAGE> {
+        fun <MESSAGE> of(runFunction: (MessageBus<MESSAGE>) -> Unit) : Cmd<MESSAGE> {
             return object : Cmd<MESSAGE> {
                 override fun run(messageBus: MessageBus<MESSAGE>) {
                     runFunction(messageBus)
@@ -97,7 +97,7 @@ interface Cmd<out MESSAGE> {
             }
         }
 
-        fun <MESSAGE> cmdOf(vararg cmds: Cmd<MESSAGE>) : Cmd<MESSAGE> {
+        fun <MESSAGE> of(vararg cmds: Cmd<MESSAGE>) : Cmd<MESSAGE> {
             val notNone = cmds.filter { it !is CmdNone }
 
             if (notNone.isEmpty()) {
@@ -111,6 +111,12 @@ interface Cmd<out MESSAGE> {
             }
         }
 
+        fun <MESSAGE> of(message: MESSAGE) = object : Cmd<MESSAGE> {
+            override fun run(messageBus: MessageBus<MESSAGE>) {
+                messageBus.send(message)
+            }
+        }
+
         private val none = CmdNone<Any>()
 
         fun <MESSAGE> none() : Cmd<MESSAGE> = none as Cmd<MESSAGE>
@@ -120,7 +126,7 @@ interface Cmd<out MESSAGE> {
     fun run(messageBus: MessageBus<MESSAGE>)
 
     fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE) : Cmd<CONTAINER_MESSAGE> {
-        return cmdOf { messageBus ->
+        return of { messageBus ->
             val newMessageBus = MessageBusImpl<MESSAGE>({ message -> messageBus.send(map(message)) })
             run(newMessageBus)
         }

@@ -1,7 +1,6 @@
 package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
-import org.iuv.core.Cmd.Companion.cmdOf
 import org.iuv.core.HTML
 import org.iuv.core.IUV
 import org.w3c.dom.events.MouseEvent
@@ -43,7 +42,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
     }
 
     private fun mouseMove(): Cmd<ButtonsIUVMessage> {
-        return cmdOf { messageBus ->
+        return Cmd.of { messageBus ->
             document.onmousemove = { event ->
                 if (event is MouseEvent) {
                     messageBus.send(ButtonsMouseMove(event.screenX, event.screenY))

@@ -1,6 +1,9 @@
 package org.iuv.examples.components
 
-import org.iuv.core.*
+import org.iuv.core.ChildIUV
+import org.iuv.core.Cmd
+import org.iuv.core.HTML
+import org.iuv.core.IUV
 
 interface TabMessage
 
@@ -18,7 +21,7 @@ class Tab : IUV<TabModel, TabMessage> {
     }
 
     override fun init(): Pair<TabModel, Cmd<TabMessage>> =
-        Pair(TabModel(0, emptyMap()), Cmd.cmdOf { it.send(SelectTab(0)) })
+        Pair(TabModel(0, emptyMap()), Cmd.of { it.send(SelectTab(0)) })
 
     override fun update(message: TabMessage, model: TabModel): Pair<TabModel, Cmd<TabMessage>> =
         when (message) {

@@ -1,7 +1,6 @@
 package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
-import org.iuv.core.Cmd.Companion.cmdOf
 import org.iuv.core.HTML
 import org.iuv.core.UV
 
@@ -31,7 +30,7 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
                 val cmd =
                         if (model.selectedButtonModel.selected) {
                             val postCmd = postService.getPost(model.postId) { PostTitle(it.title) }
-                            cmdOf(postCmd, updateCmdMapped)
+                            Cmd.of(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped
                         }
