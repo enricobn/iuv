@@ -72,7 +72,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         val model = RouterModel("/", null, null)
 
         return Pair(model,
-            Cmd.of(sendMessage(Goto(absolutePath, true)),
+            Cmd(sendMessage(Goto(absolutePath, true)),
                 object : Cmd<RouterMessage> {
                     override fun run(messageBus: MessageBus<RouterMessage>) {
                         if (!testMode) {

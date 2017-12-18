@@ -35,7 +35,7 @@ interface Sub<MESSAGE> {
 
         fun <MESSAGE> none() = none as Sub<MESSAGE>
 
-        fun <MESSAGE> of(vararg subs: Sub<MESSAGE>) : Sub<MESSAGE> {
+        operator fun <MESSAGE> invoke(vararg subs: Sub<MESSAGE>) : Sub<MESSAGE> {
             val notNone = subs.filter { it !is SubNone }
 
             if (notNone.isEmpty()) {
@@ -89,7 +89,7 @@ interface Sub<MESSAGE> {
 interface Cmd<out MESSAGE> {
 
     companion object {
-        fun <MESSAGE> of(runFunction: (MessageBus<MESSAGE>) -> Unit) : Cmd<MESSAGE> {
+        operator fun <MESSAGE> invoke(runFunction: (MessageBus<MESSAGE>) -> Unit) : Cmd<MESSAGE> {
             return object : Cmd<MESSAGE> {
                 override fun run(messageBus: MessageBus<MESSAGE>) {
                     runFunction(messageBus)
@@ -97,7 +97,7 @@ interface Cmd<out MESSAGE> {
             }
         }
 
-        fun <MESSAGE> of(vararg cmds: Cmd<MESSAGE>) : Cmd<MESSAGE> {
+        operator fun <MESSAGE> invoke(vararg cmds: Cmd<MESSAGE>) : Cmd<MESSAGE> {
             val notNone = cmds.filter { it !is CmdNone }
 
             if (notNone.isEmpty()) {
@@ -111,7 +111,7 @@ interface Cmd<out MESSAGE> {
             }
         }
 
-        fun <MESSAGE> of(message: MESSAGE) = object : Cmd<MESSAGE> {
+        operator fun <MESSAGE> invoke(message: MESSAGE) = object : Cmd<MESSAGE> {
             override fun run(messageBus: MessageBus<MESSAGE>) {
                 messageBus.send(message)
             }
@@ -126,7 +126,7 @@ interface Cmd<out MESSAGE> {
     fun run(messageBus: MessageBus<MESSAGE>)
 
     fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE) : Cmd<CONTAINER_MESSAGE> {
-        return of { messageBus ->
+        return Cmd { messageBus ->
             val newMessageBus = MessageBusImpl<MESSAGE>({ message -> messageBus.send(map(message)) })
             run(newMessageBus)
         }

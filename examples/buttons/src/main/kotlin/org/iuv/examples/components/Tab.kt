@@ -21,7 +21,7 @@ class Tab : IUV<TabModel, TabMessage> {
     }
 
     override fun init(): Pair<TabModel, Cmd<TabMessage>> =
-        Pair(TabModel(0, emptyMap()), Cmd.of { it.send(SelectTab(0)) })
+        Pair(TabModel(0, emptyMap()), Cmd { it.send(SelectTab(0)) })
 
     override fun update(message: TabMessage, model: TabModel): Pair<TabModel, Cmd<TabMessage>> =
         when (message) {

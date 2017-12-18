@@ -42,7 +42,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
     }
 
     private fun mouseMove(): Cmd<ButtonsIUVMessage> {
-        return Cmd.of { messageBus ->
+        return Cmd { messageBus ->
             document.onmousemove = { event ->
                 if (event is MouseEvent) {
                     messageBus.send(ButtonsMouseMove(event.screenX, event.screenY))
