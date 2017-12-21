@@ -72,18 +72,18 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         val model = RouterModel("/", null, null)
 
         return Pair(model,
-            Cmd(sendMessage(Goto(absolutePath, true)),
-                object : Cmd<RouterMessage> {
-                    override fun run(messageBus: MessageBus<RouterMessage>) {
-                        if (!testMode) {
-                            window.addEventListener("popstate", { _: Event ->
-                                val (_,poppedPath) = parseHref(window.location.href)
-                                messageBus.send(Goto(poppedPath, true))
-                            })
+                Cmd(sendMessage(Goto(absolutePath, true)),
+                        object : Cmd<RouterMessage> {
+                            override fun run(messageBus: MessageBus<RouterMessage>) {
+                                if (!testMode) {
+                                    window.addEventListener("popstate", { _: Event ->
+                                        val (_, poppedPath) = parseHref(window.location.href)
+                                        messageBus.send(Goto(poppedPath, true))
+                                    })
+                                }
+                            }
                         }
-                    }
-                }
-            )
+                )
         )
     }
 
