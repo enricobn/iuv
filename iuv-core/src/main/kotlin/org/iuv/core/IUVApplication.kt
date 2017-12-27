@@ -4,6 +4,7 @@ import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
 import kotlin.browser.document
 import kotlin.browser.window
+import kotlin.js.Date
 
 class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
                                         private val renderer: HTMLRenderer) : SubListener<MESSAGE> {
@@ -65,10 +66,12 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         lastViewedModel = model
 
         lastViewedModel.let {
+            var time = Date().getTime()
             val newView = iuv.view(it!!)
             newView.nullableMessageBus = messageBus
 
             renderer.render(view, newView)
+            console.log("updateDocument ${Date().getTime() - time}")
         }
 
     }

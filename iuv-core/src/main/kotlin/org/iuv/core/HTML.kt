@@ -483,7 +483,7 @@ class AH<MESSAGE> : HTML<MESSAGE>("a"),ClickableHTML<MESSAGE> {
 class MainH<MESSAGE> : HTML<MESSAGE>("main")
 
 interface HTMLRenderer {
-    fun render(element: Element, htmlChild: HTMLChild)
+    fun <MESSAGE> render(element: Element, html: HTML<MESSAGE>)
 }
 
 interface OnHTMLEvents<in MESSAGE> {

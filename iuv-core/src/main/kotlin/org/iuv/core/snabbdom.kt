@@ -50,9 +50,9 @@ class SnabbdomRenderer : HTMLRenderer {
         }
     }
 
-    override fun render(element: Element, htmlChild: HTMLChild) {
+    override fun <MESSAGE> render(element: Element, html: HTML<MESSAGE>) {
         var time = Date().getTime()
-        val newH = toH(htmlChild)
+        val newH = toH(html)
 
         console.log("toH ${Date().getTime() - time}")
 
@@ -61,11 +61,11 @@ class SnabbdomRenderer : HTMLRenderer {
         if (viewH == null) {
             patch(element, newH)
             onFirstPatchHandlers.forEach { checkedRun(it) }
-            getJsToRun(htmlChild).forEach { checkedRun { eval(it) } }
+            getJsToRun(html).forEach { checkedRun { eval(it) } }
         } else {
             patch(viewH, newH)
             onSubsequentPatchHandlers.forEach { checkedRun(it) }
-            getJsToRun(htmlChild).forEach { checkedRun { eval(it) } }
+            getJsToRun(html).forEach { checkedRun { eval(it) } }
         }
 
         console.log("patch ${Date().getTime() - time}")
