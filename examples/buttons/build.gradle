@@ -34,4 +34,5 @@ compileKotlin2Js {
 //    kotlinOptions.moduleKind = "amd"
     kotlinOptions.sourceMap = true
     kotlinOptions.metaInfo = true
+    kotlinOptions.sourceMapEmbedSources = "always"
 }
