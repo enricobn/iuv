@@ -1,6 +1,7 @@
 package org.iuv.core
 
 import org.w3c.dom.Element
+import kotlin.js.*
 
 external object snabbdom {
 
@@ -50,7 +51,12 @@ class SnabbdomRenderer : HTMLRenderer {
     }
 
     override fun render(element: Element, htmlChild: HTMLChild) {
+        var time = Date().getTime()
         val newH = toH(htmlChild)
+
+        console.log("toH ${Date().getTime() - time}")
+
+        time = Date().getTime()
 
         if (viewH == null) {
             patch(element, newH)
@@ -61,6 +67,8 @@ class SnabbdomRenderer : HTMLRenderer {
             onSubsequentPatchHandlers.forEach { checkedRun(it) }
             getJsToRun(htmlChild).forEach { checkedRun { eval(it) } }
         }
+
+        console.log("patch ${Date().getTime() - time}")
 
         viewH = newH
 

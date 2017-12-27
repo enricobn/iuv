@@ -1,35 +1,36 @@
 package org.iuv.examples
 
-import org.iuv.core.Cmd
-import org.iuv.core.HTML
-import org.iuv.core.IUV
-import org.iuv.core.IUVRouter
+import org.iuv.core.*
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.components.*
 import org.iuv.examples.grid.GridIUV
 
 // Model
-data class ExamplesModel(val tabModel: TabModel)
+data class ExamplesModel(val tabModel: TabModel, val x: Int, val y: Int)
 
-// Messages
+// Message
 interface ExamplesMessage
-
-data class ExamplesTabMessageWrapper(val message: TabMessage) : ExamplesMessage
-
-private data class ExamplesGoto(val path: String) : ExamplesMessage
 
 class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
     private val tab : Tab = Tab()
 
     companion object {
+        // Messages
+
+        private data class Goto(val path: String) : ExamplesMessage
+
+        private data class TabMessageWrapper(val message: TabMessage) : ExamplesMessage
+
+        private data class MouseMove(val x: Int, val y: Int) : ExamplesMessage
+
 
         private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
         private fun HTML<ExamplesMessage>.link(text: String, url: String) {
             mtButton {
                 +text
-                onClick { ExamplesGoto(url) }
+                onClick { Goto(url) }
             }
         }
 
@@ -40,23 +41,30 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         tab.add("Grid", GridIUV)
     }
 
+    override fun subscriptions(model: ExamplesModel): Sub<ExamplesMessage> {
+        return DocumentEventSubFactoryImpl.mouseMove { MouseMove(it.screenX, it.screenY) }
+    }
+
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
         val (tabModel,tabCmd) = tab.init()
-        return Pair(ExamplesModel(tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
+        return Pair(ExamplesModel(tabModel, 0, 0), tabCmd.map(::TabMessageWrapper))
     }
 
     override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
         when (message) {
-            is ExamplesTabMessageWrapper -> {
+            is TabMessageWrapper -> {
                 val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
-                Pair(model.copy(tabModel = tabModel), tabCmd.map(::ExamplesTabMessageWrapper))
+                Pair(model.copy(tabModel = tabModel), tabCmd.map(::TabMessageWrapper))
             }
-            is ExamplesGoto -> Pair(model, IUVRouter.navigate(message.path))
+            is Goto -> Pair(model, IUVRouter.navigate(message.path))
+            is MouseMove -> { Pair(model.copy(x = message.x, y = message.y), Cmd.none()) }
             else -> Pair(model, Cmd.none())
         }
 
     override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
         html {
+            +"${model.x},${model.y}"
+            br()
             vBox {
                 linkToButtons(1)
                 linkToButtons(2)
@@ -64,7 +72,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 link("Grid", "/grid")
                 link("Not existent route", "/notExistentRoute")
                 link("Error", "/buttons/hello")
-                tab.view(model.tabModel).map(this, ::ExamplesTabMessageWrapper)
+                tab.view(model.tabModel).map(this, ::TabMessageWrapper)
             }
         }
 

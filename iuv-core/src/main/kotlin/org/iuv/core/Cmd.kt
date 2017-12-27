@@ -35,6 +35,9 @@ interface Cmd<out MESSAGE> {
             }
         }
 
+        operator fun <MESSAGE> invoke(cmds: List<Cmd<MESSAGE>>) : Cmd<MESSAGE> =
+                invoke(*cmds.toTypedArray())
+
         operator fun <MESSAGE> invoke(message: MESSAGE) = object : Cmd<MESSAGE> {
             override fun run(messageBus: MessageBus<MESSAGE>) {
                 messageBus.send(message)

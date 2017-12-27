@@ -6,18 +6,17 @@ interface SubListener<in MESSAGE> {
 
 }
 
-private class SubNone<MESSAGE> : Sub<MESSAGE> {
+private class SubNone<out MESSAGE> : Sub<MESSAGE> {
+
     override fun addListener(listener: SubListener<MESSAGE>) {
     }
 
     override fun removeListener(listener: SubListener<MESSAGE>) {
     }
 
-    override fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE): Sub<CONTAINER_MESSAGE> = Sub.none()
-
 }
 
-interface Sub<MESSAGE> {
+interface Sub<out MESSAGE> {
 
     companion object {
         private val none = SubNone<Any>()
@@ -41,36 +40,59 @@ interface Sub<MESSAGE> {
                 }
             }
         }
+
+        operator fun <MESSAGE> invoke(subs: List<Sub<MESSAGE>>) : Sub<MESSAGE> =
+            invoke(*subs.toTypedArray())
+
+        fun <MESSAGE,CONTAINER_MESSAGE> map(sub: Sub<MESSAGE>, map: (MESSAGE) -> CONTAINER_MESSAGE): Sub<CONTAINER_MESSAGE> {
+            if (sub == none) {
+                return none as Sub<CONTAINER_MESSAGE>
+            }
+            return object : Sub<CONTAINER_MESSAGE> {
+                private var thisListener : SubListener<MESSAGE>? = null
+
+                override fun addListener(listener: SubListener<CONTAINER_MESSAGE>) {
+                    thisListener = object : SubListener<MESSAGE> {
+                        override fun onMessage(message: MESSAGE) {
+                            listener.onMessage(map(message))
+                        }
+
+                    }
+                    thisListener.let {
+                        sub.addListener(it!!)
+                    }
+                }
+
+                override fun removeListener(listener: SubListener<CONTAINER_MESSAGE>) {
+                    if (thisListener != null) {
+                        thisListener.let {
+                            sub.removeListener(it!!)
+                        }
+                    }
+                }
+            }
+        }
+
     }
 
     fun addListener(listener: SubListener<MESSAGE>)
 
     fun removeListener(listener: SubListener<MESSAGE>)
 
-    fun <CONTAINER_MESSAGE> map(map: (MESSAGE) -> CONTAINER_MESSAGE): Sub<CONTAINER_MESSAGE> {
-        val self = this
-        return object : Sub<CONTAINER_MESSAGE> {
-            private var thisListener : SubListener<MESSAGE>? = null
+}
 
-            override fun addListener(listener: SubListener<CONTAINER_MESSAGE>) {
-                thisListener = object : SubListener<MESSAGE> {
-                    override fun onMessage(message: MESSAGE) {
-                        listener.onMessage(map(message))
-                    }
+class SubImpl<MESSAGE> : Sub<MESSAGE> {
+    private val listeners = mutableSetOf<SubListener<MESSAGE>>()
 
-                }
-                thisListener.let {
-                    self.addListener(it!!)
-                }
-            }
+    override fun addListener(listener: SubListener<MESSAGE>) {
+        listeners.add(listener)
+    }
 
-            override fun removeListener(listener: SubListener<CONTAINER_MESSAGE>) {
-                if (thisListener != null) {
-                    thisListener.let {
-                        self.removeListener(it!!)
-                    }
-                }
-            }
-        }
+    override fun removeListener(listener: SubListener<MESSAGE>) {
+        listeners.add(listener)
+    }
+
+    fun dispatch(message: MESSAGE) {
+        listeners.forEach { it.onMessage(message) }
     }
 }

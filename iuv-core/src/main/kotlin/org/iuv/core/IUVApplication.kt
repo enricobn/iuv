@@ -20,9 +20,9 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
 
     init {
         document.body!!.appendChild(view)
-        val init = iuv.init()
-        model = init.first
-        init.second.run(messageBus)
+        val (newModel,cmd) = iuv.init()
+        model = newModel
+        cmd.run(messageBus)
     }
 
     fun run() {
@@ -33,8 +33,8 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     override fun onMessage(message: MESSAGE) {
         val modelBeforeUpdate = model
 
-        val update = iuv.update(message, model)
-        model = update.first
+        val (newModel,cmd) = iuv.update(message, model)
+        model = newModel
 
         if (modelBeforeUpdate != model) {
             val newSub = iuv.subscriptions(model)
@@ -48,7 +48,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
             lastSub = newSub
         }
 
-        update.second.run(messageBus)
+        cmd.run(messageBus)
     }
 
     private fun onTimer() {
@@ -64,11 +64,13 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         // is called again, by the timer, the model is still different and the error is raised again and again ...
         lastViewedModel = model
 
-        val newView = iuv.view(model)
+        lastViewedModel.let {
+            val newView = iuv.view(it!!)
+            newView.nullableMessageBus = messageBus
 
-        newView.nullableMessageBus = messageBus
+            renderer.render(view, newView)
+        }
 
-        renderer.render(view, newView)
     }
 
 }
