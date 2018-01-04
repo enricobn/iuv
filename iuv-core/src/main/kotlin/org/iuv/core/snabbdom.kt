@@ -1,7 +1,7 @@
 package org.iuv.core
 
 import org.w3c.dom.Element
-import kotlin.js.*
+import kotlin.js.Date
 
 external object snabbdom {
 
@@ -78,7 +78,7 @@ class SnabbdomRenderer : HTMLRenderer {
         when (htmlChild) {
             is HTML<*> -> {
                 val allJs = htmlChild.getJsTorRun().toMutableList()
-                allJs.addAll(htmlChild.getChildren().flatMap { getJsToRun(it) })
+                allJs.addAll(htmlChild.children.flatMap { getJsToRun(it) })
                 allJs
             }
             else ->  emptyList()
@@ -88,9 +88,9 @@ class SnabbdomRenderer : HTMLRenderer {
             when (htmlChild) {
                 is HTML<*> ->
                     if (htmlChild.getText() != null) {
-                        snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.getText())
+                        snabbdom.h(htmlChild.name, htmlChild.data, htmlChild.getText())
                     } else {
-                        val renderedChildren = htmlChild.getChildren().map { toH(it) }
+                        val renderedChildren = htmlChild.children.map { toH(it) }
 
                         // is this faster?
 //                    val renderedChildren = htmlData.children.map { child ->
@@ -101,53 +101,53 @@ class SnabbdomRenderer : HTMLRenderer {
 //                        }
 //                    }
 
-                        snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
+                        snabbdom.h(htmlChild.name, htmlChild.data, renderedChildren.toTypedArray())
                     }
                 is HTMLTextChild -> htmlChild.text
                 else -> throw IllegalStateException()
             }
 
 
-    private fun getData(html: HTML<*>) : dynamic {
-        val data: dynamic = object {}
-
-        if (!html.getAttrs().isEmpty()) {
-            val dynAttrs: dynamic = object {}
-            data["attrs"] = dynAttrs
-            html.getAttrs().forEach { (key, value) -> dynAttrs[key] = value }
-        }
-
-        if (!html.getProps().isEmpty()) {
-            val dynProps: dynamic = object {}
-            data["props"] = dynProps
-            html.getProps().forEach { (key, value) -> dynProps[key] = value }
-
-            // it seems that snabbdom does not handle correctly value so we force the update
-            // https://github.com/snabbdom/snabbdom/issues/53
-            if (html.getProps().containsKey("value")) {
-                val hook = js("({})")
-                data["hook"] = hook
-
-                hook["update"] = this::hookToUpdateValue
-            }
-        }
-
-        // key is a special value for snabbdom, it's used to distinguish vtrees
-        val key = html.getAttrs()["key"]
-
-        if (key != null) {
-            data["key"] = key
-        }
-
-        if (!html.getHandlers().isEmpty()) {
-            val on: dynamic = object {}
-            data["on"] = on
-
-            html.getHandlers().forEach { (key, value) -> on[key] = value }
-        }
-
-        return data
-    }
+//    private fun getData(html: HTML<*>) : dynamic {
+//        val data: dynamic = object {}
+//
+//        if (!html.getAttrs().isEmpty()) {
+//            val dynAttrs: dynamic = object {}
+//            data["attrs"] = dynAttrs
+//            html.getAttrs().forEach { (key, value) -> dynAttrs[key] = value }
+//        }
+//
+//        if (!html.getProps().isEmpty()) {
+//            val dynProps: dynamic = object {}
+//            data["props"] = dynProps
+//            html.getProps().forEach { (key, value) -> dynProps[key] = value }
+//
+//            // it seems that snabbdom does not handle correctly value so we force the update
+//            // https://github.com/snabbdom/snabbdom/issues/53
+//            if (html.getProps().containsKey("value")) {
+//                val hook = js("({})")
+//                data["hook"] = hook
+//
+//                hook["update"] = this::hookToUpdateValue
+//            }
+//        }
+//
+//        // key is a special value for snabbdom, it's used to distinguish vtrees
+//        val key = html.getAttrs()["key"]
+//
+//        if (key != null) {
+//            data["key"] = key
+//        }
+//
+//        if (!html.getHandlers().isEmpty()) {
+//            val on: dynamic = object {}
+//            data["on"] = on
+//
+//            html.getHandlers().forEach { (key, value) -> on[key] = value }
+//        }
+//
+//        return data
+//    }
 
     private fun hookToUpdateValue(oldVnode : dynamic, vnode : dynamic ) {
         vnode.elm.value = vnode.data.props.value

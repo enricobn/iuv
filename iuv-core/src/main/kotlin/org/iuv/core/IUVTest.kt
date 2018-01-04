@@ -1,5 +1,7 @@
 package org.iuv.core
 
+import org.w3c.dom.events.Event
+
 typealias HTMLPredicate = (HTML<Any>) -> Boolean
 
 open class IUVTest<MESSAGE> {
@@ -46,12 +48,23 @@ open class IUVTest<MESSAGE> {
         }
 
         private fun sameData(html: HTML<*>, other: HTML<*>) : SameResult {
-            if (html.getAttrs() != other.getAttrs()) {
+            if (!objectKeys(html.getAttrs()).contentEquals(objectKeys(other.getAttrs()))) {
+
+                for (e in objectKeys(html.getAttrs())) {
+                    if (html.getAttrs()[e] != other.getAttrs()[e]) {
+                        return SameResult("Not same attribute: $e")
+                    }
+                }
+
                 return SameResult("Not same attributes, '${html.getAttrs()}' vs '${other.getAttrs()}'.")
             }
 
-            if (html.getHandlers().keys != other.getHandlers().keys) {
-                return SameResult("Not same name handlers (keys), '${html.getHandlers().keys}' vs '${other.getHandlers().keys}'.")
+            val handlerKeys = objectKeys(html.getHandlers())
+
+            val otherHandlerKeys = objectKeys(other.getHandlers())
+
+            if (!handlerKeys.contentEquals(otherHandlerKeys)) {
+                return SameResult("Not same name handlers (keys), '$handlerKeys' vs '$otherHandlerKeys'.")
             }
 
             return SameResult()
@@ -156,7 +169,7 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
             }
     }
 
-    fun callHandler(name: String, event: Any?) {
+    fun callHandler(name: String, event: Event) {
         html.getHandler(name)(event)
     }
 
@@ -171,7 +184,7 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
     }
 }
 
-class TestingMainHTML<MESSAGE>(html: HTML<MESSAGE>) : TestingHTML(html) {
+class TestingMainHTML<out MESSAGE>(html: HTML<MESSAGE>) : TestingHTML(html) {
     private val messageBus: SimpleMessageBus<MESSAGE> = SimpleMessageBus()
 
     init {
@@ -195,4 +208,8 @@ private class SimpleMessageBus<MESSAGE> : MessageBus<MESSAGE> {
 
 data class SameResult(val message: String? = null) {
     val same = message == null
+}
+
+fun objectKeys(obj: dynamic) : Array<String> {
+    return js("Object").keys(obj)
 }

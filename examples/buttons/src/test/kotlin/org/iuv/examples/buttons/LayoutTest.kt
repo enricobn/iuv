@@ -5,6 +5,7 @@ import org.iuv.core.HTML
 import org.iuv.core.IUVTest
 import org.iuv.core.UV
 import org.iuv.examples.components.vBox
+import org.w3c.dom.events.Event
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -21,7 +22,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
         assertNotNull(testButton)
 
-        testButton!!.callHandler("click", null)
+        testButton!!.callHandler("click", Event("click"))
 
         assertEquals(TestLayoutChildMessageWrapper(TestLayoutChildClick), testHtml.getMessages().first())
     }

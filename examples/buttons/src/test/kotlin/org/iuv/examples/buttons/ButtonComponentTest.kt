@@ -1,7 +1,11 @@
 package org.iuv.examples.buttons
 
-import org.iuv.core.*
-import kotlin.test.*
+import org.iuv.core.Cmd
+import org.iuv.core.IUVTest
+import org.iuv.core.MessageBus
+import org.w3c.dom.events.Event
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
 
@@ -60,7 +64,7 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
 
         val testButton = testHtml.find(withName("button"))
 
-        testButton!!.callHandler("click", null)
+        testButton!!.callHandler("click", Event("click"))
 
         assertEquals(SelectedButtonMessageWrapper(SelectedButtonClick), testHtml.getMessages().first())
     }

@@ -9,13 +9,10 @@ import kotlin.browser.window
 
 @DslMarker
 annotation class HtmlTagMarker
-
 @HtmlTagMarker
 open class HTML<MESSAGE>(val name: String) : HTMLChild {
-    private val attrs = mutableMapOf<String,dynamic>()
-    private val props = mutableMapOf<String,dynamic>()
-    private val handlers = mutableMapOf<String,dynamic>()
-    private val children = mutableListOf<HTMLChild>()
+    internal val data: dynamic = object {}
+    internal val children = mutableListOf<HTMLChild>()
     private var text : String? = null
     private var jsToRun = mutableListOf<String>()
     internal var nullableMessageBus : MessageBus<MESSAGE>? = null
@@ -28,15 +25,36 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     fun getChildren() = children.toList()
 
-    fun getAttrs() = attrs.toMap()
+    fun getAttrs() : dynamic {
+        if (data["attrs"] == null) {
+            val attrs: dynamic = object {}
+            data["attrs"] = attrs
+        }
+        return data["attrs"]
+    }
 
-    fun getProps() = props.toMap()
+    fun getProps(): dynamic {
+        if (data["props"] == null) {
+            val props: dynamic = object {}
+            data["props"] = props
+        }
+        return data["props"]
+    }
 
-    fun getHandlers() = handlers.toMap()
+    fun getHandlers() : dynamic {
+        if (data["on"] == null) {
+            val on: dynamic = object {}
+            data["on"] = on
+        }
+        return data["on"]
+    }
 
-    fun hasHandler(name: String) = handlers.containsKey(name)
+    fun hasHandler(name: String) = getHandler(name) == null
 
-    fun getHandler(name: String) = handlers[name]
+    fun getHandler(name: String) : (Event) -> MESSAGE {
+        val handlers : dynamic = getHandlers()
+        return handlers[name] as ((Event) -> MESSAGE)
+    }
 
     fun getText() = text
 
@@ -123,7 +141,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         add(element)
     }
 
-//    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
+    //    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
 //        val newMessageBus = MessageBusImpl<CHILD_MESSAGE> {message -> messageBus.send(mapFun.invoke(message))}
 //        html.nullableMessageBus = newMessageBus
 //        children.add(html.toH())
@@ -164,7 +182,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         set(value) {
             addAttribute("class", value)
         }
-        get() = attrs["class"]
+        get() = getAttribute("class")
 
     fun appendClasses(vararg classesToAppend: String) {
         val allClasses =
@@ -182,62 +200,76 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         set(value) {
             addAttribute("style", value)
         }
-        get() = attrs["style"] as String?
+        get() = getAttribute("style") as String?
 
     var id: String?
         set(value) {
             addAttribute("id", value)
         }
-        get() = attrs["id"] as String?
+        get() = getAttribute("id") as String?
 
     var key: String?
         set(value) {
             addAttribute("key", value)
         }
-        get() = attrs["key"] as String?
+        get() = getAttribute("key") as String?
 
     fun addAttribute(name: String, attr: dynamic) {
+        val attrs : dynamic = getAttrs()
         attrs[name] = attr
     }
 
-    fun removeAttribute(name: String) =
-        attrs.remove(name)
+    fun removeAttribute(name: String) {
+        val attrs : dynamic = getAttrs()
+        deleteProperty(attrs, name)
+    }
 
-    fun getAttribute(key: String) : dynamic =
-        attrs[key]
+    fun getAttribute(key: String) : dynamic {
+        val attrs : dynamic = getAttrs()
+        return attrs[key]
+    }
 
-    fun hasAttribute(key: String) = attrs.containsKey(key)
+    fun hasAttribute(key: String) : Boolean {
+        return getAttribute(key) == null
+    }
 
     fun addProperty(name: String, prop: dynamic) {
+        val props : dynamic = getProps()
         props[name] = prop
     }
 
-    fun removeProperty(name: String) =
-            props.remove(name)
+    fun removeProperty(name: String) {
+        val props : dynamic = getProps()
+        deleteProperty(props, name)
+    }
 
-    fun getProperty(key: String) : dynamic =
-            props[key]
+    fun getProperty(key: String) : dynamic {
+        val props : dynamic = getProps()
+        return props[key]
+    }
 
-    fun hasProperty(key: String) = props.containsKey(key)
-
+    fun hasProperty(key: String) : Boolean {
+        return getProperty(key) == null
+    }
 
     fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE) {
+        val handlers : dynamic = getHandlers()
         handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
     }
 
     fun toStringDeep(indent: Int = 0): String {
         val sb = StringBuilder()
-
-        sb.indent(indent).append(name).append(" {").append("\n")
-        attrs.forEach { sb.indent(indent + 1).append(it.key).append("=").append(it.value.toString()).append("\n") }
-        handlers.forEach { sb.indent(indent + 1).append("-> ").append(it.key).append("\n") }
-        children.forEach {
-            when(it) {
-                is HTMLTextChild -> sb.indent(indent +1).append(it.text).append("\n")
-                is HTML<*> -> sb.append(it.toStringDeep(indent + 1))
-            }
-        }
-        sb.indent(indent).append("}\n")
+//
+//        sb.indent(indent).append(name).append(" {").append("\n")
+//        attrs.forEach { sb.indent(indent + 1).append(it.key).append("=").append(it.value.toString()).append("\n") }
+//        handlers.forEach { sb.indent(indent + 1).append("-> ").append(it.key).append("\n") }
+//        children.forEach {
+//            when(it) {
+//                is HTMLTextChild -> sb.indent(indent +1).append(it.text).append("\n")
+//                is HTML<*> -> sb.append(it.toStringDeep(indent + 1))
+//            }
+//        }
+//        sb.indent(indent).append("}\n")
         return sb.toString()
     }
 
@@ -248,12 +280,12 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     override fun toString(): String {
         val txt =
-            if (text == null) {
-                ""
-            } else {
-                ", text='$text'"
-            }
-        return "HTML(name='$name', attrs=$attrs, children.size=${children.size}$txt)"
+                if (text == null) {
+                    ""
+                } else {
+                    ", text='$text'"
+                }
+        return "HTML(name='$name', attrs=${getAttrs()}, children.size=${children.size}$txt)"
     }
 
 //    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: UV<CHILD_MODEL, CHILD_MESSAGE>,
@@ -307,6 +339,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
 }
 
+
 class SpanH<MESSAGE> : HTML<MESSAGE>("span"),ClickableHTML<MESSAGE>
 
 class DivH<MESSAGE> : HTML<MESSAGE>("div")
@@ -330,29 +363,21 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
     var value: String?
         set(value) {
             if (value == null) {
-//                addAttribute("value", "")
                 removeProperty("value")
-//                removeAttribute("value")
             } else {
-//                addAttribute("value", value)
                 addProperty("value", value)
             }
         }
-//        get() = getAttribute("value")
         get() = getProperty("value")
 
     var defaultValue: String?
         set(value) {
             if (value == null) {
-//                addAttribute("value", "")
-//                removeProperty("value")
                 removeAttribute("defaultValue")
             } else {
                 addAttribute("defaultValue", value)
-//                addProperty("value", value)
             }
         }
-//        get() = getAttribute("value")
         get() = getProperty("defaultValue")
 
 
@@ -532,3 +557,7 @@ interface WithAttributesHTML<MESSAGE> {
 interface HTMLChild
 
 data class HTMLTextChild(val text: String) : HTMLChild
+
+fun deleteProperty(obj: Any, property: Any) {
+    js("delete obj[property]")
+}
