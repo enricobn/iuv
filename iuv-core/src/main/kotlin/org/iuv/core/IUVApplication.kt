@@ -66,8 +66,11 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         lastViewedModel = model
 
         lastViewedModel.let {
-            var time = Date().getTime()
+            val time = Date().getTime()
             val newView = iuv.view(it!!)
+
+            console.log("view ${Date().getTime() - time}")
+
             newView.nullableMessageBus = messageBus
 
             renderer.render(view, newView)

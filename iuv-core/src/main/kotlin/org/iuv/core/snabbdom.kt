@@ -74,6 +74,7 @@ class SnabbdomRenderer : HTMLRenderer {
 
     }
 
+    // TODO optimize
     private fun getJsToRun(htmlChild: HTMLChild) : List<String> =
         when (htmlChild) {
             is HTML<*> -> {
@@ -88,7 +89,7 @@ class SnabbdomRenderer : HTMLRenderer {
             when (htmlChild) {
                 is HTML<*> ->
                     if (htmlChild.getText() != null) {
-                        snabbdom.h(htmlChild.name, htmlChild.data, htmlChild.getText())
+                        snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.getText())
                     } else {
                         val renderedChildren = htmlChild.children.map { toH(it) }
 
@@ -101,12 +102,19 @@ class SnabbdomRenderer : HTMLRenderer {
 //                        }
 //                    }
 
-                        snabbdom.h(htmlChild.name, htmlChild.data, renderedChildren.toTypedArray())
+                        snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
                     }
                 is HTMLTextChild -> htmlChild.text
                 else -> throw IllegalStateException()
             }
 
+    private fun getData(html: HTML<*>) : dynamic {
+        val data : dynamic = object {}
+        data.props = html.props
+        data.attrs = html.attrs
+        data.on = html.handlers
+        return data
+    }
 
 //    private fun getData(html: HTML<*>) : dynamic {
 //        val data: dynamic = object {}

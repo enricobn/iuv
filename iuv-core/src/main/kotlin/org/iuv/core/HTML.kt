@@ -11,10 +11,12 @@ import kotlin.browser.window
 annotation class HtmlTagMarker
 @HtmlTagMarker
 open class HTML<MESSAGE>(val name: String) : HTMLChild {
-    internal val data: dynamic = object {}
+    internal val attrs: dynamic = object {}
     internal val children = mutableListOf<HTMLChild>()
+    private val jsToRun = mutableListOf<String>()
+    internal var props: dynamic = null
+    internal var handlers: dynamic = null
     private var text : String? = null
-    private var jsToRun = mutableListOf<String>()
     internal var nullableMessageBus : MessageBus<MESSAGE>? = null
 
     private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
@@ -26,34 +28,21 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     fun getChildren() = children.toList()
 
     fun getAttrs() : dynamic {
-        if (data["attrs"] == null) {
-            val attrs: dynamic = object {}
-            data["attrs"] = attrs
-        }
-        return data["attrs"]
+        return attrs
     }
 
     fun getProps(): dynamic {
-        if (data["props"] == null) {
-            val props: dynamic = object {}
-            data["props"] = props
-        }
-        return data["props"]
+        return props
     }
 
     fun getHandlers() : dynamic {
-        if (data["on"] == null) {
-            val on: dynamic = object {}
-            data["on"] = on
-        }
-        return data["on"]
+        return handlers
     }
 
     fun hasHandler(name: String) = getHandler(name) == null
 
-    fun getHandler(name: String) : (Event) -> MESSAGE {
-        val handlers : dynamic = getHandlers()
-        return handlers[name] as ((Event) -> MESSAGE)
+    fun getHandler(name: String) : ((Event) -> MESSAGE)? {
+        return if (handlers == null) null else handlers[name] as ((Event) -> MESSAGE)
     }
 
     fun getText() = text
@@ -215,18 +204,15 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         get() = getAttribute("key") as String?
 
     fun addAttribute(name: String, attr: dynamic) {
-        val attrs : dynamic = getAttrs()
         attrs[name] = attr
     }
 
     fun removeAttribute(name: String) {
-        val attrs : dynamic = getAttrs()
         deleteProperty(attrs, name)
     }
 
     fun getAttribute(key: String) : dynamic {
-        val attrs : dynamic = getAttrs()
-        return attrs[key]
+        return if (attrs == null) null else attrs[key]
     }
 
     fun hasAttribute(key: String) : Boolean {
@@ -234,18 +220,18 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     }
 
     fun addProperty(name: String, prop: dynamic) {
-        val props : dynamic = getProps()
+        if (props == null) {
+            props = object {}
+        }
         props[name] = prop
     }
 
     fun removeProperty(name: String) {
-        val props : dynamic = getProps()
         deleteProperty(props, name)
     }
 
     fun getProperty(key: String) : dynamic {
-        val props : dynamic = getProps()
-        return props[key]
+        return if (props == null) props else props[key]
     }
 
     fun hasProperty(key: String) : Boolean {
@@ -253,7 +239,9 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     }
 
     fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE) {
-        val handlers : dynamic = getHandlers()
+        if (handlers == null) {
+            handlers = object {}
+        }
         handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
     }
 

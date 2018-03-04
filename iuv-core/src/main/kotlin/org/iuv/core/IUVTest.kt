@@ -170,7 +170,11 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
     }
 
     fun callHandler(name: String, event: Event) {
-        html.getHandler(name)(event)
+        val handler = html.getHandler(name)
+        if (handler == null) {
+            throw Exception()
+        }
+        handler(event)
     }
 
     fun hasAttribute(name: String) = html.hasAttribute(name)
@@ -211,5 +215,8 @@ data class SameResult(val message: String? = null) {
 }
 
 fun objectKeys(obj: dynamic) : Array<String> {
+    if (obj == null) {
+        return arrayOf()
+    }
     return js("Object").keys(obj)
 }
