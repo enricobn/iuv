@@ -32,10 +32,10 @@ fun <MESSAGE> HTML<MESSAGE>.mtButton(init: ButtonH<MESSAGE>.() -> Unit) {
 fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, init: InputH<MESSAGE>.() -> Unit) {
     label {
         appendClasses(
- "mdl-checkbox",
-                "mdl-js-checkbox",
-                "mdl-js-ripple-effect",
-                "mdl-data-table__select"
+            "mdl-checkbox",
+            "mdl-js-checkbox",
+            "mdl-js-ripple-effect",
+            "mdl-data-table__select"
         )
 
         id = labelId
