@@ -125,6 +125,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         add(HTML<MESSAGE>("br"))
     }
 
+    fun checkbox(init: CheckBoxH<MESSAGE>.() -> Unit) {
+        element(CheckBoxH(), init)
+    }
+
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
@@ -346,7 +350,7 @@ class TDH<MESSAGE> : HTML<MESSAGE>("td"),ClickableHTML<MESSAGE>
 
 class TRH<MESSAGE> : HTML<MESSAGE>("tr"),ClickableHTML<MESSAGE>
 
-class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
+open class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
 
     var value: String?
         set(value) {
@@ -408,14 +412,6 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
         }
         get() = (getAttribute("step") as String?)?.toInt()
 
-    var checked: Boolean
-        set(value) {
-//                addAttribute("value", value)
-            addProperty("checked", value)
-        }
-//        get() = getAttribute("value")
-        get() = getProperty("checked") ?: false
-
     fun onInput(handler: (InputEvent,String) -> MESSAGE) {
         on("input", { event: InputEvent ->
             handler(event, event.target?.asDynamic().value)
@@ -455,6 +451,31 @@ class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
     fun onFocus(message: MESSAGE) {
         on("focus") { _: InputEvent -> message }
     }
+}
+
+class CheckBoxH<MESSAGE> : InputH<MESSAGE>() {
+
+    init {
+        type = "checkbox"
+    }
+
+    var checked: Boolean
+        set(value) {
+//                addAttribute("value", value)
+            addProperty("checked", value)
+        }
+//        get() = getAttribute("value")
+        get() = getProperty("checked") ?: false
+
+    fun onChecked(handler: (Event, Boolean) -> MESSAGE) {
+        val clickHandler: (Event) -> MESSAGE = {
+            val checked : Boolean = (it.target?.asDynamic()).checked
+
+            handler(it, checked)
+        }
+        on("click", clickHandler)
+    }
+
 }
 
 class ButtonH<MESSAGE> : HTML<MESSAGE>("button"),ClickableHTML<MESSAGE>
