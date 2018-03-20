@@ -4,6 +4,7 @@ Doing
 
 Next
 -----
+- make the core build.gradle similar to examples, to create a build/web folder for tests
 - fix IntelliJ problems (related to build system?):
   F3 to a core class from examples does not work, nor implement interface methods
 - singleton MessageBus?

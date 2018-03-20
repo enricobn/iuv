@@ -22,9 +22,10 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
     override fun subscriptions(model: IUVDebuggerModel): Sub<IUVDebuggerMessage> =
         childIUV.subscriptions(model)
 
-    override fun init(): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> =
-        childIUV.init(IUVDebuggerModel(null, emptyList(), 0))
-
+    override fun init(): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> {
+        val init = childIUV.init()
+        return Pair(IUVDebuggerModel(init.first, emptyList(), 0), init.second)
+    }
 
     override fun update(message: IUVDebuggerMessage, model: IUVDebuggerModel): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> =
         when(message) {

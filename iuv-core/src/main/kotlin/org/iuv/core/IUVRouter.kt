@@ -108,10 +108,10 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                 val (childIUV, error) = createChildIUV(absolutePath)
 
                 if (childIUV == null) {
-                    return Pair(model.copy(errorMessage = error), Cmd.none())
+                    return Pair(model.copy(path = absolutePath, errorMessage = error), Cmd.none())
                 } else {
-                    val (newModel, cmd) = childIUV.init(model)
-                    return Pair(newModel.copy(path = absolutePath, errorMessage = null), cmd)
+                    val (childModel, cmd) = childIUV.init()
+                    return Pair(model.copy(path = absolutePath, currentIUVModel = childModel, errorMessage = null), cmd)
                 }
 
             }

@@ -20,10 +20,15 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     private var lastSub: Sub<MESSAGE>? = null
 
     init {
-        document.body!!.appendChild(view)
-        val (newModel,cmd) = iuv.init()
-        model = newModel
-        cmd.run(messageBus)
+        try {
+            document.body!!.appendChild(view)
+            val (newModel,cmd) = iuv.init()
+            model = newModel
+            cmd.run(messageBus)
+        } catch (e: Exception) {
+            console.error("Error in IUVApplication()", e.asDynamic().stack)
+            throw e
+        }
     }
 
     fun run() {
@@ -32,24 +37,28 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     }
 
     override fun onMessage(message: MESSAGE) {
-        val modelBeforeUpdate = model
+        try {
+            val modelBeforeUpdate = model
 
-        val (newModel,cmd) = iuv.update(message, model)
-        model = newModel
+            val (newModel, cmd) = iuv.update(message, model)
+            model = newModel
 
-        if (modelBeforeUpdate != model) {
-            val newSub = iuv.subscriptions(model)
+            if (modelBeforeUpdate != model) {
+                val newSub = iuv.subscriptions(model)
 
-            lastSub.let {
-                it?.removeListener(this)
+                lastSub.let {
+                    it?.removeListener(this)
+                }
+
+                newSub.addListener(this)
+
+                lastSub = newSub
             }
 
-            newSub.addListener(this)
-
-            lastSub = newSub
+            cmd.run(messageBus)
+        } catch (e: Exception) {
+            console.error("Error in IUVApplication.onMessage for message '$message'.", e.asDynamic().stack)
         }
-
-        cmd.run(messageBus)
     }
 
     private fun onTimer() {
@@ -57,24 +66,28 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     }
 
     private fun updateDocument() {
-        if (lastViewedModel != null && lastViewedModel!! == model) {
-            return
-        }
+        try {
+            if (lastViewedModel != null && lastViewedModel!! == model) {
+                return
+            }
 
-        // I do it before so if there's an error, the model is updated, otherwise when the updateDocument
-        // is called again, by the timer, the model is still different and the error is raised again and again ...
-        lastViewedModel = model
+            // I do it before so if there's an error, the model is updated, otherwise when the updateDocument
+            // is called again, by the timer, the model is still different and the error is raised again and again ...
+            lastViewedModel = model
 
-        lastViewedModel.let {
-            val time = Date().getTime()
-            val newView = iuv.view(it!!)
+            lastViewedModel.let {
+                val time = Date().getTime()
+                val newView = iuv.view(it!!)
 
-            console.log("view ${Date().getTime() - time}")
+                console.log("view ${Date().getTime() - time}")
 
-            newView.nullableMessageBus = messageBus
+                newView.nullableMessageBus = messageBus
 
-            renderer.render(view, newView)
-            console.log("updateDocument ${Date().getTime() - time}")
+                renderer.render(view, newView)
+                console.log("updateDocument ${Date().getTime() - time}")
+            }
+        } catch (e: Exception) {
+            console.error("Error in IUVApplication.updateDocument for message '${e.message}'.", e.asDynamic().stack)
         }
 
     }

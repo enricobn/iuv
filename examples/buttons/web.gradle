@@ -1,0 +1,76 @@
+build.doFirst() {
+    delete("${web_dir}")
+}
+
+build.doLast() {
+
+    // Copy kotlin.js and kotlin.meta.js from jar into web directory
+    copyConfigurationFiles(configurations.compile)
+
+    // Copy kotlin-test.js and kotlin-test.meta.js from jar into web directory
+    copyConfigurationFiles(configurations.testCompile)
+
+//     // Unpack build contents
+//     // TODO Remove this step when a CDN link is available.
+//    copy {
+//        File[] artifacts = [
+//                new File("build/libs/${project.name}-${project.version}.jar"),
+//                new File("build/libs/${project.name}-${project.version}-tests.jar")
+//        ]
+//
+//        includeEmptyDirs = false
+//
+//        for (File artifact : artifacts) {
+//            from zipTree(artifact)
+//            into "${web_dir}/classes"
+//            include { fileTreeElement ->
+//                def path = fileTreeElement.path
+//                !(path.startsWith("META-INF/") || path.startsWith("${project.name}"))
+//            }
+//        }
+//    }
+
+    copy {
+        includeEmptyDirs = false
+        from fileTree("build/classes/main").files
+        into "${web_dir}/classes"
+        include "*.js"
+        include "*.js.map"
+    }
+
+    copy {
+        includeEmptyDirs = false
+        from fileTree("build/classes/test").files
+        into "${web_dir}/classes"
+        include "*.js"
+        include "*.js.map"
+    }
+
+    copy {
+        includeEmptyDirs = false
+        from new File("build/resources/test")
+        into "${web_dir}"
+    }
+
+    copy {
+        includeEmptyDirs = false
+        from new File("web")
+        into "${web_dir}"
+    }
+
+}
+
+private Iterable<File> copyConfigurationFiles(Configuration compile) {
+    compile.each { File file ->
+        copy {
+            includeEmptyDirs = false
+
+            from zipTree(file.absolutePath)
+            into "${projectDir}/${web_dir}/lib"
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                (path.endsWith(".js") || path.endsWith(".js.map")) && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+            }
+        }
+    }
+}

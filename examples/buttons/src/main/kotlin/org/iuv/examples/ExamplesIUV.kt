@@ -1,6 +1,9 @@
 package org.iuv.examples
 
-import org.iuv.core.*
+import org.iuv.core.Cmd
+import org.iuv.core.HTML
+import org.iuv.core.IUV
+import org.iuv.core.IUVRouter
 import org.iuv.examples.buttons.ButtonsIUV
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.components.*
@@ -41,9 +44,9 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
         tab.add("Grid", GridIUV)
     }
 
-    override fun subscriptions(model: ExamplesModel): Sub<ExamplesMessage> {
-        return DocumentEventSubFactoryImpl.mouseMove { MouseMove(it.screenX, it.screenY) }
-    }
+//    override fun subscriptions(model: ExamplesModel): Sub<ExamplesMessage> {
+//        return DocumentEventSubFactoryImpl.mouseMove { MouseMove(it.screenX, it.screenY) }
+//    }
 
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
         val (tabModel,tabCmd) = tab.init()

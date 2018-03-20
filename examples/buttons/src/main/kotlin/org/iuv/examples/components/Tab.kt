@@ -32,7 +32,7 @@ class Tab : IUV<TabModel, TabMessage> {
                         Pair(model, Cmd.none())
                     } else {
                         val iuv = createChildIUV(message.tab)
-                        iuv.init(model)
+                        iuv.initAndUpdate(message, model)
                     }
                 Pair(newModel.copy(activeTab = message.tab), newCmd)
             }

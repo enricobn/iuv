@@ -46,7 +46,8 @@ class SnabbdomRenderer : HTMLRenderer {
     companion object {
         private val patch: (old: dynamic, new: dynamic) -> Unit = snabbdomInit()
         private fun checkedRun(runnable: () -> Unit) {
-            try {runnable.invoke()}catch(e:Throwable){ console.error(e.message) }
+            // TODO stacktrace
+            try {runnable.invoke()}catch(e:Throwable){ console.error("Error in patch: ${e.message}") }
         }
     }
 
