@@ -94,7 +94,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
                                 .map { index(y, it) }
                                 .forEach {
                                     td {
-                                        buttonComponent.view(model.buttonModels[it]).map(this) { message: ButtonComponentMessage ->
+                                        add(buttonComponent.view(model.buttonModels[it])) { message: ButtonComponentMessage ->
                                             ButtonsButtonMessage(message, it)
                                         }
                                     }

@@ -31,7 +31,7 @@ open class ChildUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, in CHILD_MESSAGE>(
         Sub.map(childUV.subscriptions(toChildModelFun(model)), messageMapFun)
 
     fun view(model: PARENT_MODEL, parentHtml: HTML<PARENT_MESSAGE>) {
-        childUV.view(toChildModelFun(model)).map(parentHtml, messageMapFun)
+        parentHtml.add(childUV.view(toChildModelFun(model)), messageMapFun)
     }
 
     fun update(message: CHILD_MESSAGE, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> {

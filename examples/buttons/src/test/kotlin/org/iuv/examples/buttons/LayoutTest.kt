@@ -78,7 +78,7 @@ object TestLayoutUV : UV<TestLayoutModel, TestLayoutMessage> {
         html {
             vBox {
                 classes = "testclass"
-                TestChildUV.view(model.childModel).map(this, ::TestLayoutChildMessageWrapper)
+                add(TestChildUV.view(model.childModel), ::TestLayoutChildMessageWrapper)
             }
         }
 

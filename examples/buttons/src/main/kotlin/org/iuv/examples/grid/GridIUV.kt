@@ -55,12 +55,12 @@ object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
         return html {
             div {
                 style = "float: left; margin-right: 10px;"
-                grid.view(model.gridModel).map(this, ::GridMessageWrapper)
+                add(grid.view(model.gridModel), ::GridMessageWrapper)
             }
             div {
                 style = "float: none;"
                 // TODO I don't like to make the init every time, better to have a detailModel in GridIUVModel then update it.
-                detail.view(detail.init(model.gridModel.getSelectedRow(), columns)).map(this, ::DetailMessageWrapper)
+                add(detail.view(detail.init(model.gridModel.getSelectedRow(), columns)), ::DetailMessageWrapper)
             }
         }
     }

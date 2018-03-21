@@ -13,7 +13,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         val delay = 100
     }
 
-    private val messageBus = MessageBusImpl(this::onMessage)
+    private fun messageBus(): MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
     private var view : Element = document.createElement("div")
@@ -21,10 +21,11 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
 
     init {
         try {
+            GlobalMessageBus.messageBus = MessageBusImpl(this::onMessage) as MessageBus<Any>
             document.body!!.appendChild(view)
             val (newModel,cmd) = iuv.init()
             model = newModel
-            cmd.run(messageBus)
+            cmd.run(messageBus())
         } catch (e: Exception) {
             console.error("Error in IUVApplication()", e.asDynamic().stack)
             throw e
@@ -55,7 +56,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
                 lastSub = newSub
             }
 
-            cmd.run(messageBus)
+            cmd.run(messageBus())
         } catch (e: Exception) {
             console.error("Error in IUVApplication.onMessage for message '$message'.", e.asDynamic().stack)
         }
@@ -80,8 +81,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
                 val newView = iuv.view(it!!)
 
                 console.log("view ${Date().getTime() - time}")
-
-                newView.nullableMessageBus = messageBus
 
                 renderer.render(view, newView)
                 console.log("updateDocument ${Date().getTime() - time}")

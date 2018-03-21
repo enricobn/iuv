@@ -75,7 +75,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
                 link("Grid", "/grid")
                 link("Not existent route", "/notExistentRoute")
                 link("Error", "/buttons/hello")
-                tab.view(model.tabModel).map(this, ::TabMessageWrapper)
+                add(tab.view(model.tabModel), ::TabMessageWrapper)
             }
         }
 

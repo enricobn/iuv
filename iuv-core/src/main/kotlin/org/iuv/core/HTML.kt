@@ -1,11 +1,17 @@
 package org.iuv.core
 
-import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
+
+internal object GlobalMessageBus {
+    var messageBus : MessageBus<Any>? = null
+
+    fun getMessageBus() : MessageBus<Any> = messageBus!!
+
+}
 
 @DslMarker
 annotation class HtmlTagMarker
@@ -17,13 +23,9 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     internal var props: dynamic = null
     internal var handlers: dynamic = null
     private var text : String? = null
-    internal var nullableMessageBus : MessageBus<MESSAGE>? = null
-
-    private val messageBus: MessageBus<MESSAGE> = object : MessageBus<MESSAGE> {
-        override fun send(message: MESSAGE) {
-            nullableMessageBus!!.send(message)
-        }
-    }
+    private fun messageBus() : MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
+    private var mapFun : ((Any) -> Any)? = null
+    private var parent : HTML<Any>? = null
 
     fun getChildren() = children.toList()
 
@@ -144,20 +146,24 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         when(html) {
             is HTMLTextChild -> children.add(html)
             is HTML<*> -> {
-                if (html.nullableMessageBus == null) {
-                    html.nullableMessageBus = messageBus as MessageBus<Any?>
-                }
+                html.parent = this as HTML<Any>
                 children.add(html)
             }
         }
     }
 
-    fun <PARENT_MESSAGE> map(parent: HTML<PARENT_MESSAGE>, mapFun: (MESSAGE) -> PARENT_MESSAGE) {
-        val newMessageBus = MessageBusImpl<MESSAGE> { message -> parent.messageBus.send(mapFun.invoke(message)) }
-        nullableMessageBus = newMessageBus
-
-//        parent.children.addAll(children)
-        children.forEach { parent.add(it) }
+    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
+        html.children.forEach {
+            add(it)
+            if (it is HTML<*>) {
+                if (it.mapFun == null) {
+                    it.mapFun = mapFun as (Any) -> Any
+                } else {
+                    val oldMapFun = it.mapFun
+                    it.mapFun = { msg -> mapFun.invoke(oldMapFun?.invoke(msg) as CHILD_MESSAGE) as Any}
+                }
+            }
+        }
     }
 
     /**
@@ -246,7 +252,22 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         if (handlers == null) {
             handlers = object {}
         }
-        handlers[name] = { event : EVENT -> messageBus.send(handler(event)) }
+        handlers[name] = { event : EVENT ->
+            var msg = handler(event) as Any
+
+            var p : HTML<Any>? = this as HTML<Any>
+
+            while (p != null) {
+
+                p.mapFun?.let {
+                    msg = it.invoke(msg)
+                }
+
+                p = p.parent
+            }
+
+            messageBus().send(msg)
+        }
     }
 
     fun toStringDeep(indent: Int = 0): String {
