@@ -22,12 +22,14 @@ class DocumentEventSubImpl<out T : Event> internal constructor(private val name:
 
     private var listenerAdded = false
 
-    private val listeners = mutableListOf<Pair<SubListener<dynamic>,(T) -> dynamic>>()
+    private val listeners = SubListenersHelper<T>()
 
     private val options : dynamic = object { val capture = true}
 
     fun handleEvent(event: Event) {
-        listeners.forEach { (listener,handler) -> listener.onMessage(handler(event as T)) }
+        val mouseEvent = event as MouseEvent
+        console.log("Dispatched ${mouseEvent.screenX},${mouseEvent.screenY}")
+        listeners.dispatch(event as T)
     }
 
     override operator fun <MESSAGE> invoke(handler : (T) -> MESSAGE) : Sub<MESSAGE> {
@@ -37,21 +39,7 @@ class DocumentEventSubImpl<out T : Event> internal constructor(private val name:
             listenerAdded = true
         }
 
-        return object : Sub<MESSAGE> {
-            override fun addListener(listener: SubListener<MESSAGE>) {
-                listeners.add(Pair(listener, handler))
-            }
-
-            override fun removeListener(listener: SubListener<MESSAGE>) {
-                listeners.removeAll { (_listener,_) -> listener == _listener}
-//                if (listeners.isEmpty() && listenerAdded) {
-//                    console.log("remove all listeners")
-//                    document.removeEventListener(name, this@DocumentEventSubImpl::handleEvent, true)
-//                    listenerAdded = false
-//                }
-            }
-
-        }
+        return listeners.subscribe(handler)
     }
 
 }

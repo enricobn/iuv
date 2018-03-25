@@ -23,9 +23,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     internal var props: dynamic = null
     internal var handlers: dynamic = null
     private var text : String? = null
-    private fun messageBus() : MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
     private var mapFun : ((Any) -> Any)? = null
     private var parent : HTML<Any>? = null
+
+    private fun messageBus() : MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
 
     fun getChildren() = children.toList()
 
