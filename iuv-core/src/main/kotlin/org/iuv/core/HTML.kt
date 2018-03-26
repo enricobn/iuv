@@ -167,6 +167,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
     }
 
+    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childIUV: ChildIUV<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
+        childIUV.addTo(this, model)
+    }
+
     /**
      * TODO experimental
      */

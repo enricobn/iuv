@@ -42,7 +42,7 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
 
     override fun view(model: IUVDebuggerModel): HTML<IUVDebuggerMessage> =
         html {
-            childIUV.view(model, this)
+            childIUV.addTo(this, model)
             div {
                 classes = "IUVDebugger"
 

@@ -142,7 +142,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             } else {
                 val (childIUV, error) = createChildIUV(model)
                 if (childIUV != null) {
-                    childIUV.view(model, this)
+                    childIUV.addTo(this, model)
                 } else {
                     +error!!
                 }

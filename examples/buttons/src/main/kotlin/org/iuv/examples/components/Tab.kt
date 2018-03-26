@@ -56,7 +56,7 @@ class Tab : IUV<TabModel, TabMessage> {
                 }
 
                 if (model.childModels.containsKey(model.activeTab)) {
-                    createChildIUV(model.activeTab).view(model, this)
+                    add(createChildIUV(model.activeTab), model)
                 }
 
             }
