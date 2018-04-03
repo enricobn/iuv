@@ -11,8 +11,9 @@ import org.iuv.examples.grid.GridIUV
 class ExamplesMain {
 
     fun run() {
-        val router = IUVRouter(ExamplesIUV())
         val postService = PostServiceImpl()
+
+        val router = IUVRouter(ExamplesIUV(postService))
         router.add("buttons") { ButtonsIUV(it.first().toInt(), postService) }
         router.add("buttons1", ButtonsIUV(1, postService))
         router.add("grid", GridIUV)

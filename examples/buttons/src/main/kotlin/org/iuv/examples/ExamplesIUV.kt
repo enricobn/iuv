@@ -2,7 +2,7 @@ package org.iuv.examples
 
 import org.iuv.core.*
 import org.iuv.examples.buttons.ButtonsIUV
-import org.iuv.examples.buttons.PostServiceImpl
+import org.iuv.examples.buttons.PostService
 import org.iuv.examples.components.*
 import org.iuv.examples.grid.GridIUV
 
@@ -12,7 +12,7 @@ data class ExamplesModel(val tabModel: TabModel, val x: Int, val y: Int)
 // Message
 interface ExamplesMessage
 
-class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
+class ExamplesIUV(postService: PostService) : IUV<ExamplesModel, ExamplesMessage> {
     private val tab : Tab = Tab()
 
     companion object {
@@ -37,7 +37,7 @@ class ExamplesIUV : IUV<ExamplesModel, ExamplesMessage> {
     }
 
     init {
-        tab.add("Buttons", ButtonsIUV(1, PostServiceImpl()))
+        tab.add("Buttons", ButtonsIUV(1, postService))
         tab.add("Grid", GridIUV)
     }
 
