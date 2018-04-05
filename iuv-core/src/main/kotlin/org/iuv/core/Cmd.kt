@@ -10,6 +10,50 @@ private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
 
 }
 
+abstract class Task<T,MESSAGE> {
+    private val errorH : SubListenersHelper<Unit> = SubListenersHelper()
+    private val successH : SubListenersHelper<T> = SubListenersHelper()
+
+    fun execute(onSuccess: (T) -> MESSAGE, onFailure: () -> MESSAGE) : Cmd<MESSAGE> {
+        execute(successH, errorH)
+        return toCmd(successH, onSuccess, errorH, onFailure)
+    }
+
+    protected abstract fun execute(successH: Dispatcher<T>, errorH: Dispatcher<Unit>)
+
+    fun <T1> andThen(continuation: (T) -> Task<T1,MESSAGE>) : Task<T1,MESSAGE> {
+        val self = this
+        return object : Task<T1,MESSAGE>() {
+            override fun execute(successH: Dispatcher<T1>, errorH: Dispatcher<Unit>) {
+                self.errorH.subscribe { errorH.dispatch(Unit) }
+                self.successH.subscribe { t -> val task = continuation(t)
+                    task.execute(successH, errorH)
+                }
+            }
+        }
+    }
+
+}
+
+private fun <T,MESSAGE> toCmd(successH : SubListenersHelper<T>, onSuccess : (T) -> MESSAGE, failureH : SubListenersHelper<Unit>, mapFailure : () -> MESSAGE) : Cmd<MESSAGE> {
+    val subSuccess = successH.subscribe(onSuccess)
+    val subFailure = failureH.subscribe { mapFailure() }
+
+    return (object : Cmd<MESSAGE> {
+        override fun run(messageBus: MessageBus<MESSAGE>) {
+            val listener: SubListener<MESSAGE> = object : SubListener<MESSAGE> {
+                override fun onMessage(message: MESSAGE) {
+                    subSuccess.removeListener(this)
+                    subFailure.removeListener(this)
+                    messageBus.send(message)
+                }
+            }
+            subSuccess.addListener(listener)
+            subFailure.addListener(listener)
+        }
+    })
+}
+
 interface Cmd<out MESSAGE> {
 
     companion object {
