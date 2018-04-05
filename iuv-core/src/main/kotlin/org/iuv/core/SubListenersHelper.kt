@@ -1,6 +1,12 @@
 package org.iuv.core
 
-class SubListenersHelper<T> {
+interface Dispatcher<in T> {
+
+    fun dispatch(t: T)
+
+}
+
+class SubListenersHelper<T> : Dispatcher<T> {
     // TODO can be a Set?
     private val listeners = mutableListOf<Pair<SubListener<dynamic>,(T) -> dynamic>>()
 
@@ -15,7 +21,8 @@ class SubListenersHelper<T> {
             }
         }
 
-    fun dispatch(t: T) {
+    override fun dispatch(t: T) {
         listeners.forEach { it.first.onMessage(it.second.invoke(t)) }
     }
+
 }
