@@ -14,6 +14,8 @@ data class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButto
 
 data class PostTitle(val title: String) : ButtonComponentMessage
 
+private object Error : ButtonComponentMessage
+
 class ButtonComponent(private val postService: PostService) : UV<ButtonModel, ButtonComponentMessage> {
 
     fun init(text: String, postId: Int) : ButtonModel {
@@ -29,7 +31,10 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
 
                 val cmd =
                         if (model.selectedButtonModel.selected) {
-                            val postCmd = postService.getPost(model.postId) { PostTitle(it.title) }
+                            val postCmd = postService.getPost<ButtonComponentMessage>(model.postId)
+                                    .andThen { postService.getPost<ButtonComponentMessage>(it.id + 1) }
+                                    .andThen { postService.getPost<ButtonComponentMessage>(it.id + 1) }
+                                    .perform({PostTitle(it.title) }, { Error } )
                             Cmd(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped
@@ -40,6 +45,10 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
             is PostTitle -> {
                 val text = model.selectedButtonModel.text + " " + message.title
                 return Pair(model.copy(selectedButtonModel = model.selectedButtonModel.copy(text = text)), Cmd.none())
+            }
+            is Error -> {
+                console.log("ButtonComponent.Error")
+                return Pair(model, Cmd.none())
             }
             else -> return Pair(model, Cmd.none())
         }

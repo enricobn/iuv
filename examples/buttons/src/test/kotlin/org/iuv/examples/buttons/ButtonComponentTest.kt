@@ -2,7 +2,7 @@ package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.IUVTest
-import org.iuv.core.MessageBus
+import org.iuv.core.Task
 import org.w3c.dom.events.Event
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -71,10 +71,10 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
 }
 
 class MockedPostService : PostService {
-    override fun <MESSAGE> getPost(id: Int, handler: (Post) -> MESSAGE): Cmd<MESSAGE> {
-        return object: Cmd<MESSAGE> {
-            override fun run(messageBus: MessageBus<MESSAGE>) {
-                messageBus.send(handler.invoke(Post(1, 1, "Hello", "World")))
+    override fun <MESSAGE> getPost(id: Int): Task<Post, MESSAGE> {
+        return object: Task<Post,MESSAGE>() {
+            override fun start(onSuccess: (Post) -> Unit, onError: () -> Unit) {
+                onSuccess(Post(1, 1, "Hello", "World"))
             }
         }
     }

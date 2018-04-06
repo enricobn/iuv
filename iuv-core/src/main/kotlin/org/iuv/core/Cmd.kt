@@ -10,32 +10,32 @@ private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
 
 }
 
-abstract class Task<T,MESSAGE> {
+abstract class Task<out RESULT,MESSAGE> {
     private val errorH : SubListenersHelper<Unit> = SubListenersHelper()
-    private val successH : SubListenersHelper<T> = SubListenersHelper()
+    private val successH : SubListenersHelper<RESULT> = SubListenersHelper()
 
-    fun execute(onSuccess: (T) -> MESSAGE, onFailure: () -> MESSAGE) : Cmd<MESSAGE> {
-        execute(successH, errorH)
-        return toCmd(successH, onSuccess, errorH, onFailure)
+    fun perform(onSuccess: (RESULT) -> MESSAGE, onFailure: () -> MESSAGE) : Cmd<MESSAGE> {
+        val toCmd = toCmd(successH, onSuccess, errorH, onFailure)
+        start({ t : RESULT -> successH.dispatch(t) }, { errorH.dispatch(Unit) })
+        return toCmd
     }
 
-    protected abstract fun execute(successH: Dispatcher<T>, errorH: Dispatcher<Unit>)
+    protected abstract fun start(onSuccess: (RESULT) -> Unit, onError: () -> Unit)
 
-    fun <T1> andThen(continuation: (T) -> Task<T1,MESSAGE>) : Task<T1,MESSAGE> {
+    fun <NEW_RESULT> andThen(continuation: (RESULT) -> Task<NEW_RESULT,MESSAGE>) : Task<NEW_RESULT,MESSAGE> {
         val self = this
-        return object : Task<T1,MESSAGE>() {
-            override fun execute(successH: Dispatcher<T1>, errorH: Dispatcher<Unit>) {
-                self.errorH.subscribe { errorH.dispatch(Unit) }
-                self.successH.subscribe { t -> val task = continuation(t)
-                    task.execute(successH, errorH)
-                }
+        return object : Task<NEW_RESULT,MESSAGE>() {
+            override fun start(onSuccess: (NEW_RESULT) -> Unit, onError: () -> Unit) {
+                self.start( { t -> val task = continuation(t)
+                    task.start(onSuccess, onError)
+                }, {onError()})
             }
         }
     }
 
 }
 
-private fun <T,MESSAGE> toCmd(successH : SubListenersHelper<T>, onSuccess : (T) -> MESSAGE, failureH : SubListenersHelper<Unit>, mapFailure : () -> MESSAGE) : Cmd<MESSAGE> {
+private fun <RESULT,MESSAGE> toCmd(successH : SubListenersHelper<RESULT>, onSuccess : (RESULT) -> MESSAGE, failureH : SubListenersHelper<Unit>, mapFailure : () -> MESSAGE) : Cmd<MESSAGE> {
     val subSuccess = successH.subscribe(onSuccess)
     val subFailure = failureH.subscribe { mapFailure() }
 
