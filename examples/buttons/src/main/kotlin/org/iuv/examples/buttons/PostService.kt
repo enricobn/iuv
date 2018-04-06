@@ -6,6 +6,6 @@ data class Post(val userId: Int, val id: Int, val title: String, val body: Strin
 
 interface PostService {
 
-    fun <MESSAGE> getPost(id: Int) : Task<Post, MESSAGE>
+    fun <MESSAGE> getPost(id: Int) : Task<Post,String,MESSAGE>
 
 }

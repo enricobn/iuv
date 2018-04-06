@@ -3,12 +3,9 @@ package org.iuv.core
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.js.Date
 
-// TODO adjust url with timestamp to bypass the cache:
-// oReq.open("GET", url + ((/\?/).test(url) ? "&" : "?") + (new Date()).getTime());
-// TODO handle failure && UNSENT state
-class GetAsync<RESULT, MESSAGE>(private val url: String) : Task<RESULT,MESSAGE>() {
+class GetAsync<out RESULT,MESSAGE>(private val url: String) : Task<RESULT,String,MESSAGE>() {
 
-    override fun start(onSuccess: (RESULT) -> Unit, onError: () -> Unit) {
+    override fun start(onSuccess: (RESULT) -> Unit, onError: (String) -> Unit) {
         val request = XMLHttpRequest()
         request.onreadystatechange = { _ ->
             when(request.readyState) {
@@ -17,9 +14,9 @@ class GetAsync<RESULT, MESSAGE>(private val url: String) : Task<RESULT,MESSAGE>(
                         val response = kotlin.js.JSON.parse<RESULT>(request.responseText)
                         onSuccess(response)
                     } else {
-                        onError()
+                        onError("Status ${request.status}")
                     }
-                XMLHttpRequest.UNSENT -> onError()
+                XMLHttpRequest.UNSENT -> onError("Unsent")
             }
         }
         request.open("get", bypassCache(url), true)

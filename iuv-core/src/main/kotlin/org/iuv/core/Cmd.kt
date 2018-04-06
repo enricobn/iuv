@@ -10,34 +10,35 @@ private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
 
 }
 
-abstract class Task<out RESULT,MESSAGE> {
-    private val errorH : SubListenersHelper<Unit> = SubListenersHelper()
+abstract class Task<out RESULT,ERROR,MESSAGE> {
+    private val errorH : SubListenersHelper<ERROR> = SubListenersHelper()
     private val successH : SubListenersHelper<RESULT> = SubListenersHelper()
 
-    fun perform(onSuccess: (RESULT) -> MESSAGE, onFailure: () -> MESSAGE) : Cmd<MESSAGE> {
+    fun perform(onSuccess: (RESULT) -> MESSAGE, onFailure: (ERROR) -> MESSAGE) : Cmd<MESSAGE> {
         val toCmd = toCmd(successH, onSuccess, errorH, onFailure)
-        start({ t : RESULT -> successH.dispatch(t) }, { errorH.dispatch(Unit) })
+        start({ successH.dispatch(it) }, { errorH.dispatch(it) })
         return toCmd
     }
 
-    protected abstract fun start(onSuccess: (RESULT) -> Unit, onError: () -> Unit)
+    protected abstract fun start(onSuccess: (RESULT) -> Unit, onError: (ERROR) -> Unit)
 
-    fun <NEW_RESULT> andThen(continuation: (RESULT) -> Task<NEW_RESULT,MESSAGE>) : Task<NEW_RESULT,MESSAGE> {
+    fun <NEW_RESULT> andThen(continuation: (RESULT) -> Task<NEW_RESULT,ERROR,MESSAGE>) : Task<NEW_RESULT,ERROR,MESSAGE> {
         val self = this
-        return object : Task<NEW_RESULT,MESSAGE>() {
-            override fun start(onSuccess: (NEW_RESULT) -> Unit, onError: () -> Unit) {
+        return object : Task<NEW_RESULT,ERROR,MESSAGE>() {
+            override fun start(onSuccess: (NEW_RESULT) -> Unit, onError: (ERROR) -> Unit) {
                 self.start( { t -> val task = continuation(t)
                     task.start(onSuccess, onError)
-                }, {onError()})
+                }, onError)
             }
         }
     }
 
 }
 
-private fun <RESULT,MESSAGE> toCmd(successH : SubListenersHelper<RESULT>, onSuccess : (RESULT) -> MESSAGE, failureH : SubListenersHelper<Unit>, mapFailure : () -> MESSAGE) : Cmd<MESSAGE> {
+private fun <RESULT,ERROR,MESSAGE> toCmd(successH : SubListenersHelper<RESULT>, onSuccess : (RESULT) -> MESSAGE,
+                                         failureH : SubListenersHelper<ERROR>, onFailure : (ERROR) -> MESSAGE) : Cmd<MESSAGE> {
     val subSuccess = successH.subscribe(onSuccess)
-    val subFailure = failureH.subscribe { mapFailure() }
+    val subFailure = failureH.subscribe(onFailure)
 
     return (object : Cmd<MESSAGE> {
         override fun run(messageBus: MessageBus<MESSAGE>) {

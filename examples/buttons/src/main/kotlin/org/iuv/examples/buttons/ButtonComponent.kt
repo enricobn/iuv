@@ -14,7 +14,7 @@ data class SelectedButtonMessageWrapper(val selectedButtonMessage: SelectedButto
 
 data class PostTitle(val title: String) : ButtonComponentMessage
 
-private object Error : ButtonComponentMessage
+private data class Error(val msg: String) : ButtonComponentMessage
 
 class ButtonComponent(private val postService: PostService) : UV<ButtonModel, ButtonComponentMessage> {
 
@@ -34,7 +34,7 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
                             val postCmd = postService.getPost<ButtonComponentMessage>(model.postId)
                                     .andThen { postService.getPost<ButtonComponentMessage>(it.id + 1) }
                                     .andThen { postService.getPost<ButtonComponentMessage>(it.id + 1) }
-                                    .perform({PostTitle(it.title) }, { Error } )
+                                    .perform({PostTitle(it.title) },  ::Error )
                             Cmd(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped
@@ -47,7 +47,7 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
                 return Pair(model.copy(selectedButtonModel = model.selectedButtonModel.copy(text = text)), Cmd.none())
             }
             is Error -> {
-                console.log("ButtonComponent.Error")
+                console.log("ButtonComponent.Error: ${message.msg}")
                 return Pair(model, Cmd.none())
             }
             else -> return Pair(model, Cmd.none())
