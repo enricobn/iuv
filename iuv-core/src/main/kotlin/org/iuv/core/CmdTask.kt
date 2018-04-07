@@ -1,5 +1,6 @@
 package org.iuv.core
 
+@Deprecated("Use Task")
 interface CmdTask<out T,MESSAGE> {
 
     companion object {

@@ -3,35 +3,39 @@ package org.iuv.core
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.js.Date
 
-class GetAsync<out RESULT,MESSAGE>(private val url: String) : Task<RESULT,String,MESSAGE>() {
+object Http {
 
-    override fun start(onSuccess: (RESULT) -> Unit, onError: (String) -> Unit) {
-        val request = XMLHttpRequest()
-        request.onreadystatechange = { _ ->
-            when(request.readyState) {
-                XMLHttpRequest.DONE ->
-                    if (request.status.toInt() == 200) {
-                        val response = kotlin.js.JSON.parse<RESULT>(request.responseText)
-                        onSuccess(response)
-                    } else {
-                        onError("Status ${request.status}")
-                    }
-                XMLHttpRequest.UNSENT -> onError("Unsent")
+    fun <RESULT, MESSAGE> GET(url: String, async: Boolean, username: String? = null,
+                              password: String? = null) = object : Task<RESULT, String, MESSAGE>() {
+
+        override fun start(onSuccess: (RESULT) -> Unit, onFailure: (String) -> Unit) {
+            val request = XMLHttpRequest()
+            request.onreadystatechange = { _ ->
+                when (request.readyState) {
+                    XMLHttpRequest.DONE ->
+                        if (request.status.toInt() == 200) {
+                            val response = kotlin.js.JSON.parse<RESULT>(request.responseText)
+                            onSuccess(response)
+                        } else {
+                            onFailure("Status ${request.status}")
+                        }
+                    XMLHttpRequest.UNSENT -> onFailure("Unsent")
+                }
+            }
+            request.open("get", bypassCache(url), async, username, password)
+            request.send()
+        }
+
+        private fun bypassCache(url: String): String {
+            val now = Date().getTime()
+            return if (url.contains("?")) {
+                "$url&$now"
+            } else {
+                "$url?$now"
             }
         }
-        request.open("get", bypassCache(url), true)
-        request.send()
-    }
 
-    private fun bypassCache(url: String): String {
-        val now = Date().getTime()
-        return if (url.contains("?")) {
-            "$url&$now"
-        } else {
-            "$url?$now"
-        }
     }
-
 }
 
 interface UV<MODEL, MESSAGE> {
