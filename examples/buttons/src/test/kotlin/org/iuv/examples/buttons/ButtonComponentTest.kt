@@ -71,8 +71,8 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
 }
 
 class MockedPostService : PostService {
-    override fun <MESSAGE> getPost(id: Int): Task<Post,String,MESSAGE> {
-        return object: Task<Post,String,MESSAGE>() {
+    override fun getPost(id: Int): Task<Post,String> {
+        return object: Task<Post,String>() {
             override fun start(onSuccess: (Post) -> Unit, onFailure: (String) -> Unit) {
                 onSuccess(Post(1, 1, "Hello", "World"))
             }
