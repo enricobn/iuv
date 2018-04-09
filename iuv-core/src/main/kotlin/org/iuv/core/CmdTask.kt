@@ -17,11 +17,10 @@ interface CmdTask<out T,MESSAGE> {
     }
 
     fun <T1> andThen(cmdTask: (T) -> CmdTask<T1, MESSAGE>) : CmdTask<T1, MESSAGE> {
-        val self = this
         return object : CmdTask<T1, MESSAGE> {
 
             override fun run(onFailure: (Exception?) -> Cmd<MESSAGE>, onSuccess: (T1) -> Cmd<MESSAGE>): Cmd<MESSAGE> =
-                    self.run(onFailure) {
+                    this@CmdTask.run(onFailure) {
                         cmdTask(it).run(onFailure,onSuccess)
                     }
         }

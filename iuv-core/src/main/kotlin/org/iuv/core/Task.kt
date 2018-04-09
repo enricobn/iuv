@@ -17,10 +17,9 @@ abstract class Task<out RESULT,ERROR> {
     protected abstract fun start(onSuccess: (RESULT) -> Unit, onFailure: (ERROR) -> Unit)
 
     fun <NEW_RESULT> andThen(continuation: (RESULT) -> Task<NEW_RESULT, ERROR>) : Task<NEW_RESULT, ERROR> {
-        val self = this
         return object : Task<NEW_RESULT, ERROR>() {
             override fun start(onSuccess: (NEW_RESULT) -> Unit, onFailure: (ERROR) -> Unit) {
-                self.start( { t -> val task = continuation(t)
+                this@Task.start( { t -> val task = continuation(t)
                     task.start(onSuccess, onFailure)
                 }, onFailure)
             }
