@@ -1,6 +1,3 @@
-group 'org.iuv'
-version '0.1-SNAPSHOT'
-
 buildscript {
     ext.kotlin_version = '1.2.30'
     ext.web_dir = "build/web"
@@ -8,10 +5,18 @@ buildscript {
     repositories {
         mavenCentral()
     }
+
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+plugins {
+    id "com.moowork.node" version '1.2.0'
+}
+
+group 'org.iuv'
+version '0.1-SNAPSHOT'
 
 apply plugin: 'kotlin2js'
 apply from: 'web.gradle'
@@ -25,16 +30,57 @@ repositories {
 }
 
 dependencies {
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compile 'org.iuv:iuv-core:0.1-SNAPSHOT'
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 
     //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
 }
 
 compileKotlin2Js {
-//    kotlinOptions.moduleKind = "amd"
+    kotlinOptions.moduleKind = "umd"
     kotlinOptions.sourceMap = true
     kotlinOptions.metaInfo = true
     kotlinOptions.sourceMapEmbedSources = "always"
 }
+
+compileTestKotlin2Js { kotlinOptions.moduleKind = 'umd' }
+
+node {
+    download = true
+}
+
+task yarnInstall(type: YarnTask) {
+    args = ['install']
+}
+
+/*
+task installMocha(type: NpmTask) {
+    args = ['install', 'mocha']
+}
+*/
+
+task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
+    from fileTree(compileKotlin2Js.destinationDir).matching { include '**/*.js'}.files
+
+    configurations.testCompile.each {
+        from zipTree(it.absolutePath).matching { include '*.js' }
+    }
+
+    into "${buildDir}/node_modules"
+}
+
+/*
+task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
+    script = file('node_modules/mocha/bin/mocha')
+    args = [compileTestKotlin2Js.outputFile]
+}
+
+test.dependsOn runMocha
+*/
+
+task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
+    args = ['test']
+}
+
+test.dependsOn runKarma
