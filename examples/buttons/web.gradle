@@ -2,6 +2,17 @@ build.doFirst() {
     delete("${web_dir}")
 }
 
+//task copyJSLibraries(type: Copy, dependsOn: yarnInstall) {
+//    from("node_modules/snabbdom/dist") {
+//        include '**/*.min.js'
+//    }
+//
+//    into "${web_dir}/js"
+//
+//    includeEmptyDirs = false
+//}
+
+
 build.doLast() {
 
     // Copy kotlin.js and kotlin.meta.js from jar into web directory
@@ -56,6 +67,11 @@ build.doLast() {
         includeEmptyDirs = false
         from new File("web")
         into "${web_dir}"
+    }
+
+    copy {
+        from("node_modules/snabbdom/dist")
+        into "${web_dir}/js"
     }
 
 }
