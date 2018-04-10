@@ -20,10 +20,10 @@ fun <MESSAGE> HTML<MESSAGE>.mtButton(init: ButtonH<MESSAGE>.() -> Unit) {
         init()
 
         appendClasses(
- "mdl-button",
-                "mdl-js-button",
-                "mdl-button--raised",
-                "mdl-js-ripple-effect"
+            "mdl-button",
+            "mdl-js-button",
+            "mdl-button--raised",
+            "mdl-js-ripple-effect"
         )//mdl-button--accent
     }
 
@@ -60,9 +60,9 @@ fun <MESSAGE> HTML<MESSAGE>.mdlTable(init: TableH<MESSAGE>.() -> Unit) {
         init()
 
         appendClasses(
- "mdl-data-table",
-                "mdl-js-data-table",
-                "mdl-shadow--2dp"
+            "mdl-data-table",
+            "mdl-js-data-table",
+            "mdl-shadow--2dp"
         )
     }
 }
