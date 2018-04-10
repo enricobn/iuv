@@ -61,7 +61,13 @@ task installMocha(type: NpmTask) {
 */
 
 task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
-    from fileTree(compileKotlin2Js.destinationDir).matching { include '**/*.js'}.files
+    from(compileKotlin2Js.destinationDir) {
+        include '**/*.js'
+        // To flatten files
+        eachFile { details ->
+            details.path = details.name
+        }
+    }
 
     configurations.testCompile.each {
         from zipTree(it.absolutePath).matching { include '*.js' }

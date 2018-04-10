@@ -5,7 +5,6 @@ Doing
 Next
 -----
 - examples/buttons/node_modules are used only for tests. Can I create a node_modules_test and node_modules so I can use them in index.html?
-- when I clean the build folder of examples/buttons, or the first time, I build, the buttons.js is not copied to build/node_modules and tests fail
 - can I get rid of message wrappers for a child UV?
 - make the core build.gradle similar to examples, to create a build/web folder for tests
 - fix IntelliJ problems (related to build system?):
