@@ -74,6 +74,8 @@ task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
     }
 
     into "${buildDir}/node_modules"
+
+    includeEmptyDirs = false
 }
 
 /*
