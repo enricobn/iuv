@@ -34,7 +34,7 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
                             val postCmd = postService.getPost(model.postId)
                                     .andThen { postService.getPost(it.id + 1) }
                                     .andThen { postService.getPost(it.id + 1) }
-                                    .perform({PostTitle(it.title) },  ::Error )
+                                    .perform(::Error) { PostTitle(it.title) }
                             Cmd(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped

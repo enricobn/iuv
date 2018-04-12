@@ -6,9 +6,9 @@ import kotlin.js.Date
 object Http {
 
     fun <RESULT> GET(url: String, async: Boolean, username: String? = null,
-                              password: String? = null) = object : Task<RESULT, String>() {
+                              password: String? = null) = object : Task<String,RESULT>() {
 
-        override fun start(onSuccess: (RESULT) -> Unit, onFailure: (String) -> Unit) {
+        override fun start(onFailure: (String) -> Unit, onSuccess: (RESULT) -> Unit) {
             val request = XMLHttpRequest()
             request.onreadystatechange = { _ ->
                 when (request.readyState) {
