@@ -438,6 +438,14 @@ open class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
         }
         get() = (getAttribute("step") as String?)?.toInt()
 
+    var placeholder: String?
+        set(value) {
+            if (value != null) {
+                addAttribute("placeholder", value.toString())
+            }
+        }
+        get() = (getAttribute("placeholder") as String?)
+
     fun onInput(handler: (InputEvent,String) -> MESSAGE) {
         on("input", { event: InputEvent ->
             handler(event, event.target?.asDynamic().value)
