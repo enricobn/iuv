@@ -2,18 +2,17 @@ package org.iuv.core
 
 import kotlin.reflect.KClass
 
-
 interface ChildUVBuilderMapMessage<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE : Any> {
 
-    fun mapChildMessage(messageMapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE) : ChildUVBuilderToChildModel<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>
+    fun childMessageToParent(mapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE) : ChildUVBuilderToChildModel<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>
 }
 
 interface ChildUVBuilderToChildModel<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE : Any> {
-    fun mapParentModel(toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL) : ChildUVBuilderUpdate<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>
+    fun parentModelToChild(mapFun: (PARENT_MODEL) -> CHILD_MODEL) : ChildUVBuilderUpdate<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>
 }
 
 interface ChildUVBuilderUpdate<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE : Any> {
-    fun update(modelUpdateFun: (PARENT_MODEL, CHILD_MODEL) -> PARENT_MODEL) : ChildUVBuilderBuild<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>
+    fun updateParentModel(updateFun: (PARENT_MODEL, CHILD_MODEL) -> PARENT_MODEL) : ChildUVBuilderBuild<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>
 }
 
 interface ChildUVBuilderBuild<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE : Any> {
@@ -32,29 +31,28 @@ class ChildUVBuilder<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE:Any> 
                 ChildUVBuilderMapMessage<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> = ChildUVBuilder(uv)
     }
 
-
-    private lateinit var messageMapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE
-    private lateinit var toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL
-    private lateinit var modelUpdateFun: (PARENT_MODEL,CHILD_MODEL) -> PARENT_MODEL
+    private lateinit var childMessageToParent: (CHILD_MESSAGE) -> PARENT_MESSAGE
+    private lateinit var parentModelToChild: (PARENT_MODEL) -> CHILD_MODEL
+    private lateinit var updateParentModel: (PARENT_MODEL, CHILD_MODEL) -> PARENT_MODEL
     private val ons: MutableList<Pair<KClass<Any>, (Any,PARENT_MODEL) -> Cmd<PARENT_MESSAGE>>> = mutableListOf()
 
-    override fun mapChildMessage(messageMapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE) : ChildUVBuilderToChildModel<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> {
-        this.messageMapFun = messageMapFun
+    override fun childMessageToParent(mapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE) : ChildUVBuilderToChildModel<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> {
+        this.childMessageToParent = mapFun
         return this
     }
 
-    override fun mapParentModel(toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL) : ChildUVBuilderUpdate<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> {
-        this.toChildModelFun = toChildModelFun
+    override fun parentModelToChild(mapFun: (PARENT_MODEL) -> CHILD_MODEL) : ChildUVBuilderUpdate<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> {
+        this.parentModelToChild = mapFun
         return this
     }
 
-    override fun update(modelUpdateFun: (PARENT_MODEL, CHILD_MODEL) -> PARENT_MODEL) : ChildUVBuilderBuild<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE> {
-        this.modelUpdateFun = modelUpdateFun
+    override fun updateParentModel(updateFun: (PARENT_MODEL, CHILD_MODEL) -> PARENT_MODEL) : ChildUVBuilderBuild<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE> {
+        this.updateParentModel = updateFun
         return this
     }
 
     override fun build() : ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> =
-        object : ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>(uv, messageMapFun, toChildModelFun, modelUpdateFun) {
+        object : ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>(uv, childMessageToParent, parentModelToChild, updateParentModel) {
 
         override fun update(message: CHILD_MESSAGE, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> {
             val (model, cmdFromUpdate) = super.update(message, parentModel)
