@@ -5,7 +5,7 @@ class ChildIUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, in CHILD_MESSAGE>(
         private val messageMapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE,
         toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL,
         private val modelUpdateFun: (PARENT_MODEL,CHILD_MODEL) -> PARENT_MODEL
-) : ChildUV<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(childIUV,messageMapFun,toChildModelFun,modelUpdateFun) {
+) : ChildUV<PARENT_MODEL, PARENT_MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(childIUV, messageMapFun, toChildModelFun, modelUpdateFun) {
 
     fun init() : Pair<CHILD_MODEL, Cmd<PARENT_MESSAGE>> {
         val (childModel,childCmd) = childIUV.init()
@@ -20,7 +20,7 @@ class ChildIUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, in CHILD_MESSAGE>(
 
 }
 
-open class ChildUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, in CHILD_MESSAGE>(
+open class ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,in CHILD_MESSAGE>(
         private val childUV: UV<CHILD_MODEL, CHILD_MESSAGE>,
         private val messageMapFun: (CHILD_MESSAGE) -> PARENT_MESSAGE,
         private val toChildModelFun: (PARENT_MODEL) -> CHILD_MODEL,
@@ -34,7 +34,7 @@ open class ChildUV<PARENT_MODEL,PARENT_MESSAGE, CHILD_MODEL, in CHILD_MESSAGE>(
         parentHtml.add(childUV.view(toChildModelFun(model)), messageMapFun)
     }
 
-    fun update(message: CHILD_MESSAGE, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> {
+    open fun update(message: CHILD_MESSAGE, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> {
         val (newModel, newCmd) = childUV.update(message, toChildModelFun(parentModel))
         return Pair(modelUpdateFun(parentModel, newModel), newCmd.map(messageMapFun))
     }
