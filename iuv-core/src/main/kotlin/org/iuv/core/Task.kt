@@ -2,6 +2,11 @@ package org.iuv.core
 
 abstract class Task<ERROR,out RESULT> {
 
+    companion object {
+        operator fun <ERROR,RESULT> invoke(handler: ((ERROR) -> Unit, (RESULT) -> Unit) -> Unit) : Task<ERROR,RESULT> =
+            SimpleTask(handler)
+    }
+
     fun <MESSAGE> perform(onFailure: (ERROR) -> MESSAGE, onSuccess: (RESULT) -> MESSAGE) = object : Cmd<MESSAGE> {
         override fun run(messageBus: MessageBus<MESSAGE>) {
             start({ messageBus.send(onFailure(it)) }, { messageBus.send(onSuccess(it)) })
@@ -26,4 +31,10 @@ abstract class Task<ERROR,out RESULT> {
         }
     }
 
+}
+
+private class SimpleTask<ERROR,out RESULT>(private val handler: ((ERROR) -> Unit, (RESULT) -> Unit) -> Unit) : Task<ERROR,RESULT>() {
+    override fun start(onFailure: (ERROR) -> Unit, onSuccess: (RESULT) -> Unit) {
+        handler(onFailure, onSuccess)
+    }
 }
