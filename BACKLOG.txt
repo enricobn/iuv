@@ -7,6 +7,5 @@ Next
 - HTML children (InputH for example) inherits all the functions of HTML (body for example) : there must be a coherent tree
 - examples/buttons/node_modules are used only for tests. Can I create a node_modules_test and node_modules so I can use them in index.html?
 - can I get rid of message wrappers for a child UV?
-- make the core build.gradle similar to examples, to create a build/web folder for tests
 - fix IntelliJ problems (related to build system?):
   F3 to a core class from examples does not work, nor implement interface methods
