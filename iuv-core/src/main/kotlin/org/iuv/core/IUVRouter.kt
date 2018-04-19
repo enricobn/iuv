@@ -5,6 +5,48 @@ import kotlin.browser.window
 
 typealias IUVRoute<MODEL, MESSAGE> = (List<String>) -> IUV<MODEL,MESSAGE>
 
+interface RouteMatcher {
+
+    fun matches(absolutePath: String) : Boolean
+
+    fun parameters(absolutePath: String) : List<String>
+
+}
+
+class RegexRouteMatcher(private val regex: Regex) : RouteMatcher {
+
+    override fun matches(absolutePath: String) =
+        regex.matches(absolutePath)
+
+    override fun parameters(absolutePath: String): List<String> {
+        return regex.find(absolutePath)?.groupValues ?: emptyList()
+    }
+
+}
+
+class SimpleRouteMatcher(private val expression: String) : RouteMatcher {
+
+    override fun matches(absolutePath: String) : Boolean {
+        val parametersString = getParameters(absolutePath)
+
+        if (("/$expression") == absolutePath || parametersString.startsWith("/")) {
+            return absolutePath.startsWith("/$expression")
+        } else {
+            return false
+        }
+    }
+
+    override fun parameters(absolutePath: String): List<String> {
+        val parametersString = getParameters(absolutePath)
+
+        return parametersString.substring(1).split("/").toList()
+    }
+
+    private fun getParameters(absolutePath: String) = absolutePath.substring(expression.length + 1)
+
+}
+
+
 // Model
 data class RouterModel(val path : String, val currentIUVModel: Any?, val errorMessage: String?)
 
@@ -19,7 +61,7 @@ internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
  * @param testMode if true no window history events are captured and the browser's location is not changed.
  */
 class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterModel, RouterMessage> {
-    private var routes = HashMap<String, IUVRoute<*,*>>()
+    private var routes = mutableListOf<Pair<RouteMatcher, IUVRoute<*,*>>>()
     private var errorMessage: String? = null
     private var baseUrl : String? = null
 
@@ -37,11 +79,15 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     }
 
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
-        if (routes.containsKey(path)) {
-            errorMessage = "Duplicate path: $path"
+        add(SimpleRouteMatcher(path), iuvRoute)
+    }
+
+    fun <CHILD_MODEL,CHILD_MESSAGE> add(routeMatcher: RouteMatcher, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
+        if (routes.any { routeMatcher == it.first }) {
+            errorMessage = "Duplicate matcher: $routeMatcher."
             return
         }
-        routes[path] = iuvRoute
+        routes.add(Pair(routeMatcher, iuvRoute))
     }
 
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuv: IUV<CHILD_MODEL, CHILD_MESSAGE>) =
@@ -166,19 +212,15 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         if (absolutePath == "/") {
             childIUV = createChildIUV(rootIUV)
         } else {
-            val baseUrl = routes.keys.sorted().reversed().find { absolutePath.startsWith("/" + it) }
+            val route = routes.firstOrNull { it.first.matches(absolutePath) }
 
-            if (baseUrl != null) {
-                val parameters = absolutePath.substring(baseUrl.length + 1)
+            if (route != null) {
+                val parameters = route.first.parameters(absolutePath)
 
-                if (("/" + baseUrl) == absolutePath || parameters.startsWith("/")) {
-                    try {
-                        childIUV = createChildIUV(baseUrl, parameters)
-                    } catch (e: Exception) {
-                        return Pair(null, e.message)
-                    }
-                } else {
-                    return Pair(null, "Cannot find path '$absolutePath'.")
+                try {
+                    childIUV = createChildIUV(route, parameters)
+                } catch (e: Exception) {
+                    return Pair(null, e.message)
                 }
             } else {
                 return Pair(null, "Cannot find path '$absolutePath'.")
@@ -194,10 +236,9 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             else
                 createChildIUV(model.path)
 
-    private fun createChildIUV(baseURL: String, parameters: String): ChildIUV<RouterModel, RouterMessage, Any, Any> {
-        val route = routes[baseURL]
+    private fun createChildIUV(route: Pair<RouteMatcher,IUVRoute<*,*>>, parameters: List<String>): ChildIUV<RouterModel, RouterMessage, Any, Any> {
 
-        val iuv = route!!.invoke(parameters.substring(1).split("/").toList())
+        val iuv = route.second.invoke(parameters)
 
         return createChildIUV(iuv)
     }
