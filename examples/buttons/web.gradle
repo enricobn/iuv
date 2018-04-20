@@ -28,7 +28,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from fileTree("build/classes/main").files
+        from fileTree("build/classes/kotlin/main").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -36,7 +36,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from fileTree("build/classes/test").files
+        from fileTree("build/classes/kotlin/test").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -44,7 +44,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from new File("build/resources/test")
+        from new File("build/resources/kotlin/test")
         into "${web_dir}"
     }
 

@@ -27,8 +27,8 @@ class IUVRouterTest {
     fun givenARouterWhenISendAGotoWithARouteThatDoesNotExistsThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple1", SimpleIUV(1))
-        router.add("simple") { SimpleIUV(it.first().toInt())}
+        router.add("/simple", SimpleIUV(1))
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/dummy", false), model)
@@ -40,8 +40,8 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithSimilarPathButNotMatchedThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple1", SimpleIUV(1))
-        router.add("simple") { SimpleIUV(it.first().toInt())}
+        router.add("/simple", SimpleIUV(1))
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple0", false), model)
@@ -53,11 +53,11 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithSimilarPathMatchedThenItSucceed() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple1", SimpleIUV(1))
-        router.add("simple") { SimpleIUV(it.first().toInt())}
+        router.add("/simple", SimpleIUV(1))
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
-        val (newModel, _) = router.update(Goto("/simple1", false), model)
+        val (newModel, _) = router.update(Goto("/simple", false), model)
 
         assertEquals(1, (newModel.currentIUVModel as Model).id)
     }
@@ -66,8 +66,8 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithParameterThenTheParameterMustBePresentInSimpleIUV() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple1", SimpleIUV(1))
-        router.add("simple") { SimpleIUV(it.first().toInt())}
+        router.add("/simple", SimpleIUV(1))
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple/5", false), model)
@@ -79,7 +79,7 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple") { SimpleIUV(it.first().toInt()) }
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt()) }
 
         val (model, _) = router.init()
 
@@ -94,7 +94,7 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterAndISendAValidGotoThenThereIsNotAnErrorInRouterModel() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple") { SimpleIUV(it.first().toInt()) }
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt()) }
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple/hello", false), model)
@@ -107,10 +107,10 @@ class IUVRouterTest {
     }
 
     @Test
-    fun givenARouteWithParameterWhenIInitTheRouterWithAMatchingPathThenAGotoIsSentWithThePath() {
+    fun givenARouteWithParameterWhenInitTheRouterWithAMatchingPathThenAGotoIsSentWithThePath() {
         val router = IUVRouter(SimpleIUV(0), true)
 
-        router.add("simple") { SimpleIUV(it.first().toInt()) }
+        router.add("/simple/:id") { SimpleIUV(it.first().toInt()) }
 
         val (model, cmd) = router.init("http://hello.com#/simple/1")
 
@@ -129,4 +129,21 @@ class IUVRouterTest {
 
         assertEquals(Goto("/simple/1", true), messages.first())
     }
-}
+
+    @Test
+    fun givenARouterWhenAddingAnInvalidPathThenAnExceptionIsThrown() {
+        val router = IUVRouter(SimpleIUV(0), true)
+
+        var exception: Exception? = null
+
+        try {
+            router.add("simple/:id") { SimpleIUV(it.first().toInt()) }
+        } catch (e: Exception) {
+            exception = e
+        }
+
+        assertNotNull(exception)
+    }
+
+
+    }

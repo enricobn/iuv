@@ -11,38 +11,44 @@ interface RouteMatcher {
 
     fun parameters(absolutePath: String) : List<String>
 
-}
-
-class RegexRouteMatcher(private val regex: Regex) : RouteMatcher {
-
-    override fun matches(absolutePath: String) =
-        regex.matches(absolutePath)
-
-    override fun parameters(absolutePath: String): List<String> {
-        return regex.find(absolutePath)?.groupValues ?: emptyList()
-    }
+    fun validate() : String?
 
 }
 
-class SimpleRouteMatcher(private val expression: String) : RouteMatcher {
+//class RegexRouteMatcher(private val regex: Regex) : RouteMatcher {
+//
+//    override fun matches(absolutePath: String) =
+//        regex.matches(absolutePath)
+//
+//    override fun parameters(absolutePath: String): List<String> {
+//        return regex.find(absolutePath)?.groupValues ?: emptyList()
+//    }
+//
+//}
+
+class SimpleRouteMatcher(expression: String) : RouteMatcher {
+    private val expComponents = expression.split("/")
 
     override fun matches(absolutePath: String) : Boolean {
-        val parametersString = getParameters(absolutePath)
+        if (absolutePath.contains(":")) return false
 
-        if (("/$expression") == absolutePath || parametersString.startsWith("/")) {
-            return absolutePath.startsWith("/$expression")
-        } else {
-            return false
-        }
+        val pathComponents = absolutePath.split(("/"))
+
+        if (pathComponents.size != expComponents.size) return false
+
+        return expComponents.zip(pathComponents).all { it.first.startsWith(":") || it.first == it.second }
     }
 
     override fun parameters(absolutePath: String): List<String> {
-        val parametersString = getParameters(absolutePath)
+        val pathComponents = absolutePath.split(("/"))
 
-        return parametersString.substring(1).split("/").toList()
+        return expComponents
+                .zip(pathComponents)
+                .filter { it.first.startsWith(":")  }
+                .map { it.second }
     }
 
-    private fun getParameters(absolutePath: String) = absolutePath.substring(expression.length + 1)
+    override fun validate(): String? = null
 
 }
 
@@ -79,6 +85,9 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
     }
 
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
+        if (!path.startsWith("/")) {
+            throw Exception("Path must start with /")
+        }
         add(SimpleRouteMatcher(path), iuvRoute)
     }
 

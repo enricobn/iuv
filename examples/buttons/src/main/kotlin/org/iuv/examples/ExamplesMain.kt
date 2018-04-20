@@ -14,9 +14,9 @@ class ExamplesMain {
         val postService = PostServiceImpl()
 
         val router = IUVRouter(ExamplesIUV(postService))
-        router.add("buttons") { ButtonsIUV(it.first().toInt(), postService) }
-        router.add("buttons1", ButtonsIUV(1, postService))
-        router.add("grid", GridIUV)
+        router.add("/buttons/:id") { ButtonsIUV(it.first().toInt(), postService) }
+        router.add("/buttons1", ButtonsIUV(1, postService))
+        router.add("/grid", GridIUV)
 
         val renderer = SnabbdomRenderer()
         renderer.onSubsequentPatch {
