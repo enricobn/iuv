@@ -3,13 +3,13 @@ package org.iuv.core
 import org.w3c.dom.events.Event
 import kotlin.browser.window
 
-typealias IUVRoute<MODEL, MESSAGE> = (List<String>) -> IUV<MODEL,MESSAGE>
+typealias IUVRoute<MODEL, MESSAGE> = (Map<String,String>) -> IUV<MODEL,MESSAGE>
 
 interface RouteMatcher {
 
     fun matches(absolutePath: String) : Boolean
 
-    fun parameters(absolutePath: String) : List<String>
+    fun parameters(absolutePath: String) : Map<String,String>
 
     fun validate() : String?
 
@@ -39,13 +39,14 @@ class SimpleRouteMatcher(expression: String) : RouteMatcher {
         return expComponents.zip(pathComponents).all { it.first.startsWith(":") || it.first == it.second }
     }
 
-    override fun parameters(absolutePath: String): List<String> {
+    override fun parameters(absolutePath: String): Map<String,String> {
         val pathComponents = absolutePath.split(("/"))
 
         return expComponents
                 .zip(pathComponents)
                 .filter { it.first.startsWith(":")  }
-                .map { it.second }
+                .map { Pair(it.first.substring(1), it.second) }
+                .toMap()
     }
 
     override fun validate(): String? = null
@@ -245,7 +246,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             else
                 createChildIUV(model.path)
 
-    private fun createChildIUV(route: Pair<RouteMatcher,IUVRoute<*,*>>, parameters: List<String>): ChildIUV<RouterModel, RouterMessage, Any, Any> {
+    private fun createChildIUV(route: Pair<RouteMatcher,IUVRoute<*,*>>, parameters: Map<String,String>): ChildIUV<RouterModel, RouterMessage, Any, Any> {
 
         val iuv = route.second.invoke(parameters)
 

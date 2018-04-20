@@ -71,6 +71,7 @@ class ExamplesIUV(postService: PostService) : IUV<ExamplesModel, ExamplesMessage
             vBox {
                 linkToButtons(1)
                 linkToButtons(2)
+                link("Fixed buttons1", "/buttons1")
                 link("Invalid buttons 3 with error", "/buttons3")
                 link("Grid", "/grid")
                 link("Not existent route", "/notExistentRoute")
