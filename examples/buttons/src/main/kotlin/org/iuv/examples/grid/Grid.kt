@@ -66,7 +66,7 @@ class Grid<ROW>(private val multiSelect : Boolean) : UV<GridModel<ROW>, GridMess
                         if (multiSelect) {
                             th {
                                 mdlTableCheckbox("0", model.rows.size == model.selectedRows.size) {
-                                    onInput(GridOnAllRowsClick)
+                                    onChange(GridOnAllRowsClick)
                                 }
                             }
                         }
@@ -91,7 +91,7 @@ class Grid<ROW>(private val multiSelect : Boolean) : UV<GridModel<ROW>, GridMess
                             if (multiSelect) {
                                 td {
                                     mdlTableCheckbox((i + 1).toString(), model.selectedRows.contains(i)) {
-                                        onInput(GridOnRowClick(i))
+                                        onChange(GridOnRowClick(i))
                                     }
                                 }
                             } else {

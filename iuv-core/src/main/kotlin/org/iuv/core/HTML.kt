@@ -450,6 +450,9 @@ open class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
         on("input", { event: InputEvent ->
             handler(event, event.target?.asDynamic().value)
         })
+    }
+
+    fun onChange(handler: (InputEvent,String) -> MESSAGE) {
         on("change", { event: InputEvent ->
             handler(event, event.target?.asDynamic().value)
         })
@@ -457,6 +460,9 @@ open class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
 
     fun onInput(message: MESSAGE) {
         on("input", { _: InputEvent -> message })
+    }
+
+    fun onChange(message: MESSAGE) {
         on("change", { _: InputEvent -> message })
     }
 
