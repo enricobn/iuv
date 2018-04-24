@@ -2,7 +2,7 @@ package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.IUVTest
-import org.iuv.core.Task
+import org.iuv.shared.Task
 import org.w3c.dom.events.Event
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -71,9 +71,9 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
 }
 
 class MockedPostService : PostService {
-    override fun getPost(id: Int): Task<String,Post> {
-        return object: Task<String,Post>() {
-            override fun start(onFailure: (String) -> Unit, onSuccess: (Post) -> Unit) {
+    override fun getPost(id: Int): Task<String, Post> {
+        return object: Task<String,Post> {
+            override fun run(onFailure: (String) -> Unit, onSuccess: (Post) -> Unit) {
                 onSuccess(Post(1, 1, "Hello", "World"))
             }
         }

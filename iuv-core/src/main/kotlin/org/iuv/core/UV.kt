@@ -1,14 +1,15 @@
 package org.iuv.core
 
+import org.iuv.shared.Task
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.js.Date
 
 object Http {
 
     fun <RESULT> GET(url: String, async: Boolean, username: String? = null,
-                              password: String? = null) = object : Task<String,RESULT>() {
+                              password: String? = null) = object : Task<String, RESULT> {
 
-        override fun start(onFailure: (String) -> Unit, onSuccess: (RESULT) -> Unit) {
+        override fun run(onFailure: (String) -> Unit, onSuccess: (RESULT) -> Unit) {
             val request = XMLHttpRequest()
             request.onreadystatechange = { _ ->
                 when (request.readyState) {

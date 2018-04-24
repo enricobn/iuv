@@ -3,6 +3,7 @@ package org.iuv.examples.buttons
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.UV
+import org.iuv.core.toCmd
 
 // MODEL
 data class ButtonModel(val postId: Int, val selectedButtonModel: SelectedButtonModel)
@@ -34,7 +35,7 @@ class ButtonComponent(private val postService: PostService) : UV<ButtonModel, Bu
                             val postCmd = postService.getPost(model.postId)
                                     .andThen { postService.getPost(it.id + 1) }
                                     .andThen { postService.getPost(it.id + 1) }
-                                    .perform(::Error) { PostTitle(it.title) }
+                                    .toCmd(::Error) { PostTitle(it.title) }
                             Cmd(postCmd, updateCmdMapped)
                         } else {
                             updateCmdMapped

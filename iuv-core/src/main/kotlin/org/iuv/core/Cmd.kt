@@ -1,6 +1,20 @@
 package org.iuv.core
 
 import org.iuv.core.impl.MessageBusImpl
+import org.iuv.shared.Task
+
+fun <ERROR,RESULT,MESSAGE> Task<ERROR, RESULT>.toCmd(onFailure: (ERROR) -> MESSAGE, onSuccess: (RESULT) -> MESSAGE) =
+    object : Cmd<MESSAGE> {
+        override fun run(messageBus: MessageBus<MESSAGE>) {
+            run({ messageBus.send(onFailure(it)) }, { messageBus.send(onSuccess(it)) })
+        }
+    }
+
+fun <ERROR,RESULT,MESSAGE> Task<ERROR, RESULT>.flatMapToCmd(onFailure: (ERROR) -> Cmd<MESSAGE>, onSuccess: (RESULT) -> Cmd<MESSAGE>) = object : Cmd<MESSAGE> {
+    override fun run(messageBus: MessageBus<MESSAGE>) {
+        run({ onFailure(it).run(messageBus) }, { onSuccess(it).run(messageBus) })
+    }
+}
 
 private class CmdNone<out MESSAGE> : Cmd<MESSAGE> {
     override fun run(messageBus: MessageBus<MESSAGE>) {

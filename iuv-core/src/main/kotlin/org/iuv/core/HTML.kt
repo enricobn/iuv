@@ -26,7 +26,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     private var mapFun : ((Any) -> Any)? = null
     private var parent : HTML<Any>? = null
 
-    private fun messageBus() : MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
+    private fun messageBus() : MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE>
+    }
 
     fun getChildren() = children.toList()
 

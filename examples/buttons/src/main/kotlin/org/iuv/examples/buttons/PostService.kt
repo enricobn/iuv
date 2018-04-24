@@ -1,6 +1,6 @@
 package org.iuv.examples.buttons
 
-import org.iuv.core.Task
+import org.iuv.shared.Task
 
 data class Post(val userId: Int, val id: Int, val title: String, val body: String)
 

@@ -13,7 +13,8 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         val delay = 100
     }
 
-    private fun messageBus(): MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
+    private fun messageBus(): MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE>
+    }
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
     private var view : Element = document.createElement("div")
