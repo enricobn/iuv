@@ -1,3 +1,3 @@
 rootProject.name = 'iuv'
 
-include "iuv-core", "examples/buttons"
+include "iuv-core","examples/buttons","iuv-shared"

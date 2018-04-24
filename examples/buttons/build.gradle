@@ -12,13 +12,13 @@ buildscript {
 }
 
 plugins {
-    id "com.moowork.node" version '1.2.0'
+    id "com.moowork.node"
 }
 
 group 'org.iuv'
 version '0.1-SNAPSHOT'
 
-apply plugin: 'kotlin2js'
+apply plugin: 'kotlin-platform-js'
 apply from: 'web.gradle'
 
 repositories {
@@ -30,6 +30,7 @@ repositories {
 }
 
 dependencies {
+    expectedBy project(':iuv-shared')
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compile 'org.iuv:iuv-core:0.1-SNAPSHOT'
