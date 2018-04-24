@@ -518,7 +518,7 @@ class CheckBoxH<MESSAGE> : InputH<MESSAGE>() {
 
 }
 
-class ButtonH<MESSAGE> : HTML<MESSAGE>("button"),ClickableHTML<MESSAGE>
+open class ButtonH<MESSAGE> : HTML<MESSAGE>("button"),ClickableHTML<MESSAGE>
 
 class LabelH<MESSAGE> : HTML<MESSAGE>("label") {
 
