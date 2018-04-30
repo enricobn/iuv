@@ -10,4 +10,9 @@ class PostServiceImpl : PostService {
         return Http.GET(url, true)
     }
 
+
+    override fun getPosts(): Task<String, Array<Post>> {
+        val url = "https://jsonplaceholder.typicode.com/posts"
+        return Http.GET(url, true)
+    }
 }

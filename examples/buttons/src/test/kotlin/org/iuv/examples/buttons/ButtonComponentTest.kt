@@ -71,6 +71,10 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
 }
 
 class MockedPostService : PostService {
+    override fun getPosts(): Task<String, Array<Post>> {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getPost(id: Int): Task<String, Post> {
         return object: Task<String,Post> {
             override fun run(onFailure: (String) -> Unit, onSuccess: (Post) -> Unit) {

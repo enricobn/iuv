@@ -76,6 +76,7 @@ class ExamplesIUV(postService: PostService) : IUV<ExamplesModel, ExamplesMessage
                 link("Grid", "/grid")
                 link("Not existent route", "/notExistentRoute")
                 link("Error", "/buttons/hello")
+                link("Posts", "/posts")
                 add(tab.view(model.tabModel), ::TabMessageWrapper)
             }
         }
