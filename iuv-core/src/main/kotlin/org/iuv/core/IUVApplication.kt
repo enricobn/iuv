@@ -60,6 +60,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
             cmd.run(messageBus())
         } catch (e: Exception) {
             console.error("Error in IUVApplication.onMessage for message '$message'.", e.asDynamic().stack)
+            throw e
         }
     }
 
@@ -88,6 +89,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
             }
         } catch (e: Exception) {
             console.error("Error in IUVApplication.updateDocument for message '${e.message}'.", e.asDynamic().stack)
+            throw e
         }
 
     }
