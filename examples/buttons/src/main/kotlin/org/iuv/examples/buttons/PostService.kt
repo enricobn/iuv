@@ -1,7 +1,9 @@
 package org.iuv.examples.buttons
 
+import kotlinx.serialization.Serializable
 import org.iuv.shared.Task
 
+@Serializable
 data class Post(val userId: Int, val id: Int, val title: String, val body: String)
 
 interface PostService {

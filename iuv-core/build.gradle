@@ -1,11 +1,11 @@
 buildscript {
-    ext.kotlin_version = '1.2.30'
-
     repositories {
         mavenCentral()
+        maven { url "https://kotlin.bintray.com/kotlinx" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"
     }
 }
 
@@ -15,18 +15,21 @@ plugins {
 
 apply plugin: 'kotlin-platform-js'
 apply plugin: 'maven'
+apply plugin: 'kotlinx-serialization'
 
 repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        url "http://dl.bintray.com/kotlin/kotlinx.html/"
+        url = "https://kotlin.bintray.com/kotlinx"
     }
+
 }
 
 dependencies {
     expectedBy project(':iuv-shared')
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
 }

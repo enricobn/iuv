@@ -20,7 +20,7 @@ It will run a server listening on the specified port, or 8000 if not specified.
 ### Compile and run the unit tests
 TODO 
 
-### Patterns ###
+### Patterns and best practices ###
 UV and IUV:
 - since the model must be public, if you want to protect its construction from outside (almost, since it's frequently 
 a data class, and the copy method is still accessible), make the model's constructor private and create a companion 
@@ -31,4 +31,7 @@ needed vals
 - if not in the above example, for a UV there's no need for an init member function to initialize the model, use
 the model's constructor, so you don't need an instance of UV to create it, or a factory if there's some logic
 or default values.
+JSON
+- don't use Long, use Int
+- don't use List, use Array (TODO but Array is mutable, so I still want VO data classes to use List) 
 
