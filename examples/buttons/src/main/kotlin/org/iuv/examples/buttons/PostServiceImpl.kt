@@ -8,11 +8,11 @@ class PostServiceImpl : PostService {
 
     override fun getPost(id: Int): Task<String, Post> {
         val url = "https://jsonplaceholder.typicode.com/posts/$id"
-        return Http.GET(url, true, Post::class.serializer())
+        return Http.GET(url, Post::class.serializer())
     }
 
     override fun getPosts(): Task<String, Array<Post>> {
         val url = "https://jsonplaceholder.typicode.com/posts"
-        return Http.GET(url, true, Array<Post>::class.serializer())
+        return Http.GET(url, Array<Post>::class.serializer())
     }
 }
