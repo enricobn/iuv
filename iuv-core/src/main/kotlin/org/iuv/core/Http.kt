@@ -8,28 +8,32 @@ import kotlin.js.Date
 
 object Http {
 
-    fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, body: dynamic = null, async: Boolean = true,
+    fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
+                     bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
                      username: String? = null,password: String? = null)  : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("get", url, serializer, onFailure, onSuccess, body, async, username, password)
+            request("get", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
 
-    fun <RESULT> PUT(url: String, serializer: KSerializer<RESULT>, body: dynamic = null, async: Boolean = true,
+    fun <RESULT> PUT(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
+                     bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
                      username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("put", url, serializer, onFailure, onSuccess, body, async, username, password)
+            request("put", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
 
-    fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, body: dynamic = null, async: Boolean = true,
+    fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
+                      bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
                       username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("post", url, serializer, onFailure, onSuccess, body, async, username, password)
+            request("post", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
 
-    fun <RESULT> DELETE(url: String, serializer: KSerializer<RESULT>, body: dynamic = null, async: Boolean = true,
+    fun <RESULT> DELETE(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
+                        bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
                         username: String? = null, password: String? = null) : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("delete", url, serializer, onFailure, onSuccess, body, async, username, password)
+            request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
 
     fun <RESULT> request(method: String,
@@ -38,14 +42,12 @@ object Http {
                          onFailure: (String) -> Unit,
                          onSuccess: (RESULT) -> Unit,
                          body: dynamic,
+                         bodySerializer: KSerializer<Any>?,
                          async: Boolean = true,
                          username: String?,
                          password: String?
     ) where RESULT : Any {
         val request = XMLHttpRequest()
-
-        if (body != null)
-            request.send(body)
 
         request.onreadystatechange = { _ ->
             when (request.readyState) {
@@ -60,7 +62,11 @@ object Http {
             }
         }
         request.open(method, bypassCache(url), async, username, password)
-        request.send()
+        if (body != null) {
+            request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+            request.send(JSON.stringify(bodySerializer!!, body))
+        } else
+            request.send()
     }
 
 }
