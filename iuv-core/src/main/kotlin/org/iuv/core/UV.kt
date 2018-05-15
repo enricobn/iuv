@@ -20,5 +20,9 @@ interface UV<MODEL, MESSAGE> {
         }
     }
 
+    fun <CHILD_MODEL, CHILD_MESSAGE> childUVBuilder(uv: UV<CHILD_MODEL, CHILD_MESSAGE>)
+            where CHILD_MESSAGE : Any =
+        ChildUVBuilder.of<MODEL, MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(uv)
+
 }
 
