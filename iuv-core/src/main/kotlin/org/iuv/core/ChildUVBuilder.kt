@@ -52,15 +52,16 @@ class ChildUVBuilder<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE:Any> 
     }
 
     override fun build() : ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE> =
-        object : ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>(uv, childMessageToParent, parentModelToChild, updateParentModel) {
+        object : ChildUV<PARENT_MODEL,PARENT_MESSAGE,CHILD_MODEL,CHILD_MESSAGE>(uv, childMessageToParent,
+                parentModelToChild, updateParentModel) {
 
         override fun update(message: CHILD_MESSAGE, parentModel: PARENT_MODEL) : Pair<PARENT_MODEL, Cmd<PARENT_MESSAGE>> {
             val (model, cmdFromUpdate) = super.update(message, parentModel)
             var cmd = cmdFromUpdate
 
-            ons.forEach {
-               if (message::class.js == it.first.js) {
-                   cmd = Cmd(cmd, it.second.invoke(message, parentModel))
+            ons.forEach { (clazz, fn) ->
+               if (message::class.js == clazz.js) {
+                   cmd = Cmd(cmd, fn(message, parentModel))
                }
             }
             return Pair(model, cmd)
