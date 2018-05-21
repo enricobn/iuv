@@ -1,3 +1,7 @@
+### IUV ###
+Kotlin js UI framework inspired to elm 
+(http://elm-lang.org)
+
 ### Install iuv-core
 Since it's not in a remote repository, for now, you have to install locally:  
 `./gradlew iuv:iuv-core install`
