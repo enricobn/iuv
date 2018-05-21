@@ -2,40 +2,15 @@
 Kotlin js UI framework inspired to elm 
 (http://elm-lang.org)
 
-### Install iuv-core
-Since it's not in a remote repository, for now, you have to install locally:  
-`./gradlew iuv:iuv-core install`
+### Compile, test and run the examples
+From the command line : `./gradlew build` 
 
-### Compile, test and run the examples pages
-Run the build task for project examples/buttons. From the command line you can run `./gradlew examples/buttons:build`.
-The first time it will be slow since it will download nodejs, yarn and all javascript libraries.
-However nodejs is cached in the .gradle home folder, so it will be downloaded only one time per user.  
+The first time it will be slow since it will download node js, yarn and all javascript libraries.
 
-That task creates a web folder under build, then you have to run a web server to serve that folder.  
+That task creates a web folder under iuv-examples/build, then you have to open index.html with a browser.  
 
-A simple solution in IntelliJ is to right click on index.html -> open in browser, but I have experienced problems 
-with source maps.  
+### Install
+Since it's not in a remote repository, for now, you have to install locally. From the command line :  
+`./gradlew install`
 
-Another simple way that solves those problems, if you have python installed, is:  
-`cd examples/buttons/build/web`  
-`python -m SimpleHTTPServer [port]`  
-It will run a server listening on the specified port, or 8000 if not specified.
-
-### Compile and run the unit tests
-TODO 
-
-### Patterns and best practices ###
-VIew and Component:
-- since the model must be public, if you want to protect its construction from outside (almost, since it's frequently 
-a data class, and the copy method is still accessible), make the model's constructor private and create a companion 
-object with a factory method.  
-If the Component is not an object and you need some instance val to create the initial model (or it's a View which must have 
-an init member function), create an init member function of Component (or the needed one in View) and call the factory with the 
-needed vals
-- if not in the above example, for a Component there's no need for an init member function to initialize the model, use
-the model's constructor, so you don't need an instance of Component to create it, or a factory if there's some logic
-or default values.
-JSON
-- don't use Long, use Int
-- don't use List, use Array (TODO but Array is mutable, so I still want VO data classes to use List) 
-
+This task will install locally iuv-core iuv-share and iuv-jvm (empty for now).
