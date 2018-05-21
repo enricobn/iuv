@@ -1,9 +1,12 @@
 package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
+import org.iuv.core.Component
 import org.iuv.core.HTML
-import org.iuv.core.UV
 import org.iuv.core.toCmd
+import kotlin.Int
+import kotlin.Pair
+import kotlin.String
 
 // MODEL
 data class ButtonModel(val postId: Int, val selectedButtonModel: SelectedButtonModel)
@@ -17,7 +20,7 @@ data class PostTitle(val title: String) : ButtonComponentMessage
 
 private data class Error(val msg: String) : ButtonComponentMessage
 
-class ButtonComponent(private val postService: PostService) : UV<ButtonModel, ButtonComponentMessage> {
+class ButtonComponent(private val postService: PostService) : Component<ButtonModel, ButtonComponentMessage> {
 
     fun init(text: String, postId: Int) : ButtonModel {
         return ButtonModel(postId, SelectedButton.init(text))

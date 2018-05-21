@@ -7,7 +7,7 @@ import org.iuv.core.SnabbdomRenderer
 class ButtonsMain {
 
     fun run() {
-        val application = IUVApplication(ButtonsIUV(1, PostServiceImpl()), SnabbdomRenderer())
+        val application = IUVApplication(ButtonsView(1, PostServiceImpl()), SnabbdomRenderer())
         application.run()
     }
 

@@ -8,33 +8,33 @@ interface IUVDebuggerMessage
 
 private data class IUVDebuggerChildMessage(val message: Any) : IUVDebuggerMessage
 
-private data class SetIUVModel(val index: Int) : IUVDebuggerMessage
+private data class SetModel(val index: Int) : IUVDebuggerMessage
 
-class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<IUVDebuggerModel,IUVDebuggerMessage> {
+class IUVDebugger<MODEL, MESSAGE>(view: View<MODEL, MESSAGE>) : View<IUVDebuggerModel,IUVDebuggerMessage> {
 
-    private val childIUV = ChildIUV<IUVDebuggerModel,IUVDebuggerMessage, IUV_MODEL, IUV_MESSAGE>(
-            iuv,
+    private val childView = ChildView<IUVDebuggerModel,IUVDebuggerMessage, MODEL, MESSAGE>(
+            view,
             { IUVDebuggerChildMessage(it!!) },
-            { it.iuvModel as IUV_MODEL},
+            { it.iuvModel as MODEL},
             { parentModel,childModel -> parentModel.copy(iuvModel = childModel)}
     )
 
     override fun subscriptions(model: IUVDebuggerModel): Sub<IUVDebuggerMessage> =
-        childIUV.subscriptions(model)
+        childView.subscriptions(model)
 
     override fun init(): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> {
-        val init = childIUV.init()
+        val init = childView.init()
         return Pair(IUVDebuggerModel(init.first, emptyList(), 0), init.second)
     }
 
     override fun update(message: IUVDebuggerMessage, model: IUVDebuggerModel): Pair<IUVDebuggerModel, Cmd<IUVDebuggerMessage>> =
         when(message) {
             is IUVDebuggerChildMessage -> {
-                val (newModel, cmd) = childIUV.update(message.message as IUV_MESSAGE, model)
+                val (newModel, cmd) = childView.update(message.message as  MESSAGE, model)
                 val messagesAndModels = newModel.messagesAndModels + (message.message!! to newModel.iuvModel!!)
                 Pair(newModel.copy(messagesAndModels = messagesAndModels, index = messagesAndModels.size - 1), cmd)
             }
-            is SetIUVModel ->
+            is SetModel ->
                 Pair(model.copy(iuvModel = model.messagesAndModels[message.index].second, index = message.index), Cmd.none())
             else ->
                 Pair(model, Cmd.none())
@@ -42,7 +42,7 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
 
     override fun view(model: IUVDebuggerModel): HTML<IUVDebuggerMessage> =
         html {
-            childIUV.addTo(this, model)
+            childView.addTo(this, model)
             div {
                 classes = "IUVDebugger"
 
@@ -55,7 +55,7 @@ class IUVDebugger<IUV_MODEL,IUV_MESSAGE>(iuv: IUV<IUV_MODEL,IUV_MESSAGE>) : IUV<
                         max = model.messagesAndModels.size - 1
                         value = model.index.toString()
                         onInput { _ , value ->
-                            SetIUVModel(value.toInt())
+                            SetModel(value.toInt())
                         }
                     }
                     div {

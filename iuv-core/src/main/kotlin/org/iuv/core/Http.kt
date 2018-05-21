@@ -36,6 +36,7 @@ object Http {
             request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
 
+    // TOD can I make body and bodySerializer typed?
     fun <RESULT> request(method: String,
                          url: String,
                          serializer: KSerializer<RESULT>,

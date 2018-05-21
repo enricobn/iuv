@@ -21,15 +21,15 @@ It will run a server listening on the specified port, or 8000 if not specified.
 TODO 
 
 ### Patterns and best practices ###
-UV and IUV:
+VIew and Component:
 - since the model must be public, if you want to protect its construction from outside (almost, since it's frequently 
 a data class, and the copy method is still accessible), make the model's constructor private and create a companion 
 object with a factory method.  
-If the UV is not an object and you need some instance val to create the initial model (or it's a IUV which must have 
-an init member function), create an init member function of UV (or the needed one in IUV) and call the factory with the 
+If the Component is not an object and you need some instance val to create the initial model (or it's a View which must have 
+an init member function), create an init member function of Component (or the needed one in View) and call the factory with the 
 needed vals
-- if not in the above example, for a UV there's no need for an init member function to initialize the model, use
-the model's constructor, so you don't need an instance of UV to create it, or a factory if there's some logic
+- if not in the above example, for a Component there's no need for an init member function to initialize the model, use
+the model's constructor, so you don't need an instance of Component to create it, or a factory if there's some logic
 or default values.
 JSON
 - don't use Long, use Int

@@ -2,10 +2,10 @@ package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUV
+import org.iuv.core.View
 import org.iuv.core.toCmd
 
-class PostsIUV(private val postService: PostService) : IUV<PostsIUV.Model, PostsIUV.Message> {
+class PostsView(private val postService: PostService) : View<PostsView.Model, PostsView.Message> {
 
     data class Model(val rows: List<Post>? = null)
 

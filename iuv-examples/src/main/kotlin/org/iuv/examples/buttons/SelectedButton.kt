@@ -1,8 +1,8 @@
 package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
+import org.iuv.core.Component
 import org.iuv.core.HTML
-import org.iuv.core.UV
 
 // MODEL
 data class SelectedButtonModel(val text: String, val selected: Boolean)
@@ -16,7 +16,7 @@ object SelectedButtonClick : SelectedButtonMessage {
     }
 }
 
-object SelectedButton : UV<SelectedButtonModel, SelectedButtonMessage> {
+object SelectedButton : Component<SelectedButtonModel, SelectedButtonMessage> {
 
     fun init(text: String): SelectedButtonModel {
         return SelectedButtonModel(text, false)

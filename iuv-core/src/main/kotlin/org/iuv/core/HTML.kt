@@ -168,8 +168,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
     }
 
-    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childIUV: ChildIUV<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
-        childIUV.addTo(this, model)
+    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childView: ChildView<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
+        childView.addTo(this, model)
     }
 
     /**
@@ -307,7 +307,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         return "HTML(name='$name', attrs=${getAttrs()}, children.size=${children.size}$txt)"
     }
 
-//    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: UV<CHILD_MODEL, CHILD_MESSAGE>,
+//    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: Component<CHILD_MODEL, CHILD_MESSAGE>,
 //                                                model: CHILD_MODEL,
 //                                                mapFun: (CHILD_MESSAGE) -> MESSAGE) {
 //
@@ -348,7 +348,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 //         *      }
 //         * }
 //         *
-//         * but it's different from what happens in the top level UV (IUV).
+//         * but it's different from what happens in the top level Component (View).
 //         */
 //        children.addAll(result.children)
 //

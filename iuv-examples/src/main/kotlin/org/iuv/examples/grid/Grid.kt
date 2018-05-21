@@ -1,8 +1,8 @@
 package org.iuv.examples.grid
 
 import org.iuv.core.Cmd
+import org.iuv.core.Component
 import org.iuv.core.HTML
-import org.iuv.core.UV
 import org.iuv.examples.components.IUVMDL
 import org.iuv.examples.components.mdlTable
 import org.iuv.examples.components.mdlTableCheckbox
@@ -25,7 +25,7 @@ data class GridModel<ROW>(val rows: List<ROW>, val columns: List<Column<ROW>>, v
     }
 }
 
-class Grid<ROW>(private val multiSelect : Boolean) : UV<GridModel<ROW>, GridMessage> {
+class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, GridMessage> {
 
     fun init(rows: List<ROW>, columns: List<Column<ROW>>) : GridModel<ROW> =
         GridModel(rows, columns,

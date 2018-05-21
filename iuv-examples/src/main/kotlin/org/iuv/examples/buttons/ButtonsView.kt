@@ -2,36 +2,37 @@ package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUV
+import org.iuv.core.View
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
 
-// MODEL
-data class ButtonsIUVModel(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
-
-// MESSAGES
-interface ButtonsIUVMessage
-
-data class ButtonsButtonMessage(val message: ButtonComponentMessage, val index: Int) : ButtonsIUVMessage
-
-data class ButtonsMouseMove(val x: Int, val y: Int) : ButtonsIUVMessage
-
-data class PostIdChanged(val postId: Int) : ButtonsIUVMessage
-
-class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV<ButtonsIUVModel, ButtonsIUVMessage> {
+class ButtonsView(private val initialPostId: Int, postService: PostService) : View<ButtonsView.Model, ButtonsView.Message> {
 
     companion object {
         private val height = 500
         private val width = 10
     }
 
+    // MODEL
+    data class Model(val postId: Int, val buttonModels: List<ButtonModel>, val x : Int, val y : Int)
+
+    // MESSAGES
+    interface Message
+
+    data class ButtonsButtonMessage(val message: ButtonComponentMessage, val index: Int) : Message
+
+    data class ButtonsMouseMove(val x: Int, val y: Int) : Message
+
+    data class PostIdChanged(val postId: Int) : Message
+
+
     private val handleMouseMove = false
     private val buttonComponent = ButtonComponent(postService)
 
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
-    override fun init(): Pair<ButtonsIUVModel, Cmd<ButtonsIUVMessage>> {
-        val model = ButtonsIUVModel(initialPostId,
+    override fun init(): Pair<Model, Cmd<Message>> {
+        val model = Model(initialPostId,
                 (1..height)
                         .map { y ->
                             (1..width).map { x -> buttonComponent.init("Button " + index(y, x), initialPostId) }
@@ -41,7 +42,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         return Pair(model, if (handleMouseMove) mouseMove() else Cmd.none())
     }
 
-    private fun mouseMove(): Cmd<ButtonsIUVMessage> {
+    private fun mouseMove(): Cmd<Message> {
         return Cmd { messageBus ->
             document.onmousemove = { event ->
                 if (event is MouseEvent) {
@@ -51,7 +52,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         }
     }
 
-    override fun update(message: ButtonsIUVMessage, model: ButtonsIUVModel): Pair<ButtonsIUVModel, Cmd<ButtonsIUVMessage>> {
+    override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> {
         when (message) {
             is ButtonsButtonMessage -> {
                 val (updateModel, updateCmd) = buttonComponent
@@ -73,7 +74,7 @@ class ButtonsIUV(private val initialPostId: Int, postService: PostService) : IUV
         }
     }
 
-    override fun view(model: ButtonsIUVModel): HTML<ButtonsIUVMessage> {
+    override fun view(model: Model): HTML<Message> {
         return html {
             +"Post ID: "
             input {

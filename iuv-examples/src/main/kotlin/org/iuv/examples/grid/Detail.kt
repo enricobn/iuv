@@ -1,8 +1,8 @@
 package org.iuv.examples.grid
 
 import org.iuv.core.Cmd
+import org.iuv.core.Component
 import org.iuv.core.HTML
-import org.iuv.core.UV
 
 // MESSAGES
 interface DetailMessage
@@ -10,7 +10,7 @@ interface DetailMessage
 // MODEL
 data class DetailModel<ROW>(val row: ROW?, val columns: List<Column<ROW>>)
 
-class Detail<ROW> : UV<DetailModel<ROW>, DetailMessage> {
+class Detail<ROW> : Component<DetailModel<ROW>, DetailMessage> {
 
     fun init(row: ROW?, columns: List<Column<ROW>>) : DetailModel<ROW> {
         return DetailModel(row, columns)

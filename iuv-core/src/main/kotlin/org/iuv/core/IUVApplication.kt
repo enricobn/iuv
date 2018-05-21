@@ -6,7 +6,7 @@ import kotlin.browser.document
 import kotlin.browser.window
 import kotlin.js.Date
 
-class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
+class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                                         private val renderer: HTMLRenderer) : SubListener<MESSAGE> {
 
     companion object {
@@ -17,14 +17,14 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
     }
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
-    private var view : Element = document.createElement("div")
+    private var domElement : Element = document.createElement("div")
     private var lastSub: Sub<MESSAGE>? = null
 
     init {
         try {
             GlobalMessageBus.messageBus = MessageBusImpl(this::onMessage) as MessageBus<Any>
-            document.body!!.appendChild(view)
-            val (newModel,cmd) = iuv.init()
+            document.body!!.appendChild(domElement)
+            val (newModel,cmd) = view.init()
             model = newModel
             cmd.run(messageBus())
         } catch (e: Exception) {
@@ -42,11 +42,11 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
         try {
             val modelBeforeUpdate = model
 
-            val (newModel, cmd) = iuv.update(message, model)
+            val (newModel, cmd) = view.update(message, model)
             model = newModel
 
             if (modelBeforeUpdate != model) {
-                val newSub = iuv.subscriptions(model)
+                val newSub = view.subscriptions(model)
 
                 lastSub.let {
                     it?.removeListener(this)
@@ -80,11 +80,11 @@ class IUVApplication<MODEL, in MESSAGE>(private val iuv: IUV<MODEL, MESSAGE>,
 
             lastViewedModel.let {
                 val time = Date().getTime()
-                val newView = iuv.view(it!!)
+                val newView = view.view(it!!)
 
                 console.log("view ${Date().getTime() - time}")
 
-                renderer.render(view, newView)
+                renderer.render(domElement, newView)
                 console.log("updateDocument ${Date().getTime() - time}")
             }
         } catch (e: Exception) {

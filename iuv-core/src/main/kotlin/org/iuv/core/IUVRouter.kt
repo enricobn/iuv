@@ -3,7 +3,7 @@ package org.iuv.core
 import org.w3c.dom.events.Event
 import kotlin.browser.window
 
-typealias IUVRoute<MODEL, MESSAGE> = (Map<String,String>) -> IUV<MODEL,MESSAGE>
+typealias IUVRoute<MODEL, MESSAGE> = (Map<String,String>) -> View<MODEL,MESSAGE>
 
 interface RouteMatcher {
 
@@ -55,7 +55,7 @@ class SimpleRouteMatcher(expression: String) : RouteMatcher {
 
 
 // Model
-data class RouterModel(val path : String, val currentIUVModel: Any?, val errorMessage: String?)
+data class RouterModel(val path : String, val currentModel: Any?, val errorMessage: String?)
 
 // Messages
 interface RouterMessage
@@ -67,7 +67,7 @@ internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 /**
  * @param testMode if true no window history events are captured and the browser's location is not changed.
  */
-class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) : IUV<RouterModel, RouterMessage> {
+class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false) : View<RouterModel, RouterMessage> {
     private var routes = mutableListOf<Pair<RouteMatcher, IUVRoute<*,*>>>()
     private var errorMessage: String? = null
     private var baseUrl : String? = null
@@ -100,14 +100,14 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
         routes.add(Pair(routeMatcher, iuvRoute))
     }
 
-    fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuv: IUV<CHILD_MODEL, CHILD_MESSAGE>) =
-            add(path, { iuv })
+    fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, view: View<CHILD_MODEL, CHILD_MESSAGE>) =
+            add(path, { view })
 
     override fun subscriptions(model: RouterModel): Sub<RouterMessage> {
-        if (model.currentIUVModel != null) {
-            val (childIUV, error) = createChildIUV(model)
-            if (childIUV != null) {
-                return childIUV.subscriptions(model)
+        if (model.currentModel != null) {
+            val (childView, error) = createChildView(model)
+            if (childView != null) {
+                return childView.subscriptions(model)
             }
         }
         return Sub.none()
@@ -161,21 +161,21 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                     }
                 }
 
-                val (childIUV, error) = createChildIUV(absolutePath)
+                val (childView, error) = createChildView(absolutePath)
 
-                if (childIUV == null) {
+                if (childView == null) {
                     return Pair(model.copy(path = absolutePath, errorMessage = error), Cmd.none())
                 } else {
-                    val (childModel, cmd) = childIUV.init()
-                    return Pair(model.copy(path = absolutePath, currentIUVModel = childModel, errorMessage = null), cmd)
+                    val (childModel, cmd) = childView.init()
+                    return Pair(model.copy(path = absolutePath, currentModel = childModel, errorMessage = null), cmd)
                 }
 
             }
             is RouterMessageWrapper -> {
-                val (childIUV, error) = createChildIUV(model)
+                val (childView, error) = createChildView(model)
 
-                return if (childIUV != null) {
-                    childIUV.update(message.childMessage, model)
+                return if (childView != null) {
+                    childView.update(message.childMessage, model)
                 } else {
                     Pair(model.copy(errorMessage = error), Cmd.none())
                 }
@@ -196,9 +196,9 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             if (model.errorMessage != null) {
                 +model.errorMessage
             } else {
-                val (childIUV, error) = createChildIUV(model)
-                if (childIUV != null) {
-                    childIUV.addTo(this, model)
+                val (childView, error) = createChildView(model)
+                if (childView != null) {
+                    childView.addTo(this, model)
                 } else {
                     +error!!
                 }
@@ -216,11 +216,11 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             Pair(href, "/")
     }
 
-    private fun createChildIUV(absolutePath: String): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?,String?> {
-        val childIUV: ChildIUV<RouterModel, RouterMessage, Any, Any>?
+    private fun createChildView(absolutePath: String): Pair<ChildView<RouterModel, RouterMessage, Any, Any>?,String?> {
+        val childView: ChildView<RouterModel, RouterMessage, Any, Any>?
 
         if (absolutePath == "/") {
-            childIUV = createChildIUV(rootIUV)
+            childView = createChildView(rootView)
         } else {
             val route = routes.firstOrNull { it.first.matches(absolutePath) }
 
@@ -228,7 +228,7 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
                 val parameters = route.first.parameters(absolutePath)
 
                 try {
-                    childIUV = createChildIUV(route, parameters)
+                    childView = createChildView(route, parameters)
                 } catch (e: Exception) {
                     return Pair(null, e.message)
                 }
@@ -237,28 +237,28 @@ class IUVRouter(private val rootIUV: IUV<*,*>, val testMode : Boolean = false) :
             }
         }
 
-        return Pair(childIUV, null)
+        return Pair(childView, null)
     }
 
-    private fun createChildIUV(model: RouterModel): Pair<ChildIUV<RouterModel, RouterMessage, Any, Any>?, String?> =
+    private fun createChildView(model: RouterModel): Pair<ChildView<RouterModel, RouterMessage, Any, Any>?, String?> =
             if (model.path == "/")
-                Pair(createChildIUV(rootIUV), null)
+                Pair(createChildView(rootView), null)
             else
-                createChildIUV(model.path)
+                createChildView(model.path)
 
-    private fun createChildIUV(route: Pair<RouteMatcher,IUVRoute<*,*>>, parameters: Map<String,String>): ChildIUV<RouterModel, RouterMessage, Any, Any> {
+    private fun createChildView(route: Pair<RouteMatcher,IUVRoute<*,*>>, parameters: Map<String,String>): ChildView<RouterModel, RouterMessage, Any, Any> {
 
         val iuv = route.second.invoke(parameters)
 
-        return createChildIUV(iuv)
+        return createChildView(iuv)
     }
 
-    private fun createChildIUV(iuv: IUV<*, *>): ChildIUV<RouterModel, RouterMessage, Any, Any> {
-        return ChildIUV(
-                iuv as IUV<Any, Any>,
+    private fun createChildView(view: View<*, *>): ChildView<RouterModel, RouterMessage, Any, Any> {
+        return ChildView(
+                view as View<Any, Any>,
                 { RouterMessageWrapper(it) },
-                { it.currentIUVModel!! },
-                { parentModel, childModel -> parentModel.copy(currentIUVModel = childModel) }
+                { it.currentModel!! },
+                { parentModel, childModel -> parentModel.copy(currentModel = childModel) }
         )
     }
 

@@ -1,6 +1,6 @@
 package org.iuv.core
 
-interface IUV<MODEL, MESSAGE> : UV<MODEL, MESSAGE> {
+interface View<MODEL, MESSAGE> : Component<MODEL, MESSAGE> {
 
     fun init() : Pair<MODEL, Cmd<MESSAGE>>
 

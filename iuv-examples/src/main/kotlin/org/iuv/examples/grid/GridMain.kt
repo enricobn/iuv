@@ -7,7 +7,7 @@ import org.iuv.core.SnabbdomRenderer
 class GridMain {
 
     fun run() {
-        val application = IUVApplication(IUVDebugger(GridIUV), SnabbdomRenderer())
+        val application = IUVApplication(IUVDebugger(GridView), SnabbdomRenderer())
         application.run()
     }
 

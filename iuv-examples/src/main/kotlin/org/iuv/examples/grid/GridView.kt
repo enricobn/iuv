@@ -2,23 +2,24 @@ package org.iuv.examples.grid
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUV
+import org.iuv.core.View
 
-// MESSAGES
-interface GridIUVMessage
+object GridView : View<GridView.Model, GridView.Message> {
 
-data class GridMessageWrapper(val gridMessage: GridMessage) : GridIUVMessage
+    // MESSAGES
+    interface Message
 
-data class DetailMessageWrapper(val detailMessage: DetailMessage) : GridIUVMessage
+    private data class GridMessageWrapper(val gridMessage: GridMessage) : Message
 
-// MODEL
-data class Result(val home: Int, val visitor: Int)
+    private data class DetailMessageWrapper(val detailMessage: DetailMessage) : Message
 
-data class Match(val home: String, val visitor: String, val result: Result)
+    // MODEL
+    data class Result(val home: Int, val visitor: Int)
 
-data class GridIUVModel(val gridModel: GridModel<Match>)
+    data class Match(val home: String, val visitor: String, val result: Result)
 
-object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
+    data class Model(val gridModel: GridModel<Match>)
+
 
     val rows = listOf(
             Match("Juventus", "Napoli", Result(0, 0)),
@@ -34,12 +35,12 @@ object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
     private val grid = Grid<Match>(true)
     private val detail = Detail<Match>()
 
-    override fun init(): Pair<GridIUVModel, Cmd<GridIUVMessage>> {
+    override fun init(): Pair<Model, Cmd<Message>> {
         val gridModel = grid.init(rows, columns)
-        return Pair(GridIUVModel(gridModel), Cmd.none())
+        return Pair(Model(gridModel), Cmd.none())
     }
 
-    override fun update(message: GridIUVMessage, model: GridIUVModel): Pair<GridIUVModel, Cmd<GridIUVMessage>> {
+    override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> {
         return when(message) {
             is GridMessageWrapper -> {
                 val (updatedModel, updateCmd) = grid.update(message.gridMessage, model.gridModel)
@@ -51,7 +52,7 @@ object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
         }
     }
 
-    override fun view(model: GridIUVModel): HTML<GridIUVMessage> {
+    override fun view(model: Model): HTML<Message> {
         return html {
             div {
                 style = "float: left; margin-right: 10px;"
@@ -59,7 +60,7 @@ object GridIUV : IUV<GridIUVModel, GridIUVMessage> {
             }
             div {
                 style = "float: none;"
-                // TODO I don't like to make the init every time, better to have a detailModel in GridIUVModel then update it.
+                // TODO I don't like to make the init every time, better to have a detailModel in Model then update it.
                 add(detail.view(detail.init(model.gridModel.getSelectedRow(), columns)), ::DetailMessageWrapper)
             }
         }

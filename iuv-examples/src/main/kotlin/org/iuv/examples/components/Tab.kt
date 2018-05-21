@@ -1,9 +1,9 @@
 package org.iuv.examples.components
 
-import org.iuv.core.ChildIUV
+import org.iuv.core.ChildView
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUV
+import org.iuv.core.View
 
 interface TabMessage
 
@@ -13,11 +13,11 @@ data class SelectTab(val tab: Int) : TabMessage
 
 data class TabModel(val activeTab: Int, val childModels: Map<Int,Any>)
 
-class Tab : IUV<TabModel, TabMessage> {
+class Tab : View<TabModel, TabMessage> {
     private val tabs = mutableListOf<TabData>()
 
-    fun add(text: String, iuv: IUV<*,*>) {
-        tabs.add(TabData(text, iuv))
+    fun add(text: String, view: View<*,*>) {
+        tabs.add(TabData(text, view))
     }
 
     override fun init(): Pair<TabModel, Cmd<TabMessage>> =
@@ -25,13 +25,13 @@ class Tab : IUV<TabModel, TabMessage> {
 
     override fun update(message: TabMessage, model: TabModel): Pair<TabModel, Cmd<TabMessage>> =
         when (message) {
-            is TabMessageWrapper -> createChildIUV(message.tab).update(message.childMessage, model)
+            is TabMessageWrapper -> createChildView(message.tab).update(message.childMessage, model)
             is SelectTab -> {
                 val (newModel,newCmd) =
                     if (model.childModels.containsKey(message.tab)) {
                         Pair(model, Cmd.none())
                     } else {
-                        val iuv = createChildIUV(message.tab)
+                        val iuv = createChildView(message.tab)
                         iuv.initAndUpdate(message, model)
                     }
                 Pair(newModel.copy(activeTab = message.tab), newCmd)
@@ -56,17 +56,17 @@ class Tab : IUV<TabModel, TabMessage> {
                 }
 
                 if (model.childModels.containsKey(model.activeTab)) {
-                    add(createChildIUV(model.activeTab), model)
+                    add(createChildView(model.activeTab), model)
                 }
 
             }
         }
 
-    private fun createChildIUV(tab: Int): ChildIUV<TabModel, TabMessage, Any, Any> {
-        val iuv = tabs[tab].iuv
+    private fun createChildView(tab: Int): ChildView<TabModel, TabMessage, Any, Any> {
+        val iuv = tabs[tab].view
 
-        return ChildIUV(
-                iuv as IUV<Any, Any>,
+        return ChildView(
+                iuv as View<Any, Any>,
                 { TabMessageWrapper(tab, it) },
                 { it.childModels[tab]!! },
                 { parentModel, childModel ->
@@ -77,4 +77,4 @@ class Tab : IUV<TabModel, TabMessage> {
 
 }
 
-private data class TabData(val text: String, val iuv: IUV<*,*>)
+private data class TabData(val text: String, val view: View<*,*>)

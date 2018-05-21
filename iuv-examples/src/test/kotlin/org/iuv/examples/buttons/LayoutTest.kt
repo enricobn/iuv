@@ -1,9 +1,9 @@
 package org.iuv.examples.buttons
 
 import org.iuv.core.Cmd
+import org.iuv.core.Component
 import org.iuv.core.HTML
 import org.iuv.core.IUVTest
-import org.iuv.core.UV
 import org.iuv.examples.components.vBox
 import org.w3c.dom.events.Event
 import kotlin.test.Test
@@ -14,7 +14,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
     @Test
     fun childButtonClick() {
-        val html = TestLayoutUV.view(TestLayoutModel(TestLayoutChildModel(0)))
+        val html = TestLayoutComponent.view(TestLayoutModel(TestLayoutChildModel(0)))
 
         val testHtml = test(html)
 
@@ -29,7 +29,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
     @Test
     fun attributesOnvBox() {
-        val html = TestLayoutUV.view(TestLayoutModel(TestLayoutChildModel(0)))
+        val html = TestLayoutComponent.view(TestLayoutModel(TestLayoutChildModel(0)))
 
         val testHtml = test(html)
 
@@ -42,7 +42,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
     @Test
     fun view() {
-        val html = TestLayoutUV.view(TestLayoutModel(TestLayoutChildModel(0)))
+        val html = TestLayoutComponent.view(TestLayoutModel(TestLayoutChildModel(0)))
 
         val expectedHtml = html {
             div {
@@ -69,7 +69,7 @@ data class TestLayoutChildMessageWrapper(val message: TestLayoutChildMessage) :T
 
 data class TestLayoutModel(val childModel: TestLayoutChildModel)
 
-object TestLayoutUV : UV<TestLayoutModel, TestLayoutMessage> {
+object TestLayoutComponent : Component<TestLayoutModel, TestLayoutMessage> {
 
     override fun update(message: TestLayoutMessage, model: TestLayoutModel): Pair<TestLayoutModel, Cmd<TestLayoutMessage>> =
             Pair(model, Cmd.none())
@@ -78,7 +78,7 @@ object TestLayoutUV : UV<TestLayoutModel, TestLayoutMessage> {
         html {
             vBox {
                 classes = "testclass"
-                add(TestChildUV.view(model.childModel), ::TestLayoutChildMessageWrapper)
+                add(TestChildComponent.view(model.childModel), ::TestLayoutChildMessageWrapper)
             }
         }
 
@@ -90,7 +90,7 @@ object TestLayoutChildClick : TestLayoutChildMessage
 
 data class TestLayoutChildModel(val clicked: Int)
 
-object TestChildUV : UV<TestLayoutChildModel, TestLayoutChildMessage> {
+object TestChildComponent : Component<TestLayoutChildModel, TestLayoutChildMessage> {
 
     override fun update(message: TestLayoutChildMessage, model: TestLayoutChildModel): Pair<TestLayoutChildModel, Cmd<TestLayoutChildMessage>> =
         when (message) {

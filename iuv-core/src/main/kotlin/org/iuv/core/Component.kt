@@ -1,6 +1,6 @@
 package org.iuv.core
 
-interface UV<MODEL, MESSAGE> {
+interface Component<MODEL, MESSAGE> {
 
     fun subscriptions(model: MODEL) : Sub<MESSAGE> = Sub.none()
 
@@ -20,9 +20,9 @@ interface UV<MODEL, MESSAGE> {
         }
     }
 
-    fun <CHILD_MODEL, CHILD_MESSAGE> childUVBuilder(uv: UV<CHILD_MODEL, CHILD_MESSAGE>)
+    fun <CHILD_MODEL, CHILD_MESSAGE> childComponentBuilder(component: Component<CHILD_MODEL, CHILD_MESSAGE>)
             where CHILD_MESSAGE : Any =
-        ChildUVBuilder.of<MODEL, MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(uv)
+        ChildComponentBuilder.of<MODEL, MESSAGE, CHILD_MODEL, CHILD_MESSAGE>(component)
 
 }
 

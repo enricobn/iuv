@@ -2,12 +2,12 @@ package org.iuv.examples
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUV
 import org.iuv.core.IUVRouter
-import org.iuv.examples.buttons.ButtonsIUV
+import org.iuv.core.View
+import org.iuv.examples.buttons.ButtonsView
 import org.iuv.examples.buttons.PostService
 import org.iuv.examples.components.*
-import org.iuv.examples.grid.GridIUV
+import org.iuv.examples.grid.GridView
 
 // Model
 data class ExamplesModel(val tabModel: TabModel, val x: Int, val y: Int)
@@ -15,7 +15,7 @@ data class ExamplesModel(val tabModel: TabModel, val x: Int, val y: Int)
 // Message
 interface ExamplesMessage
 
-class ExamplesIUV(postService: PostService) : IUV<ExamplesModel, ExamplesMessage> {
+class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessage> {
     private val tab : Tab = Tab()
 
     companion object {
@@ -40,8 +40,8 @@ class ExamplesIUV(postService: PostService) : IUV<ExamplesModel, ExamplesMessage
     }
 
     init {
-        tab.add("Buttons", ButtonsIUV(1, postService))
-        tab.add("Grid", GridIUV)
+        tab.add("Buttons", ButtonsView(1, postService))
+        tab.add("Grid", GridView)
     }
 
 //    override fun subscriptions(model: ExamplesModel): Sub<ExamplesMessage> {
