@@ -10,5 +10,5 @@ interface PostService {
 
     fun getPost(id: Int): Task<String, Post>
 
-    fun getPosts(): Task<String, Array<Post>>
+    fun getPosts(): Task<String, List<Post>>
 }

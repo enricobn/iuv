@@ -1,5 +1,6 @@
 package org.iuv.examples.buttons
 
+import kotlinx.serialization.internal.ArrayListSerializer
 import kotlinx.serialization.serializer
 import org.iuv.core.Http
 import org.iuv.shared.Task
@@ -11,8 +12,8 @@ class PostServiceImpl : PostService {
         return Http.GET(url, Post::class.serializer())
     }
 
-    override fun getPosts(): Task<String, Array<Post>> {
+    override fun getPosts(): Task<String, List<Post>> {
         val url = "https://jsonplaceholder.typicode.com/posts"
-        return Http.GET(url, Array<Post>::class.serializer())
+        return Http.GET(url, ArrayListSerializer(Post::class.serializer()))
     }
 }

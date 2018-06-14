@@ -17,7 +17,7 @@ class PostsView(private val postService: PostService) : View<PostsView.Model, Po
 
     override fun init(): Pair<Model, Cmd<Message>> =
         Pair(Model(), postService.getPosts().toCmd(::Error) {
-            Load(it.asList())
+            Load(it)
         })
 
     override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> =
