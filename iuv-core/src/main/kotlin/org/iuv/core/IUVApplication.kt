@@ -77,10 +77,13 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                 val time = Date().getTime()
                 val newView = view.view(it!!)
 
-                console.log("view ${Date().getTime() - time}")
+                if (printTime)
+                    console.log("view ${Date().getTime() - time}")
 
                 renderer.render(domElement, newView)
-                console.log("updateDocument ${Date().getTime() - time}")
+
+                if (printTime)
+                    console.log("updateDocument ${Date().getTime() - time}")
             }
         } catch (e: Exception) {
             console.error("Error in IUVApplication.updateDocument for message '${e.message}'.", e.asDynamic().stack)

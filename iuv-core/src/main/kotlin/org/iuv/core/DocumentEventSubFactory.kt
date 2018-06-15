@@ -39,7 +39,7 @@ class DocumentEventSubImpl<out T : Event> internal constructor(private val name:
 
     private val listeners = SubListenersHelper<T>()
 
-    fun handleEvent(event: Event) {
+    private fun handleEvent(event: Event) {
         //val mouseEvent = event as MouseEvent
         //console.log("Dispatched ${mouseEvent.screenX},${mouseEvent.screenY}")
         listeners.dispatch(event as T)

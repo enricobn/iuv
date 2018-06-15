@@ -86,7 +86,7 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
         return "imgs/mario/$verb/$dir.gif"
     }
 
-    private fun applyKey(scale : Double, key : Int, keys : Keys ) : Keys =
+    private fun applyKey(scale: Double, key: Int, keys: Keys) : Keys =
         when(key) {
             37 -> keys.copy(x = -scale)
             38 -> keys.copy(y = scale)
@@ -119,7 +119,7 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
                     y = max(0.0, (model.y + dt * model.vy)))
 
     private fun jump(model: Model) =
-        if (model.keys.y > 0 && model.vy.toInt() == 0)
+        if (model.keys.y > 0 && model.vy == 0.0)
             model.copy(vy = 6.0)
         else
             model

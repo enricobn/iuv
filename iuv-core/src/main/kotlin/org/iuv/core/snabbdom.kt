@@ -55,7 +55,8 @@ class SnabbdomRenderer : HTMLRenderer {
         var time = Date().getTime()
         val newH = toH(html)
 
-        console.log("toH ${Date().getTime() - time}")
+        if (printTime)
+            console.log("toH ${Date().getTime() - time}")
 
         time = Date().getTime()
 
@@ -69,7 +70,8 @@ class SnabbdomRenderer : HTMLRenderer {
             getJsToRun(html).forEach { checkedRun { eval(it) } }
         }
 
-        console.log("patch ${Date().getTime() - time}")
+        if (printTime)
+            console.log("patch ${Date().getTime() - time}")
 
         viewH = newH
 
