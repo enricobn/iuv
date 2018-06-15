@@ -77,6 +77,7 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
                 link("Not existent route", "/notExistentRoute")
                 link("Error", "/buttons/hello")
                 link("Posts", "/posts")
+                link("Mario", "/mario")
                 add(tab.view(model.tabModel), ::TabMessageWrapper)
             }
         }

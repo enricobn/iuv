@@ -1,5 +1,5 @@
 # IUV #
-Kotlin js UI framework inspired to elm 
+Kotlin js UI framework inspired to Elm 
 (http://elm-lang.org)
 
 ### Compile, test and run the examples

@@ -8,6 +8,9 @@ import org.iuv.examples.buttons.ButtonsView
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.buttons.PostsView
 import org.iuv.examples.grid.GridView
+import org.iuv.examples.mario.MarioView
+
+const val debugger = false
 
 class ExamplesMain {
 
@@ -19,13 +22,16 @@ class ExamplesMain {
         router.add("/buttons1", ButtonsView(1, postService))
         router.add("/grid", GridView)
         router.add("/posts", PostsView(postService))
+        router.add("/mario", MarioView())
 
         val renderer = SnabbdomRenderer()
         renderer.onSubsequentPatch {
             // material lite must inject some stuff ...
             js("componentHandler.upgradeDom()")
         }
-        val application = IUVApplication(IUVDebugger(router), renderer)
+        val application = IUVApplication(
+                if (debugger) IUVDebugger(router) else router,
+                renderer)
         application.run()
     }
 

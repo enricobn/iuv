@@ -50,7 +50,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from new File("web")
+        from fileTree(new File("web").absolutePath)
         into "${web_dir}"
     }
 

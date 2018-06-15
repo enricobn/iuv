@@ -9,12 +9,6 @@ import kotlin.js.Date
 class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                                         private val renderer: HTMLRenderer) : SubListener<MESSAGE> {
 
-    companion object {
-        val delay = 100
-    }
-
-    private fun messageBus(): MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE>
-    }
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
     private var domElement : Element = document.createElement("div")
@@ -35,7 +29,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
 
     fun run() {
         updateDocument()
-        window.setInterval(this::onTimer, delay)
+        //window.setInterval(this::onTimer, delay)
     }
 
     override fun onMessage(message: MESSAGE) {
@@ -64,6 +58,8 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
         }
     }
 
+    private fun messageBus(): MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
+
     private fun onTimer() {
         updateDocument()
     }
@@ -71,6 +67,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
     private fun updateDocument() {
         try {
             if (lastViewedModel != null && lastViewedModel!! == model) {
+                window.requestAnimationFrame { onTimer() }
                 return
             }
 
@@ -87,6 +84,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                 renderer.render(domElement, newView)
                 console.log("updateDocument ${Date().getTime() - time}")
             }
+            window.requestAnimationFrame { onTimer() }
         } catch (e: Exception) {
             console.error("Error in IUVApplication.updateDocument for message '${e.message}'.", e.asDynamic().stack)
             throw e

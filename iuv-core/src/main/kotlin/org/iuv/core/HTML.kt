@@ -133,6 +133,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(CheckBoxH(), init)
     }
 
+    fun img(init: IMAGEH<MESSAGE>.() -> Unit) {
+        element(IMAGEH(), init)
+    }
+
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
@@ -552,6 +556,15 @@ class AH<MESSAGE> : HTML<MESSAGE>("a"),ClickableHTML<MESSAGE> {
             addAttribute("href", "#" + window.location.hash + "/" + path)
         }
     }
+
+}
+
+class IMAGEH<MESSAGE> : HTML<MESSAGE>("img") {
+    var src: String?
+        set(value) {
+            addAttribute("src", value)
+        }
+        get() = getAttribute("src") as String?
 
 }
 
