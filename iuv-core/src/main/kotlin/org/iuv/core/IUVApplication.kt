@@ -3,7 +3,6 @@ package org.iuv.core
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
 import kotlin.browser.document
-import kotlin.browser.window
 import kotlin.js.Date
 
 class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
@@ -16,7 +15,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
 
     init {
         try {
-            GlobalMessageBus.messageBus = MessageBusImpl(this::onMessage) as MessageBus<Any>
+            IUVGlobals.messageBus = MessageBusImpl(this::onMessage) as MessageBus<Any>
             document.body!!.appendChild(domElement)
             val (newModel,cmd) = view.init()
             model = newModel
@@ -28,7 +27,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
     }
 
     fun run() {
-        updateDocument()
+        IUVGlobals.setAnimationFrameCallback { updateDocument() }
         //window.setInterval(this::onTimer, delay)
     }
 
@@ -58,7 +57,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
         }
     }
 
-    private fun messageBus(): MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE> }
+    private fun messageBus(): MessageBus<MESSAGE> { return IUVGlobals.getMessageBus() as MessageBus<MESSAGE> }
 
     private fun onTimer() {
         updateDocument()
@@ -67,7 +66,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
     private fun updateDocument() {
         try {
             if (lastViewedModel != null && lastViewedModel!! == model) {
-                window.requestAnimationFrame { onTimer() }
                 return
             }
 
@@ -84,7 +82,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                 renderer.render(domElement, newView)
                 console.log("updateDocument ${Date().getTime() - time}")
             }
-            window.requestAnimationFrame { onTimer() }
         } catch (e: Exception) {
             console.error("Error in IUVApplication.updateDocument for message '${e.message}'.", e.asDynamic().stack)
             throw e

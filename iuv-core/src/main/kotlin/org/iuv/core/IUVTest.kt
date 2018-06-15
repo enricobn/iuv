@@ -192,7 +192,7 @@ class TestingMainHTML<out MESSAGE>(html: HTML<MESSAGE>) : TestingHTML(html) {
     private val messageBus: SimpleMessageBus<MESSAGE> = SimpleMessageBus()
 
     init {
-        GlobalMessageBus.messageBus = messageBus as MessageBus<Any>
+        IUVGlobals.messageBus = messageBus as MessageBus<Any>
     }
 
     fun getMessages() = messageBus.getMessages()

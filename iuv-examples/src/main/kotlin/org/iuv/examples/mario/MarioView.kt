@@ -28,8 +28,8 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
 
     override fun subscriptions(model: Model): Sub<Message> {
         return Sub(super.subscriptions(model),
-                DocumentEventSubFactoryImpl.keydown.invoke { KeyDown(it.keyCode) },
-                DocumentEventSubFactoryImpl.keyup.invoke { KeyUp(it.keyCode) },
+                DocumentEventSubFactoryImpl.keydown({ KeyDown(it.keyCode) }),
+                DocumentEventSubFactoryImpl.keyup({ KeyUp(it.keyCode) }),
                 DocumentEventSubFactoryImpl.animationFrame(::Frame)
         )
     }

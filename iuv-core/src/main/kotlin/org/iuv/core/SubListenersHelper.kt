@@ -8,21 +8,21 @@ interface Dispatcher<in T> {
 
 class SubListenersHelper<T> : Dispatcher<T> {
     // TODO can be a Set?
-    private val listeners = mutableListOf<Pair<SubListener<dynamic>,(T) -> dynamic>>()
+    private val subListeners = mutableListOf<Pair<SubListener<dynamic>,(T) -> dynamic>>()
 
     fun <MESSAGE> subscribe(handler: (T) -> MESSAGE) : Sub<MESSAGE> =
         object : Sub<MESSAGE> {
             override fun addListener(listener: SubListener<MESSAGE>) {
-                listeners.add(Pair(listener, handler))
+                subListeners.add(Pair(listener, handler))
             }
 
             override fun removeListener(listener: SubListener<MESSAGE>) {
-                listeners.remove(Pair(listener, handler))
+                subListeners.remove(Pair(listener, handler))
             }
         }
 
     override fun dispatch(t: T) {
-        listeners.forEach { it.first.onMessage(it.second.invoke(t)) }
+        subListeners.forEach { it.first.onMessage(it.second.invoke(t)) }
     }
 
 }

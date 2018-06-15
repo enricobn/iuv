@@ -4,8 +4,6 @@ import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
 import kotlin.browser.document
-import kotlin.browser.window
-import kotlin.js.Date
 
 interface DocumentEventSub<out T : Event> {
     operator fun <MESSAGE> invoke(handler : (T) -> MESSAGE) : Sub<MESSAGE>
@@ -23,7 +21,6 @@ interface DocumentEventSubFactory {
 }
 
 object DocumentEventSubFactoryImpl : DocumentEventSubFactory {
-    private var time = 0.0
 
     override val mouseMove = DocumentEventSubImpl<MouseEvent>("mousemove")
 
@@ -32,15 +29,7 @@ object DocumentEventSubFactoryImpl : DocumentEventSubFactory {
     override val keyup = DocumentEventSubImpl<KeyboardEvent>("keyup")
 
     override fun  <MESSAGE> animationFrame(handler : (Double) -> MESSAGE) : Sub<MESSAGE> {
-        time = Date().getTime()
-
-        val listeners = SubListenersHelper<Double>()
-
-        window.requestAnimationFrame {
-            listeners.dispatch(Date().getTime() - time)
-        }
-
-        return listeners.subscribe(handler)
+        return IUVGlobals.animationFrame(handler)
     }
 }
 

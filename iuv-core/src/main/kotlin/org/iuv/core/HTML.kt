@@ -6,13 +6,6 @@ import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
 import kotlin.browser.window
 
-internal object GlobalMessageBus {
-    var messageBus : MessageBus<Any>? = null
-
-    fun getMessageBus() : MessageBus<Any> = messageBus!!
-
-}
-
 @DslMarker
 annotation class HtmlTagMarker
 @HtmlTagMarker
@@ -26,7 +19,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     private var mapFun : ((Any) -> Any)? = null
     private var parent : HTML<Any>? = null
 
-    private fun messageBus() : MessageBus<MESSAGE> { return GlobalMessageBus.getMessageBus() as MessageBus<MESSAGE>
+    private fun messageBus() : MessageBus<MESSAGE> { return IUVGlobals.getMessageBus() as MessageBus<MESSAGE>
     }
 
     fun getChildren() = children.toList()
