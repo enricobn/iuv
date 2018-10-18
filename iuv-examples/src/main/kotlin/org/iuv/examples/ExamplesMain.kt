@@ -9,6 +9,7 @@ import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.buttons.PostsView
 import org.iuv.examples.grid.GridView
 import org.iuv.examples.mario.MarioView
+import org.iuv.examples.tabs.TabsView
 
 const val debugger = false
 
@@ -23,6 +24,7 @@ class ExamplesMain {
         router.add("/grid", GridView)
         router.add("/posts", PostsView(postService))
         router.add("/mario", MarioView())
+        router.add("/tabs", TabsView())
 
         val renderer = SnabbdomRenderer()
         renderer.onSubsequentPatch {
@@ -30,8 +32,7 @@ class ExamplesMain {
             js("componentHandler.upgradeDom()")
         }
         val application = IUVApplication(
-                if (debugger) IUVDebugger(router) else router,
-                renderer)
+                if (debugger) IUVDebugger(router) else router, renderer)
         application.run()
     }
 

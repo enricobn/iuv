@@ -2,11 +2,13 @@ package org.iuv.examples
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUVRouter
 import org.iuv.core.View
 import org.iuv.examples.buttons.ButtonsView
 import org.iuv.examples.buttons.PostService
-import org.iuv.examples.components.*
+import org.iuv.examples.components.Tab
+import org.iuv.examples.components.TabMessage
+import org.iuv.examples.components.TabModel
+import org.iuv.examples.components.vBox
 import org.iuv.examples.grid.GridView
 
 // Model
@@ -21,19 +23,16 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
     companion object {
         // Messages
 
-        private data class Goto(val path: String) : ExamplesMessage
-
         private data class TabMessageWrapper(val message: TabMessage) : ExamplesMessage
 
         private data class MouseMove(val x: Int, val y: Int) : ExamplesMessage
 
-
         private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
         private fun HTML<ExamplesMessage>.link(text: String, url: String) {
-            mtButton {
+            a {
                 +text
-                onClick { Goto(url) }
+                navigate(url)
             }
         }
 
@@ -59,7 +58,6 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
                 val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
                 Pair(model.copy(tabModel = tabModel), tabCmd.map(::TabMessageWrapper))
             }
-            is Goto -> Pair(model, IUVRouter.navigate(message.path))
             is MouseMove -> { Pair(model.copy(x = message.x, y = message.y), Cmd.none()) }
             else -> Pair(model, Cmd.none())
         }
@@ -78,7 +76,7 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
                 link("Error", "/buttons/hello")
                 link("Posts", "/posts")
                 link("Mario", "/mario")
-                add(tab.view(model.tabModel), ::TabMessageWrapper)
+                link("Tabs", "/tabs")
             }
         }
 
