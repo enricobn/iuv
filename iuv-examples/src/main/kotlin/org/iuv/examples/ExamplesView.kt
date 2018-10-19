@@ -25,8 +25,6 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
 
         private data class TabMessageWrapper(val message: TabMessage) : ExamplesMessage
 
-        private data class MouseMove(val x: Int, val y: Int) : ExamplesMessage
-
         private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
         private fun HTML<ExamplesMessage>.link(text: String, url: String) {
@@ -43,10 +41,6 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
         tab.add("Grid", GridView)
     }
 
-//    override fun subscriptions(model: ExamplesModel): Sub<ExamplesMessage> {
-//        return DocumentEventSubFactoryImpl.mouseMove { MouseMove(it.screenX, it.screenY) }
-//    }
-
     override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
         val (tabModel,tabCmd) = tab.init()
         return Pair(ExamplesModel(tabModel, 0, 0), tabCmd.map(::TabMessageWrapper))
@@ -58,13 +52,11 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
                 val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
                 Pair(model.copy(tabModel = tabModel), tabCmd.map(::TabMessageWrapper))
             }
-            is MouseMove -> { Pair(model.copy(x = message.x, y = message.y), Cmd.none()) }
             else -> Pair(model, Cmd.none())
         }
 
     override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
         html {
-            +"${model.x},${model.y}"
             br()
             vBox {
                 linkToButtons(1)
@@ -77,6 +69,7 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
                 link("Posts", "/posts")
                 link("Mario", "/mario")
                 link("Tabs", "/tabs")
+                link("Mouse", "/mouse")
             }
         }
 

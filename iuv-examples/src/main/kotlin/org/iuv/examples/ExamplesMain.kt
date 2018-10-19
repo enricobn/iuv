@@ -9,6 +9,7 @@ import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.buttons.PostsView
 import org.iuv.examples.grid.GridView
 import org.iuv.examples.mario.MarioView
+import org.iuv.examples.mouse.MouseView
 import org.iuv.examples.tabs.TabsView
 
 const val debugger = false
@@ -25,6 +26,7 @@ class ExamplesMain {
         router.add("/posts", PostsView(postService))
         router.add("/mario", MarioView())
         router.add("/tabs", TabsView())
+        router.add("/mouse", MouseView())
 
         val renderer = SnabbdomRenderer()
         renderer.onSubsequentPatch {
