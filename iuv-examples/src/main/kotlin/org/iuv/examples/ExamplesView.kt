@@ -3,31 +3,16 @@ package org.iuv.examples
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.View
-import org.iuv.examples.buttons.ButtonsView
-import org.iuv.examples.buttons.PostService
-import org.iuv.examples.components.Tab
-import org.iuv.examples.components.TabMessage
-import org.iuv.examples.components.TabModel
 import org.iuv.examples.components.vBox
-import org.iuv.examples.grid.GridView
 
-// Model
-data class ExamplesModel(val tabModel: TabModel, val x: Int, val y: Int)
-
-// Message
-interface ExamplesMessage
-
-class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessage> {
-    private val tab : Tab = Tab()
+class ExamplesView() : View<ExamplesView.Model, ExamplesView.Message> {
 
     companion object {
         // Messages
 
-        private data class TabMessageWrapper(val message: TabMessage) : ExamplesMessage
+        private fun HTML<Message>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
-        private fun HTML<ExamplesMessage>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
-
-        private fun HTML<ExamplesMessage>.link(text: String, url: String) {
+        private fun HTML<Message>.link(text: String, url: String) {
             a {
                 +text
                 navigate(url)
@@ -36,26 +21,20 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
 
     }
 
-    init {
-        tab.add("Buttons", ButtonsView(1, postService))
-        tab.add("Grid", GridView)
+    // Model
+    object Model
+
+    // Message
+    interface Message
+
+    override fun init() : Pair<Model, Cmd<Message>> {
+        return Pair(Model, Cmd.none())
     }
 
-    override fun init() : Pair<ExamplesModel, Cmd<ExamplesMessage>> {
-        val (tabModel,tabCmd) = tab.init()
-        return Pair(ExamplesModel(tabModel, 0, 0), tabCmd.map(::TabMessageWrapper))
-    }
+    override fun update(message: Message, model: Model) : Pair<Model, Cmd<Message>> =
+        Pair(model, Cmd.none())
 
-    override fun update(message: ExamplesMessage, model: ExamplesModel) : Pair<ExamplesModel, Cmd<ExamplesMessage>> =
-        when (message) {
-            is TabMessageWrapper -> {
-                val (tabModel, tabCmd) = tab.update(message.message, model.tabModel)
-                Pair(model.copy(tabModel = tabModel), tabCmd.map(::TabMessageWrapper))
-            }
-            else -> Pair(model, Cmd.none())
-        }
-
-    override fun view(model: ExamplesModel): HTML<ExamplesMessage> =
+    override fun view(model: Model): HTML<Message> =
         html {
             br()
             vBox {
@@ -70,6 +49,7 @@ class ExamplesView(postService: PostService) : View<ExamplesModel, ExamplesMessa
                 link("Mario", "/mario")
                 link("Tabs", "/tabs")
                 link("Mouse", "/mouse")
+                link("Components", "/components")
             }
         }
 

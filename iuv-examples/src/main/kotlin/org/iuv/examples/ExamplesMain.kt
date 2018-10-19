@@ -7,6 +7,7 @@ import org.iuv.core.SnabbdomRenderer
 import org.iuv.examples.buttons.ButtonsView
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.buttons.PostsView
+import org.iuv.examples.components.ComponentsView
 import org.iuv.examples.grid.GridView
 import org.iuv.examples.mario.MarioView
 import org.iuv.examples.mouse.MouseView
@@ -19,7 +20,7 @@ class ExamplesMain {
     fun run() {
         val postService = PostServiceImpl()
 
-        val router = IUVRouter(ExamplesView(postService))
+        val router = IUVRouter(ExamplesView())
         router.add("/buttons/:id") { ButtonsView(it["id"]!!.toInt(), postService) }
         router.add("/buttons1", ButtonsView(1, postService))
         router.add("/grid", GridView)
@@ -27,6 +28,7 @@ class ExamplesMain {
         router.add("/mario", MarioView())
         router.add("/tabs", TabsView())
         router.add("/mouse", MouseView())
+        router.add("/components", ComponentsView())
 
         val renderer = SnabbdomRenderer()
         renderer.onSubsequentPatch {

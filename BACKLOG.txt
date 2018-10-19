@@ -3,7 +3,6 @@ Doing
 - organize examples:
   - in the main page only links to single examples
   - remove strange router examples and add a router example with link
-  - add a button links example with a ButtonLink component
   - mario example: add a label to explain keys
 
 Next
