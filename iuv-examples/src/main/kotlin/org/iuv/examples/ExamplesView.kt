@@ -36,15 +36,10 @@ class ExamplesView() : View<ExamplesView.Model, ExamplesView.Message> {
 
     override fun view(model: Model): HTML<Message> =
         html {
-            br()
             vBox {
-                linkToButtons(1)
-                linkToButtons(2)
-                link("Fixed buttons1", "/buttons1")
-                link("Invalid buttons 3 with error", "/buttons3")
+                style = "margin-left: 10px;margin-top: 10px;"
+                link("Lots of buttons", "/buttons/1")
                 link("Grid", "/grid")
-                link("Not existent route", "/notExistentRoute")
-                link("Error", "/buttons/hello")
                 link("Posts", "/posts")
                 link("Mario", "/mario")
                 link("Tabs", "/tabs")

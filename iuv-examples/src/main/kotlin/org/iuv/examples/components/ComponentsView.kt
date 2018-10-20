@@ -7,8 +7,10 @@ import org.iuv.core.View
 class ComponentsView : View<ComponentsView.Model, ComponentsView.Message> {
     private val buttonLink = ButtonLink("Mario", "/mario")
 
+    // MODEL
     data class Model(val buttonLinkModel : ButtonLink.Model)
 
+    // MESSAGE
     interface Message
 
     data class ButtonLinkMessage(val message: ButtonLink.Message) : Message

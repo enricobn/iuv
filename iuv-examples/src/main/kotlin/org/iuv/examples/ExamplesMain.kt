@@ -22,7 +22,6 @@ class ExamplesMain {
 
         val router = IUVRouter(ExamplesView())
         router.add("/buttons/:id") { ButtonsView(it["id"]!!.toInt(), postService) }
-        router.add("/buttons1", ButtonsView(1, postService))
         router.add("/grid", GridView)
         router.add("/posts", PostsView(postService))
         router.add("/mario", MarioView())
