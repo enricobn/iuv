@@ -52,18 +52,25 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
     override fun view(model: Model): HTML<Message> {
         val srcImage = srcImage(model)
 
-        val groundY =
-                62 - window.innerHeight / 2
+        val groundY = 62 - window.innerHeight / 2
+        val textY = groundY + 5
 
         val x = model.x
 
         val y = window.innerHeight - model.y + groundY
 
         return html {
-            img {
-                src = srcImage
-                style = "width: ${marioSize}px; height: ${marioSize}px; transform: matrix(1, 0, 0, 1, $x, $y);"
+            div {
+                +"Use arrow keys to move and jump."
             }
+
+            div {
+                img {
+                    src = srcImage
+                    style = "width: ${marioSize}px; height: ${marioSize}px; transform: matrix(1, 0, 0, 1, $x, $y);"
+                }
+            }
+
         }
     }
 

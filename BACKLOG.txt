@@ -1,8 +1,5 @@
 Doing
 -------
-- organize examples:
-  - in the main page only links to single examples
-  - mario example: add a label to explain keys
 
 Next
 -----
