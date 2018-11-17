@@ -53,7 +53,6 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
         val srcImage = srcImage(model)
 
         val groundY = 62 - window.innerHeight / 2
-        val textY = groundY + 5
 
         val x = model.x
 

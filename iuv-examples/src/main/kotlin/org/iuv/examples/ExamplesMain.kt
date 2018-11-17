@@ -1,9 +1,6 @@
 package org.iuv.examples
 
-import org.iuv.core.IUVApplication
-import org.iuv.core.IUVDebugger
-import org.iuv.core.IUVRouter
-import org.iuv.core.SnabbdomRenderer
+import org.iuv.core.*
 import org.iuv.examples.buttons.ButtonsView
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.buttons.PostsView
@@ -21,7 +18,7 @@ class ExamplesMain {
         val postService = PostServiceImpl()
 
         val router = IUVRouter(ExamplesView())
-        router.add("/buttons/:id") { ButtonsView(it["id"]!!.toInt(), postService) }
+        router.add(StringParameterMatcher("/buttons")) { ButtonsView(it.toInt(), postService) }
         router.add("/grid", GridView)
         router.add("/posts", PostsView(postService))
         router.add("/mario", MarioView())

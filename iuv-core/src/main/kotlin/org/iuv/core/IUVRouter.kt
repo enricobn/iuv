@@ -3,15 +3,21 @@ package org.iuv.core
 import org.w3c.dom.events.Event
 import kotlin.browser.window
 
-typealias IUVRoute<MODEL, MESSAGE> = (Map<String,String>) -> View<MODEL,MESSAGE>
+typealias IUVRoute<MODEL, MESSAGE, PARAMETERS> = (PARAMETERS) -> View<MODEL,MESSAGE>
 
-interface RouteMatcher {
+interface RouteMatcher<PARAMETERS> {
 
     fun matches(absolutePath: String) : Boolean
 
     fun parameters(absolutePath: String) : Map<String,String>
 
     fun validate() : String?
+
+    fun toParam(parameters : Map<String,String>) : PARAMETERS
+
+    fun link(parameter: PARAMETERS) : String
+
+    fun <MESSAGE> goto(parameter: PARAMETERS) = IUVRouter.navigate<MESSAGE>(link(parameter))
 
 }
 
@@ -26,10 +32,16 @@ interface RouteMatcher {
 //
 //}
 
-class SimpleRouteMatcher(expression: String) : RouteMatcher {
+abstract class AbstractRouteMatcher<P>(expression: String) : RouteMatcher<P> {
     private val expComponents = expression.split("/")
 
-    override fun matches(absolutePath: String) : Boolean {
+    init {
+        if (!expression.startsWith("/")) {
+            throw Exception("Expression must start with /")
+        }
+    }
+
+    final override fun matches(absolutePath: String) : Boolean {
         if (absolutePath.contains(":")) return false
 
         val pathComponents = absolutePath.split(("/"))
@@ -39,7 +51,7 @@ class SimpleRouteMatcher(expression: String) : RouteMatcher {
         return expComponents.zip(pathComponents).all { it.first.startsWith(":") || it.first == it.second }
     }
 
-    override fun parameters(absolutePath: String): Map<String,String> {
+    final override fun parameters(absolutePath: String): Map<String,String> {
         val pathComponents = absolutePath.split(("/"))
 
         return expComponents
@@ -49,10 +61,25 @@ class SimpleRouteMatcher(expression: String) : RouteMatcher {
                 .toMap()
     }
 
-    override fun validate(): String? = null
+    final override fun validate(): String? = null
 
 }
 
+class SimpleRouteMatcher(val path: String) : AbstractRouteMatcher<Unit>(path) {
+
+    override fun link(parameter: Unit): String = path
+
+    override fun toParam(parameters: Map<String, String>) = Unit
+
+}
+
+class StringParameterMatcher(val path: String) : AbstractRouteMatcher<String>("$path/:id") {
+
+    override fun link(parameter: String): String = "$path/$parameter"
+
+    override fun toParam(parameters: Map<String, String>): String = parameters["id"]!!
+
+}
 
 // Model
 data class RouterModel(val path : String, val currentModel: Any?, val errorMessage: String?)
@@ -64,11 +91,13 @@ data class Goto(val path: String, val fromBrowser: Boolean) : RouterMessage
 
 internal data class RouterMessageWrapper(val childMessage: Any) : RouterMessage
 
+typealias MatcherAndRoute<MODEL, MESSAGE, PARAMETERS> =
+        Pair<RouteMatcher<PARAMETERS>, IUVRoute<MODEL, MESSAGE, PARAMETERS>>
 /**
  * @param testMode if true no window history events are captured and the browser's location is not changed.
  */
 class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false) : View<RouterModel, RouterMessage> {
-    private var routes = mutableListOf<Pair<RouteMatcher, IUVRoute<*,*>>>()
+    private var routes = mutableListOf<MatcherAndRoute<*,*,*>>()
     private var errorMessage: String? = null
     private var baseUrl : String? = null
 
@@ -85,14 +114,11 @@ class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false)
         }
     }
 
-    fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
-        if (!path.startsWith("/")) {
-            throw Exception("Path must start with /")
-        }
+    fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE, Unit>) {
         add(SimpleRouteMatcher(path), iuvRoute)
     }
 
-    fun <CHILD_MODEL,CHILD_MESSAGE> add(routeMatcher: RouteMatcher, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE>) {
+    fun <CHILD_MODEL,CHILD_MESSAGE,PARAMETERS> add(routeMatcher: RouteMatcher<PARAMETERS>, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE, PARAMETERS>) {
         if (routes.any { routeMatcher == it.first }) {
             errorMessage = "Duplicate matcher: $routeMatcher."
             return
@@ -228,7 +254,7 @@ class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false)
                 val parameters = route.first.parameters(absolutePath)
 
                 try {
-                    childView = createChildView(route, parameters)
+                    childView = createChildView(route as MatcherAndRoute<*, *, Any>, parameters)
                 } catch (e: Exception) {
                     return Pair(null, e.message)
                 }
@@ -246,9 +272,9 @@ class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false)
             else
                 createChildView(model.path)
 
-    private fun createChildView(route: Pair<RouteMatcher,IUVRoute<*,*>>, parameters: Map<String,String>): ChildView<RouterModel, RouterMessage, Any, Any> {
+    private fun createChildView(route: MatcherAndRoute<*,*,Any>, parameters: Map<String,String>): ChildView<RouterModel, RouterMessage, Any, Any> {
 
-        val iuv = route.second.invoke(parameters)
+        val iuv = route.second.invoke(route.first.toParam(parameters))
 
         return createChildView(iuv)
     }

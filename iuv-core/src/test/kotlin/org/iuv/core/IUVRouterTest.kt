@@ -28,7 +28,7 @@ class IUVRouterTest {
         val router = IUVRouter(SimpleView(0), true)
 
         router.add("/simple", SimpleView(1))
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/dummy", false), model)
@@ -41,7 +41,7 @@ class IUVRouterTest {
         val router = IUVRouter(SimpleView(0), true)
 
         router.add("/simple", SimpleView(1))
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple0", false), model)
@@ -54,7 +54,7 @@ class IUVRouterTest {
         val router = IUVRouter(SimpleView(0), true)
 
         router.add("/simple", SimpleView(1))
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple", false), model)
@@ -67,7 +67,7 @@ class IUVRouterTest {
         val router = IUVRouter(SimpleView(0), true)
 
         router.add("/simple", SimpleView(1))
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple/5", false), model)
@@ -79,7 +79,7 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleView(0), true)
 
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, _) = router.init()
 
@@ -94,7 +94,7 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenISendAGotoWithInvalidParameterAndISendAValidGotoThenThereIsNotAnErrorInRouterModel() {
         val router = IUVRouter(SimpleView(0), true)
 
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, _) = router.init()
         val (newModel, _) = router.update(Goto("/simple/hello", false), model)
@@ -110,7 +110,7 @@ class IUVRouterTest {
     fun givenARouteWithParameterWhenInitTheRouterWithAMatchingPathThenAGotoIsSentWithThePath() {
         val router = IUVRouter(SimpleView(0), true)
 
-        router.add("/simple/:id") { SimpleView(it["id"]!!.toInt())}
+        router.add(StringParameterMatcher("/simple")) { SimpleView(it.toInt())}
 
         val (model, cmd) = router.init("http://hello.com#/simple/1")
 
@@ -137,7 +137,7 @@ class IUVRouterTest {
         var exception: Exception? = null
 
         try {
-            router.add("simple/:id") { SimpleView(it["id"]!!.toInt()) }
+            router.add(StringParameterMatcher("simple")) { SimpleView(it.toInt())}
         } catch (e: Exception) {
             exception = e
         }
