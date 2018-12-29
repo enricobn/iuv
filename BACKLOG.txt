@@ -3,6 +3,7 @@ Doing
 
 Next
 -----
+- rename IUVRoute typealias (ParamToView?) and rename RouteMatcher to IUVRoute
 - HTML children (InputH for example) inherits all the functions of HTML (body for example) : there must be a coherent tree
 - iuv-examples/node_modules are used only for tests. Can I create a node_modules_test and node_modules so I can use them in index.html?
 - can I get rid of message wrappers for a child component?

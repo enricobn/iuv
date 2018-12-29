@@ -7,14 +7,22 @@ buildscript {
     }
 }
 
-apply plugin: 'kotlin-platform-common'
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+}
+
 apply plugin: 'maven'
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-    compile "org.jetbrains.kotlin:kotlin-stdlib-common:$kotlin_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-common:$kotlin_version"
+kotlin {
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-common'
+            }
+        }
+    }
 }

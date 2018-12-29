@@ -1,7 +1,6 @@
 package org.iuv.core
 
 import org.iuv.core.impl.MessageBusImpl
-import org.iuv.shared.Task
 
 fun <ERROR,RESULT,MESSAGE> Task<ERROR, RESULT>.toCmd(onFailure: (ERROR) -> MESSAGE, onSuccess: (RESULT) -> MESSAGE) =
     object : Cmd<MESSAGE> {

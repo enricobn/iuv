@@ -2,7 +2,6 @@ package org.iuv.core
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JSON
-import org.iuv.shared.Task
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.js.Date
 

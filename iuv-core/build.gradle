@@ -5,17 +5,22 @@ buildscript {
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
     }
 }
 
 plugins {
     id "com.moowork.node"
+    id 'org.jetbrains.kotlin.multiplatform'
 }
 
-apply plugin: 'kotlin-platform-js'
+//apply plugin: 'kotlin-platform-js'
 apply plugin: 'maven'
 apply plugin: 'kotlinx-serialization'
+apply plugin: 'maven-publish'
+
+group 'org.iuv'
+version '0.1-SNAPSHOT'
 
 repositories {
     mavenLocal()
@@ -23,18 +28,68 @@ repositories {
     maven {
         url = "https://kotlin.bintray.com/kotlinx"
     }
+}
 
+kotlin {
+    targets {
+        fromPreset(presets.jvm, 'jvm8') {
+            // Configure a single target's compilations (main and test)
+            compilations.all {
+                tasks[compileKotlinTaskName].kotlinOptions {
+                    jvmTarget = '1.8'
+                }
+            }
+        }
+        
+        fromPreset(presets.js, 'js') {
+            // Configure a single target's compilations (main and test)
+            compilations.all {
+                tasks[compileKotlinTaskName].kotlinOptions {
+                    moduleKind = "umd"
+                    sourceMap = true
+                    metaInfo = true
+                    sourceMapEmbedSources = "always"
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        jvmMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+            }
+        }
+        jvmTest {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test'
+                implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        jsMain {
+            dependencies {
+                project(':iuv-shared')
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+                implementation 'org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.9.0'
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test-js'
+            }
+        }
+    }
 }
 
 dependencies {
-    expectedBy project(':iuv-shared')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+    //expectedBy project(':iuv-shared')
+    //compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    //compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+    //testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
 }
 
-compileKotlin2Js {
+/*compileKotlin2Js {
     kotlinOptions.moduleKind = "umd"
     kotlinOptions.sourceMap = true
     kotlinOptions.metaInfo = true
@@ -42,7 +97,7 @@ compileKotlin2Js {
 }
 
 compileTestKotlin2Js { kotlinOptions.moduleKind = 'umd' }
-
+*/
 node {
     download = true
 }
@@ -57,8 +112,10 @@ task installMocha(type: NpmTask) {
 }
 */
 
-task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
-    from(compileKotlin2Js.destinationDir) {
+task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
+    def jsTarget = kotlin.targets.js
+
+    from(jsTarget.compilations.main.output) {
         include '**/*.js'
         // To flatten files
         eachFile { details ->
@@ -66,7 +123,9 @@ task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
         }
     }
 
-    configurations.testCompile.each {
+    //configurations.each { println it.name }
+
+    configurations.jsTestCompile.each {
         from zipTree(it.absolutePath).matching { include '*.js' }
     }
 
@@ -88,6 +147,6 @@ task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
     args = ['test']
 }
 
-test.dependsOn runKarma
+jsTest.dependsOn runKarma
 
-install.dependsOn test
+publishToMavenLocal.dependsOn jsTest

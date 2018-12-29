@@ -114,10 +114,6 @@ class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false)
         }
     }
 
-    fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE, Unit>) {
-        add(SimpleRouteMatcher(path), iuvRoute)
-    }
-
     fun <CHILD_MODEL,CHILD_MESSAGE,PARAMETERS> add(routeMatcher: RouteMatcher<PARAMETERS>, iuvRoute: IUVRoute<CHILD_MODEL, CHILD_MESSAGE, PARAMETERS>) {
         if (routes.any { routeMatcher == it.first }) {
             errorMessage = "Duplicate matcher: $routeMatcher."
@@ -127,7 +123,10 @@ class IUVRouter(private val rootView: View<*,*>, val testMode : Boolean = false)
     }
 
     fun <CHILD_MODEL,CHILD_MESSAGE> add(path: String, view: View<CHILD_MODEL, CHILD_MESSAGE>) =
-            add(path, { view })
+            add(SimpleRouteMatcher(path), { view })
+
+    fun <CHILD_MODEL,CHILD_MESSAGE> add(routeMatcher: SimpleRouteMatcher, view: View<CHILD_MODEL, CHILD_MESSAGE>) =
+            add(routeMatcher, { view })
 
     override fun subscriptions(model: RouterModel): Sub<RouterMessage> {
         if (model.currentModel != null) {
