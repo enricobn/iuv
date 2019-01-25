@@ -2,6 +2,7 @@ package org.iuv.core
 
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.JSON
+import org.iuv.shared.Task
 import org.w3c.xhr.XMLHttpRequest
 import kotlin.js.Date
 
@@ -9,7 +10,7 @@ object Http {
 
     fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
                      bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
-                     username: String? = null,password: String? = null)  : Task<String,RESULT> where RESULT : Any =
+                     username: String? = null,password: String? = null)  : Task<String, RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
             request("get", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }

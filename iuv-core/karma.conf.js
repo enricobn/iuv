@@ -3,8 +3,8 @@ module.exports = function (config) {
             frameworks: ['mocha', 'commonjs'],
             reporters: ['mocha'],
             files: [
-                'build/classes/kotlin/main/**/*.js',
-                'build/classes/kotlin/test/**/*.js',
+                //'build/classes/kotlin/js/main/**/*.js',
+                //'build/classes/kotlin/js/test/**/*.js',
                 'build/node_modules/**/*.js'
             ],
             exclude: [],

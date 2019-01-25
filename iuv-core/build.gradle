@@ -68,9 +68,8 @@ kotlin {
         }
         jsMain {
             dependencies {
-                project(':iuv-shared')
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
-                implementation 'org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:0.9.0'
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
             }
         }
         jsTest {
@@ -81,23 +80,6 @@ kotlin {
     }
 }
 
-dependencies {
-    //expectedBy project(':iuv-shared')
-    //compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    //compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
-    //testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
-    //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
-}
-
-/*compileKotlin2Js {
-    kotlinOptions.moduleKind = "umd"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.metaInfo = true
-    kotlinOptions.sourceMapEmbedSources = "always"
-}
-
-compileTestKotlin2Js { kotlinOptions.moduleKind = 'umd' }
-*/
 node {
     download = true
 }
@@ -106,11 +88,18 @@ task yarnInstall(type: YarnTask) {
     args = ['install']
 }
 
-/*
-task installMocha(type: NpmTask) {
-    args = ['install', 'mocha']
+// START workaround to copy all js files needed for test to build/node_modules
+
+configurations {
+    jsLibs
+    jsTestLibs
 }
-*/
+
+dependencies {
+    jsLibs "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    jsLibs "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+    jsTestLibs "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+}
 
 task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
     def jsTarget = kotlin.targets.js
@@ -123,10 +112,23 @@ task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
         }
     }
 
-    //configurations.each { println it.name }
+    from(jsTarget.compilations.test.output) {
+        include '**/*.js'
+        // To flatten files
+        eachFile { details ->
+            details.path = details.name
+        }
+    }
 
-    configurations.jsTestCompile.each {
-        from zipTree(it.absolutePath).matching { include '*.js' }
+    (configurations.jsLibs + configurations.jsTestLibs).each { File file ->
+        from(zipTree(file.absolutePath), {
+            includeEmptyDirs = false
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                path.endsWith(".js") && (path.startsWith("META-INF/resources/") ||
+                        !path.startsWith("META-INF/"))
+            }
+        })
     }
 
     into "${buildDir}/node_modules"
@@ -134,14 +136,7 @@ task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
     includeEmptyDirs = false
 }
 
-/*
-task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
-    script = file('node_modules/mocha/bin/mocha')
-    args = [compileTestKotlin2Js.outputFile]
-}
-
-test.dependsOn runMocha
-*/
+// END
 
 task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
     args = ['test']
@@ -150,3 +145,7 @@ task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
 jsTest.dependsOn runKarma
 
 publishToMavenLocal.dependsOn jsTest
+
+configurations {
+    compileClasspath
+}

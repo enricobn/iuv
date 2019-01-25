@@ -9,7 +9,7 @@ buildscript {
 //        maven { url "https://kotlin.bintray.com/kotlinx" }
     }
     dependencies {
-        classpath "com.eriwen:gradle-js-plugin:2.14.1"
+        //classpath "com.eriwen:gradle-js-plugin:2.14.1"
         classpath 'com.moowork.gradle:gradle-node-plugin:1.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 //        classpath "org.jetbrains.kotlinx:kotlinx-gradle-serialization-plugin:$serialization_version"

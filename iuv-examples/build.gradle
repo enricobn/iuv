@@ -30,9 +30,12 @@ repositories {
 }
 
 dependencies {
+    
     testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+    //compile 'org.iuv:iuv-core-js:0.1-SNAPSHOT'
+//    implementation project(path: ':iuv-core', configuration: 'jsDefault')
     compile project(':iuv-core')
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
 
@@ -56,12 +59,6 @@ task yarnInstall(type: YarnTask) {
     args = ['install']
 }
 
-/*
-task installMocha(type: NpmTask) {
-    args = ['install', 'mocha']
-}
-*/
-
 task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
     from(compileKotlin2Js.destinationDir) {
         include '**/*.js'
@@ -70,7 +67,6 @@ task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
             details.path = details.name
         }
     }
-
     configurations.testCompile.each {
         from zipTree(it.absolutePath).matching { include '*.js' }
     }
@@ -79,15 +75,6 @@ task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
 
     includeEmptyDirs = false
 }
-
-/*
-task runMocha(type: NodeTask, dependsOn: [compileTestKotlin2Js, populateNodeModules, installMocha]) {
-    script = file('node_modules/mocha/bin/mocha')
-    args = [compileTestKotlin2Js.outputFile]
-}
-
-test.dependsOn runMocha
-*/
 
 task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
     args = ['test']
