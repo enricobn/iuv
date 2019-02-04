@@ -614,6 +614,7 @@ interface HTMLChild
 
 data class HTMLTextChild(val text: String) : HTMLChild
 
+// TODO what's this?
 fun deleteProperty(obj: Any, property: Any) {
     js("delete obj[property]")
 }

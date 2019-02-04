@@ -22,7 +22,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
         assertNotNull(testButton)
 
-        testButton!!.callHandler("click", Event("click"))
+        testButton.callHandler("click", Event("click"))
 
         assertEquals(TestLayoutChildMessageWrapper(TestLayoutChildClick), testHtml.getMessages().first())
     }
@@ -37,7 +37,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
 
         assertNotNull(testButton)
 
-        assertEquals("testclass", testButton!!.parent!!.parent!!.html.getAttrs()["class"])
+        assertEquals("testclass", testButton.parent!!.parent!!.html.getAttrs()["class"])
     }
 
     @Test
