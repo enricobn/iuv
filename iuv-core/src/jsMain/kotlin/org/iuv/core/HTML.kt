@@ -165,8 +165,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
     }
 
-    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childView: ChildView<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
-        childView.addTo(this, model)
+    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childComponent: ChildComponent<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
+        childComponent.addTo(this, model)
     }
 
     /**
