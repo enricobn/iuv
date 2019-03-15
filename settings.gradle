@@ -10,4 +10,4 @@ pluginManagement {
 
 rootProject.name = 'iuv'
 
-include "iuv-core","iuv-examples"
+include "iuv-core", "iuv-examples", "iuv-spring"

@@ -24,7 +24,7 @@ class SimpleView(val initialId: Int) : View<Model, Message> {
 class IUVRouterTest {
 
     @Test
-    fun givenARouterWhenISendAGotoWithARouteThatDoesNotExistsThenThereIsAnErrorInRouterModel() {
+    fun givenARouterWhenISendAGotoWithARouteThatDoesNotExistThenThereIsAnErrorInRouterModel() {
         val router = IUVRouter(SimpleView(0), true)
 
         router.add("/simple", SimpleView(1))
