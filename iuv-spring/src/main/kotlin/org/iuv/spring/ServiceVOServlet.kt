@@ -201,7 +201,7 @@ abstract class ServiceVOServlet : HttpServlet() {
 class Route(val methods: Array<RequestMethod>, val pathExpression: String, val function: KFunction<*>, val asynch : Boolean) {
     private val requestParams = mutableMapOf<KParameter,RequestParam>()
     private val requestBodies = mutableMapOf<KParameter,Pair<RequestBody,RouteSerializer>>()
-    val routeMatcher = SimpleRouteMatcher(pathExpression)
+    val routeMatcher = ServletRouteMatcher(pathExpression)
     val pathVariables = mutableMapOf<KParameter,PathVariable>()
     val routeSerializer : RouteSerializer
 

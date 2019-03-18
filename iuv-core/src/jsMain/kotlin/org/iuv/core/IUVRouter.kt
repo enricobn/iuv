@@ -44,7 +44,7 @@ abstract class AbstractRouteMatcher<P>(expression: String) : RouteMatcher<P> {
     final override fun matches(absolutePath: String) : Boolean {
         if (absolutePath.contains(":")) return false
 
-        val pathComponents = absolutePath.split(("/"))
+        val pathComponents = absolutePath.split("/")
 
         if (pathComponents.size != expComponents.size) return false
 

@@ -16,9 +16,6 @@ plugins {
     id 'org.jetbrains.kotlin.jvm'
 }
 
-group 'org.iuv'
-version '0.1-SNAPSHOT'
-
 repositories {
     mavenCentral()
     mavenLocal()
@@ -26,7 +23,6 @@ repositories {
 }
 
 apply plugin: 'kotlin-spring'
-//apply plugin: 'io.spring.dependency-management'
 apply plugin: 'kotlinx-serialization'
 apply plugin: 'kotlin-platform-jvm'
 apply plugin: 'maven-publish'
@@ -41,11 +37,13 @@ dependencies {
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
-    compile("org.jetbrains.kotlin:kotlin-reflect")
+    compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
     // compileOnly means that iuv core is not exposed to users so must be included manually.
     // If I set it as compile, then the user project won't compile because it searches for a iuv-core library,
     // but there is not, there is a iuv-core-jvm8 library and must be included manually.  
     compileOnly project(':iuv-core')
+
+    testCompile "junit:junit:4.12"
 }
 
 compileKotlin {

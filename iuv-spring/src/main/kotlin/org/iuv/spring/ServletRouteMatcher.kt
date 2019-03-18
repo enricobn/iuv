@@ -1,41 +1,40 @@
 package org.iuv.spring
 
-class SimpleRouteMatcher(private val expression: String) {
+class ServletRouteMatcher(private val expression: String) {
     val expComponents = splitAbsolutePath(expression)
 
-    fun matches(absolutePath: String?) : Boolean {
+    fun matches(absolutePath: String?) : Boolean =
 
         if (absolutePath == null)
-            return expression.isEmpty()
+            expression.isEmpty()
         else {
             val pathComponents = splitAbsolutePath(absolutePath)
 
-            if (pathComponents.size != expComponents.size) return false
-
-            return expComponents.zip(pathComponents).all { it.first.startsWith("{") || it.first == it.second }
+            if (pathComponents.size != expComponents.size) {
+                false
+            } else {
+                expComponents.zip(pathComponents).all { it.first.startsWith("{") || it.first == it.second }
+            }
         }
-    }
 
-    fun pathVariables(absolutePath: String?): Map<String,String> {
+    fun pathVariables(absolutePath: String?): Map<String,String> =
         if (absolutePath == null)
-            return mapOf()
+            mapOf()
         else {
             val pathComponents = splitAbsolutePath(absolutePath)
 
-            return expComponents
+            expComponents
                     .zip(pathComponents)
                     .filter { it.first.startsWith("{") }
                     .map { Pair(it.first.substring(1, it.first.lastIndex), it.second) }
                     .toMap()
         }
-    }
 
-    fun exactMatch(absolutePath: String?): Boolean {
+    fun exactMatch(absolutePath: String?): Boolean =
         if (absolutePath == null)
-            return expression.isEmpty()
+            expression.isEmpty()
         else
-            return expComponents == splitAbsolutePath(absolutePath)
-    }
+            expComponents == splitAbsolutePath(absolutePath)
 
     private fun splitAbsolutePath(absolutePath: String): List<String> {
         if (absolutePath == "/" || absolutePath.isEmpty())
