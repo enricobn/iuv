@@ -12,7 +12,8 @@ interface Task<ERROR,out RESULT> {
     fun <NEW_RESULT> andThen(continuation: (RESULT) -> Task<ERROR, NEW_RESULT>) : Task<ERROR, NEW_RESULT> {
         return object : Task<ERROR, NEW_RESULT> {
             override fun run(onFailure: (ERROR) -> Unit, onSuccess: (NEW_RESULT) -> Unit) {
-                this@Task.run(onFailure, { t -> val task = continuation(t)
+                this@Task.run(onFailure, { t ->
+                    val task = continuation(t)
                     task.run(onFailure, onSuccess)
                 })
             }

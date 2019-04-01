@@ -4,15 +4,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-class ServletRouteMatcherTest {
+private const val emptyExpression = ""
+private const val staticExpressionWithoutSlash = "search"
+private const val staticExpression = "/$staticExpressionWithoutSlash"
+private const val parameterizedExpression = "/{id}"
+private val nullPath : String? = null
 
-    companion object {
-        private val nullPath : String? = null
-        private const val emptyExpression = ""
-        private const val staticExpression = "/search"
-        private const val staticExpressionWithoutSlash = "search"
-        private const val parameterizedExpression = "/{id}"
-    }
+class ServletRouteMatcherTest {
 
     @Test
     fun givenAnEmptyExpressionWhenIMatchANullPathThenMatchSucceeds() {
