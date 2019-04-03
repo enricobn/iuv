@@ -1,0 +1,5 @@
+data class {{name}}(
+{{#properties}}
+  val {{name}} : {{type}}{{#optional}}?{{/optional}}{{^last}},{{\n}}{{/last}}
+{{/properties}}
+)
