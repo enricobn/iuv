@@ -1,29 +1,25 @@
 package org.iuv.spring
 
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertTrue
-import org.junit.Test
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Test
 
-private const val emptyExpression = ""
 private const val staticExpressionWithoutSlash = "search"
 private const val staticExpression = "/$staticExpressionWithoutSlash"
-private const val parameterizedExpression = "/{id}"
-private val nullPath : String? = null
 
 class ServletRouteMatcherTest {
 
     @Test
     fun givenAnEmptyExpressionWhenIMatchANullPathThenMatchSucceeds() {
-        val sut = ServletRouteMatcher(emptyExpression)
+        val sut = ServletRouteMatcher("")
 
-        assertTrue(sut.matches(nullPath))
+        assertTrue(sut.matches(null))
     }
 
     @Test
     fun givenAStaticExpressionWhenIMatchANullPathThenMatchFails() {
         val sut = ServletRouteMatcher(staticExpression)
 
-        assertFalse(sut.matches(nullPath))
+        assertFalse(sut.matches(null))
     }
 
     @Test
@@ -35,9 +31,9 @@ class ServletRouteMatcherTest {
 
     @Test
     fun givenAParameterizedExpressionWhenIMatchWIthNullPathThenMatchFails() {
-        val sut = ServletRouteMatcher(parameterizedExpression)
+        val sut = ServletRouteMatcher("/{id}")
 
-        assertFalse(sut.matches(nullPath))
+        assertFalse(sut.matches(null))
     }
 
     @Test
@@ -47,4 +43,11 @@ class ServletRouteMatcherTest {
         assertTrue(sut.matches(staticExpression))
     }
 
+    @Test
+    fun pathVariables() {
+        val sut = ServletRouteMatcher("/{id1}/{id2}")
+        val pathVariables = sut.pathVariables("myId1/myId2")
+
+        assertEquals(mapOf("id1" to "myId1", "id2" to "myId2"), pathVariables)
+    }
 }

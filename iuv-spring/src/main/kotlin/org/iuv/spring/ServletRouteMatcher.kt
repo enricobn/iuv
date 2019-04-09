@@ -2,6 +2,9 @@ package org.iuv.spring
 
 class ServletRouteMatcher(private val expression: String) {
     val expComponents = splitAbsolutePath(expression)
+    val pathVariableNames = expComponents
+            .filter { it.startsWith("{") }
+            .map { it.substring(1, it.lastIndex) }
 
     fun matches(absolutePath: String?) : Boolean =
 
@@ -23,10 +26,9 @@ class ServletRouteMatcher(private val expression: String) {
         else {
             val pathComponents = splitAbsolutePath(absolutePath)
 
-            expComponents
+            pathVariableNames
                     .zip(pathComponents)
-                    .filter { it.first.startsWith("{") }
-                    .map { Pair(it.first.substring(1, it.first.lastIndex), it.second) }
+                    .map { Pair(it.first, it.second) }
                     .toMap()
         }
 

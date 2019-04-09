@@ -70,11 +70,11 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
             if (it.startsWith("{")) {
                 val pathVariableName = it.substring(1, it.length - 1)
 
-                val pathVariableEntry =
-                        route.pathVariables.entries.firstOrNull { it.value.value == pathVariableName }
+                val pathVariableParameter =
+                        route.pathVariableParameters.firstOrNull { it.variableName == pathVariableName }
                                 ?: throw Exception("Cannot find parameter with name '$pathVariableName'.")
 
-                "\$" + pathVariableEntry.key.name
+                "\$" + pathVariableParameter.parameterName
             } else
                 it
         }

@@ -43,7 +43,7 @@ dependencies {
     // but there is not, there is a iuv-core-jvm8 library and must be included manually.  
     compileOnly project(':iuv-core')
 
-    testCompile "junit:junit:4.12"
+    testImplementation('org.junit.jupiter:junit-jupiter:5.4.1')
 }
 
 compileKotlin {
