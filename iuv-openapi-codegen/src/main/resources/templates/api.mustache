@@ -1,0 +1,26 @@
+{{#imports}}
+import {{toString}}
+{{/imports}}
+
+class {{name}}(
+{{#paths}}
+  {{#operations}}
+    {{#isGet}}
+    @GetMapping("{{path}}")
+    {{/isGet}}
+    {{#isPost}}
+    @PostMapping("{{path}}")
+    {{/isPost}}
+    {{#isPut}}
+    @PutMapping("{{path}}")
+    {{/isPut}}
+    {{#isDelete}}
+    @DeleteMapping("{{path}}")
+    {{/isDelete}}
+    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}} {
+
+    }
+
+  {{/operations}}
+{{/paths}}
+)

@@ -27,13 +27,54 @@ data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponen
     }
 }
 
-data class IUVAPIParameter(val name: String, val type: String, val pathParameter: Boolean)
+data class IUVAPIParameter(val name: String, val type: String, val pathParameter: Boolean, override var last: Boolean = false) : Last
 
-data class IUVAPIOperation(val op: String, val parameters: List<IUVAPIParameter>, val resultType: String, val bodyType: String?)
+enum class IUVAPIOperationType(val fullClassName: String) {
+    Get("org.springframework.web.bind.annotation.GetMapping"),
+    Post("org.springframework.web.bind.annotation.PostMapping"),
+    Put("org.springframework.web.bind.annotation.PutMapping"),
+    Delete("org.springframework.web.bind.annotation.DeleteMapping");
 
-data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>)
+}
 
-data class IUVAPI(val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>)
+data class IUVAPIOperation(val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>, val resultType: String,
+                           val bodyType: String?, override var last: Boolean = false) : Last {
+
+    init {
+        parameters.calculateLast()
+    }
+
+    fun isGet() = op == IUVAPIOperationType.Get
+
+    fun isPost() = op == IUVAPIOperationType.Post
+
+    fun isPut() = op == IUVAPIOperationType.Put
+
+    fun isDelete() = op == IUVAPIOperationType.Delete
+
+    fun name() : String {
+        var capitalizeNext = false
+        val result = StringBuilder()
+        id.forEach {
+            capitalizeNext = if (it == ' ')
+                true
+            else {
+                result.append(if (capitalizeNext) it.toUpperCase() else it)
+                false
+            }
+        }
+        return result.toString()
+    }
+
+}
+
+data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
+    init {
+        operations.calculateLast()
+    }
+}
+
+data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>, val imports: List<String>)
 
 fun <T : Last> List<T>.calculateLast(): List<T> {
     if (isNotEmpty()) {
@@ -68,14 +109,16 @@ object OpenAPIReader {
         }
     }
 
-    fun toIUVAPI(url: URL) : IUVAPI? {
+    fun toIUVAPI(url: URL, name: String) : IUVAPI? {
         val api = read(url) ?: return null
 
         val paths = api.paths.map { toIUVAPIPath(it) }
 
         val components = api.components.schemas.map { toIUVAPIComponent(api, it) }
 
-        return IUVAPI(paths, components)
+        val imports = paths.flatMap { it.operations.map { op -> op.op.fullClassName } }.toSet().toList().sorted()
+
+        return IUVAPI(name, paths, components, imports)
     }
 
     private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
@@ -85,19 +128,19 @@ object OpenAPIReader {
 
         try {
             if (pathItem.get != null) {
-                iuvAPIOperations.add(toIUVAPIOperation("get", pathItem.get))
+                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Get, pathItem.get))
             }
 
             if (pathItem.post != null) {
-                iuvAPIOperations.add(toIUVAPIOperation("post", pathItem.post))
+                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Post, pathItem.post))
             }
 
             if (pathItem.put != null) {
-                iuvAPIOperations.add(toIUVAPIOperation("put", pathItem.put))
+                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Put, pathItem.put))
             }
 
             if (pathItem.delete != null) {
-                iuvAPIOperations.add(toIUVAPIOperation("delete", pathItem.delete, "204"))
+                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Delete, pathItem.delete, "204"))
             }
 
             if (iuvAPIOperations.isEmpty()) {
@@ -110,7 +153,7 @@ object OpenAPIReader {
         }
     }
 
-    private fun toIUVAPIOperation(operation: String, op: Operation, response: String = "200"): IUVAPIOperation {
+    private fun toIUVAPIOperation(type: IUVAPIOperationType, op: Operation, response: String = "200"): IUVAPIOperation {
         if (op.requestBody != null &&
                 op.requestBody.content.isNotEmpty() &&
                 !op.requestBody.content.containsKey(JSON))
@@ -120,7 +163,7 @@ object OpenAPIReader {
         val resultType : String?
 
         if (op.responses[response] == null)
-            throw UnsupportedOpenAPISpecification("No definition for '$operation' operation for response '$response'.")
+            throw UnsupportedOpenAPISpecification("No definition for '$type' operation for response '$response'.")
 
         val responseContent = op.responses[response]?.content
         if (responseContent == null)
@@ -131,9 +174,9 @@ object OpenAPIReader {
             resultType = responseContent[JSON]?.schema?.resolveType()
 
         if (resultType == null)
-            throw UnsupportedOpenAPISpecification("Unknown result type of '$operation' operation for response '$response'.")
+            throw UnsupportedOpenAPISpecification("Unknown result type of '$type' operation for response '$response'.")
 
-        return IUVAPIOperation(operation, getIUVAPIParameters(op), resultType, bodyType)
+        return IUVAPIOperation(type, op.operationId, getIUVAPIParameters(op), resultType, bodyType)
     }
 
     private fun Schema<*>.resolveType() : String {
