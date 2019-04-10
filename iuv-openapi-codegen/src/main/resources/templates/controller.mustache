@@ -1,0 +1,17 @@
+{{#controllerImports}}
+import {{fullClassName}}
+{{#last}}
+
+{{/last}}
+{{/controllerImports}}
+interface {{name}}Controller : {{name}}Api {
+{{#paths}}
+  {{#operations}}
+
+    @{{{operationAnnotation}}}
+    @RouteSerializer
+    override fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
+  {{/operations}}
+{{/paths}}
+
+}

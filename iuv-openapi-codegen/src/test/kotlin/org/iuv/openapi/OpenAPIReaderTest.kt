@@ -8,7 +8,7 @@ import java.io.StringWriter
 class OpenAPIReaderTest {
 
     @Test
-    fun mustacheComponent() {
+    fun mustacheComponents() {
         val properties = listOf(
                 IUVAPIComponentProperty("id", "Int", false),
                 IUVAPIComponentProperty("name", "String", true))
@@ -17,17 +17,56 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/templates/component.mustache"), component, sw)
+            OpenAPIReader.runTemplate(getResource("/templates/components.mustache"),
+                    mapOf("components" to listOf(component)), sw)
             assertEquals("data class Person(\n" +
                     "  val id : Int,\n" +
                     "  val name : String?\n" +
-                    ")", sw.toString())
+                    ")", sw.toString().trim())
         }
     }
 
     @Test
-    fun mustacheApi() {
-        val api = OpenAPIReader.toIUVAPI(getResource("/petstore-expanded.yaml"), "PetStoreApi")
+    fun controller() {
+        val api = OpenAPIReader.toIUVAPI(getResource("/petstore-expanded.yaml"), "PetStore")
+
+        if (api == null) {
+            fail()
+            return
+        }
+
+        val sw = StringWriter()
+        sw.use {
+            OpenAPIReader.runTemplate(getResource("/templates/controller.mustache"), api, sw)
+            assertEquals("import org.springframework.web.bind.annotation.DeleteMapping\n" +
+                    "import org.springframework.web.bind.annotation.GetMapping\n" +
+                    "import org.springframework.web.bind.annotation.PostMapping\n" +
+                    "\n" +
+                    "interface PetStoreController : PetStoreApi {\n" +
+                    "\n" +
+                    "    @GetMapping(\"/pets\")\n" +
+                    "    @RouteSerializer\n" +
+                    "    override fun findPets(@RequestParam tags : List<String>, @RequestParam limit : Int) : List<Pet>\n" +
+                    "\n" +
+                    "    @PostMapping(\"/pets\")\n" +
+                    "    @RouteSerializer\n" +
+                    "    override fun addPet() : Pet\n" +
+                    "\n" +
+                    "    @GetMapping(\"/pets/{id}\")\n" +
+                    "    @RouteSerializer\n" +
+                    "    override fun findPetById(@PathVariable id : Int) : Pet\n" +
+                    "\n" +
+                    "    @DeleteMapping(\"/pets/{id}\")\n" +
+                    "    @RouteSerializer\n" +
+                    "    override fun deletePet(@PathVariable id : Int) : Unit\n" +
+                    "\n" +
+                    "}", sw.toString())
+        }
+    }
+
+    @Test
+    fun api() {
+        val api = OpenAPIReader.toIUVAPI(getResource("/petstore-expanded.yaml"), "PetStore")
 
         if (api == null) {
             fail()
@@ -37,33 +76,19 @@ class OpenAPIReaderTest {
         val sw = StringWriter()
         sw.use {
             OpenAPIReader.runTemplate(getResource("/templates/api.mustache"), api, sw)
-            assertEquals("import org.springframework.web.bind.annotation.DeleteMapping\n" +
-                    "import org.springframework.web.bind.annotation.GetMapping\n" +
-                    "import org.springframework.web.bind.annotation.PostMapping\n" +
+            assertEquals("interface PetStoreApi {\n" +
                     "\n" +
-                    "class PetStoreApi(\n" +
-                    "    @GetMapping(\"/pets\")\n" +
-                    "    fun findPets(tags : List<String>, limit : Int) : List<Pet> {\n" +
+                    "    fun findPets(tags : List<String>, limit : Int) : List<Pet>\n" +
                     "\n" +
-                    "    }\n" +
+                    "    fun addPet() : Pet\n" +
                     "\n" +
-                    "    @PostMapping(\"/pets\")\n" +
-                    "    fun addPet() : Pet {\n" +
+                    "    fun findPetById(id : Int) : Pet\n" +
                     "\n" +
-                    "    }\n" +
+                    "    fun deletePet(id : Int) : Unit\n" +
                     "\n" +
-                    "    @GetMapping(\"/pets/{id}\")\n" +
-                    "    fun findPetById(id : Int) : Pet {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    "    @DeleteMapping(\"/pets/{id}\")\n" +
-                    "    fun deletePet(id : Int) : Unit {\n" +
-                    "\n" +
-                    "    }\n" +
-                    "\n" +
-                    ")", sw.toString())
+                    "}", sw.toString())
         }
+
     }
 
     private fun getResource(resource: String) = this.javaClass.getResource(resource)

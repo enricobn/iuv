@@ -1,26 +1,15 @@
-{{#imports}}
-import {{toString}}
-{{/imports}}
+{{#apiImports}}
+import {{fullClassName}}
+{{#last}}
 
-class {{name}}(
+{{/last}}
+{{/apiImports}}
+interface {{name}}Api {
 {{#paths}}
   {{#operations}}
-    {{#isGet}}
-    @GetMapping("{{path}}")
-    {{/isGet}}
-    {{#isPost}}
-    @PostMapping("{{path}}")
-    {{/isPost}}
-    {{#isPut}}
-    @PutMapping("{{path}}")
-    {{/isPut}}
-    {{#isDelete}}
-    @DeleteMapping("{{path}}")
-    {{/isDelete}}
-    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}} {
 
-    }
-
+    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
   {{/operations}}
 {{/paths}}
-)
+
+}

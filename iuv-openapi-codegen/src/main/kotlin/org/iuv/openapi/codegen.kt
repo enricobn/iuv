@@ -1,6 +1,7 @@
 package org.iuv.openapi
 
 import com.github.mustachejava.DefaultMustacheFactory
+import com.github.mustachejava.MustacheResolver
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.PathItem
@@ -10,6 +11,7 @@ import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.parser.OpenAPIV3Parser
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
+import java.io.Reader
 import java.io.Writer
 import java.net.URL
 
@@ -35,22 +37,18 @@ enum class IUVAPIOperationType(val fullClassName: String) {
     Put("org.springframework.web.bind.annotation.PutMapping"),
     Delete("org.springframework.web.bind.annotation.DeleteMapping");
 
+    fun annotation(path: String) =
+        fullClassName.split('.').last() + "(\"$path\")"
 }
 
-data class IUVAPIOperation(val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>, val resultType: String,
+data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>, val resultType: String,
                            val bodyType: String?, override var last: Boolean = false) : Last {
 
     init {
         parameters.calculateLast()
     }
 
-    fun isGet() = op == IUVAPIOperationType.Get
-
-    fun isPost() = op == IUVAPIOperationType.Post
-
-    fun isPut() = op == IUVAPIOperationType.Put
-
-    fun isDelete() = op == IUVAPIOperationType.Delete
+    val operationAnnotation = op.annotation(path)
 
     fun name() : String {
         var capitalizeNext = false
@@ -66,6 +64,10 @@ data class IUVAPIOperation(val op: IUVAPIOperationType, val id: String, val para
         return result.toString()
     }
 
+    fun routeSerializer(type: String) : IUVAPISerializer {
+        TODO()
+    }
+
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -74,7 +76,30 @@ data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
     }
 }
 
-data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>, val imports: List<String>)
+data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>,
+                  val imports: List<IUVImport>) {
+
+    val apiImports = imports.filter { it.api }.map { it.copy() }.calculateLast()
+
+    val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
+}
+
+data class IUVImport(val fullClassName: String, val type: IUVImportType, override var last: Boolean = false) : Comparable<IUVImport>, Last {
+
+    override fun compareTo(other: IUVImport): Int = fullClassName.compareTo(other.fullClassName)
+
+    val api = type == IUVImportType.API
+
+    val controller = type == IUVImportType.CONTROLLER || api
+
+}
+
+enum class IUVImportType {
+    CONTROLLER,
+    API
+}
+
+data class IUVAPISerializer(val name: String, val serializer: String)
 
 fun <T : Last> List<T>.calculateLast(): List<T> {
     if (isNotEmpty()) {
@@ -99,9 +124,9 @@ object OpenAPIReader {
     fun read(url: URL): OpenAPI? = OpenAPIV3Parser().read(url.toURI().toString())
 
     fun runTemplate(url: URL, bundle: Any, writer: Writer) {
+        val mf = DefaultMustacheFactory(URLMustacheResolver(url))
         url.openStream().use { inputStream ->
             InputStreamReader(inputStream, "UTF-8").use { reader ->
-                val mf = DefaultMustacheFactory()
 
                 val mustache = mf.compile(reader, "template.mustache")
                 mustache.execute(writer, bundle)
@@ -116,7 +141,10 @@ object OpenAPIReader {
 
         val components = api.components.schemas.map { toIUVAPIComponent(api, it) }
 
-        val imports = paths.flatMap { it.operations.map { op -> op.op.fullClassName } }.toSet().toList().sorted()
+        val imports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.fullClassName, IUVImportType.CONTROLLER) } }
+                .toSet()
+                .toList()
+                .sorted()
 
         return IUVAPI(name, paths, components, imports)
     }
@@ -126,34 +154,35 @@ object OpenAPIReader {
 
         val iuvAPIOperations = mutableListOf<IUVAPIOperation>()
 
+        val path = pathEntry.key
         try {
             if (pathItem.get != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Get, pathItem.get))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Get, pathItem.get))
             }
 
             if (pathItem.post != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Post, pathItem.post))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Post, pathItem.post))
             }
 
             if (pathItem.put != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Put, pathItem.put))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Put, pathItem.put))
             }
 
             if (pathItem.delete != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(IUVAPIOperationType.Delete, pathItem.delete, "204"))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Delete, pathItem.delete, "204"))
             }
 
             if (iuvAPIOperations.isEmpty()) {
-                throw UnsupportedOpenAPISpecification("Path ${pathEntry.key} : no supported operations.")
+                throw UnsupportedOpenAPISpecification("Path $path : no supported operations.")
             }
 
-            return IUVAPIPath(pathEntry.key, iuvAPIOperations)
+            return IUVAPIPath(path, iuvAPIOperations)
         } catch (e : UnsupportedOpenAPISpecification) {
-            throw UnsupportedOpenAPISpecification("Error resolving operations for path ${pathEntry.key} : ${e.message}")
+            throw UnsupportedOpenAPISpecification("Error resolving operations for path $path : ${e.message}")
         }
     }
 
-    private fun toIUVAPIOperation(type: IUVAPIOperationType, op: Operation, response: String = "200"): IUVAPIOperation {
+    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, response: String = "200"): IUVAPIOperation {
         if (op.requestBody != null &&
                 op.requestBody.content.isNotEmpty() &&
                 !op.requestBody.content.containsKey(JSON))
@@ -176,7 +205,7 @@ object OpenAPIReader {
         if (resultType == null)
             throw UnsupportedOpenAPISpecification("Unknown result type of '$type' operation for response '$response'.")
 
-        return IUVAPIOperation(type, op.operationId, getIUVAPIParameters(op), resultType, bodyType)
+        return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op), resultType, bodyType)
     }
 
     private fun Schema<*>.resolveType() : String {
@@ -238,5 +267,15 @@ object OpenAPIReader {
         } else {
             schema.properties ?: mapOf()
         }
+
+}
+
+class URLMustacheResolver(private val url: URL) : MustacheResolver {
+
+    override fun getReader(resourceName: String?): Reader {
+        val lastSlash = url.toString().lastIndexOf("/")
+        val resourceURL = URL(url.toString().substring(0, lastSlash) + "/" + resourceName)
+        return InputStreamReader(resourceURL.openStream())
+    }
 
 }
