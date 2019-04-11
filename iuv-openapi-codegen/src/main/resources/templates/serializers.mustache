@@ -1,0 +1,11 @@
+import kotlinx.serialization.ImplicitReflectionSerializer
+
+{{#serializers}}
+object {{name}} : IUVSerializer {
+    @ImplicitReflectionSerializer
+    override val serializer: KSerializer<*>
+        get() = {{code}}
+}{{^last}}
+
+
+{{/last}}{{/serializers}}

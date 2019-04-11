@@ -21,15 +21,23 @@ interface Last {
     var last: Boolean
 }
 
-data class IUVAPIComponentProperty(val name: String, val type: String, val optional: Boolean, override var last: Boolean = false) : Last
+data class IUVAPIType(val type: String, val serializer: IUVAPISerializer) {
 
-data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponentProperty>) {
+    override fun toString() = type
+
+}
+
+data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false) : Last
+
+data class IUVAPIComponentProperty(val name: String, val type: IUVAPIType, val optional: Boolean, override var last: Boolean = false) : Last
+
+data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponentProperty>, override var last: Boolean = false) : Last {
     init {
         properties.calculateLast()
     }
 }
 
-data class IUVAPIParameter(val name: String, val type: String, val pathParameter: Boolean, override var last: Boolean = false) : Last
+data class IUVAPIParameter(val name: String, val type: IUVAPIType, val pathParameter: Boolean, override var last: Boolean = false) : Last
 
 enum class IUVAPIOperationType(val fullClassName: String) {
     Get("org.springframework.web.bind.annotation.GetMapping"),
@@ -41,8 +49,8 @@ enum class IUVAPIOperationType(val fullClassName: String) {
         fullClassName.split('.').last() + "(\"$path\")"
 }
 
-data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>, val resultType: String,
-                           val bodyType: String?, override var last: Boolean = false) : Last {
+data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>, val resultType: IUVAPIType?,
+                           val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
 
     init {
         parameters.calculateLast()
@@ -64,10 +72,6 @@ data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id
         return result.toString()
     }
 
-    fun routeSerializer(type: String) : IUVAPISerializer {
-        TODO()
-    }
-
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -79,9 +83,23 @@ data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
 data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>,
                   val imports: List<IUVImport>) {
 
+    init {
+        components.calculateLast()
+    }
+
     val apiImports = imports.filter { it.api }.map { it.copy() }.calculateLast()
 
     val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
+
+    // TODO do we assume that component serializers are a subset or must we add them?
+    fun serializers() =
+            paths.flatMap {
+                it.operations.mapNotNull { op -> op.resultType }.map { resultType -> resultType.serializer } +
+                it.operations.mapNotNull { op -> op.bodyType }.map { bodyType -> bodyType.serializer } +
+                it.operations.flatMap { op -> op.parameters.map { par -> par.type.serializer } }
+            }.toSet().toList().calculateLast()
+
+
 }
 
 data class IUVImport(val fullClassName: String, val type: IUVImportType, override var last: Boolean = false) : Comparable<IUVImport>, Last {
@@ -98,8 +116,6 @@ enum class IUVImportType {
     CONTROLLER,
     API
 }
-
-data class IUVAPISerializer(val name: String, val serializer: String)
 
 fun <T : Last> List<T>.calculateLast(): List<T> {
     if (isNotEmpty()) {
@@ -134,7 +150,7 @@ object OpenAPIReader {
         }
     }
 
-    fun toIUVAPI(url: URL, name: String) : IUVAPI? {
+    fun parse(url: URL, name: String) : IUVAPI? {
         val api = read(url) ?: return null
 
         val paths = api.paths.map { toIUVAPIPath(it) }
@@ -189,14 +205,14 @@ object OpenAPIReader {
             throw UnsupportedOpenAPISpecification("Unsupported body content: only $JSON is supported.")
 
         val bodyType = op.requestBody?.content?.get(JSON)?.schema?.resolveType()
-        val resultType : String?
+        val resultType : IUVAPIType?
 
         if (op.responses[response] == null)
             throw UnsupportedOpenAPISpecification("No definition for '$type' operation for response '$response'.")
 
         val responseContent = op.responses[response]?.content
         if (responseContent == null)
-            resultType = "Unit"
+            resultType = IUVAPIType("Unit", IUVAPISerializer("UnitIUVSerializer", "UnitSerializer"))
         else if (responseContent.isNotEmpty() && !responseContent.containsKey(JSON))
             throw UnsupportedOpenAPISpecification("Unsupported response content: only nothing or $JSON is supported.")
         else
@@ -208,28 +224,31 @@ object OpenAPIReader {
         return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op), resultType, bodyType)
     }
 
-    private fun Schema<*>.resolveType() : String {
+    private fun Schema<*>.resolveType() : IUVAPIType {
         if (type != null) {
 
             if (this is ArraySchema) {
-                return "List<${items.resolveType()}>"
+                val itemsType = items.resolveType()
+                return IUVAPIType("List<$itemsType>",
+                        IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})"))
             }
 
             return toKotlinType(type)
         }
 
         if (`$ref` == null) {
-            return "Unit"
+            return IUVAPIType("Unit", IUVAPISerializer("UnitIUVSerializer", "UnitSerializer"))
         }
 
-        return `$ref`.split("/").last()
+        val type = `$ref`.split("/").last()
+        return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()"))
     }
 
-    private fun toKotlinType(type: String): String {
+    private fun toKotlinType(type: String): IUVAPIType {
         if (type == "string") {
-            return "String"
+            return IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer"))
         } else if (type == "integer") {
-            return "Int"
+            return IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer"))
         } else {
             throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }

@@ -9,7 +9,7 @@ interface {{name}}Controller : {{name}}Api {
   {{#operations}}
 
     @{{{operationAnnotation}}}
-    @RouteSerializer
+    @RouteSerializer({{resultType.serializer.name}}::class)
     override fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
   {{/operations}}
 {{/paths}}
