@@ -50,11 +50,11 @@ data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameter
     val requestBody = parameterType == ParameterType.REQUEST_BODY
 }
 
-enum class IUVAPIOperationType(val fullClassName: String) {
-    Get("org.springframework.web.bind.annotation.GetMapping"),
-    Post("org.springframework.web.bind.annotation.PostMapping"),
-    Put("org.springframework.web.bind.annotation.PutMapping"),
-    Delete("org.springframework.web.bind.annotation.DeleteMapping");
+enum class IUVAPIOperationType(val fullClassName: String, val clientMethod: String) {
+    Get("org.springframework.web.bind.annotation.GetMapping", "GET"),
+    Post("org.springframework.web.bind.annotation.PostMapping", "POST"),
+    Put("org.springframework.web.bind.annotation.PutMapping", "PUT"),
+    Delete("org.springframework.web.bind.annotation.DeleteMapping", "DELETE");
 
     fun annotation(path: String) =
         fullClassName.split('.').last() + "(\"$path\")"
@@ -245,7 +245,7 @@ object OpenAPIReader {
                 responseContent[JSON]?.schema?.resolveType()
 
         if (resultType == null)
-            throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON is supported.")
+            throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON are supported.")
 
         return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op, bodyType), resultType, bodyType)
     }
@@ -270,15 +270,12 @@ object OpenAPIReader {
         return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()"))
     }
 
-    private fun toKotlinType(type: String): IUVAPIType {
-        if (type == "string") {
-            return IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer"))
-        } else if (type == "integer") {
-            return IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer"))
-        } else {
-            throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
+    private fun toKotlinType(type: String) =
+        when (type) {
+            "string" -> IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer"))
+            "integer" -> IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer"))
+            else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
-    }
 
     private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?): List<IUVAPIParameter> {
         val parameters = op.parameters?.map {

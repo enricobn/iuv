@@ -12,7 +12,7 @@ object {{name}}Client {
   {{#operations}}
 
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
-        Http.GET("{{pathSubst}}", {{resultType.serializer.code}})
+        Http.{{op.clientMethod}}("{{pathSubst}}", {{resultType.serializer.code}}{{#bodyType}}, payload, {{serializer.code}}{{/bodyType}})
   {{/operations}}
 {{/paths}}
 

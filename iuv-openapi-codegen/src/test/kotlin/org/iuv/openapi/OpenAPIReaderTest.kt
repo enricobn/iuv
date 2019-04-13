@@ -163,13 +163,13 @@ class OpenAPIReaderTest {
                     "        Http.GET(\"/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
                     "\n" +
                     "    fun addPet(payload : NewPet) : Task<String,Pet> =\n" +
-                    "        Http.GET(\"/pets\", Pet::class.serializer())\n" +
+                    "        Http.POST(\"/pets\", Pet::class.serializer(), payload, NewPet::class.serializer())\n" +
                     "\n" +
                     "    fun findPetById(id : Int) : Task<String,Pet> =\n" +
                     "        Http.GET(\"/pets/\$id\", Pet::class.serializer())\n" +
                     "\n" +
                     "    fun deletePet(id : Int) : Task<String,Unit> =\n" +
-                    "        Http.GET(\"/pets/\$id\", UnitSerializer)\n" +
+                    "        Http.DELETE(\"/pets/\$id\", UnitSerializer)\n" +
                     "\n" +
                     "}", sw.toString())
         }
