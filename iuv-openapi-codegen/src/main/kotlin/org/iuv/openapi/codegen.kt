@@ -245,7 +245,7 @@ object OpenAPIReader {
         if (resultType == null)
             throw UnsupportedOpenAPISpecification("Unknown result type of '$type' operation for response '$response'.")
 
-        return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op), resultType, bodyType)
+        return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op, bodyType), resultType, bodyType)
     }
 
     private fun Schema<*>.resolveType() : IUVAPIType {
@@ -278,7 +278,7 @@ object OpenAPIReader {
         }
     }
 
-    private fun getIUVAPIParameters(op: Operation): List<IUVAPIParameter> {
+    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?): List<IUVAPIParameter> {
         val parameters = op.parameters?.map {
             if (it.`in` == "query") {
                 IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.REQUEST_PARAM)
@@ -287,8 +287,8 @@ object OpenAPIReader {
             }
         }.orEmpty()
 
-        if (op.requestBody != null) {
-            return parameters + IUVAPIParameter("payload", op.requestBody.content[JSON]?.schema?.resolveType()!!, ParameterType.REQUEST_BODY)
+        if (bodyType != null) {
+            return parameters + IUVAPIParameter("payload", bodyType, ParameterType.REQUEST_BODY)
         }
 
         return parameters
