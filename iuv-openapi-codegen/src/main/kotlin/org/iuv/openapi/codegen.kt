@@ -8,6 +8,7 @@ import io.swagger.v3.oas.models.PathItem
 import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.ComposedSchema
 import io.swagger.v3.oas.models.media.Schema
+import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.parser.OpenAPIV3Parser
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
@@ -209,7 +210,7 @@ object OpenAPIReader {
             }
 
             if (pathItem.delete != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Delete, pathItem.delete, "204"))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Delete, pathItem.delete, setOf("200", "204")))
             }
 
             if (iuvAPIOperations.isEmpty()) {
@@ -222,28 +223,29 @@ object OpenAPIReader {
         }
     }
 
-    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, response: String = "200"): IUVAPIOperation {
+    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, responses: Set<String> = setOf("200")): IUVAPIOperation {
         if (op.requestBody != null &&
                 op.requestBody.content.isNotEmpty() &&
                 !op.requestBody.content.containsKey(JSON))
-            throw UnsupportedOpenAPISpecification("Unsupported body content: only $JSON is supported.")
+            throw UnsupportedOpenAPISpecification("Unsupported body content for '$type' operation: only $JSON is supported.")
 
         val bodyType = op.requestBody?.content?.get(JSON)?.schema?.resolveType()
-        val resultType : IUVAPIType?
 
-        if (op.responses[response] == null)
-            throw UnsupportedOpenAPISpecification("No definition for '$type' operation for response '$response'.")
+        val response = op.responses.filterKeys { responses.contains(it) }.values.firstOrNull()
+                ?: throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
 
-        val responseContent = op.responses[response]?.content
-        if (responseContent == null)
-            resultType = IUVAPIType("Unit", IUVAPISerializer("UnitIUVSerializer", "UnitSerializer"))
-        else if (responseContent.isNotEmpty() && !responseContent.containsKey(JSON))
-            throw UnsupportedOpenAPISpecification("Unsupported response content: only nothing or $JSON is supported.")
-        else
-            resultType = responseContent[JSON]?.schema?.resolveType()
+        val responseContent = response.content
+
+        val resultType =
+            if (responseContent == null)
+                IUVAPIType("Unit", IUVAPISerializer("UnitIUVSerializer", "UnitSerializer"))
+            else if (responseContent.isEmpty())
+                throw UnsupportedOpenAPISpecification("No response content for '$type' operation.")
+            else
+                responseContent[JSON]?.schema?.resolveType()
 
         if (resultType == null)
-            throw UnsupportedOpenAPISpecification("Unknown result type of '$type' operation for response '$response'.")
+            throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON is supported.")
 
         return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op, bodyType), resultType, bodyType)
     }
@@ -281,6 +283,9 @@ object OpenAPIReader {
     private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?): List<IUVAPIParameter> {
         val parameters = op.parameters?.map {
             if (it.`in` == "query") {
+                if (it.style != Parameter.StyleEnum.FORM || !it.explode) {
+                    throw UnsupportedOpenAPISpecification("Unsupported parameter style, only form and explode true is supported.")
+                }
                 IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.REQUEST_PARAM)
             } else {
                 IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.PATH_VARIABLE)
