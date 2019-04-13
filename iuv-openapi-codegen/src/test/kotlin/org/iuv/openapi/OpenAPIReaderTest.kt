@@ -40,25 +40,24 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/templates/controller.mustache"), api, sw)
             assertEquals("import org.springframework.web.bind.annotation.DeleteMapping\n" +
                     "import org.springframework.web.bind.annotation.GetMapping\n" +
+                    "import org.springframework.web.bind.annotation.PathVariable\n" +
                     "import org.springframework.web.bind.annotation.PostMapping\n" +
+                    "import org.springframework.web.bind.annotation.RequestBody\n" +
+                    "import org.springframework.web.bind.annotation.RequestParam\n" +
                     "\n" +
-                    "interface PetStoreController : PetStoreApi {\n" +
+                    "interface PetStoreController {\n" +
                     "\n" +
                     "    @GetMapping(\"/pets\")\n" +
-                    "    @RouteSerializer(ListPetIUVSerializer::class)\n" +
-                    "    override fun findPets(@RequestParam tags : List<String>, @RequestParam limit : Int) : List<Pet>\n" +
+                    "    fun findPets(@RequestParam tags : List<String>, @RequestParam limit : Int) : List<Pet>\n" +
                     "\n" +
                     "    @PostMapping(\"/pets\")\n" +
-                    "    @RouteSerializer(PetIUVSerializer::class)\n" +
-                    "    override fun addPet() : Pet\n" +
+                    "    fun addPet(@RequestBody payload : NewPet) : Pet\n" +
                     "\n" +
                     "    @GetMapping(\"/pets/{id}\")\n" +
-                    "    @RouteSerializer(PetIUVSerializer::class)\n" +
-                    "    override fun findPetById(@PathVariable id : Int) : Pet\n" +
+                    "    fun findPetById(@PathVariable id : Int) : Pet\n" +
                     "\n" +
                     "    @DeleteMapping(\"/pets/{id}\")\n" +
-                    "    @RouteSerializer(UnitIUVSerializer::class)\n" +
-                    "    override fun deletePet(@PathVariable id : Int) : Unit\n" +
+                    "    fun deletePet(@PathVariable id : Int) : Unit\n" +
                     "\n" +
                     "}", sw.toString())
         }
@@ -80,7 +79,7 @@ class OpenAPIReaderTest {
                     "\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : List<Pet>\n" +
                     "\n" +
-                    "    fun addPet() : Pet\n" +
+                    "    fun addPet(payload : NewPet) : Pet\n" +
                     "\n" +
                     "    fun findPetById(id : Int) : Pet\n" +
                     "\n" +
@@ -141,6 +140,54 @@ class OpenAPIReaderTest {
                     "        get() = UnitSerializer\n" +
                     "}", sw.toString())
         }
+    }
+
+    @Test
+    fun client() {
+        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore")
+
+        if (api == null) {
+            fail()
+            return
+        }
+
+        val sw = StringWriter()
+        sw.use {
+            OpenAPIReader.runTemplate(getResource("/templates/client.mustache"), api, sw)
+            assertEquals("import org.iuv.shared.Task\n" +
+                    "import org.iuv.core.Http\n" +
+                    "\n" +
+                    "object PetStoreClient {\n" +
+                    "\n" +
+                    "    fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
+                    "        Http.GET(\"/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
+                    "\n" +
+                    "    fun addPet(payload : NewPet) : Task<String,Pet> =\n" +
+                    "        Http.GET(\"/pets\", Pet::class.serializer())\n" +
+                    "\n" +
+                    "    fun findPetById(id : Int) : Task<String,Pet> =\n" +
+                    "        Http.GET(\"/pets/\$id\", Pet::class.serializer())\n" +
+                    "\n" +
+                    "    fun deletePet(id : Int) : Task<String,Unit> =\n" +
+                    "        Http.GET(\"/pets/\$id\", UnitSerializer)\n" +
+                    "\n" +
+                    "}", sw.toString())
+        }
+
+    }
+
+    @Test
+    fun apiPathSubst() {
+        val path = IUVAPIPath("/api/{id}/{id1}", listOf())
+
+        assertEquals("/api/\$id/\$id1", path.pathSubst)
+    }
+
+    @Test
+    fun apiPathSubstWithNoParams() {
+        val path = IUVAPIPath("/api", listOf())
+
+        assertEquals("/api", path.pathSubst)
     }
 
     private fun getResource(resource: String) = this.javaClass.getResource(resource)

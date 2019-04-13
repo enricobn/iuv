@@ -37,7 +37,17 @@ data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponen
     }
 }
 
-data class IUVAPIParameter(val name: String, val type: IUVAPIType, val pathParameter: Boolean, override var last: Boolean = false) : Last
+enum class ParameterType(val fullClassName: String) {
+    PATH_VARIABLE("org.springframework.web.bind.annotation.PathVariable"),
+    REQUEST_PARAM("org.springframework.web.bind.annotation.RequestParam"),
+    REQUEST_BODY("org.springframework.web.bind.annotation.RequestBody")
+}
+
+data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
+    val pathVariable = parameterType == ParameterType.PATH_VARIABLE
+    val requestParam = parameterType == ParameterType.REQUEST_PARAM
+    val requestBody = parameterType == ParameterType.REQUEST_BODY
+}
 
 enum class IUVAPIOperationType(val fullClassName: String) {
     Get("org.springframework.web.bind.annotation.GetMapping"),
@@ -78,6 +88,13 @@ data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
     init {
         operations.calculateLast()
     }
+
+    val pathSubst =
+        Regex("(\\{.*?})").replace(path) {
+            val group = it.groups[1]
+            "\$" + group?.value?.drop(1)?.dropLast(1)
+        }
+
 }
 
 data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>,
@@ -91,6 +108,8 @@ data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components:
 
     val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
 
+    val clientImports = imports.filter { it.client}.map { it.copy() }.calculateLast()
+
     // TODO do we assume that component serializers are a subset or must we add them?
     fun serializers() =
             paths.flatMap {
@@ -98,7 +117,6 @@ data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components:
                 it.operations.mapNotNull { op -> op.bodyType }.map { bodyType -> bodyType.serializer } +
                 it.operations.flatMap { op -> op.parameters.map { par -> par.type.serializer } }
             }.toSet().toList().calculateLast()
-
 
 }
 
@@ -110,11 +128,14 @@ data class IUVImport(val fullClassName: String, val type: IUVImportType, overrid
 
     val controller = type == IUVImportType.CONTROLLER || api
 
+    val client = type == IUVImportType.CLIENT
+
 }
 
 enum class IUVImportType {
     CONTROLLER,
-    API
+    API,
+    CLIENT
 }
 
 fun <T : Last> List<T>.calculateLast(): List<T> {
@@ -157,7 +178,10 @@ object OpenAPIReader {
 
         val components = api.components.schemas.map { toIUVAPIComponent(api, it) }
 
-        val imports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.fullClassName, IUVImportType.CONTROLLER) } }
+        val operationsImports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.fullClassName, IUVImportType.CONTROLLER) } }
+        val parametersImport = paths.flatMap { it.operations.flatMap { op -> op.parameters.map { par -> IUVImport(par.parameterType.fullClassName, IUVImportType.CONTROLLER) }} }
+
+        val imports = (operationsImports + parametersImport)
                 .toSet()
                 .toList()
                 .sorted()
@@ -254,14 +278,21 @@ object OpenAPIReader {
         }
     }
 
-    private fun getIUVAPIParameters(op: Operation) =
-         op.parameters?.map {
+    private fun getIUVAPIParameters(op: Operation): List<IUVAPIParameter> {
+        val parameters = op.parameters?.map {
             if (it.`in` == "query") {
-                IUVAPIParameter(it.name, it.schema.resolveType(), false)
+                IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.REQUEST_PARAM)
             } else {
-                IUVAPIParameter(it.name, it.schema.resolveType(), true)
+                IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.PATH_VARIABLE)
             }
         }.orEmpty()
+
+        if (op.requestBody != null) {
+            return parameters + IUVAPIParameter("payload", op.requestBody.content[JSON]?.schema?.resolveType()!!, ParameterType.REQUEST_BODY)
+        }
+
+        return parameters
+    }
 
     private fun toIUVAPIComponent(api: OpenAPI, schema: Map.Entry<String, Schema<*>>) : IUVAPIComponent {
         val properties = getProperties(api, schema.value).map { IUVAPIComponentProperty(it.key, it.value.resolveType(), false) } // TODO optional

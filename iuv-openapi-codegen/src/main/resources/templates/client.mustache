@@ -1,0 +1,19 @@
+import org.iuv.shared.Task
+import org.iuv.core.Http
+
+{{#clientImports}}
+import {{fullClassName}}
+{{#last}}
+
+{{/last}}
+{{/clientImports}}
+object {{name}}Client {
+{{#paths}}
+  {{#operations}}
+
+    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
+        Http.GET("{{pathSubst}}", {{resultType.serializer.code}})
+  {{/operations}}
+{{/paths}}
+
+}

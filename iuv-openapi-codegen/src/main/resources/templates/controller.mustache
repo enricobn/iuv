@@ -4,13 +4,12 @@ import {{fullClassName}}
 
 {{/last}}
 {{/controllerImports}}
-interface {{name}}Controller : {{name}}Api {
+interface {{name}}Controller {
 {{#paths}}
   {{#operations}}
 
     @{{{operationAnnotation}}}
-    @RouteSerializer({{resultType.serializer.name}}::class)
-    override fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
+    fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
   {{/operations}}
 {{/paths}}
 
