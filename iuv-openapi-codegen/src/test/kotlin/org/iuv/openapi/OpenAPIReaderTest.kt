@@ -18,7 +18,7 @@ class OpenAPIReaderTest {
         val sw = StringWriter()
         sw.use {
             OpenAPIReader.runTemplate(getResource("/templates/components.mustache"),
-                    mapOf("components" to listOf(component).calculateLast()), sw)
+                    mapOf("components" to listOf(component).calculateLast()), it)
             assertEquals("data class Person(\n" +
                     "  val id : Int,\n" +
                     "  val name : String?\n" +
@@ -37,7 +37,7 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/templates/controller.mustache"), api, sw)
+            OpenAPIReader.runTemplate(getResource("/templates/controller.mustache"), api, it)
             assertEquals("import org.springframework.web.bind.annotation.DeleteMapping\n" +
                     "import org.springframework.web.bind.annotation.GetMapping\n" +
                     "import org.springframework.web.bind.annotation.PathVariable\n" +
@@ -74,7 +74,7 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/templates/api.mustache"), api, sw)
+            OpenAPIReader.runTemplate(getResource("/templates/api.mustache"), api, it)
             assertEquals("interface PetStoreApi {\n" +
                     "\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : List<Pet>\n" +
@@ -101,7 +101,7 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/templates/serializers.mustache"), api, sw)
+            OpenAPIReader.runTemplate(getResource("/templates/serializers.mustache"), api, it)
             assertEquals("import kotlinx.serialization.ImplicitReflectionSerializer\n" +
                     "\n" +
                     "object ListPetIUVSerializer : IUVSerializer {\n" +
@@ -153,7 +153,7 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/templates/client.mustache"), api, sw)
+            OpenAPIReader.runTemplate(getResource("/templates/client.mustache"), api, it)
             assertEquals("import org.iuv.shared.Task\n" +
                     "import org.iuv.core.Http\n" +
                     "\n" +
