@@ -146,14 +146,6 @@ fun <T : Last> List<T>.calculateLast(): List<T> {
     return this
 }
 
-fun <T> listOfLast(vararg elements: T): List<T> where T : Last {
-    val list = elements.asList()
-    if (list.isNotEmpty()) {
-        list.last().last = true
-    }
-    return list
-}
-
 class UnsupportedOpenAPISpecification(message: String) : Exception(message)
 
 object OpenAPIReader {
