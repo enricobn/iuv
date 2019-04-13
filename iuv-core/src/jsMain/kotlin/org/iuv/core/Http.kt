@@ -10,7 +10,7 @@ object Http {
 
     fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
                      bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
-                     username: String? = null,password: String? = null)  : Task<String, RESULT> where RESULT : Any =
+                     username: String? = null, password: String? = null)  : Task<String, RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
             request("get", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
@@ -33,7 +33,8 @@ object Http {
                         bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
                         username: String? = null, password: String? = null) : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
+            request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password,
+                    setOf(200, 204))
         }
 
     // TOD can I make body and bodySerializer typed?
@@ -46,14 +47,15 @@ object Http {
                          bodySerializer: KSerializer<Any>?,
                          async: Boolean = true,
                          username: String?,
-                         password: String?
+                         password: String?,
+                         successStatuses : Set<Int> = setOf(200)
     ) where RESULT : Any {
         val request = XMLHttpRequest()
 
         request.onreadystatechange = { _ ->
             when (request.readyState) {
                 XMLHttpRequest.DONE ->
-                    if (request.status.toInt() == 200) {
+                    if (successStatuses.contains(request.status.toInt())) {
                         val response = JSON.parse(serializer, request.responseText)
                         onSuccess(response)
                     } else {
