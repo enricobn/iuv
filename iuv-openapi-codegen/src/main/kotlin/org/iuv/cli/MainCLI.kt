@@ -36,11 +36,11 @@ class OpenAPICommand : CliktCommand() {
                         return@forEach
                     } else {
                         runTemplate(controllerSourceFolder, controllerPackage, apiName + "Controller",
-                                "/templates/controller.mustache", api, openAPIWriteContext)
+                                "/openapi/templates/controller.mustache", api, openAPIWriteContext)
                         runTemplate(clientSourceFolder, clientPackage, apiName + "Client",
-                                "/templates/client.mustache", api, openAPIWriteContext)
+                                "/openapi/templates/client.mustache", api, openAPIWriteContext)
                         runTemplate(modelSourceFolder, modelPackage, apiName + "Model",
-                                "/templates/components.mustache", api, openAPIWriteContext)
+                                "/openapi/templates/components.mustache", api, openAPIWriteContext)
                     }
                 } catch (e: Exception) {
                     LOGGER.error("Error reading $it", e)
