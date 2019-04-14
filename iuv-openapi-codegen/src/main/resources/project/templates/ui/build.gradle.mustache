@@ -1,0 +1,89 @@
+buildscript {
+    ext.web_dir = "${parent.project(':{{projectName}}-web').projectDir}/static"
+    println("$web_dir")
+
+    repositories {
+        mavenCentral()
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+    }
+}
+
+apply plugin: 'com.moowork.node'
+apply plugin: 'kotlin-platform-js'
+apply plugin : 'kotlin2js'
+apply plugin: 'kotlinx-serialization'
+// to let gradle copy resources folder into the jar on build
+apply plugin: 'java'
+apply from : 'web.gradle'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = "http://dl.bintray.com/kotlin/kotlinx.html/"
+        url = "https://kotlin.bintray.com/kotlinx"
+    }
+}
+
+dependencies {
+    compile project(':{{projectName}}-shared')
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    compile 'org.iuv:iuv-core-js:{{iuvVersion}}'
+    compile 'org.iuv:iuv-core-metadata:{{iuvVersion}}'
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+
+    //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
+}
+
+compileKotlin2Js {
+    kotlinOptions.moduleKind = "umd"
+    kotlinOptions.sourceMap = true
+    kotlinOptions.metaInfo = true
+    kotlinOptions.sourceMapEmbedSources = "always"
+}
+
+compileTestKotlin2Js { kotlinOptions.moduleKind = 'umd' }
+
+node {
+    download = true
+}
+
+task yarnInstall(type: YarnTask) {
+    args = ['install']
+}
+
+/*
+task installMocha(type: NpmTask) {
+    args = ['install', 'mocha']
+}
+*/
+
+task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
+    from(compileKotlin2Js.destinationDir) {
+        include '**/*.js'
+        // To flatten files
+        eachFile { details ->
+            details.path = details.name
+        }
+    }
+
+    configurations.testCompile.each {
+        from zipTree(it.absolutePath).matching { include '*.js' }
+    }
+
+    into "${buildDir}/node_modules"
+
+    includeEmptyDirs = false
+}
+
+task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
+    args = ['test']
+}
+
+test.dependsOn runKarma

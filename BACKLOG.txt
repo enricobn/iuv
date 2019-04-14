@@ -1,5 +1,7 @@
 Doing
 -------
+- cli for OpenApi
+- cli for create new project
 
 Next
 -----

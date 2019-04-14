@@ -1,0 +1,82 @@
+build.doLast() {
+
+    // Copy kotlin.js and kotlin.meta.js from jar into web directory
+    copyConfigurationFiles(configurations.compile)
+
+    // Copy kotlin-test.js and kotlin-test.meta.js from jar into web directory
+    copyConfigurationFiles(configurations.testCompile)
+
+    copy {
+        includeEmptyDirs = false
+        from fileTree("build/classes/kotlin/main").files
+        into "${web_dir}/classes"
+        include "*.js"
+        include "*.js.map"
+    }
+
+    copy {
+        includeEmptyDirs = false
+        from fileTree("build/classes/kotlin/test").files
+        into "${web_dir}/classes"
+        include "*.js"
+        include "*.js.map"
+    }
+
+    copy {
+        includeEmptyDirs = false
+        from new File("build/resources/kotlin/test")
+        into "${web_dir}"
+    }
+
+    copy {
+        includeEmptyDirs = false
+        from new File("web")
+        into "${web_dir}"
+    }
+
+    copy {
+        from("node_modules/snabbdom/dist")
+        include "*.min.js"
+        into "${web_dir}/js"
+    }
+
+    copy {
+        from("node_modules/bootstrap/dist/css")
+        include "bootstrap.min.css"
+        into "${web_dir}/css"
+    }
+
+    copy {
+        from("node_modules/bootstrap/dist/js")
+        include "bootstrap.min.js"
+        into "${web_dir}/js"
+    }
+
+    copy {
+        from("node_modules/jquery/dist")
+        include "jquery.slim.min.js"
+        into "${web_dir}/js"
+    }
+
+    copy {
+        from("node_modules/popper.js/dist")
+        include "popper.min.js"
+        into "${web_dir}/js"
+    }
+
+}
+
+private Iterable<File> copyConfigurationFiles(Configuration compile) {
+    compile.each { File file ->
+        copy {
+            includeEmptyDirs = false
+
+            from zipTree(file.absolutePath)
+            into "${web_dir}/lib"
+            include { fileTreeElement ->
+                def path = fileTreeElement.path
+                (path.endsWith(".js") || path.endsWith(".js.map")) && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+            }
+        }
+    }
+}
