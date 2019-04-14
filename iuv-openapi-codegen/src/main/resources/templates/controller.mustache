@@ -1,16 +1,18 @@
-{{#controllerImports}}
+package {{context.controllerPackage}}
+
+{{#api.controllerImports}}
 import {{fullClassName}}
 {{#last}}
 
 {{/last}}
-{{/controllerImports}}
-interface {{name}}Controller {
-{{#paths}}
+{{/api.controllerImports}}
+interface {{api.name}}Controller {
+{{#api.paths}}
   {{#operations}}
 
     @{{{operationAnnotation}}}
     fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
   {{/operations}}
-{{/paths}}
+{{/api.paths}}
 
 }

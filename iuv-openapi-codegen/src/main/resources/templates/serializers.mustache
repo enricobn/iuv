@@ -1,6 +1,6 @@
 import kotlinx.serialization.ImplicitReflectionSerializer
 
-{{#serializers}}
+{{#api.serializers}}
 object {{name}} : IUVSerializer {
     @ImplicitReflectionSerializer
     override val serializer: KSerializer<*>
@@ -8,4 +8,4 @@ object {{name}} : IUVSerializer {
 }{{^last}}
 
 
-{{/last}}{{/serializers}}
+{{/last}}{{/api.serializers}}

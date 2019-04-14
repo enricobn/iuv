@@ -22,6 +22,8 @@ interface Last {
     var last: Boolean
 }
 
+data class OpenAPIWriteContext(val controllerPackage: String, val clientPackage: String, val modelPackage: String)
+
 data class IUVAPIType(val type: String, val serializer: IUVAPISerializer) {
 
     override fun toString() = type
@@ -152,6 +154,11 @@ object OpenAPIReader {
     private val LOGGER = LoggerFactory.getLogger(OpenAPIReader::class.java)
 
     fun read(url: URL): OpenAPI? = OpenAPIV3Parser().read(url.toURI().toString())
+
+    fun runTemplate(url: URL, api : IUVAPI, context: OpenAPIWriteContext, writer: Writer) {
+        val bundle = mapOf("context" to context, "api" to api)
+        runTemplate(url, bundle, writer)
+    }
 
     fun runTemplate(url: URL, bundle: Any, writer: Writer) {
         val mf = DefaultMustacheFactory(URLMustacheResolver(url))

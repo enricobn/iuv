@@ -1,19 +1,22 @@
+package {{context.clientPackage}}
+
 import org.iuv.shared.Task
 import org.iuv.core.Http
 
-{{#clientImports}}
+{{#api.clientImports}}
 import {{fullClassName}}
 {{#last}}
 
+
 {{/last}}
-{{/clientImports}}
-object {{name}}Client {
-{{#paths}}
+{{/api.clientImports}}
+object {{api.name}}Client {
+{{#api.paths}}
   {{#operations}}
 
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
         Http.{{op.clientMethod}}("{{pathSubst}}", {{resultType.serializer.code}}{{#bodyType}}, payload, {{serializer.code}}{{/bodyType}})
   {{/operations}}
-{{/paths}}
+{{/api.paths}}
 
 }

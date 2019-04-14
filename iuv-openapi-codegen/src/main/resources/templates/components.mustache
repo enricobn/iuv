@@ -1,4 +1,6 @@
-{{#components}}
+package {{context.modelPackage}}
+
+{{#api.components}}
 data class {{name}}(
 {{#properties}}
   val {{name}} : {{type}}{{#optional}}?{{/optional}}{{^last}},{{\n}}{{/last}}
@@ -6,4 +8,4 @@ data class {{name}}(
 ){{^last}}
 
 
-{{/last}}{{/components}}
+{{/last}}{{/api.components}}

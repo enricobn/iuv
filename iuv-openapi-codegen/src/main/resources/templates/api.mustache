@@ -1,15 +1,15 @@
-{{#apiImports}}
+{{#api.apiImports}}
 import {{fullClassName}}
 {{#last}}
 
 {{/last}}
-{{/apiImports}}
-interface {{name}}Api {
-{{#paths}}
+{{/api.apiImports}}
+interface {{api.name}}Api {
+{{#api.paths}}
   {{#operations}}
 
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : {{{resultType}}}
   {{/operations}}
-{{/paths}}
+{{/api.paths}}
 
 }
