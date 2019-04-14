@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{projectName}}</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+
+    <!-- snabbdom -->
+    <script src="js/snabbdom.min.js"></script>
+    <script src="js/snabbdom-style.min.js"></script>
+    <script src="js/snabbdom-class.min.js"></script>
+    <script src="js/snabbdom-props.min.js"></script>
+    <script src="js/snabbdom-attributes.min.js"></script>
+    <script src="js/snabbdom-eventlisteners.min.js"></script>
+    <script src="js/h.min.js"></script>
+
+    <!-- kotlin.js -->
+    <script type="text/javascript" src="lib/kotlin.js"></script>
+
+    <!-- Checklists -->
+    <link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+    <!-- IUV -->
+    <script type="text/javascript" src="lib/kotlinx-serialization-runtime-js.js"></script>
+    <script type="text/javascript" src="lib/iuv-core.js"></script>
+
+    <!-- Checklists -->
+    <script type="text/javascript" src="lib/{{projectName}}-shared.js"></script>
+    <script type="text/javascript" src="classes/{{projectName}}-ui.js"></script>
+
+    <script>
+        new this['{{projectName}}-ui'].{{clientPackage}}.Main.run();
+    </script>
+
+    <!-- Bootstrap -->
+    <script src="js/jquery.slim.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+</body>
+</html>
