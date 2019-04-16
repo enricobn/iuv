@@ -8,7 +8,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from fileTree("build/classes/kotlin/main").files
+        from project.fileTree("build/classes/kotlin/main").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -16,7 +16,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from fileTree("build/classes/kotlin/test").files
+        from project.fileTree("build/classes/kotlin/test").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -24,44 +24,20 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from new File("build/resources/kotlin/test")
+        from project.file("build/resources/kotlin/test")
         into "${web_dir}"
     }
 
     copy {
         includeEmptyDirs = false
-        from new File("web")
+        from project.fileTree("web")
         into "${web_dir}"
     }
 
     copy {
-        from("node_modules/snabbdom/dist")
+        from("${projectDir}/node_modules/snabbdom/dist")
+        into "${web_dir}/js"
         include "*.min.js"
-        into "${web_dir}/js"
-    }
-
-    copy {
-        from("node_modules/bootstrap/dist/css")
-        include "bootstrap.min.css"
-        into "${web_dir}/css"
-    }
-
-    copy {
-        from("node_modules/bootstrap/dist/js")
-        include "bootstrap.min.js"
-        into "${web_dir}/js"
-    }
-
-    copy {
-        from("node_modules/jquery/dist")
-        include "jquery.slim.min.js"
-        into "${web_dir}/js"
-    }
-
-    copy {
-        from("node_modules/popper.js/dist")
-        include "popper.min.js"
-        into "${web_dir}/js"
     }
 
 }

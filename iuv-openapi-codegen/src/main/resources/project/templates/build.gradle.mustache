@@ -1,11 +1,11 @@
 allprojects {
-    group {{group}}
+    group '{{group}}'
     version '0.1-SNAPSHOT'
 }
 
 buildscript {
-    ext.kotlin_version = {{kotlinVersion}}
-    ext.serialization_version = {{serializationVersion}}
+    ext.kotlin_version = '{{kotlinVersion}}'
+    ext.serialization_version = '{{serializationVersion}}'
 
     repositories {
         jcenter()
