@@ -28,7 +28,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from fileTree("build/classes/kotlin/main").files
+        from project.fileTree("build/classes/kotlin/main").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -36,7 +36,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from fileTree("build/classes/kotlin/test").files
+        from project.fileTree("build/classes/kotlin/test").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -44,18 +44,18 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from new File("build/resources/kotlin/test")
+        from project.file("build/resources/kotlin/test")
         into "${web_dir}"
     }
 
     copy {
         includeEmptyDirs = false
-        from fileTree(new File("web").absolutePath)
+        from project.fileTree("web")
         into "${web_dir}"
     }
 
     copy {
-        from("node_modules/snabbdom/dist")
+        from("${projectDir}/node_modules/snabbdom/dist")
         into "${web_dir}/js"
         include "*.min.js"
     }
@@ -68,7 +68,7 @@ private Iterable<File> copyConfigurationFiles(Configuration compile) {
             includeEmptyDirs = false
 
             from zipTree(file.absolutePath)
-            into "${projectDir}/${web_dir}/lib"
+            into "${web_dir}/lib"
             include { fileTreeElement ->
                 def path = fileTreeElement.path
                 (path.endsWith(".js") || path.endsWith(".js.map")) && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))

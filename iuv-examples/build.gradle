@@ -1,5 +1,5 @@
 buildscript {
-    ext.web_dir = "build/web"
+    ext.web_dir = "${projectDir}/build/web"
 
     repositories {
         mavenCentral()
