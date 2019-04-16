@@ -22,12 +22,18 @@ object Http {
             request("put", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
         }
 
-    fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
-                      bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
+    fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
                       username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("post", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
+            request("post", url, serializer, onFailure, onSuccess, null, null, async, username, password)
         }
+
+    fun <RESULT,BODY> POST(url: String, serializer: KSerializer<RESULT>, body: BODY,
+                      bodySerializer: KSerializer<BODY>, async: Boolean = true,
+                      username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("post", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
+            }
 
     fun <RESULT> DELETE(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
                         bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
