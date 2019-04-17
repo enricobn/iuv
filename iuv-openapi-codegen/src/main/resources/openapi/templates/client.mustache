@@ -1,5 +1,6 @@
 package {{context.clientPackage}}
 
+import kotlinx.serialization.ImplicitReflectionSerializer
 import org.iuv.shared.Task
 import org.iuv.core.Http
 
@@ -7,13 +8,13 @@ import org.iuv.core.Http
 import {{fullClassName}}
 {{#last}}
 
-
 {{/last}}
 {{/api.clientImports}}
 object {{api.name}}Client {
 {{#api.paths}}
   {{#operations}}
 
+    @ImplicitReflectionSerializer
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
         Http.{{op.clientMethod}}("{{pathSubst}}", {{resultType.serializer.code}}{{#bodyType}}, payload, {{serializer.code}}{{/bodyType}})
   {{/operations}}

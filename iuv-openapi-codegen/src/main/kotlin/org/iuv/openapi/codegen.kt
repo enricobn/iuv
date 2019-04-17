@@ -9,6 +9,7 @@ import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.ComposedSchema
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.parameters.Parameter
+import io.swagger.v3.oas.models.parameters.QueryParameter
 import io.swagger.v3.parser.OpenAPIV3Parser
 import org.slf4j.LoggerFactory
 import java.io.InputStreamReader
@@ -17,6 +18,7 @@ import java.io.Writer
 import java.net.URL
 
 private const val JSON = "application/json"
+private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer", `import` = "kotlinx.serialization.internal.UnitSerializer")
 
 interface Last {
     var last: Boolean
@@ -24,13 +26,13 @@ interface Last {
 
 data class OpenAPIWriteContext(val controllerPackage: String, val clientPackage: String, val modelPackage: String)
 
-data class IUVAPIType(val type: String, val serializer: IUVAPISerializer) {
+data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val imports: List<IUVImport>) {
 
     override fun toString() = type
 
 }
 
-data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false) : Last
+data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false, val `import`: String?) : Last
 
 data class IUVAPIComponentProperty(val name: String, val type: IUVAPIType, val optional: Boolean, override var last: Boolean = false) : Last
 
@@ -129,16 +131,17 @@ data class IUVImport(val fullClassName: String, val type: IUVImportType, overrid
 
     val api = type == IUVImportType.API
 
-    val controller = type == IUVImportType.CONTROLLER || api
+    val controller = type == IUVImportType.CONTROLLER || type == IUVImportType.SHARED || api
 
-    val client = type == IUVImportType.CLIENT
+    val client = type == IUVImportType.CLIENT || type == IUVImportType.SHARED
 
 }
 
 enum class IUVImportType {
     CONTROLLER,
     API,
-    CLIENT
+    CLIENT,
+    SHARED
 }
 
 fun <T : Last> List<T>.calculateLast(): List<T> {
@@ -171,17 +174,29 @@ object OpenAPIReader {
         }
     }
 
-    fun parse(url: URL, name: String) : IUVAPI? {
+    fun parse(url: URL, name: String, context: OpenAPIWriteContext) : IUVAPI? {
         val api = read(url) ?: return null
 
-        val paths = api.paths.map { toIUVAPIPath(it) }
+        val paths = api.paths.map { toIUVAPIPath(it, context) }
 
-        val components = api.components.schemas.map { toIUVAPIComponent(api, it) }
+        val components = api.components.schemas.map { toIUVAPIComponent(api, it, context) }
 
         val operationsImports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.fullClassName, IUVImportType.CONTROLLER) } }
-        val parametersImport = paths.flatMap { it.operations.flatMap { op -> op.parameters.map { par -> IUVImport(par.parameterType.fullClassName, IUVImportType.CONTROLLER) }} }
+        val parametersTypesImport = paths.flatMap {
+            it.operations.flatMap {
+                op -> op.parameters.map { par -> IUVImport(par.parameterType.fullClassName, IUVImportType.CONTROLLER) }
+            }
+        }
+        val parametersImport = paths.flatMap {
+            it.operations.flatMap { op -> op.parameters.flatMap { par -> par.type.imports } }
+        }
 
-        val imports = (operationsImports + parametersImport)
+        val resultAndBodyImports = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.imports } } }
+
+        val resultAndBodySerializersImport = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).mapNotNull { type -> type.serializer.import}.map { typeSerializerImport -> IUVImport(typeSerializerImport, IUVImportType.CLIENT) } } }
+
+        val imports = (operationsImports + parametersTypesImport + parametersImport +
+                resultAndBodyImports + resultAndBodySerializersImport)
                 .toSet()
                 .toList()
                 .sorted()
@@ -189,7 +204,7 @@ object OpenAPIReader {
         return IUVAPI(name, paths, components, imports)
     }
 
-    private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
+    private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>, context: OpenAPIWriteContext): IUVAPIPath {
         val pathItem = pathEntry.value
 
         val iuvAPIOperations = mutableListOf<IUVAPIOperation>()
@@ -197,19 +212,19 @@ object OpenAPIReader {
         val path = pathEntry.key
         try {
             if (pathItem.get != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Get, pathItem.get))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Get, pathItem.get, context = context))
             }
 
             if (pathItem.post != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Post, pathItem.post))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Post, pathItem.post, context = context))
             }
 
             if (pathItem.put != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Put, pathItem.put))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Put, pathItem.put, context = context))
             }
 
             if (pathItem.delete != null) {
-                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Delete, pathItem.delete, setOf("200", "204")))
+                iuvAPIOperations.add(toIUVAPIOperation(path, IUVAPIOperationType.Delete, pathItem.delete, setOf("200", "204"), context))
             }
 
             if (iuvAPIOperations.isEmpty()) {
@@ -222,13 +237,13 @@ object OpenAPIReader {
         }
     }
 
-    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, responses: Set<String> = setOf("200")): IUVAPIOperation {
+    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, responses: Set<String> = setOf("200"), context: OpenAPIWriteContext): IUVAPIOperation {
         if (op.requestBody != null &&
                 op.requestBody.content.isNotEmpty() &&
                 !op.requestBody.content.containsKey(JSON))
             throw UnsupportedOpenAPISpecification("Unsupported body content for '$type' operation: only $JSON is supported.")
 
-        val bodyType = op.requestBody?.content?.get(JSON)?.schema?.resolveType()
+        val bodyType = op.requestBody?.content?.get(JSON)?.schema?.resolveType(context)
 
         val response = op.responses.filterKeys { responses.contains(it) }.values.firstOrNull()
                 ?: throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
@@ -237,54 +252,57 @@ object OpenAPIReader {
 
         val resultType =
             if (responseContent == null)
-                IUVAPIType("Unit", IUVAPISerializer("UnitIUVSerializer", "UnitSerializer"))
+                IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
             else if (responseContent.isEmpty())
                 throw UnsupportedOpenAPISpecification("No response content for '$type' operation.")
             else
-                responseContent[JSON]?.schema?.resolveType()
+                responseContent[JSON]?.schema?.resolveType(context)
 
         if (resultType == null)
             throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON are supported.")
 
-        return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op, bodyType), resultType, bodyType)
+        return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op, bodyType, context), resultType, bodyType)
     }
 
-    private fun Schema<*>.resolveType() : IUVAPIType {
+    private fun Schema<*>.resolveType(context: OpenAPIWriteContext) : IUVAPIType {
         if (type != null) {
 
             if (this is ArraySchema) {
-                val itemsType = items.resolveType()
+                val itemsType = items.resolveType(context)
                 return IUVAPIType("List<$itemsType>",
-                        IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})"))
+                        IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
+                                `import` = "kotlinx.serialization.internal.ArrayListSerializer"),
+                        itemsType.imports)
             }
 
             return toKotlinType(type)
         }
 
         if (`$ref` == null) {
-            return IUVAPIType("Unit", IUVAPISerializer("UnitIUVSerializer", "UnitSerializer"))
+            return IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
         }
 
         val type = `$ref`.split("/").last()
-        return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()"))
+        return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()", `import` = "kotlinx.serialization.serializer"),
+                listOf(IUVImport(context.modelPackage + "." + type, IUVImportType.SHARED)))
     }
 
     private fun toKotlinType(type: String) =
         when (type) {
-            "string" -> IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer"))
-            "integer" -> IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer"))
+            "string" -> IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer", `import` = "kotlinx.serialization.internal.StringSerializer"), listOf())
+            "integer" -> IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer", `import` = "kotlinx.serialization.internal.IntSerializer"), listOf())
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
 
-    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?): List<IUVAPIParameter> {
+    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?, context: OpenAPIWriteContext): List<IUVAPIParameter> {
         val parameters = op.parameters?.map {
-            if (it.`in` == "query") {
+            if (it.`in` == "query" || it is QueryParameter) {
                 if (it.style != Parameter.StyleEnum.FORM || !it.explode) {
                     throw UnsupportedOpenAPISpecification("Unsupported parameter style, only form and explode true is supported.")
                 }
-                IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.REQUEST_PARAM)
+                IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.REQUEST_PARAM)
             } else {
-                IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.PATH_VARIABLE)
+                IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.PATH_VARIABLE)
             }
         }.orEmpty()
 
@@ -295,8 +313,8 @@ object OpenAPIReader {
         return parameters
     }
 
-    private fun toIUVAPIComponent(api: OpenAPI, schema: Map.Entry<String, Schema<*>>) : IUVAPIComponent {
-        val properties = getProperties(api, schema.value).map { IUVAPIComponentProperty(it.key, it.value.resolveType(), false) } // TODO optional
+    private fun toIUVAPIComponent(api: OpenAPI, schema: Map.Entry<String, Schema<*>>, context: OpenAPIWriteContext) : IUVAPIComponent {
+        val properties = getProperties(api, schema.value).map { IUVAPIComponentProperty(it.key, it.value.resolveType(context), false) } // TODO optional
 
         return IUVAPIComponent(schema.key, properties)
     }

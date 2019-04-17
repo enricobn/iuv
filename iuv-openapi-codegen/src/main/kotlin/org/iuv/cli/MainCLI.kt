@@ -40,7 +40,7 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
                 try {
                     println("Processing file " + it.name)
                     val apiName = toApiName(it)
-                    val api = OpenAPIReader.parse(it.toURI().toURL(), apiName)
+                    val api = OpenAPIReader.parse(it.toURI().toURL(), apiName, openAPIWriteContext)
                     if (api == null) {
                         System.err.println("Error reading $it")
                         return@forEach

@@ -11,7 +11,7 @@ class OpenAPIReaderTest {
 
     @Test
     fun components() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore")
+        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
         if (api == null) {
             fail()
@@ -43,7 +43,7 @@ class OpenAPIReaderTest {
 
     @Test
     fun controller() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore")
+        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
         if (api == null) {
             fail()
@@ -55,6 +55,8 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), api, context, it)
             assertEquals("package org.iuv.test.controllers\n" +
                     "\n" +
+                    "import org.iuv.test.models.NewPet\n" +
+                    "import org.iuv.test.models.Pet\n" +
                     "import org.springframework.web.bind.annotation.DeleteMapping\n" +
                     "import org.springframework.web.bind.annotation.GetMapping\n" +
                     "import org.springframework.web.bind.annotation.PathVariable\n" +
@@ -82,7 +84,7 @@ class OpenAPIReaderTest {
 
     @Test
     fun api() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore")
+        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
         if (api == null) {
             fail()
@@ -109,7 +111,7 @@ class OpenAPIReaderTest {
 
     @Test
     fun serializers() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore")
+        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
         if (api == null) {
             fail()
@@ -161,7 +163,7 @@ class OpenAPIReaderTest {
 
     @Test
     fun client() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore")
+        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
         if (api == null) {
             fail()
@@ -173,20 +175,31 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), api, context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
+                    "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
                     "import org.iuv.shared.Task\n" +
                     "import org.iuv.core.Http\n" +
                     "\n" +
+                    "import kotlinx.serialization.internal.ArrayListSerializer\n" +
+                    "import kotlinx.serialization.internal.UnitSerializer\n" +
+                    "import kotlinx.serialization.serializer\n" +
+                    "import org.iuv.test.models.NewPet\n" +
+                    "import org.iuv.test.models.Pet\n" +
+                    "\n" +
                     "object PetStoreClient {\n" +
                     "\n" +
+                    "    @ImplicitReflectionSerializer\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
                     "        Http.GET(\"/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
                     "\n" +
+                    "    @ImplicitReflectionSerializer\n" +
                     "    fun addPet(payload : NewPet) : Task<String,Pet> =\n" +
                     "        Http.POST(\"/pets\", Pet::class.serializer(), payload, NewPet::class.serializer())\n" +
                     "\n" +
+                    "    @ImplicitReflectionSerializer\n" +
                     "    fun findPetById(id : Int) : Task<String,Pet> =\n" +
                     "        Http.GET(\"/pets/\$id\", Pet::class.serializer())\n" +
                     "\n" +
+                    "    @ImplicitReflectionSerializer\n" +
                     "    fun deletePet(id : Int) : Task<String,Unit> =\n" +
                     "        Http.DELETE(\"/pets/\$id\", UnitSerializer)\n" +
                     "\n" +
