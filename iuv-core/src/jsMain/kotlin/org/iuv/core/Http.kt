@@ -1,6 +1,7 @@
 package org.iuv.core
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.internal.UnitSerializer
 import kotlinx.serialization.json.JSON
 import org.iuv.shared.Task
 import org.w3c.xhr.XMLHttpRequest
@@ -61,11 +62,19 @@ object Http {
         request.onreadystatechange = { _ ->
             when (request.readyState) {
                 XMLHttpRequest.DONE ->
-                    if (successStatuses.contains(request.status.toInt())) {
-                        val response = JSON.parse(serializer, request.responseText)
-                        onSuccess(response)
-                    } else {
-                        onFailure("Status ${request.status}")
+                    try {
+                        if (successStatuses.contains(request.status.toInt())) {
+                            if (serializer == UnitSerializer && request.responseText.isEmpty()) {
+                                onSuccess(Unit as RESULT)
+                            } else {
+                                val response = JSON.parse(serializer, request.responseText)
+                                onSuccess(response)
+                            }
+                        } else {
+                            onFailure("Status ${request.status}")
+                        }
+                    } catch (e: Exception) {
+                        onFailure(e.message ?: "Unknown error")
                     }
                 XMLHttpRequest.UNSENT -> onFailure("Unsent")
             }
