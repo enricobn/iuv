@@ -23,17 +23,22 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), api, context, it)
             assertEquals("package org.iuv.test.models\n" +
                     "\n" +
+                    "import kotlinx.serialization.Serializable\n" +
+                    "\n" +
+                    "@Serializable\n" +
                     "data class Pet(\n" +
                     "  val name : String,\n" +
                     "  val tag : String,\n" +
                     "  val id : Int\n" +
                     ")\n" +
                     "\n" +
+                    "@Serializable\n" +
                     "data class NewPet(\n" +
                     "  val name : String,\n" +
                     "  val tag : String\n" +
                     ")\n" +
                     "\n" +
+                    "@Serializable\n" +
                     "data class Error(\n" +
                     "  val code : Int,\n" +
                     "  val message : String\n" +

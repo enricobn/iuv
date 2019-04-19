@@ -1,6 +1,9 @@
 package {{context.modelPackage}}
 
+import kotlinx.serialization.Serializable
+
 {{#api.components}}
+@Serializable
 data class {{name}}(
 {{#properties}}
   val {{name}} : {{type}}{{#optional}}?{{/optional}}{{^last}},{{\n}}{{/last}}
