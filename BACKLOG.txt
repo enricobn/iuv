@@ -2,6 +2,11 @@ Doing
 -------
 - cli for OpenApi
 - cli for create new project
+  - view
+  - controller impl
+  - client api
+  - why I cannot add package to test and main?
+  - add test or make Karma work if there are no tests
 
 Next
 -----

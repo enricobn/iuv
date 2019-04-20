@@ -32,13 +32,12 @@ repositories {
 
 dependencies {
     compile project(':{{projectName}}-shared')
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
     compile 'org.iuv:iuv-core-js:{{iuvVersion}}'
     compile 'org.iuv:iuv-core-metadata:{{iuvVersion}}'
     compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
 
-    //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
+    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
 compileKotlin2Js {
@@ -65,14 +64,6 @@ task installMocha(type: NpmTask) {
 */
 
 task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
-    from(compileKotlin2Js.destinationDir) {
-        include '**/*.js'
-        // To flatten files
-        eachFile { details ->
-            details.path = details.name
-        }
-    }
-
     configurations.testCompile.each {
         from zipTree(it.absolutePath).matching { include '*.js' }
     }

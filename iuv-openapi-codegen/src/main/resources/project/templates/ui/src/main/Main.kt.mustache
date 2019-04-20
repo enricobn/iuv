@@ -1,0 +1,13 @@
+package {{clientPackage}}
+
+import org.iuv.core.IUVApplication
+import org.iuv.core.SnabbdomRenderer
+
+object Main {
+
+    fun run() {
+        IUVApplication(PetstoreView, SnabbdomRenderer())
+            .run()
+    }
+
+}

@@ -110,7 +110,8 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
 data class NewProjectContext(val group: String, val projectName: String, val kotlinVersion: String, val iuvVersion: String,
                              val serializationVersion: String, val springBootVersion: String, val jarFileName: String) {
 
-    val clientPackage = "$group.client"
+    val clientPackage = "$group.ui"
+    val webPackage = "$group.web"
 
 }
 
@@ -119,18 +120,21 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
     private val kotlinVersion : String by option().default("1.3.30")
     private val iuvVersion : String by option().default("0.1-SNAPSHOT")
     private val serializationVersion : String by option().default("0.9.1")
-    private val springBootVersion : String by option().default("2.0.1.RELEASE")
+    private val springBootVersion : String by option().default("2.1.4.RELEASE")
     private val projectName = File(System.getProperty("user.dir")).name
     private val jarFileName = File(this::class.java.protectionDomain.codeSource.location
             .toURI()).path
+    private lateinit var projectContext : NewProjectContext
 
     override fun run() {
+        projectContext = NewProjectContext(group, projectName, kotlinVersion, iuvVersion, serializationVersion,
+                springBootVersion, jarFileName)
         runTemplate("", ".gitattributes")
         runTemplate("", ".gitignore")
         runTemplate("", "build.gradle")
 
-        copyResource("gradlew", "gradlew")
-        copyResource("gradlew.bat", "gradlew.bat")
+        copyResource("gradlew")
+        copyResource("gradlew.bat")
 
         runTemplate("", "README.md")
         runTemplate("", "settings.gradle")
@@ -143,13 +147,19 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
         runTemplate("ui", "karma.conf.js", destFolder = "$projectName-ui")
         runTemplate("ui", "package.json", destFolder = "$projectName-ui")
         runTemplate("ui", "web.gradle", destFolder = "$projectName-ui")
+        runTemplate("ui/src/main", "Main.kt", destFolder = "$projectName-ui/src/main/kotlin/" +
+                packageToDir(projectContext.clientPackage))
 
         runTemplate("ui/web", "index.html", destFolder = "$projectName-ui/web")
         runTemplate("ui/web", "style.css", destFolder = "$projectName-ui/web")
 
         runTemplate("web", "build.gradle", destFolder = "$projectName-web")
+        runTemplate("web", ".gitignore", destFolder = "$projectName-web")
+        runTemplate("web/src/main", "SpringBootApp.kt", destFolder = "$projectName-web/src/main/kotlin/" +
+                packageToDir(projectContext.webPackage))
 
         runTemplate("gradle/wrapper", "gradle-wrapper.properties")
+        copyResource("gradle/wrapper/gradle-wrapper.jar.copy", "gradle/wrapper/gradle-wrapper.jar")
 
         runTemplate("", "openapi.sh")
 
@@ -162,17 +172,15 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
         File("$projectName-ui/src/test/kotlin").mkdirs()
         File("$projectName-shared/src/commonMain/kotlin").mkdirs()
         File("$projectName-shared/src/commonTest/kotlin").mkdirs()
-
     }
 
-    private fun copyResource(resource: String, fileName: String) {
+    private fun packageToDir(`package`: String) = `package`.replace('.', '/')
+
+    private fun copyResource(resource: String, fileName: String = resource) {
         getResource("/project/templates/$resource").openStream().copyTo(File(fileName))
     }
 
     private fun runTemplate(folder: String, fileName: String, resource: String = fileName, destFolder: String = folder) {
-        val context = NewProjectContext(group, projectName, kotlinVersion, iuvVersion, serializationVersion,
-                springBootVersion, jarFileName)
-
         val destFolderFile =
             if (destFolder.isEmpty()) {
                 File(".")
@@ -189,7 +197,7 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
 
         getOrCreateFileWriter(destFolderFile, fileName)
             .use { writer ->
-                OpenAPIReader.runTemplate(getResource("$resourceFolder/$resource.mustache"), context, writer)
+                OpenAPIReader.runTemplate(getResource("$resourceFolder/$resource.mustache"), projectContext, writer)
             }
     }
 
