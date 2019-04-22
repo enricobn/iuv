@@ -18,6 +18,8 @@ import java.io.Writer
 import java.net.URL
 
 private const val JSON = "application/json"
+private const val ALL_CONTENTS = "*/*"
+private const val FORM_URL_ENCODED = "application/x-www-form-urlencoded"
 private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer", `import` = "kotlinx.serialization.internal.UnitSerializer")
 
 interface Last {
@@ -246,20 +248,29 @@ object OpenAPIReader {
     }
 
     private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, responses: Set<String> = setOf("200"), context: OpenAPIWriteContext): IUVAPIOperation {
-        if (op.requestBody != null &&
-                op.requestBody.content.isNotEmpty() &&
-                !op.requestBody.content.containsKey(JSON))
-            throw UnsupportedOpenAPISpecification("Unsupported body content for '$type' operation: only $JSON is supported.")
+        var schemaForProperties : Schema<*>? = null
 
-        val bodyType = op.requestBody?.content?.get(JSON)?.schema?.resolveType(context)
+        val bodyType = if (op.requestBody != null &&
+                op.requestBody.content.isNotEmpty()) {
+                    if (op.requestBody.content.containsKey(JSON) || op.requestBody.content.containsKey(ALL_CONTENTS)) {
+                        val resolveType = op.requestBody?.content?.get(JSON)?.schema?.resolveType(context)
+                        resolveType ?: op.requestBody?.content?.get(ALL_CONTENTS)?.schema?.resolveType(context)
+                    } else if (op.requestBody.content.containsKey(FORM_URL_ENCODED)) {
+                        schemaForProperties = op.requestBody?.content?.get(FORM_URL_ENCODED)?.schema
+                        null
+                    } else {
+                        throw UnsupportedOpenAPISpecification(
+                                "Unsupported body content for '$type' operation: ${op.requestBody.content.keys} not supported.")
+                    }
+                } else null
 
-        val response = op.responses.filterKeys { responses.contains(it) }.values.firstOrNull()
+        val response = op.responses.filterKeys { responses.contains(it) || it == "default" }.values.firstOrNull()
 
         val resultType =
             if (response == null) {
                 if (type == IUVAPIOperationType.Get) {
                     throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
-                } else if (type == IUVAPIOperationType.Delete) {
+                } else if (type == IUVAPIOperationType.Delete || schemaForProperties != null) {
                     IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
                 } else {
                     bodyType
@@ -267,10 +278,8 @@ object OpenAPIReader {
             } else {
                 val responseContent = response.content
 
-                if (responseContent == null)
+                if (responseContent == null || responseContent.isEmpty())
                     IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
-                else if (responseContent.isEmpty())
-                    throw UnsupportedOpenAPISpecification("No response content for '$type' operation.")
                 else
                     responseContent[JSON]?.schema?.resolveType(context)
             }
@@ -278,7 +287,10 @@ object OpenAPIReader {
         if (resultType == null)
             throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON are supported.")
 
-        return IUVAPIOperation(path, type, op.operationId, getIUVAPIParameters(op, bodyType, context), resultType, bodyType)
+        val parameters = getIUVAPIParameters(op, bodyType, context) +
+                if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties, context)
+
+        return IUVAPIOperation(path, type, op.operationId, parameters, resultType, bodyType)
     }
 
     private fun Schema<*>.resolveType(context: OpenAPIWriteContext) : IUVAPIType {
@@ -317,13 +329,17 @@ object OpenAPIReader {
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
 
-    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?, context: OpenAPIWriteContext): List<IUVAPIParameter> {
+    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?, context: OpenAPIWriteContext) : List<IUVAPIParameter> {
         val parameters = op.parameters?.map {
             if (it.`in` == "query" || it is QueryParameter) {
-                if (it.style != Parameter.StyleEnum.FORM || !it.explode) {
-                    throw UnsupportedOpenAPISpecification("Unsupported parameter style, only form and explode true is supported.")
+                try {
+                    if ((it.style != null && it.style != Parameter.StyleEnum.FORM) || (it.explode != null && !it.explode)) {
+                        throw UnsupportedOpenAPISpecification("Parameter ${it.name}: unsupported parameter style, only form and explode true is supported.")
+                    }
+                    IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.REQUEST_PARAM)
+                } catch (e: NullPointerException) {
+                    throw e
                 }
-                IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.REQUEST_PARAM)
             } else {
                 IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.PATH_VARIABLE)
             }
@@ -334,6 +350,10 @@ object OpenAPIReader {
         }
 
         return parameters
+    }
+
+    private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, context: OpenAPIWriteContext) : List<IUVAPIParameter> {
+        return schema.properties.map { IUVAPIParameter(it.key, it.value.resolveType(context), ParameterType.REQUEST_PARAM) }
     }
 
     private fun toIUVAPIComponent(api: OpenAPI, schema: Map.Entry<String, Schema<*>>, context: OpenAPIWriteContext) : IUVAPIComponent {
