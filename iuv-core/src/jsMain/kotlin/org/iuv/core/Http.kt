@@ -36,9 +36,9 @@ object Http {
             }
 
     fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
-                      username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
+                      username: String? = null, password: String? = null, formData: Map<String, String>?)  : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("post", url, serializer, onFailure, onSuccess, null, null, async, username, password)
+            request("post", url, serializer, onFailure, onSuccess, null, null, async, username, password, formData = formData)
         }
 
     fun <RESULT,BODY> POST(url: String, serializer: KSerializer<RESULT>, body: BODY,
@@ -74,7 +74,8 @@ object Http {
                          async: Boolean = true,
                          username: String?,
                          password: String?,
-                         successStatuses : Set<Int> = setOf(200)
+                         successStatuses : Set<Int> = setOf(200),
+                         formData: Map<String,String>? = null
     ) where RESULT : Any {
         val request = XMLHttpRequest()
 
@@ -103,6 +104,9 @@ object Http {
         if (body != null) {
             request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
             request.send(JSON.stringify(bodySerializer!!, body))
+        } else if (formData != null) {
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+            request.send(formData.map { it.key + "=" + it.value }.joinToString("&"))
         } else
             request.send()
     }
