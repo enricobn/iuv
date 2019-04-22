@@ -9,19 +9,31 @@ import kotlin.js.Date
 
 object Http {
 
-    fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
-                     bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
+    fun <RESULT,BODY> GET(url: String, serializer: KSerializer<RESULT>, body: BODY,
+                     bodySerializer: KSerializer<BODY>, async: Boolean = true,
                      username: String? = null, password: String? = null)  : Task<String, RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("get", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
+            request("get", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
         }
 
-    fun <RESULT> PUT(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
-                     bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
+    fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
+                     username: String? = null, password: String? = null)  : Task<String, RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("get", url, serializer, onFailure, onSuccess, null, null, async, username, password)
+            }
+
+    fun <RESULT,BODY> PUT(url: String, serializer: KSerializer<RESULT>, body: BODY,
+                     bodySerializer: KSerializer<BODY>, async: Boolean = true,
                      username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("put", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password)
+            request("put", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
         }
+
+    fun <RESULT> PUT(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
+                     username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("put", url, serializer, onFailure, onSuccess, null, null, async, username, password)
+            }
 
     fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
                       username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
@@ -36,13 +48,20 @@ object Http {
                 request("post", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
             }
 
-    fun <RESULT> DELETE(url: String, serializer: KSerializer<RESULT>, body: dynamic = null,
-                        bodySerializer: KSerializer<Any>? = null, async: Boolean = true,
+    fun <RESULT,BODY> DELETE(url: String, serializer: KSerializer<RESULT>, body: BODY,
+                        bodySerializer: KSerializer<BODY>, async: Boolean = true,
                         username: String? = null, password: String? = null) : Task<String,RESULT> where RESULT : Any =
         Task { onFailure, onSuccess ->
-            request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer, async, username, password,
+            request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password,
                     setOf(200, 204))
         }
+
+    fun <RESULT> DELETE(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
+                        username: String? = null, password: String? = null) : Task<String,RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("delete", url, serializer, onFailure, onSuccess, null, null, async, username, password,
+                        setOf(200, 204))
+            }
 
     // TOD can I make body and bodySerializer typed?
     fun <RESULT> request(method: String,
@@ -75,6 +94,7 @@ object Http {
                         }
                     } catch (e: Exception) {
                         onFailure(e.message ?: "Unknown error")
+                        console.error(e)
                     }
                 XMLHttpRequest.UNSENT -> onFailure("Unsent")
             }
