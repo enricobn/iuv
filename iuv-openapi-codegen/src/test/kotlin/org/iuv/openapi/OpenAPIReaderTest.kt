@@ -27,15 +27,15 @@ class OpenAPIReaderTest {
                     "\n" +
                     "@Serializable\n" +
                     "data class Pet(\n" +
-                    "  val name : String,\n" +
-                    "  val tag : String,\n" +
-                    "  val id : Int\n" +
+                    "  val name : String? = null,\n" +
+                    "  val tag : String? = null,\n" +
+                    "  val id : Long? = null\n" +
                     ")\n" +
                     "\n" +
                     "@Serializable\n" +
                     "data class NewPet(\n" +
                     "  val name : String,\n" +
-                    "  val tag : String\n" +
+                    "  val tag : String? = null\n" +
                     ")\n" +
                     "\n" +
                     "@Serializable\n" +
@@ -78,10 +78,10 @@ class OpenAPIReaderTest {
                     "    fun addPet(@RequestBody payload : NewPet) : Pet\n" +
                     "\n" +
                     "    @GetMapping(\"/pets/{id}\")\n" +
-                    "    fun findPetById(@PathVariable id : Int) : Pet\n" +
+                    "    fun findPetById(@PathVariable id : Long) : Pet\n" +
                     "\n" +
                     "    @DeleteMapping(\"/pets/{id}\")\n" +
-                    "    fun deletePet(@PathVariable id : Int) : Unit\n" +
+                    "    fun deletePet(@PathVariable id : Long) : Unit\n" +
                     "\n" +
                     "}", sw.toString())
         }
@@ -105,9 +105,9 @@ class OpenAPIReaderTest {
                     "\n" +
                     "    fun addPet(payload : NewPet) : Pet\n" +
                     "\n" +
-                    "    fun findPetById(id : Int) : Pet\n" +
+                    "    fun findPetById(id : Long) : Pet\n" +
                     "\n" +
-                    "    fun deletePet(id : Int) : Unit\n" +
+                    "    fun deletePet(id : Long) : Unit\n" +
                     "\n" +
                     "}", sw.toString())
         }
@@ -162,6 +162,12 @@ class OpenAPIReaderTest {
                     "    @ImplicitReflectionSerializer\n" +
                     "    override val serializer: KSerializer<*>\n" +
                     "        get() = UnitSerializer\n" +
+                    "}\n" +
+                    "\n" +
+                    "object LongIUVSerializer : IUVSerializer {\n" +
+                    "    @ImplicitReflectionSerializer\n" +
+                    "    override val serializer: KSerializer<*>\n" +
+                    "        get() = LongSerializer\n" +
                     "}", sw.toString())
         }
     }
@@ -191,22 +197,23 @@ class OpenAPIReaderTest {
                     "import org.iuv.test.models.Pet\n" +
                     "\n" +
                     "object PetStoreClient {\n" +
+                    "    private val baseUrl = \"http://petstore.swagger.io/api\"\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
-                    "        Http.GET(\"/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
+                    "        Http.GET(\"\$baseUrl/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun addPet(payload : NewPet) : Task<String,Pet> =\n" +
-                    "        Http.POST(\"/pets\", Pet::class.serializer(), payload, NewPet::class.serializer())\n" +
+                    "        Http.POST(\"\$baseUrl/pets\", Pet::class.serializer(), payload, NewPet::class.serializer())\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun findPetById(id : Int) : Task<String,Pet> =\n" +
-                    "        Http.GET(\"/pets/\$id\", Pet::class.serializer())\n" +
+                    "    fun findPetById(id : Long) : Task<String,Pet> =\n" +
+                    "        Http.GET(\"\$baseUrl/pets/\$id\", Pet::class.serializer())\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun deletePet(id : Int) : Task<String,Unit> =\n" +
-                    "        Http.DELETE(\"/pets/\$id\", UnitSerializer)\n" +
+                    "    fun deletePet(id : Long) : Task<String,Unit> =\n" +
+                    "        Http.DELETE(\"\$baseUrl/pets/\$id\", UnitSerializer)\n" +
                     "\n" +
                     "}", sw.toString())
         }
@@ -225,6 +232,12 @@ class OpenAPIReaderTest {
         val path = IUVAPIPath("/api", listOf())
 
         assertEquals("/api", path.pathSubst)
+    }
+
+    @Test
+    fun petstore() {
+        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
+        assertEquals("https://petstore.swagger.io/v2", api?.baseUrl)
     }
 
     private fun getResource(resource: String) = this.javaClass.getResource(resource)

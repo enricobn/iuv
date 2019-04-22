@@ -1,12 +1,16 @@
 Doing
 -------
 - cli for OpenApi
+  - client : pass requestParam in url
+  - anonymous object
+  - anonymous enum?
 - cli for create new project
   - view
   - controller impl
   - client api
   - why I cannot add package to test and main?
   - add test or make Karma work if there are no tests
+- can I use build instead of shadowJar?
 
 Next
 -----

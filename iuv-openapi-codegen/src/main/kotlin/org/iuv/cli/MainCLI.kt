@@ -33,13 +33,15 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
     private val modelPackage by argument(help="Model package")
 
     override fun run() {
-        val openAPIWriteContext = OpenAPIWriteContext(controllerPackage, clientPackage, modelPackage)
-
         getSwaggerFiles(swaggerFilesFolder)
             .forEach {
                 try {
                     println("Processing file " + it.name)
                     val apiName = toApiName(it)
+
+                    val openAPIWriteContext = OpenAPIWriteContext(controllerPackage, clientPackage,
+                            "$modelPackage.${apiName.toLowerCase()}")
+
                     val api = OpenAPIReader.parse(it.toURI().toURL(), apiName, openAPIWriteContext)
                     if (api == null) {
                         System.err.println("Error reading $it")
@@ -84,7 +86,7 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
     private fun getResource(resource: String) = this.javaClass.getResource(resource)
 
     private fun getSwaggerFiles(folder: File) : List<File> {
-        return folder.listFiles { it : File -> it.extension == "yaml" }.toList() +
+        return folder.listFiles { it : File -> it.extension == "yaml" || it.extension == "json" }.toList() +
                 folder.listFiles { it: File -> it.isDirectory }.flatMap { getSwaggerFiles(it) }
     }
 

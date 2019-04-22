@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class {{name}}(
 {{#properties}}
-  val {{name}} : {{type}}{{#optional}}?{{/optional}}{{^last}},{{\n}}{{/last}}
+  val {{name}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
 {{/properties}}
 ){{^last}}
 
