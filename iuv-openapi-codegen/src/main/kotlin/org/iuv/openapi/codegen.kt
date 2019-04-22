@@ -47,13 +47,16 @@ data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponen
 enum class ParameterType(val fullClassName: String) {
     PATH_VARIABLE("org.springframework.web.bind.annotation.PathVariable"),
     REQUEST_PARAM("org.springframework.web.bind.annotation.RequestParam"),
-    REQUEST_BODY("org.springframework.web.bind.annotation.RequestBody")
+    REQUEST_BODY("org.springframework.web.bind.annotation.RequestBody"),
+    FORM_PARAM("org.springframework.web.bind.annotation.RequestParam")
 }
 
 data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
     val pathVariable = parameterType == ParameterType.PATH_VARIABLE
-    val requestParam = parameterType == ParameterType.REQUEST_PARAM
+    val requestParam = parameterType == ParameterType.REQUEST_PARAM || parameterType == ParameterType.FORM_PARAM
     val requestBody = parameterType == ParameterType.REQUEST_BODY
+    val formParam = parameterType == ParameterType.FORM_PARAM
+    val clientQueryParam = parameterType == ParameterType.REQUEST_PARAM
 }
 
 enum class IUVAPIOperationType(val fullClassName: String, val clientMethod: String) {
@@ -89,6 +92,13 @@ data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id
         return result.toString()
     }
 
+    val hasFormData = parameters.any { it.formParam }
+
+    val formData = parameters.filter { it.formParam }.map { it.copy() }.calculateLast()
+
+    val hasClientQueryParams = parameters.any { it.clientQueryParam }
+
+    val clientQueryParams = parameters.filter{ it.clientQueryParam }.map { it.copy() }.calculateLast()
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -353,7 +363,7 @@ object OpenAPIReader {
     }
 
     private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, context: OpenAPIWriteContext) : List<IUVAPIParameter> {
-        return schema.properties.map { IUVAPIParameter(it.key, it.value.resolveType(context), ParameterType.REQUEST_PARAM) }
+        return schema.properties.map { IUVAPIParameter(it.key, it.value.resolveType(context), ParameterType.FORM_PARAM) }
     }
 
     private fun toIUVAPIComponent(api: OpenAPI, schema: Map.Entry<String, Schema<*>>, context: OpenAPIWriteContext) : IUVAPIComponent {

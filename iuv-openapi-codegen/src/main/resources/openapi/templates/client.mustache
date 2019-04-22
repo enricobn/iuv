@@ -11,13 +11,13 @@ import {{fullClassName}}
 {{/last}}
 {{/api.clientImports}}
 object {{api.name}}Client {
-    private val baseUrl = "{{{api.baseUrl}}}"
+    private const val baseUrl = "{{{api.baseUrl}}}"
 {{#api.paths}}
   {{#operations}}
 
     @ImplicitReflectionSerializer
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
-        Http.{{op.clientMethod}}("$baseUrl{{pathSubst}}", {{resultType.serializer.code}}{{#bodyType}}, payload, {{serializer.code}}{{/bodyType}})
+        Http.{{op.clientMethod}}("$baseUrl{{pathSubst}}", {{resultType.serializer.code}}{{> clientBody }}{{> clientQueryParams}})
   {{/operations}}
 {{/api.paths}}
 
