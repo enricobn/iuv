@@ -31,3 +31,5 @@ jar {
         attributes 'Main-Class': 'org.iuv.cli.MainCLIKt'
     }
 }
+
+shadowJar.dependsOn test
