@@ -10,57 +10,72 @@ import kotlin.js.Date
 object Http {
 
     fun <RESULT,BODY> GET(url: String, serializer: KSerializer<RESULT>, body: BODY,
-                     bodySerializer: KSerializer<BODY>, async: Boolean = true,
-                     username: String? = null, password: String? = null)  : Task<String, RESULT> where RESULT : Any =
-        Task { onFailure, onSuccess ->
-            request("get", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
-        }
+                          bodySerializer: KSerializer<BODY>, async: Boolean = true,
+                          username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String, RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("get", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>,
+                        async, username, password, queryParams = queryParams)
+            }
 
     fun <RESULT> GET(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
-                     username: String? = null, password: String? = null)  : Task<String, RESULT> where RESULT : Any =
+                     username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String, RESULT> where RESULT : Any =
             Task { onFailure, onSuccess ->
-                request("get", url, serializer, onFailure, onSuccess, null, null, async, username, password)
+                request("get", url, serializer, onFailure, onSuccess, null, null, async,
+                        username, password, queryParams = queryParams)
             }
 
     fun <RESULT,BODY> PUT(url: String, serializer: KSerializer<RESULT>, body: BODY,
                      bodySerializer: KSerializer<BODY>, async: Boolean = true,
-                     username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
-        Task { onFailure, onSuccess ->
-            request("put", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
-        }
+                     username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String,RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("put", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>,
+                        async, username, password, queryParams = queryParams)
+            }
 
     fun <RESULT> PUT(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
-                     username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
+                     username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String,RESULT> where RESULT : Any =
             Task { onFailure, onSuccess ->
-                request("put", url, serializer, onFailure, onSuccess, null, null, async, username, password)
+                request("put", url, serializer, onFailure, onSuccess, null, null, async,
+                        username, password, queryParams = queryParams)
             }
 
     fun <RESULT> POST(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
-                      username: String? = null, password: String? = null, formData: Map<String, String>?)  : Task<String,RESULT> where RESULT : Any =
-        Task { onFailure, onSuccess ->
-            request("post", url, serializer, onFailure, onSuccess, null, null, async, username, password, formData = formData)
-        }
+                      username: String? = null, password: String? = null, formData: Map<String, String>?,
+                      queryParams: Map<String, Any> = emptyMap())
+        : Task<String,RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("post", url, serializer, onFailure, onSuccess, null, null, async,
+                        username, password, formData = formData, queryParams = queryParams)
+            }
 
     fun <RESULT,BODY> POST(url: String, serializer: KSerializer<RESULT>, body: BODY,
                       bodySerializer: KSerializer<BODY>, async: Boolean = true,
-                      username: String? = null, password: String? = null)  : Task<String,RESULT> where RESULT : Any =
+                      username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String,RESULT> where RESULT : Any =
             Task { onFailure, onSuccess ->
-                request("post", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password)
+                request("post", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>,
+                        async, username, password, queryParams = queryParams)
             }
 
     fun <RESULT,BODY> DELETE(url: String, serializer: KSerializer<RESULT>, body: BODY,
                         bodySerializer: KSerializer<BODY>, async: Boolean = true,
-                        username: String? = null, password: String? = null) : Task<String,RESULT> where RESULT : Any =
-        Task { onFailure, onSuccess ->
-            request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>, async, username, password,
-                    setOf(200, 204))
-        }
+                        username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String,RESULT> where RESULT : Any =
+            Task { onFailure, onSuccess ->
+                request("delete", url, serializer, onFailure, onSuccess, body, bodySerializer as KSerializer<Any>,
+                        async, username, password, setOf(200, 204), queryParams = queryParams)
+            }
 
     fun <RESULT> DELETE(url: String, serializer: KSerializer<RESULT>, async: Boolean = true,
-                        username: String? = null, password: String? = null) : Task<String,RESULT> where RESULT : Any =
+                        username: String? = null, password: String? = null, queryParams: Map<String, Any> = emptyMap())
+        : Task<String,RESULT> where RESULT : Any =
             Task { onFailure, onSuccess ->
-                request("delete", url, serializer, onFailure, onSuccess, null, null, async, username, password,
-                        setOf(200, 204))
+                request("delete", url, serializer, onFailure, onSuccess, null, null, async,
+                        username, password, setOf(200, 204), queryParams = queryParams)
             }
 
     // TOD can I make body and bodySerializer typed?
@@ -75,7 +90,8 @@ object Http {
                          username: String?,
                          password: String?,
                          successStatuses : Set<Int> = setOf(200),
-                         formData: Map<String,String>? = null
+                         formData: Map<String,String>? = null,
+                         queryParams: Map<String,Any> = emptyMap()
     ) where RESULT : Any {
         val request = XMLHttpRequest()
 
@@ -100,7 +116,10 @@ object Http {
                 XMLHttpRequest.UNSENT -> onFailure("Unsent")
             }
         }
-        request.open(method, bypassCache(url), async, username, password)
+
+        val urlWithQueryParameters : String = urlWithQueryParameters(url, queryParams)
+
+        request.open(method, bypassCache(urlWithQueryParameters), async, username, password)
         if (body != null) {
             request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
             request.send(JSON.stringify(bodySerializer!!, body))
@@ -109,6 +128,22 @@ object Http {
             request.send(formData.map { it.key + "=" + it.value }.joinToString("&"))
         } else
             request.send()
+    }
+
+    private fun urlWithQueryParameters(url: String, queryParams: Map<String, Any>): String {
+        val queryParamsToString = queryParams.map { it.key + "=" + encodeQueryParam(it.value) }.joinToString("&")
+        return if (url.contains("?")) {
+            "$url&$queryParamsToString"
+        } else {
+            "$url?$queryParamsToString"
+        }
+    }
+
+    private fun encodeQueryParam(value: Any): String {
+        if (value is List<*>) {
+            return value.joinToString(",") { encodeQueryParam(it ?: "") }
+        }
+        return value.toString()
     }
 
 }
