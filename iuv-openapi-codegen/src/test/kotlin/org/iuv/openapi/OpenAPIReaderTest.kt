@@ -75,7 +75,7 @@ class OpenAPIReaderTest {
                     "    fun findPets(@RequestParam tags : List<String>, @RequestParam limit : Int) : List<Pet>\n" +
                     "\n" +
                     "    @PostMapping(\"/pets\")\n" +
-                    "    fun addPet(@RequestBody payload : NewPet) : Pet\n" +
+                    "    fun addPet(@RequestBody body : NewPet) : Pet\n" +
                     "\n" +
                     "    @GetMapping(\"/pets/{id}\")\n" +
                     "    fun findPetById(@PathVariable id : Long) : Pet\n" +
@@ -103,7 +103,7 @@ class OpenAPIReaderTest {
                     "\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : List<Pet>\n" +
                     "\n" +
-                    "    fun addPet(payload : NewPet) : Pet\n" +
+                    "    fun addPet(body : NewPet) : Pet\n" +
                     "\n" +
                     "    fun findPetById(id : Long) : Pet\n" +
                     "\n" +
@@ -189,6 +189,7 @@ class OpenAPIReaderTest {
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
                     "import org.iuv.shared.Task\n" +
                     "import org.iuv.core.Http\n" +
+                    "import org.iuv.core.HttpMethod\n" +
                     "\n" +
                     "import kotlinx.serialization.internal.ArrayListSerializer\n" +
                     "import kotlinx.serialization.internal.UnitSerializer\n" +
@@ -201,19 +202,25 @@ class OpenAPIReaderTest {
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
-                    "        Http.GET(\"\$baseUrl/pets\", ArrayListSerializer(Pet::class.serializer()), queryParams = mapOf(\"tags\" to tags, \"limit\" to limit))\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
+                    "            .queryParams(mapOf(\"tags\" to tags, \"limit\" to limit))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun addPet(payload : NewPet) : Task<String,Pet> =\n" +
-                    "        Http.POST(\"\$baseUrl/pets\", Pet::class.serializer(), payload, NewPet::class.serializer())\n" +
+                    "    fun addPet(body : NewPet) : Task<String,Pet> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/pets\", Pet::class.serializer())\n" +
+                    "            .body(body, NewPet::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPetById(id : Long) : Task<String,Pet> =\n" +
-                    "        Http.GET(\"\$baseUrl/pets/\$id\", Pet::class.serializer())\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/pets/\$id\", Pet::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun deletePet(id : Long) : Task<String,Unit> =\n" +
-                    "        Http.DELETE(\"\$baseUrl/pets/\$id\", UnitSerializer)\n" +
+                    "        Http.runner(HttpMethod.Delete, \"\$baseUrl/pets/\$id\", UnitSerializer)\n" +
+                    "            .run()\n" +
                     "\n" +
                     "}", sw.toString())
         }
@@ -257,6 +264,7 @@ class OpenAPIReaderTest {
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
                     "import org.iuv.shared.Task\n" +
                     "import org.iuv.core.Http\n" +
+                    "import org.iuv.core.HttpMethod\n" +
                     "\n" +
                     "import kotlinx.serialization.internal.ArrayListSerializer\n" +
                     "import kotlinx.serialization.internal.StringSerializer\n" +
@@ -270,76 +278,105 @@ class OpenAPIReaderTest {
                     "    private const val baseUrl = \"https://petstore.swagger.io/v2\"\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun addPet(payload : Pet) : Task<String,Pet> =\n" +
-                    "        Http.POST(\"\$baseUrl/pet\", Pet::class.serializer(), payload, Pet::class.serializer())\n" +
+                    "    fun addPet(body : Pet) : Task<String,Pet> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet\", Pet::class.serializer())\n" +
+                    "            .body(body, Pet::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun updatePet(payload : Pet) : Task<String,Pet> =\n" +
-                    "        Http.PUT(\"\$baseUrl/pet\", Pet::class.serializer(), payload, Pet::class.serializer())\n" +
+                    "    fun updatePet(body : Pet) : Task<String,Pet> =\n" +
+                    "        Http.runner(HttpMethod.Put, \"\$baseUrl/pet\", Pet::class.serializer())\n" +
+                    "            .body(body, Pet::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>> =\n" +
-                    "        Http.GET(\"\$baseUrl/pet/findByStatus\", ArrayListSerializer(Pet::class.serializer()), queryParams = mapOf(\"status\" to status))\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/findByStatus\", ArrayListSerializer(Pet::class.serializer()))\n" +
+                    "            .queryParams(mapOf(\"status\" to status))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>> =\n" +
-                    "        Http.GET(\"\$baseUrl/pet/findByTags\", ArrayListSerializer(Pet::class.serializer()), queryParams = mapOf(\"tags\" to tags))\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/findByTags\", ArrayListSerializer(Pet::class.serializer()))\n" +
+                    "            .queryParams(mapOf(\"tags\" to tags))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun getPetById(petId : Long) : Task<String,Pet> =\n" +
-                    "        Http.GET(\"\$baseUrl/pet/\$petId\", Pet::class.serializer())\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/\$petId\", Pet::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit> =\n" +
-                    "        Http.POST(\"\$baseUrl/pet/\$petId\", UnitSerializer, formData = mapOf(\"name\" to name, \"status\" to status))\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
+                    "            .formData(mapOf(\"name\" to name, \"status\" to status))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun deletePet(api_key : String, petId : Long) : Task<String,Unit> =\n" +
-                    "        Http.DELETE(\"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
+                    "        Http.runner(HttpMethod.Delete, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun placeOrder(payload : Order) : Task<String,Order> =\n" +
-                    "        Http.POST(\"\$baseUrl/store/order\", Order::class.serializer(), payload, Order::class.serializer())\n" +
+                    "    fun placeOrder(body : Order) : Task<String,Order> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/store/order\", Order::class.serializer())\n" +
+                    "            .body(body, Order::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun getOrderById(orderId : Long) : Task<String,Order> =\n" +
-                    "        Http.GET(\"\$baseUrl/store/order/\$orderId\", Order::class.serializer())\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/store/order/\$orderId\", Order::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun deleteOrder(orderId : Long) : Task<String,Unit> =\n" +
-                    "        Http.DELETE(\"\$baseUrl/store/order/\$orderId\", UnitSerializer)\n" +
+                    "        Http.runner(HttpMethod.Delete, \"\$baseUrl/store/order/\$orderId\", UnitSerializer)\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun createUser(payload : User) : Task<String,Unit> =\n" +
-                    "        Http.POST(\"\$baseUrl/user\", UnitSerializer, payload, User::class.serializer())\n" +
+                    "    fun createUser(body : User) : Task<String,Unit> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/user\", UnitSerializer)\n" +
+                    "            .body(body, User::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun createUsersWithArrayInput(payload : List<User>) : Task<String,Unit> =\n" +
-                    "        Http.POST(\"\$baseUrl/user/createWithArray\", UnitSerializer, payload, ArrayListSerializer(User::class.serializer()))\n" +
+                    "    fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/user/createWithArray\", UnitSerializer)\n" +
+                    "            .body(body, ArrayListSerializer(User::class.serializer()))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun createUsersWithListInput(payload : List<User>) : Task<String,Unit> =\n" +
-                    "        Http.POST(\"\$baseUrl/user/createWithList\", UnitSerializer, payload, ArrayListSerializer(User::class.serializer()))\n" +
+                    "    fun createUsersWithListInput(body : List<User>) : Task<String,Unit> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/user/createWithList\", UnitSerializer)\n" +
+                    "            .body(body, ArrayListSerializer(User::class.serializer()))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun loginUser(username : String, password : String) : Task<String,String> =\n" +
-                    "        Http.GET(\"\$baseUrl/user/login\", StringSerializer, queryParams = mapOf(\"username\" to username, \"password\" to password))\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/login\", StringSerializer)\n" +
+                    "            .queryParams(mapOf(\"username\" to username, \"password\" to password))\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun logoutUser() : Task<String,Unit> =\n" +
-                    "        Http.GET(\"\$baseUrl/user/logout\", UnitSerializer)\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/logout\", UnitSerializer)\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun getUserByName(username : String) : Task<String,User> =\n" +
-                    "        Http.GET(\"\$baseUrl/user/\$username\", User::class.serializer())\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/\$username\", User::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun updateUser(username : String, payload : User) : Task<String,User> =\n" +
-                    "        Http.PUT(\"\$baseUrl/user/\$username\", User::class.serializer(), payload, User::class.serializer())\n" +
+                    "    fun updateUser(username : String, body : User) : Task<String,User> =\n" +
+                    "        Http.runner(HttpMethod.Put, \"\$baseUrl/user/\$username\", User::class.serializer())\n" +
+                    "            .body(body, User::class.serializer())\n" +
+                    "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun deleteUser(username : String) : Task<String,Unit> =\n" +
-                    "        Http.DELETE(\"\$baseUrl/user/\$username\", UnitSerializer)\n" +
+                    "        Http.runner(HttpMethod.Delete, \"\$baseUrl/user/\$username\", UnitSerializer)\n" +
+                    "            .run()\n" +
                     "\n" +
                     "}", sw.toString())
         }

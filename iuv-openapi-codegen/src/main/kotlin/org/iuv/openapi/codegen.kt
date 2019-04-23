@@ -60,10 +60,10 @@ data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameter
 }
 
 enum class IUVAPIOperationType(val fullClassName: String, val clientMethod: String) {
-    Get("org.springframework.web.bind.annotation.GetMapping", "GET"),
-    Post("org.springframework.web.bind.annotation.PostMapping", "POST"),
-    Put("org.springframework.web.bind.annotation.PutMapping", "PUT"),
-    Delete("org.springframework.web.bind.annotation.DeleteMapping", "DELETE");
+    Get("org.springframework.web.bind.annotation.GetMapping", "HttpMethod.Get"),
+    Post("org.springframework.web.bind.annotation.PostMapping", "HttpMethod.Post"),
+    Put("org.springframework.web.bind.annotation.PutMapping", "HttpMethod.Put"),
+    Delete("org.springframework.web.bind.annotation.DeleteMapping", "HttpMethod.Delete");
 
     fun annotation(path: String) =
         fullClassName.split('.').last() + "(\"$path\")"
@@ -356,7 +356,7 @@ object OpenAPIReader {
         }.orEmpty()
 
         if (bodyType != null) {
-            return parameters + IUVAPIParameter("payload", bodyType, ParameterType.REQUEST_BODY)
+            return parameters + IUVAPIParameter("body", bodyType, ParameterType.REQUEST_BODY)
         }
 
         return parameters

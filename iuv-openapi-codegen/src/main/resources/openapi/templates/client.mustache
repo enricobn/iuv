@@ -3,6 +3,7 @@ package {{context.clientPackage}}
 import kotlinx.serialization.ImplicitReflectionSerializer
 import org.iuv.shared.Task
 import org.iuv.core.Http
+import org.iuv.core.HttpMethod
 
 {{#api.clientImports}}
 import {{fullClassName}}
@@ -17,7 +18,17 @@ object {{api.name}}Client {
 
     @ImplicitReflectionSerializer
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
-        Http.{{op.clientMethod}}("$baseUrl{{pathSubst}}", {{resultType.serializer.code}}{{> clientBody }}{{> clientQueryParams}})
+        Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}", {{resultType.serializer.code}})
+            {{#bodyType}}
+            .body(body, {{serializer.code}})
+            {{/bodyType}}
+            {{#hasFormData}}
+            .formData(mapOf({{#formData}}"{{name}}" to {{name}}{{^last}}, {{/last}}{{/formData}}))
+            {{/hasFormData}}
+            {{#hasClientQueryParams}}
+            .queryParams(mapOf({{#clientQueryParams}}"{{name}}" to {{name}}{{^last}}, {{/last}}{{/clientQueryParams}}))
+            {{/hasClientQueryParams}}
+            .run()
   {{/operations}}
 {{/api.paths}}
 
