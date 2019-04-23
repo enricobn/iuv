@@ -137,6 +137,13 @@ object Http {
             request.send()
     }
 
+    fun <RESULT: Any> runner(method: HttpMethod, url: String, serializer: KSerializer<RESULT>) =
+        if (method == HttpMethod.Delete) {
+            HttpRequestRunner(url, serializer, method, setOf(200, 204))
+        } else {
+            HttpRequestRunner(url, serializer, method)
+        }
+
     private fun urlWithQueryParameters(url: String, queryParams: Map<String, Any>): String {
         val queryParamsToString = queryParams.map { it.key + "=" + encodeQueryParam(it.value) }.joinToString("&")
         return if (url.contains("?")) {
@@ -171,8 +178,8 @@ enum class HttpMethod(val method: String) {
     Delete("delete")
 }
 
-class HttpRequestRunner<RESULT: Any> private constructor(private val url: String, private val serializer: KSerializer<RESULT>,
-                                                         private val method: HttpMethod) {
+class HttpRequestRunner<RESULT: Any>(private val url: String, private val serializer: KSerializer<RESULT>,
+                                     private val method: HttpMethod, private val successStatuses : Set<Int> = setOf(200)) {
     private var body: dynamic = null
     private var bodySerializer: KSerializer<Any>? = null
     private var formData: Map<String,String>? = null
@@ -180,19 +187,6 @@ class HttpRequestRunner<RESULT: Any> private constructor(private val url: String
     private var async = true
     private var user: String? = null
     private var password: String? = null
-    private var successStatuses : Set<Int> = emptySet()
-
-    companion object {
-        fun <RESULT: Any> runner(method: HttpMethod, url: String, serializer: KSerializer<RESULT>): HttpRequestRunner<RESULT> {
-            val builder = HttpRequestRunner(url, serializer, method)
-            if (method == HttpMethod.Delete) {
-                builder.successStatuses = setOf(200, 204)
-            } else {
-                builder.successStatuses = setOf(200)
-            }
-            return builder
-        }
-    }
 
     fun <BODY : Any> body(body: BODY, bodySerializer: KSerializer<BODY>) : HttpRequestRunner<RESULT> {
         this.body = body
