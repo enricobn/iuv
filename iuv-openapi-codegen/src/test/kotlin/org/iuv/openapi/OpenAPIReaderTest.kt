@@ -267,6 +267,8 @@ class OpenAPIReaderTest {
                     "import org.iuv.core.HttpMethod\n" +
                     "\n" +
                     "import kotlinx.serialization.internal.ArrayListSerializer\n" +
+                    "import kotlinx.serialization.internal.HashMapSerializer\n" +
+                    "import kotlinx.serialization.internal.IntSerializer\n" +
                     "import kotlinx.serialization.internal.StringSerializer\n" +
                     "import kotlinx.serialization.internal.UnitSerializer\n" +
                     "import kotlinx.serialization.serializer\n" +
@@ -315,6 +317,11 @@ class OpenAPIReaderTest {
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun deletePet(api_key : String, petId : Long) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
+                    "            .run()\n" +
+                    "\n" +
+                    "    @ImplicitReflectionSerializer\n" +
+                    "    fun getInventory() : Task<String,Map<String, Int>> =\n" +
+                    "        Http.runner(HttpMethod.Get, \"\$baseUrl/store/inventory\", HashMapSerializer(StringSerializer,IntSerializer))\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +

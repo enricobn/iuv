@@ -20,7 +20,8 @@ import java.net.URL
 private const val JSON = "application/json"
 private const val ALL_CONTENTS = "*/*"
 private const val FORM_URL_ENCODED = "application/x-www-form-urlencoded"
-private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer", `import` = "kotlinx.serialization.internal.UnitSerializer")
+private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer",
+        imports = setOf("kotlinx.serialization.internal.UnitSerializer"))
 
 interface Last {
     var last: Boolean
@@ -34,7 +35,7 @@ data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val im
 
 }
 
-data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false, val `import`: String?) : Last
+data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false, val imports: Set<String> = emptySet()) : Last
 
 data class IUVAPIComponentProperty(val name: String, val type: IUVAPIType, val optional: Boolean, override var last: Boolean = false) : Last
 
@@ -211,7 +212,7 @@ object OpenAPIReader {
 
         val resultAndBodyImports = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.imports } } }
 
-        val resultAndBodySerializersImport = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).mapNotNull { type -> type.serializer.import}.map { typeSerializerImport -> IUVImport(typeSerializerImport, IUVImportType.CLIENT) } } }
+        val resultAndBodySerializersImport = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.serializer.imports}.map { typeSerializerImport -> IUVImport(typeSerializerImport, IUVImportType.CLIENT) } } }
 
         val imports = (operationsImports + parametersTypesImport + parametersImport +
                 resultAndBodyImports + resultAndBodySerializersImport)
@@ -310,8 +311,22 @@ object OpenAPIReader {
                 val itemsType = items.resolveType(context)
                 return IUVAPIType("List<$itemsType>",
                         IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
-                                `import` = "kotlinx.serialization.internal.ArrayListSerializer"),
+                                imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
                         itemsType.imports)
+            } else if (type == "object") {
+                additionalProperties.let {
+                    if (it is Boolean)  {
+                        throw UnsupportedOpenAPISpecification("Unknown type.")
+                    } else if (it is Schema<*>) {
+                        val mapType = it.resolveType(context)
+                        return IUVAPIType("Map<String, $mapType>",
+                                IUVAPISerializer("MapString${mapType.serializer.name}",
+                                        "HashMapSerializer(StringSerializer,${mapType.serializer.code})",
+                                        imports = setOf("kotlinx.serialization.internal.HashMapSerializer",
+                                                "kotlinx.serialization.internal.StringSerializer") + mapType.serializer.imports),
+                                mapType.imports)
+                    }
+                }
             }
 
             return toKotlinType(type, format)
@@ -322,20 +337,25 @@ object OpenAPIReader {
         }
 
         val type = `$ref`.split("/").last()
-        return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()", `import` = "kotlinx.serialization.serializer"),
+        return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()",
+                imports = setOf("kotlinx.serialization.serializer")),
                 listOf(IUVImport(context.modelPackage + "." + type, IUVImportType.SHARED)))
     }
 
     private fun toKotlinType(type: String, format: String?) =
         when (type) {
-            "string" -> IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer", `import` = "kotlinx.serialization.internal.StringSerializer"), listOf())
+            "string" -> IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer",
+                    imports = setOf("kotlinx.serialization.internal.StringSerializer")), listOf())
             "integer" ->
                 if (format == "int64") {
-                    IUVAPIType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer", `import` = "kotlinx.serialization.internal.LongSerializer"), listOf())
+                    IUVAPIType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer",
+                            imports = setOf("kotlinx.serialization.internal.LongSerializer")), listOf())
                 } else {
-                    IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer", `import` = "kotlinx.serialization.internal.IntSerializer"), listOf())
+                    IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer",
+                            imports = setOf("kotlinx.serialization.internal.IntSerializer")), listOf())
                 }
-            "boolean" -> IUVAPIType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer", `import` = "kotlinx.serialization.internal.BooleanSerializer"), listOf())
+            "boolean" -> IUVAPIType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
+                    imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), listOf())
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
 
