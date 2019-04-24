@@ -130,6 +130,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(IMAGEH(), init)
     }
 
+    fun form(init: FormH<MESSAGE>.() -> Unit) {
+        element(FormH(), init)
+    }
+
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
@@ -256,21 +260,46 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
             handlers = object {}
         }
         handlers[name] = { event : EVENT ->
-            var msg = handler(event) as Any
+            val msg = handler(event) as Any
 
-            var p : HTML<Any>? = this as HTML<Any>
+            val html : HTML<Any>? = this as HTML<Any>
 
-            while (p != null) {
+            messageBus().send(mapMessage(msg, html))
+        }
+    }
 
-                p.mapFun?.let {
-                    msg = it.invoke(msg)
+    fun <EVENT : Event> on(name: String, handler: (EVENT, MessageBus<MESSAGE>) -> Unit) {
+        if (handlers == null) {
+            handlers = object {}
+        }
+        handlers[name] = { event : EVENT ->
+            val html : HTML<Any>? = this as HTML<Any>
+
+            handler(event, object: MessageBus<MESSAGE> {
+                override fun send(message: MESSAGE) {
+
+                    val msg : Any = message as Any
+
+                    messageBus().send(mapMessage(msg, html))
                 }
 
-                p = p.parent
+            })
+        }
+    }
+
+    private fun mapMessage(message: Any, h: HTML<Any>?) : Any {
+        var html = h
+        var msg = message
+
+        while (html != null) {
+
+            html.mapFun?.let {
+                msg = it.invoke(msg)
             }
 
-            messageBus().send(msg)
+            html = html.parent
         }
+        return msg
     }
 
     fun toStringDeep(indent: Int = 0): String {
@@ -562,6 +591,8 @@ class IMAGEH<MESSAGE> : HTML<MESSAGE>("img") {
 }
 
 class MainH<MESSAGE> : HTML<MESSAGE>("main")
+
+class FormH<MESSAGE> : HTML<MESSAGE>("form")
 
 interface HTMLRenderer {
     fun <MESSAGE> render(element: Element, html: HTML<MESSAGE>)
