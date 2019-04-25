@@ -58,17 +58,36 @@ enum class ParameterType(val controllerAnnotationClass: String) {
 }
 
 data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
+    // properties used by mustache templates
+    @Suppress("unused")
     val pathVariable = parameterType == ParameterType.PATH_VARIABLE
+
+    @Suppress("unused")
     val requestParam = parameterType == ParameterType.REQUEST_PARAM || parameterType == ParameterType.FORM_PARAM || parameterType == ParameterType.MULTI_PART_PARAM
+
+    @Suppress("unused")
     val requestBody = parameterType == ParameterType.REQUEST_BODY
+
+    @Suppress("unused")
     val formParam = parameterType == ParameterType.FORM_PARAM
+
+    @Suppress("unused")
     val clientQueryParam = parameterType == ParameterType.REQUEST_PARAM
+
+    @Suppress("unused")
     val multiPartParam = parameterType == ParameterType.MULTI_PART_PARAM || parameterType == ParameterType.MULTI_PART_FILE_PARAM
+
+    @Suppress("unused")
     val requestHeader = parameterType == ParameterType.HEADER
+
+    @Suppress("unused")
     val requestPart = parameterType == ParameterType.MULTI_PART_FILE_PARAM
 }
 
-enum class IUVAPIOperationType(val controllerAnnotationClass: String, val clientMethod: String) {
+/**
+ * @param clientMethod is used by mustache templates
+ */
+enum class IUVAPIOperationType(val controllerAnnotationClass: String, @Suppress("unused") val clientMethod: String) {
     Get("org.springframework.web.bind.annotation.GetMapping", "HttpMethod.Get"),
     Post("org.springframework.web.bind.annotation.PostMapping", "HttpMethod.Post"),
     Put("org.springframework.web.bind.annotation.PutMapping", "HttpMethod.Put"),
@@ -79,13 +98,11 @@ enum class IUVAPIOperationType(val controllerAnnotationClass: String, val client
 }
 
 data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>,
-                           val resultType: IUVAPIType?, val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
+                           val resultType: IUVAPIType, val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
 
     init {
         parameters.calculateLast()
     }
-
-    val operationAnnotation = op.annotation(path)
 
     fun name() : String {
         var capitalizeNext = false
@@ -101,20 +118,33 @@ data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id
         return result.toString()
     }
 
+    // properties used by mustache templates
+
+    @Suppress("unused")
+    val operationAnnotation = op.annotation(path)
+
+    @Suppress("unused")
     val hasFormData = parameters.any { it.formParam }
 
+    @Suppress("unused")
     val formData = parameters.filter { it.formParam }.map { it.copy() }.calculateLast()
 
+    @Suppress("unused")
     val hasClientQueryParams = parameters.any { it.clientQueryParam }
 
+    @Suppress("unused")
     val clientQueryParams = parameters.filter{ it.clientQueryParam }.map { it.copy() }.calculateLast()
 
+    @Suppress("unused")
     val hasMultiPartData = parameters.any { it.multiPartParam }
 
+    @Suppress("unused")
     val multiPartData = parameters.filter { it.multiPartParam }.map { it.copy() }.calculateLast()
 
+    @Suppress("unused")
     val hasHeaders = parameters.any { it.requestHeader }
 
+    @Suppress("unused")
     val headers = parameters.filter { it.requestHeader }.map { it.copy() }.calculateLast()
 
 }
@@ -139,19 +169,16 @@ data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components:
         components.calculateLast()
     }
 
+    // properties used by mustache templates
+
+    @Suppress("unused")
     val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
 
+    @Suppress("unused")
     val clientImplImports = imports.filter { it.clientImpl}.map { it.copy() }.calculateLast()
 
+    @Suppress("unused")
     val clientImports = imports.filter { it.client}.map { it.copy() }.calculateLast()
-
-    // TODO do we assume that component serializers are a subset or must we add them?
-    fun serializers() =
-            paths.flatMap {
-                it.operations.mapNotNull { op -> op.resultType }.map { resultType -> resultType.serializer } +
-                it.operations.mapNotNull { op -> op.bodyType }.map { bodyType -> bodyType.serializer } +
-                it.operations.flatMap { op -> op.parameters.map { par -> par.type.serializer } }
-            }.toSet().toList().calculateLast()
 
 }
 
@@ -328,25 +355,24 @@ object OpenAPIReader {
         val response = op.responses.filterKeys { responses.contains(it) || it == "default" }.values.firstOrNull()
 
         val resultType =
-            if (response == null) {
-                if (type == IUVAPIOperationType.Get) {
-                    throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
-                } else if (type == IUVAPIOperationType.Delete || schemaForProperties != null) {
-                    IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
+                if (response == null) {
+                    if (type == IUVAPIOperationType.Get) {
+                        throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
+                    } else if (type == IUVAPIOperationType.Delete || schemaForProperties != null) {
+                        IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
+                    } else bodyType
+                            ?: throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : " +
+                                    "no response and no body specified.")
                 } else {
-                    bodyType
+                    val responseContent = response.content
+
+                    if (responseContent == null || responseContent.isEmpty())
+                        IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
+                    else
+                        responseContent[JSON]?.schema?.resolveType(context)
+                                ?: throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : " +
+                                        "only unit (void) response or JSON are supported.")
                 }
-            } else {
-                val responseContent = response.content
-
-                if (responseContent == null || responseContent.isEmpty())
-                    IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
-                else
-                    responseContent[JSON]?.schema?.resolveType(context)
-            }
-
-        if (resultType == null)
-            throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON are supported.")
 
         val parameters = getIUVAPIParameters(op, bodyType, context) +
                 if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties, context, multiPartForm)

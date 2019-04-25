@@ -88,64 +88,6 @@ class OpenAPIReaderTest {
     }
 
     @Test
-    fun serializers() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
-
-        if (api == null) {
-            fail()
-            return
-        }
-
-        val sw = StringWriter()
-        sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/serializers.mustache"), api, context, it)
-            assertEquals("import kotlinx.serialization.ImplicitReflectionSerializer\n" +
-                    "\n" +
-                    "object ListPetIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = ArrayListSerializer(Pet::class.serializer())\n" +
-                    "}\n" +
-                    "\n" +
-                    "object PetIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = Pet::class.serializer()\n" +
-                    "}\n" +
-                    "\n" +
-                    "object NewPetIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = NewPet::class.serializer()\n" +
-                    "}\n" +
-                    "\n" +
-                    "object ListStringIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = ArrayListSerializer(StringSerializer)\n" +
-                    "}\n" +
-                    "\n" +
-                    "object IntIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = IntSerializer\n" +
-                    "}\n" +
-                    "\n" +
-                    "object UnitIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = UnitSerializer\n" +
-                    "}\n" +
-                    "\n" +
-                    "object LongIUVSerializer : IUVSerializer {\n" +
-                    "    @ImplicitReflectionSerializer\n" +
-                    "    override val serializer: KSerializer<*>\n" +
-                    "        get() = LongSerializer\n" +
-                    "}", sw.toString())
-        }
-    }
-
-    @Test
     fun petstoreExpancedClientImpl() {
         val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 

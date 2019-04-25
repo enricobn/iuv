@@ -43,6 +43,7 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
                             "$modelPackage.${apiName.toLowerCase()}")
 
                     val api = OpenAPIReader.parse(it.toURI().toURL(), apiName, openAPIWriteContext)
+
                     if (api == null) {
                         System.err.println("Error reading $it")
                         return@forEach
