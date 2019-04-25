@@ -218,7 +218,7 @@ class UnsupportedOpenAPISpecification: Exception {
 object OpenAPIReader {
     private val LOGGER = LoggerFactory.getLogger(OpenAPIReader::class.java)
 
-    fun read(url: URL): OpenAPI? = OpenAPIV3Parser().read(url.toURI().toString())
+    private fun read(url: URL): OpenAPI? = OpenAPIV3Parser().read(url.toURI().toString())
 
     fun runTemplate(url: URL, api : IUVAPI, context: OpenAPIWriteContext, writer: Writer) {
         val bundle = mapOf("context" to context, "api" to api)
@@ -383,24 +383,24 @@ object OpenAPIReader {
     private fun Schema<*>.resolveType(context: OpenAPIWriteContext) : IUVAPIType {
         if (type != null) {
 
-            if (this is ArraySchema) {
-                val itemsType = items.resolveType(context)
-                return IUVAPIType("List<$itemsType>",
-                        IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
-                                imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
-                        itemsType.imports)
-            } else if (this is FileSchema) {
-                return IUVAPIType("MultipartFile",
+            when {
+                this is ArraySchema -> {
+                    val itemsType = items.resolveType(context)
+                    return IUVAPIType("List<$itemsType>",
+                            IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
+                                    imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
+                            itemsType.imports)
+                }
+                this is FileSchema -> return IUVAPIType("MultipartFile",
                         IUVAPISerializer("", "",imports = emptySet()),
-                            listOf(
-                                    IUVImport("org.iuv.core.MultiPartData", setOf(IUVImportType.CLIENT_IMPL)),
-                                    IUVImport("org.iuv.core.MultipartFile", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
-                                    IUVImport("org.springframework.web.multipart.MultipartFile",
-                                            setOf(IUVImportType.CONTROLLER))
-                            )
+                        listOf(
+                                IUVImport("org.iuv.core.MultiPartData", setOf(IUVImportType.CLIENT_IMPL)),
+                                IUVImport("org.iuv.core.MultipartFile", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
+                                IUVImport("org.springframework.web.multipart.MultipartFile",
+                                        setOf(IUVImportType.CONTROLLER))
                         )
-            } else if (type == "object") {
-                additionalProperties.let {
+                )
+                type == "object" -> additionalProperties.let {
                     if (it is Boolean)  {
                         throw UnsupportedOpenAPISpecification("Unknown type.")
                     } else if (it is Schema<*>) {
