@@ -88,33 +88,6 @@ class OpenAPIReaderTest {
     }
 
     @Test
-    fun api() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
-
-        if (api == null) {
-            fail()
-            return
-        }
-
-        val sw = StringWriter()
-        sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/api.mustache"), api, context, it)
-            assertEquals("interface PetStoreApi {\n" +
-                    "\n" +
-                    "    fun findPets(tags : List<String>, limit : Int) : List<Pet>\n" +
-                    "\n" +
-                    "    fun addPet(body : NewPet) : Pet\n" +
-                    "\n" +
-                    "    fun findPetById(id : Long) : Pet\n" +
-                    "\n" +
-                    "    fun deletePet(id : Long) : Unit\n" +
-                    "\n" +
-                    "}", sw.toString())
-        }
-
-    }
-
-    @Test
     fun serializers() {
         val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
@@ -173,7 +146,7 @@ class OpenAPIReaderTest {
     }
 
     @Test
-    fun client() {
+    fun petstoreExpancedClientImpl() {
         val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
 
         if (api == null) {
@@ -183,7 +156,7 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), api, context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
@@ -197,11 +170,10 @@ class OpenAPIReaderTest {
                     "import org.iuv.test.models.NewPet\n" +
                     "import org.iuv.test.models.Pet\n" +
                     "\n" +
-                    "object PetStoreClient {\n" +
-                    "    private const val baseUrl = \"http://petstore.swagger.io/api\"\n" +
+                    "class PetStoreApiImpl(private val baseUrl : String = \"http://petstore.swagger.io/api\") : PetStoreApi {\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
+                    "    override fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
                     "            .queryParams(\n" +
                     "                \"tags\" to tags, \n" +
@@ -210,18 +182,18 @@ class OpenAPIReaderTest {
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun addPet(body : NewPet) : Task<String,Pet> =\n" +
+                    "    override fun addPet(body : NewPet) : Task<String,Pet> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/pets\", Pet::class.serializer())\n" +
                     "            .body(body, NewPet::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun findPetById(id : Long) : Task<String,Pet> =\n" +
+                    "    override fun findPetById(id : Long) : Task<String,Pet> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pets/\$id\", Pet::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun deletePet(id : Long) : Task<String,Unit> =\n" +
+                    "    override fun deletePet(id : Long) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/pets/\$id\", UnitSerializer)\n" +
                     "            .run()\n" +
                     "\n" +
@@ -251,8 +223,8 @@ class OpenAPIReaderTest {
     }
 
     @Test
-    fun petstoreClient() {
-        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
+    fun petstoreClientImpl() {
+        val api = OpenAPIReader.parse(getResource("/petstore.json"), "Petstore", context)
 
         if (api == null) {
             fail()
@@ -261,7 +233,7 @@ class OpenAPIReaderTest {
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), api, context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
@@ -282,23 +254,22 @@ class OpenAPIReaderTest {
                     "import org.iuv.test.models.Pet\n" +
                     "import org.iuv.test.models.User\n" +
                     "\n" +
-                    "object PetStoreClient {\n" +
-                    "    private const val baseUrl = \"https://petstore.swagger.io/v2\"\n" +
+                    "class PetstoreApiImpl(private val baseUrl : String = \"https://petstore.swagger.io/v2\") : PetstoreApi {\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun addPet(body : Pet) : Task<String,Pet> =\n" +
+                    "    override fun addPet(body : Pet) : Task<String,Pet> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet\", Pet::class.serializer())\n" +
                     "            .body(body, Pet::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun updatePet(body : Pet) : Task<String,Pet> =\n" +
+                    "    override fun updatePet(body : Pet) : Task<String,Pet> =\n" +
                     "        Http.runner(HttpMethod.Put, \"\$baseUrl/pet\", Pet::class.serializer())\n" +
                     "            .body(body, Pet::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>> =\n" +
+                    "    override fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/findByStatus\", ArrayListSerializer(Pet::class.serializer()))\n" +
                     "            .queryParams(\n" +
                     "                \"status\" to status\n" +
@@ -306,7 +277,7 @@ class OpenAPIReaderTest {
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>> =\n" +
+                    "    override fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/findByTags\", ArrayListSerializer(Pet::class.serializer()))\n" +
                     "            .queryParams(\n" +
                     "                \"tags\" to tags\n" +
@@ -314,12 +285,12 @@ class OpenAPIReaderTest {
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun getPetById(petId : Long) : Task<String,Pet> =\n" +
+                    "    override fun getPetById(petId : Long) : Task<String,Pet> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/\$petId\", Pet::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit> =\n" +
+                    "    override fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
                     "            .formData(\n" +
                     "                \"name\" to name, \n" +
@@ -328,13 +299,13 @@ class OpenAPIReaderTest {
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun deletePet(api_key : String, petId : Long) : Task<String,Unit> =\n" +
+                    "    override fun deletePet(api_key : String, petId : Long) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
                     "            .headers(\"api_key\" to api_key)\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse> =\n" +
+                    "    override fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet/\$petId/uploadImage\", ApiResponse::class.serializer())\n" +
                     "            .multiPartData(\n" +
                     "                MultiPartData.of(\"additionalMetadata\", additionalMetadata), \n" +
@@ -343,46 +314,46 @@ class OpenAPIReaderTest {
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun getInventory() : Task<String,Map<String, Int>> =\n" +
+                    "    override fun getInventory() : Task<String,Map<String, Int>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/store/inventory\", HashMapSerializer(StringSerializer,IntSerializer))\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun placeOrder(body : Order) : Task<String,Order> =\n" +
+                    "    override fun placeOrder(body : Order) : Task<String,Order> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/store/order\", Order::class.serializer())\n" +
                     "            .body(body, Order::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun getOrderById(orderId : Long) : Task<String,Order> =\n" +
+                    "    override fun getOrderById(orderId : Long) : Task<String,Order> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/store/order/\$orderId\", Order::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun deleteOrder(orderId : Long) : Task<String,Unit> =\n" +
+                    "    override fun deleteOrder(orderId : Long) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/store/order/\$orderId\", UnitSerializer)\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun createUser(body : User) : Task<String,Unit> =\n" +
+                    "    override fun createUser(body : User) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/user\", UnitSerializer)\n" +
                     "            .body(body, User::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit> =\n" +
+                    "    override fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/user/createWithArray\", UnitSerializer)\n" +
                     "            .body(body, ArrayListSerializer(User::class.serializer()))\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun createUsersWithListInput(body : List<User>) : Task<String,Unit> =\n" +
+                    "    override fun createUsersWithListInput(body : List<User>) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/user/createWithList\", UnitSerializer)\n" +
                     "            .body(body, ArrayListSerializer(User::class.serializer()))\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun loginUser(username : String, password : String) : Task<String,String> =\n" +
+                    "    override fun loginUser(username : String, password : String) : Task<String,String> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/login\", StringSerializer)\n" +
                     "            .queryParams(\n" +
                     "                \"username\" to username, \n" +
@@ -391,25 +362,94 @@ class OpenAPIReaderTest {
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun logoutUser() : Task<String,Unit> =\n" +
+                    "    override fun logoutUser() : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/logout\", UnitSerializer)\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun getUserByName(username : String) : Task<String,User> =\n" +
+                    "    override fun getUserByName(username : String) : Task<String,User> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/\$username\", User::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun updateUser(username : String, body : User) : Task<String,User> =\n" +
+                    "    override fun updateUser(username : String, body : User) : Task<String,User> =\n" +
                     "        Http.runner(HttpMethod.Put, \"\$baseUrl/user/\$username\", User::class.serializer())\n" +
                     "            .body(body, User::class.serializer())\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    fun deleteUser(username : String) : Task<String,Unit> =\n" +
+                    "    override fun deleteUser(username : String) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/user/\$username\", UnitSerializer)\n" +
                     "            .run()\n" +
+                    "\n" +
+                    "}", sw.toString())
+        }
+
+    }
+
+    @Test
+    fun petstoreClient() {
+        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
+
+        if (api == null) {
+            fail()
+            return
+        }
+
+        val sw = StringWriter()
+        sw.use {
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), api, context, it)
+            assertEquals("package org.iuv.test.client\n" +
+                    "\n" +
+                    "import org.iuv.shared.Task\n" +
+                    "\n" +
+                    "import org.iuv.core.MultipartFile\n" +
+                    "import org.iuv.test.models.ApiResponse\n" +
+                    "import org.iuv.test.models.Order\n" +
+                    "import org.iuv.test.models.Pet\n" +
+                    "import org.iuv.test.models.User\n" +
+                    "\n" +
+                    "interface PetStoreApi {\n" +
+                    "\n" +
+                    "    fun addPet(body : Pet) : Task<String,Pet>\n" +
+                    "\n" +
+                    "    fun updatePet(body : Pet) : Task<String,Pet>\n" +
+                    "\n" +
+                    "    fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>>\n" +
+                    "\n" +
+                    "    fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>>\n" +
+                    "\n" +
+                    "    fun getPetById(petId : Long) : Task<String,Pet>\n" +
+                    "\n" +
+                    "    fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun deletePet(api_key : String, petId : Long) : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse>\n" +
+                    "\n" +
+                    "    fun getInventory() : Task<String,Map<String, Int>>\n" +
+                    "\n" +
+                    "    fun placeOrder(body : Order) : Task<String,Order>\n" +
+                    "\n" +
+                    "    fun getOrderById(orderId : Long) : Task<String,Order>\n" +
+                    "\n" +
+                    "    fun deleteOrder(orderId : Long) : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun createUser(body : User) : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun createUsersWithListInput(body : List<User>) : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun loginUser(username : String, password : String) : Task<String,String>\n" +
+                    "\n" +
+                    "    fun logoutUser() : Task<String,Unit>\n" +
+                    "\n" +
+                    "    fun getUserByName(username : String) : Task<String,User>\n" +
+                    "\n" +
+                    "    fun updateUser(username : String, body : User) : Task<String,User>\n" +
+                    "\n" +
+                    "    fun deleteUser(username : String) : Task<String,Unit>\n" +
                     "\n" +
                     "}", sw.toString())
         }

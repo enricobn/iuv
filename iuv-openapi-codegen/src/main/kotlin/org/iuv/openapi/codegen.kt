@@ -143,6 +143,8 @@ data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components:
 
     val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
 
+    val clientImplImports = imports.filter { it.clientImpl}.map { it.copy() }.calculateLast()
+
     val clientImports = imports.filter { it.client}.map { it.copy() }.calculateLast()
 
     // TODO do we assume that component serializers are a subset or must we add them?
@@ -155,15 +157,17 @@ data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components:
 
 }
 
-data class IUVImport(val fullClassName: String, val type: IUVImportType, override var last: Boolean = false) : Comparable<IUVImport>, Last {
+data class IUVImport(val fullClassName: String, val types: Set<IUVImportType>, override var last: Boolean = false) : Comparable<IUVImport>, Last {
 
     override fun compareTo(other: IUVImport): Int = fullClassName.compareTo(other.fullClassName)
 
-    val api = type == IUVImportType.API
+    val api = types.contains(IUVImportType.API)
 
-    val controller = type == IUVImportType.CONTROLLER || type == IUVImportType.SHARED || api
+    val controller = types.contains(IUVImportType.CONTROLLER)
 
-    val client = type == IUVImportType.CLIENT || type == IUVImportType.SHARED
+    val client = types.contains(IUVImportType.CLIENT)
+
+    val clientImpl = types.contains(IUVImportType.CLIENT_IMPL)
 
 }
 
@@ -171,6 +175,7 @@ enum class IUVImportType {
     CONTROLLER,
     API,
     CLIENT,
+    CLIENT_IMPL,
     SHARED
 }
 
@@ -217,10 +222,13 @@ object OpenAPIReader {
 
         val components = api.components.schemas.map { toIUVAPIComponent(api, it, context) }
 
-        val operationsImports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.controllerAnnotationClass, IUVImportType.CONTROLLER) } }
+        val operationsImports = paths.flatMap {
+            it.operations.map { op -> IUVImport(op.op.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
+        }
+
         val parametersTypesImport = paths.flatMap {
             it.operations.flatMap {
-                op -> op.parameters.map { par -> IUVImport(par.parameterType.controllerAnnotationClass, IUVImportType.CONTROLLER) }
+                op -> op.parameters.map { par -> IUVImport(par.parameterType.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
             }
         }
         val parametersImport = paths.flatMap {
@@ -229,7 +237,13 @@ object OpenAPIReader {
 
         val resultAndBodyImports = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.imports } } }
 
-        val resultAndBodySerializersImport = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.serializer.imports}.map { typeSerializerImport -> IUVImport(typeSerializerImport, IUVImportType.CLIENT) } } }
+        val resultAndBodySerializersImport = paths.flatMap {
+            it.operations.flatMap { op ->
+                listOfNotNull(op.bodyType, op.resultType)
+                        .flatMap { type -> type.serializer.imports }
+                        .map { typeSerializerImport -> IUVImport(typeSerializerImport, setOf(IUVImportType.CLIENT_IMPL)) }
+            }
+        }
 
         val imports = (operationsImports + parametersTypesImport + parametersImport +
                 resultAndBodyImports + resultAndBodySerializersImport)
@@ -340,9 +354,10 @@ object OpenAPIReader {
                 return IUVAPIType("MultipartFile",
                         IUVAPISerializer("", "",imports = emptySet()),
                             listOf(
-                                    IUVImport("org.iuv.core.MultiPartData", IUVImportType.CLIENT),
-                                    IUVImport("org.iuv.core.MultipartFile", IUVImportType.CLIENT),
-                                    IUVImport("org.springframework.web.multipart.MultipartFile", IUVImportType.CONTROLLER)
+                                    IUVImport("org.iuv.core.MultiPartData", setOf(IUVImportType.CLIENT_IMPL)),
+                                    IUVImport("org.iuv.core.MultipartFile", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
+                                    IUVImport("org.springframework.web.multipart.MultipartFile",
+                                            setOf(IUVImportType.CONTROLLER))
                             )
                         )
             } else if (type == "object") {
@@ -371,7 +386,8 @@ object OpenAPIReader {
         val type = `$ref`.split("/").last()
         return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()",
                 imports = setOf("kotlinx.serialization.serializer")),
-                listOf(IUVImport(context.modelPackage + "." + type, IUVImportType.SHARED)))
+                listOf(IUVImport(context.modelPackage + "." + type,
+                        setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
     }
 
     private fun toKotlinType(type: String, format: String?) =

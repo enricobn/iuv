@@ -1,0 +1,52 @@
+package {{context.clientPackage}}
+
+import kotlinx.serialization.ImplicitReflectionSerializer
+import org.iuv.shared.Task
+import org.iuv.core.Http
+import org.iuv.core.HttpMethod
+
+{{#api.clientImplImports}}
+import {{fullClassName}}
+{{#last}}
+
+{{/last}}
+{{/api.clientImplImports}}
+class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : {{api.name}}Api {
+{{#api.paths}}
+  {{#operations}}
+
+    @ImplicitReflectionSerializer
+    override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
+        Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}", {{resultType.serializer.code}})
+            {{#bodyType}}
+            .body(body, {{serializer.code}})
+            {{/bodyType}}
+            {{#hasFormData}}
+            .formData(
+                {{#formData}}
+                "{{name}}" to {{name}}{{^last}}, {{/last}}
+                {{/formData}}
+            )
+            {{/hasFormData}}
+            {{#hasClientQueryParams}}
+            .queryParams(
+                {{#clientQueryParams}}
+                "{{name}}" to {{name}}{{^last}}, {{/last}}
+                {{/clientQueryParams}}
+            )
+            {{/hasClientQueryParams}}
+            {{#hasMultiPartData}}
+            .multiPartData(
+                {{#multiPartData}}
+                MultiPartData.of("{{name}}", {{name}}){{^last}}, {{/last}}
+                {{/multiPartData}}
+            )
+            {{/hasMultiPartData}}
+            {{#hasHeaders}}
+            .headers({{#headers}}"{{name}}" to {{name}}{{^last}}, {{/last}}{{/headers}})
+            {{/hasHeaders}}
+            .run()
+  {{/operations}}
+{{/api.paths}}
+
+}

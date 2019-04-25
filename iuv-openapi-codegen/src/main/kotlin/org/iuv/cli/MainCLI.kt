@@ -49,8 +49,10 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
                     } else {
                         runTemplate(controllerSourceFolder, controllerPackage, apiName + "Controller",
                                 "/openapi/templates/controller.mustache", api, openAPIWriteContext)
-                        runTemplate(clientSourceFolder, clientPackage, apiName + "Client",
+                        runTemplate(clientSourceFolder, clientPackage, apiName + "Api",
                                 "/openapi/templates/client.mustache", api, openAPIWriteContext)
+                        runTemplate(clientSourceFolder, clientPackage, apiName + "ApiImpl",
+                                "/openapi/templates/clientImpl.mustache", api, openAPIWriteContext)
                         runTemplate(modelSourceFolder, modelPackage, apiName + "Model",
                                 "/openapi/templates/components.mustache", api, openAPIWriteContext)
                     }
