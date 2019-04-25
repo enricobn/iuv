@@ -139,8 +139,6 @@ data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components:
         components.calculateLast()
     }
 
-    val apiImports = imports.filter { it.api }.map { it.copy() }.calculateLast()
-
     val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
 
     val clientImplImports = imports.filter { it.clientImpl}.map { it.copy() }.calculateLast()
@@ -161,8 +159,6 @@ data class IUVImport(val fullClassName: String, val types: Set<IUVImportType>, o
 
     override fun compareTo(other: IUVImport): Int = fullClassName.compareTo(other.fullClassName)
 
-    val api = types.contains(IUVImportType.API)
-
     val controller = types.contains(IUVImportType.CONTROLLER)
 
     val client = types.contains(IUVImportType.CLIENT)
@@ -173,10 +169,8 @@ data class IUVImport(val fullClassName: String, val types: Set<IUVImportType>, o
 
 enum class IUVImportType {
     CONTROLLER,
-    API,
     CLIENT,
-    CLIENT_IMPL,
-    SHARED
+    CLIENT_IMPL
 }
 
 fun <T : Last> List<T>.calculateLast(): List<T> {
@@ -216,6 +210,13 @@ object OpenAPIReader {
     }
 
     fun parse(url: URL, name: String, context: OpenAPIWriteContext) : IUVAPI? {
+        val standardImports = setOf(
+                IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
+                IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL))
+        )
+
         val api = read(url) ?: return null
 
         val paths = api.paths.map { toIUVAPIPath(it, context) }
@@ -245,11 +246,23 @@ object OpenAPIReader {
             }
         }
 
-        val imports = (operationsImports + parametersTypesImport + parametersImport +
+        val imports = (standardImports + operationsImports + parametersTypesImport + parametersImport +
                 resultAndBodyImports + resultAndBodySerializersImport)
                 .toSet()
                 .toList()
-                .sorted()
+                .sortedBy {
+                    val prefix =
+                            if (it.fullClassName.startsWith(context.modelPackage)) {
+                                "2"
+                            } else if (it.fullClassName.startsWith(context.controllerPackage) || it.fullClassName.startsWith(context.clientPackage)) {
+                                "3"
+                            } else if (it.fullClassName.startsWith("org.iuv")) {
+                                "1"
+                            } else {
+                                "0"
+                            }
+                    prefix + it.fullClassName
+                }
 
         return IUVAPI(name, paths, components, imports, api.servers?.firstOrNull()?.url ?: "")
     }

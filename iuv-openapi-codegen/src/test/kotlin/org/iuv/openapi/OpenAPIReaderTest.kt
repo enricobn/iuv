@@ -60,14 +60,14 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), api, context, it)
             assertEquals("package org.iuv.test.controllers\n" +
                     "\n" +
-                    "import org.iuv.test.models.NewPet\n" +
-                    "import org.iuv.test.models.Pet\n" +
                     "import org.springframework.web.bind.annotation.DeleteMapping\n" +
                     "import org.springframework.web.bind.annotation.GetMapping\n" +
                     "import org.springframework.web.bind.annotation.PathVariable\n" +
                     "import org.springframework.web.bind.annotation.PostMapping\n" +
                     "import org.springframework.web.bind.annotation.RequestBody\n" +
                     "import org.springframework.web.bind.annotation.RequestParam\n" +
+                    "import org.iuv.test.models.NewPet\n" +
+                    "import org.iuv.test.models.Pet\n" +
                     "\n" +
                     "interface PetStoreController {\n" +
                     "\n" +
@@ -160,13 +160,12 @@ class OpenAPIReaderTest {
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
-                    "import org.iuv.shared.Task\n" +
-                    "import org.iuv.core.Http\n" +
-                    "import org.iuv.core.HttpMethod\n" +
-                    "\n" +
                     "import kotlinx.serialization.internal.ArrayListSerializer\n" +
                     "import kotlinx.serialization.internal.UnitSerializer\n" +
                     "import kotlinx.serialization.serializer\n" +
+                    "import org.iuv.core.Http\n" +
+                    "import org.iuv.core.HttpMethod\n" +
+                    "import org.iuv.shared.Task\n" +
                     "import org.iuv.test.models.NewPet\n" +
                     "import org.iuv.test.models.Pet\n" +
                     "\n" +
@@ -237,18 +236,17 @@ class OpenAPIReaderTest {
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
-                    "import org.iuv.shared.Task\n" +
-                    "import org.iuv.core.Http\n" +
-                    "import org.iuv.core.HttpMethod\n" +
-                    "\n" +
                     "import kotlinx.serialization.internal.ArrayListSerializer\n" +
                     "import kotlinx.serialization.internal.HashMapSerializer\n" +
                     "import kotlinx.serialization.internal.IntSerializer\n" +
                     "import kotlinx.serialization.internal.StringSerializer\n" +
                     "import kotlinx.serialization.internal.UnitSerializer\n" +
                     "import kotlinx.serialization.serializer\n" +
+                    "import org.iuv.core.Http\n" +
+                    "import org.iuv.core.HttpMethod\n" +
                     "import org.iuv.core.MultiPartData\n" +
                     "import org.iuv.core.MultipartFile\n" +
+                    "import org.iuv.shared.Task\n" +
                     "import org.iuv.test.models.ApiResponse\n" +
                     "import org.iuv.test.models.Order\n" +
                     "import org.iuv.test.models.Pet\n" +
@@ -401,9 +399,8 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), api, context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
-                    "import org.iuv.shared.Task\n" +
-                    "\n" +
                     "import org.iuv.core.MultipartFile\n" +
+                    "import org.iuv.shared.Task\n" +
                     "import org.iuv.test.models.ApiResponse\n" +
                     "import org.iuv.test.models.Order\n" +
                     "import org.iuv.test.models.Pet\n" +
@@ -470,10 +467,6 @@ class OpenAPIReaderTest {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), api, context, it)
             assertEquals("package org.iuv.test.controllers\n" +
                     "\n" +
-                    "import org.iuv.test.models.ApiResponse\n" +
-                    "import org.iuv.test.models.Order\n" +
-                    "import org.iuv.test.models.Pet\n" +
-                    "import org.iuv.test.models.User\n" +
                     "import org.springframework.web.bind.annotation.DeleteMapping\n" +
                     "import org.springframework.web.bind.annotation.GetMapping\n" +
                     "import org.springframework.web.bind.annotation.PathVariable\n" +
@@ -484,6 +477,10 @@ class OpenAPIReaderTest {
                     "import org.springframework.web.bind.annotation.RequestParam\n" +
                     "import org.springframework.web.bind.annotation.RequestPart\n" +
                     "import org.springframework.web.multipart.MultipartFile\n" +
+                    "import org.iuv.test.models.ApiResponse\n" +
+                    "import org.iuv.test.models.Order\n" +
+                    "import org.iuv.test.models.Pet\n" +
+                    "import org.iuv.test.models.User\n" +
                     "\n" +
                     "interface PetStoreController {\n" +
                     "\n" +
