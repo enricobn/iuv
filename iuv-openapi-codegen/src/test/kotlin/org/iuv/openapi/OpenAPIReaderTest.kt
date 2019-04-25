@@ -203,7 +203,10 @@ class OpenAPIReaderTest {
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPets(tags : List<String>, limit : Int) : Task<String,List<Pet>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pets\", ArrayListSerializer(Pet::class.serializer()))\n" +
-                    "            .queryParams(mapOf(\"tags\" to tags, \"limit\" to limit))\n" +
+                    "            .queryParams(\n" +
+                    "                \"tags\" to tags, \n" +
+                    "                \"limit\" to limit\n" +
+                    "            )\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
@@ -272,6 +275,9 @@ class OpenAPIReaderTest {
                     "import kotlinx.serialization.internal.StringSerializer\n" +
                     "import kotlinx.serialization.internal.UnitSerializer\n" +
                     "import kotlinx.serialization.serializer\n" +
+                    "import org.iuv.core.MultiPartData\n" +
+                    "import org.iuv.core.MultipartFile\n" +
+                    "import org.iuv.test.models.ApiResponse\n" +
                     "import org.iuv.test.models.Order\n" +
                     "import org.iuv.test.models.Pet\n" +
                     "import org.iuv.test.models.User\n" +
@@ -294,13 +300,17 @@ class OpenAPIReaderTest {
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/findByStatus\", ArrayListSerializer(Pet::class.serializer()))\n" +
-                    "            .queryParams(mapOf(\"status\" to status))\n" +
+                    "            .queryParams(\n" +
+                    "                \"status\" to status\n" +
+                    "            )\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/pet/findByTags\", ArrayListSerializer(Pet::class.serializer()))\n" +
-                    "            .queryParams(mapOf(\"tags\" to tags))\n" +
+                    "            .queryParams(\n" +
+                    "                \"tags\" to tags\n" +
+                    "            )\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
@@ -311,12 +321,25 @@ class OpenAPIReaderTest {
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
-                    "            .formData(mapOf(\"name\" to name, \"status\" to status))\n" +
+                    "            .formData(\n" +
+                    "                \"name\" to name, \n" +
+                    "                \"status\" to status\n" +
+                    "            )\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun deletePet(api_key : String, petId : Long) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/pet/\$petId\", UnitSerializer)\n" +
+                    "            .headers(\"api_key\" to api_key)\n" +
+                    "            .run()\n" +
+                    "\n" +
+                    "    @ImplicitReflectionSerializer\n" +
+                    "    fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse> =\n" +
+                    "        Http.runner(HttpMethod.Post, \"\$baseUrl/pet/\$petId/uploadImage\", ApiResponse::class.serializer())\n" +
+                    "            .multiPartData(\n" +
+                    "                MultiPartData.of(\"additionalMetadata\", additionalMetadata), \n" +
+                    "                MultiPartData.of(\"file\", file)\n" +
+                    "            )\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
@@ -361,7 +384,10 @@ class OpenAPIReaderTest {
                     "    @ImplicitReflectionSerializer\n" +
                     "    fun loginUser(username : String, password : String) : Task<String,String> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/user/login\", StringSerializer)\n" +
-                    "            .queryParams(mapOf(\"username\" to username, \"password\" to password))\n" +
+                    "            .queryParams(\n" +
+                    "                \"username\" to username, \n" +
+                    "                \"password\" to password\n" +
+                    "            )\n" +
                     "            .run()\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
@@ -384,6 +410,102 @@ class OpenAPIReaderTest {
                     "    fun deleteUser(username : String) : Task<String,Unit> =\n" +
                     "        Http.runner(HttpMethod.Delete, \"\$baseUrl/user/\$username\", UnitSerializer)\n" +
                     "            .run()\n" +
+                    "\n" +
+                    "}", sw.toString())
+        }
+
+    }
+
+    @Test
+    fun petstoreConroller() {
+        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
+
+        if (api == null) {
+            fail()
+            return
+        }
+
+        val sw = StringWriter()
+        sw.use {
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), api, context, it)
+            assertEquals("package org.iuv.test.controllers\n" +
+                    "\n" +
+                    "import org.iuv.test.models.ApiResponse\n" +
+                    "import org.iuv.test.models.Order\n" +
+                    "import org.iuv.test.models.Pet\n" +
+                    "import org.iuv.test.models.User\n" +
+                    "import org.springframework.web.bind.annotation.DeleteMapping\n" +
+                    "import org.springframework.web.bind.annotation.GetMapping\n" +
+                    "import org.springframework.web.bind.annotation.PathVariable\n" +
+                    "import org.springframework.web.bind.annotation.PostMapping\n" +
+                    "import org.springframework.web.bind.annotation.PutMapping\n" +
+                    "import org.springframework.web.bind.annotation.RequestBody\n" +
+                    "import org.springframework.web.bind.annotation.RequestHeader\n" +
+                    "import org.springframework.web.bind.annotation.RequestParam\n" +
+                    "import org.springframework.web.bind.annotation.RequestPart\n" +
+                    "import org.springframework.web.multipart.MultipartFile\n" +
+                    "\n" +
+                    "interface PetStoreController {\n" +
+                    "\n" +
+                    "    @PostMapping(\"/pet\")\n" +
+                    "    fun addPet(@RequestBody body : Pet) : Pet\n" +
+                    "\n" +
+                    "    @PutMapping(\"/pet\")\n" +
+                    "    fun updatePet(@RequestBody body : Pet) : Pet\n" +
+                    "\n" +
+                    "    @GetMapping(\"/pet/findByStatus\")\n" +
+                    "    fun findPetsByStatus(@RequestParam status : List<String>) : List<Pet>\n" +
+                    "\n" +
+                    "    @GetMapping(\"/pet/findByTags\")\n" +
+                    "    fun findPetsByTags(@RequestParam tags : List<String>) : List<Pet>\n" +
+                    "\n" +
+                    "    @GetMapping(\"/pet/{petId}\")\n" +
+                    "    fun getPetById(@PathVariable petId : Long) : Pet\n" +
+                    "\n" +
+                    "    @PostMapping(\"/pet/{petId}\")\n" +
+                    "    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String, @RequestParam status : String) : Unit\n" +
+                    "\n" +
+                    "    @DeleteMapping(\"/pet/{petId}\")\n" +
+                    "    fun deletePet(@RequestHeader api_key : String, @PathVariable petId : Long) : Unit\n" +
+                    "\n" +
+                    "    @PostMapping(\"/pet/{petId}/uploadImage\")\n" +
+                    "    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String, @RequestPart file : MultipartFile) : ApiResponse\n" +
+                    "\n" +
+                    "    @GetMapping(\"/store/inventory\")\n" +
+                    "    fun getInventory() : Map<String, Int>\n" +
+                    "\n" +
+                    "    @PostMapping(\"/store/order\")\n" +
+                    "    fun placeOrder(@RequestBody body : Order) : Order\n" +
+                    "\n" +
+                    "    @GetMapping(\"/store/order/{orderId}\")\n" +
+                    "    fun getOrderById(@PathVariable orderId : Long) : Order\n" +
+                    "\n" +
+                    "    @DeleteMapping(\"/store/order/{orderId}\")\n" +
+                    "    fun deleteOrder(@PathVariable orderId : Long) : Unit\n" +
+                    "\n" +
+                    "    @PostMapping(\"/user\")\n" +
+                    "    fun createUser(@RequestBody body : User) : Unit\n" +
+                    "\n" +
+                    "    @PostMapping(\"/user/createWithArray\")\n" +
+                    "    fun createUsersWithArrayInput(@RequestBody body : List<User>) : Unit\n" +
+                    "\n" +
+                    "    @PostMapping(\"/user/createWithList\")\n" +
+                    "    fun createUsersWithListInput(@RequestBody body : List<User>) : Unit\n" +
+                    "\n" +
+                    "    @GetMapping(\"/user/login\")\n" +
+                    "    fun loginUser(@RequestParam username : String, @RequestParam password : String) : String\n" +
+                    "\n" +
+                    "    @GetMapping(\"/user/logout\")\n" +
+                    "    fun logoutUser() : Unit\n" +
+                    "\n" +
+                    "    @GetMapping(\"/user/{username}\")\n" +
+                    "    fun getUserByName(@PathVariable username : String) : User\n" +
+                    "\n" +
+                    "    @PutMapping(\"/user/{username}\")\n" +
+                    "    fun updateUser(@PathVariable username : String, @RequestBody body : User) : User\n" +
+                    "\n" +
+                    "    @DeleteMapping(\"/user/{username}\")\n" +
+                    "    fun deleteUser(@PathVariable username : String) : Unit\n" +
                     "\n" +
                     "}", sw.toString())
         }

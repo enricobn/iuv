@@ -7,6 +7,7 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.PathItem
 import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.ComposedSchema
+import io.swagger.v3.oas.models.media.FileSchema
 import io.swagger.v3.oas.models.media.Schema
 import io.swagger.v3.oas.models.parameters.Parameter
 import io.swagger.v3.oas.models.parameters.QueryParameter
@@ -20,6 +21,7 @@ import java.net.URL
 private const val JSON = "application/json"
 private const val ALL_CONTENTS = "*/*"
 private const val FORM_URL_ENCODED = "application/x-www-form-urlencoded"
+private const val MULTIPART_FORM_DATA = "multipart/form-data"
 private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer",
         imports = setOf("kotlinx.serialization.internal.UnitSerializer"))
 
@@ -45,33 +47,39 @@ data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponen
     }
 }
 
-enum class ParameterType(val fullClassName: String) {
+enum class ParameterType(val controllerAnnotationClass: String) {
     PATH_VARIABLE("org.springframework.web.bind.annotation.PathVariable"),
     REQUEST_PARAM("org.springframework.web.bind.annotation.RequestParam"),
     REQUEST_BODY("org.springframework.web.bind.annotation.RequestBody"),
-    FORM_PARAM("org.springframework.web.bind.annotation.RequestParam")
+    FORM_PARAM("org.springframework.web.bind.annotation.RequestParam"),
+    MULTI_PART_PARAM("org.springframework.web.bind.annotation.RequestParam"),
+    MULTI_PART_FILE_PARAM("org.springframework.web.bind.annotation.RequestPart"),
+    HEADER("org.springframework.web.bind.annotation.RequestHeader")
 }
 
 data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
     val pathVariable = parameterType == ParameterType.PATH_VARIABLE
-    val requestParam = parameterType == ParameterType.REQUEST_PARAM || parameterType == ParameterType.FORM_PARAM
+    val requestParam = parameterType == ParameterType.REQUEST_PARAM || parameterType == ParameterType.FORM_PARAM || parameterType == ParameterType.MULTI_PART_PARAM
     val requestBody = parameterType == ParameterType.REQUEST_BODY
     val formParam = parameterType == ParameterType.FORM_PARAM
     val clientQueryParam = parameterType == ParameterType.REQUEST_PARAM
+    val multiPartParam = parameterType == ParameterType.MULTI_PART_PARAM || parameterType == ParameterType.MULTI_PART_FILE_PARAM
+    val requestHeader = parameterType == ParameterType.HEADER
+    val requestPart = parameterType == ParameterType.MULTI_PART_FILE_PARAM
 }
 
-enum class IUVAPIOperationType(val fullClassName: String, val clientMethod: String) {
+enum class IUVAPIOperationType(val controllerAnnotationClass: String, val clientMethod: String) {
     Get("org.springframework.web.bind.annotation.GetMapping", "HttpMethod.Get"),
     Post("org.springframework.web.bind.annotation.PostMapping", "HttpMethod.Post"),
     Put("org.springframework.web.bind.annotation.PutMapping", "HttpMethod.Put"),
     Delete("org.springframework.web.bind.annotation.DeleteMapping", "HttpMethod.Delete");
 
     fun annotation(path: String) =
-        fullClassName.split('.').last() + "(\"$path\")"
+        controllerAnnotationClass.split('.').last() + "(\"$path\")"
 }
 
-data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>, val resultType: IUVAPIType?,
-                           val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
+data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>,
+                           val resultType: IUVAPIType?, val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
 
     init {
         parameters.calculateLast()
@@ -100,6 +108,15 @@ data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id
     val hasClientQueryParams = parameters.any { it.clientQueryParam }
 
     val clientQueryParams = parameters.filter{ it.clientQueryParam }.map { it.copy() }.calculateLast()
+
+    val hasMultiPartData = parameters.any { it.multiPartParam }
+
+    val multiPartData = parameters.filter { it.multiPartParam }.map { it.copy() }.calculateLast()
+
+    val hasHeaders = parameters.any { it.requestHeader }
+
+    val headers = parameters.filter { it.requestHeader }.map { it.copy() }.calculateLast()
+
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -200,10 +217,10 @@ object OpenAPIReader {
 
         val components = api.components.schemas.map { toIUVAPIComponent(api, it, context) }
 
-        val operationsImports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.fullClassName, IUVImportType.CONTROLLER) } }
+        val operationsImports = paths.flatMap { it.operations.map { op -> IUVImport(op.op.controllerAnnotationClass, IUVImportType.CONTROLLER) } }
         val parametersTypesImport = paths.flatMap {
             it.operations.flatMap {
-                op -> op.parameters.map { par -> IUVImport(par.parameterType.fullClassName, IUVImportType.CONTROLLER) }
+                op -> op.parameters.map { par -> IUVImport(par.parameterType.controllerAnnotationClass, IUVImportType.CONTROLLER) }
             }
         }
         val parametersImport = paths.flatMap {
@@ -261,6 +278,8 @@ object OpenAPIReader {
     private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation, responses: Set<String> = setOf("200"), context: OpenAPIWriteContext): IUVAPIOperation {
         var schemaForProperties : Schema<*>? = null
 
+        var multiPartForm = false
+
         val bodyType = if (op.requestBody != null &&
                 op.requestBody.content.isNotEmpty()) {
                     if (op.requestBody.content.containsKey(JSON) || op.requestBody.content.containsKey(ALL_CONTENTS)) {
@@ -268,6 +287,10 @@ object OpenAPIReader {
                         resolveType ?: op.requestBody?.content?.get(ALL_CONTENTS)?.schema?.resolveType(context)
                     } else if (op.requestBody.content.containsKey(FORM_URL_ENCODED)) {
                         schemaForProperties = op.requestBody?.content?.get(FORM_URL_ENCODED)?.schema
+                        null
+                    } else if (op.requestBody.content.containsKey(MULTIPART_FORM_DATA)) {
+                        schemaForProperties = op.requestBody?.content?.get(MULTIPART_FORM_DATA)?.schema
+                        multiPartForm = true
                         null
                     } else {
                         throw UnsupportedOpenAPISpecification(
@@ -299,7 +322,7 @@ object OpenAPIReader {
             throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : only nothing or $JSON are supported.")
 
         val parameters = getIUVAPIParameters(op, bodyType, context) +
-                if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties, context)
+                if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties, context, multiPartForm)
 
         return IUVAPIOperation(path, type, op.operationId, parameters, resultType, bodyType)
     }
@@ -313,6 +336,15 @@ object OpenAPIReader {
                         IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
                                 imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
                         itemsType.imports)
+            } else if (this is FileSchema) {
+                return IUVAPIType("MultipartFile",
+                        IUVAPISerializer("", "",imports = emptySet()),
+                            listOf(
+                                    IUVImport("org.iuv.core.MultiPartData", IUVImportType.CLIENT),
+                                    IUVImport("org.iuv.core.MultipartFile", IUVImportType.CLIENT),
+                                    IUVImport("org.springframework.web.multipart.MultipartFile", IUVImportType.CONTROLLER)
+                            )
+                        )
             } else if (type == "object") {
                 additionalProperties.let {
                     if (it is Boolean)  {
@@ -356,6 +388,8 @@ object OpenAPIReader {
                 }
             "boolean" -> IUVAPIType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
                     imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), listOf())
+            "file" -> IUVAPIType("MultipartFile", IUVAPISerializer("BooleanIUVSerializer", "MultipartFileSerializer",
+                    imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), listOf())
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
 
@@ -370,6 +404,8 @@ object OpenAPIReader {
                 } catch (e: NullPointerException) {
                     throw e
                 }
+            } else if (it.`in` == "header") {
+                IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.HEADER)
             } else {
                 IUVAPIParameter(it.name, it.schema.resolveType(context), ParameterType.PATH_VARIABLE)
             }
@@ -382,8 +418,16 @@ object OpenAPIReader {
         return parameters
     }
 
-    private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, context: OpenAPIWriteContext) : List<IUVAPIParameter> {
-        return schema.properties.map { IUVAPIParameter(it.key, it.value.resolveType(context), ParameterType.FORM_PARAM) }
+    private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, context: OpenAPIWriteContext, multiPartForm: Boolean) : List<IUVAPIParameter> {
+        return schema.properties.map {
+            val type = it.value.resolveType(context)
+            IUVAPIParameter(it.key, type,
+                if (multiPartForm)
+                    if (type.type == "MultipartFile")
+                        ParameterType.MULTI_PART_FILE_PARAM
+                    else ParameterType.MULTI_PART_PARAM
+                else ParameterType.FORM_PARAM
+        ) }
     }
 
     private fun toIUVAPIComponent(api: OpenAPI, schema: Map.Entry<String, Schema<*>>, context: OpenAPIWriteContext) : IUVAPIComponent {

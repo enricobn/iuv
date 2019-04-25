@@ -4,6 +4,8 @@ Doing
   - client : pass requestParam in url
   - anonymous object
   - anonymous enum?
+  - client request header parameter
+  - required parameters (if then nullable)
 - cli for create new project
   - view
   - controller impl
@@ -14,7 +16,8 @@ Doing
 
 Next
 -----
-. ServletRouteMatcher could have a similar Interface of the IUVRouter RouteMatcher
+- data class for exceptions for client
+- ServletRouteMatcher could have a similar Interface of the IUVRouter RouteMatcher
 - Intellij does not compile, there are not errors, it simply don't compile!!!
 - rename IUVRoute typealias (ParamToView?) and rename RouteMatcher to IUVRoute
 - HTML children (InputH for example) inherits all the functions of HTML (body for example) : there must be a coherent tree
