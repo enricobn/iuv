@@ -145,9 +145,9 @@ class OpenAPIReaderTest {
 
     @Test
     fun apiPathSubst() {
-        val path = IUVAPIPath("/api/{id}/{id1}", listOf())
+        val path = IUVAPIPath("/api/{key}/{id1}", listOf())
 
-        assertEquals("/api/\$id/\$id1", path.pathSubst)
+        assertEquals("/api/\$key/\$id1", path.pathSubst)
     }
 
     @Test
@@ -486,9 +486,41 @@ class OpenAPIReaderTest {
                     "    @DeleteMapping(\"/user/{username}\")\n" +
                     "    fun deleteUser(@PathVariable username : String) : Unit\n" +
                     "\n" +
-                    "}", sw.toString())
+                    "}", it.toString())
         }
 
+    }
+
+    @Test
+    fun githubClientImpl() {
+        val api = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context)
+
+        if (api == null) {
+            fail()
+            return
+        }
+
+        val sw = StringWriter()
+        sw.use {
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), api, context, it)
+            assertEquals("", it.toString())
+        }
+    }
+
+    @Test
+    fun githubComponents() {
+        val api = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context)
+
+        if (api == null) {
+            fail()
+            return
+        }
+
+        val sw = StringWriter()
+        sw.use {
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), api, context, it)
+            assertEquals("", it.toString())
+        }
     }
 
     private fun getResource(resource: String) = this.javaClass.getResource(resource)

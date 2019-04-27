@@ -3,12 +3,17 @@ package {{context.modelPackage}}
 import kotlinx.serialization.Serializable
 
 {{#api.components}}
+{{#aliasFor}}
+typealias {{name}} = {{{aliasFor.type}}}
+{{/aliasFor}}
+{{^aliasFor}}
 @Serializable
 data class {{name}}(
 {{#properties}}
   val {{name}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
 {{/properties}}
-){{^last}}
+){{/aliasFor}}
+{{^last}}
 
 
 {{/last}}{{/api.components}}
