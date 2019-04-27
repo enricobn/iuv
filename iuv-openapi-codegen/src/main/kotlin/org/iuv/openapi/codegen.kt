@@ -152,15 +152,17 @@ data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
 
 }
 
-data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val components: List<IUVAPIComponent>,
-                  val imports: List<IUVImport>, val baseUrl: String) {
+data class IUVAPIServer(val name: String, val apis : List<IUVAPI>, val components: List<IUVAPIComponent>, val baseUrl: String) {
 
     init {
         components.calculateLast()
     }
 
-    // properties used by mustache templates
+}
 
+data class IUVAPI(val name: String, val paths: List<IUVAPIPath>, val imports: List<IUVImport>, val baseUrl: String) {
+
+    // properties used by mustache templates
     @Suppress("unused")
     val controllerImports = imports.filter { it.controller }.map { it.copy() }.calculateLast()
 
@@ -215,6 +217,11 @@ object OpenAPIReader {
         runTemplate(url, bundle, writer)
     }
 
+    fun runTemplate(url: URL, server : IUVAPIServer, context: OpenAPIWriteContext, writer: Writer) {
+        val bundle = mapOf("context" to context, "server" to server)
+        runTemplate(url, bundle, writer)
+    }
+
     fun runTemplate(url: URL, bundle: Any, writer: Writer) {
         val mf = DefaultMustacheFactory(URLMustacheResolver(url))
         url.openStream().use { inputStream ->
@@ -226,7 +233,7 @@ object OpenAPIReader {
         }
     }
 
-    fun parse(url: URL, name: String, context: OpenAPIWriteContext) : IUVAPI? {
+    fun parse(url: URL, name: String, context: OpenAPIWriteContext, splitApisByPath : Boolean = true) : IUVAPIServer? {
         val standardImports = setOf(
                 IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
                 IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
@@ -238,52 +245,72 @@ object OpenAPIReader {
 
         val openAPIParser = OpenAPIParser(api, context)
 
-        val components = openAPIParser.components()//api.components.schemas.flatMap { toIUVAPIComponents(api, it, context).toList() }.toMap()
+        val components = openAPIParser.components()
 
-        val paths = api.paths.map { toIUVAPIPath(it, context, components) }
+        val allPaths = api.paths.map { toIUVAPIPath(it, context, components) }
 
-        val operationsImports = paths.flatMap {
-            it.operations.map { op -> IUVImport(op.op.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
-        }
+        val pathsByName =
+                if (splitApisByPath)
+                    allPaths.groupBy({ it.path.split("/")[1] }) { it }
+                else
+                    mapOf(name to allPaths)
 
-        val parametersTypesImport = paths.flatMap {
-            it.operations.flatMap {
-                op -> op.parameters.map { par -> IUVImport(par.parameterType.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
+        val baseUrl = api.servers?.firstOrNull()?.url ?: ""
+
+        val apis = pathsByName.map {
+            val apiName = it.key.capitalize()
+
+            println("Api $apiName")
+
+            val paths = it.value
+
+            val operationsImports = paths.flatMap { path ->
+                path.operations.map { op -> IUVImport(op.op.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
             }
-        }
-        val parametersImport = paths.flatMap {
-            it.operations.flatMap { op -> op.parameters.flatMap { par -> par.type.imports } }
-        }
 
-        val resultAndBodyImports = paths.flatMap { it.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.imports } } }
-
-        val resultAndBodySerializersImport = paths.flatMap {
-            it.operations.flatMap { op ->
-                listOfNotNull(op.bodyType, op.resultType)
-                        .flatMap { type -> type.serializer.imports }
-                        .map { typeSerializerImport -> IUVImport(typeSerializerImport, setOf(IUVImportType.CLIENT_IMPL)) }
-            }
-        }
-
-        val imports = (standardImports + operationsImports + parametersTypesImport + parametersImport +
-                resultAndBodyImports + resultAndBodySerializersImport)
-                .toSet()
-                .toList()
-                .sortedBy {
-                    val prefix =
-                            if (it.fullClassName.startsWith(context.modelPackage)) {
-                                "2"
-                            } else if (it.fullClassName.startsWith(context.controllerPackage) || it.fullClassName.startsWith(context.clientPackage)) {
-                                "3"
-                            } else if (it.fullClassName.startsWith("org.iuv")) {
-                                "1"
-                            } else {
-                                "0"
-                            }
-                    prefix + it.fullClassName
+            val parametersTypesImport = paths.flatMap { path ->
+                path.operations.flatMap { op ->
+                    op.parameters.map { par -> IUVImport(par.parameterType.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
                 }
+            }
+            val parametersImport = paths.flatMap { path ->
+                path.operations.flatMap { op -> op.parameters.flatMap { par -> par.type.imports } }
+            }
 
-        return IUVAPI(name, paths, components.values.toList(), imports, api.servers?.firstOrNull()?.url ?: "")
+            val resultAndBodyImports = paths.flatMap { path ->
+                path.operations.flatMap { op -> listOfNotNull(op.bodyType, op.resultType).flatMap { type -> type.imports } }
+            }
+
+            val resultAndBodySerializersImport = paths.flatMap { path ->
+                path.operations.flatMap { op ->
+                    listOfNotNull(op.bodyType, op.resultType)
+                            .flatMap { type -> type.serializer.imports }
+                            .map { typeSerializerImport -> IUVImport(typeSerializerImport, setOf(IUVImportType.CLIENT_IMPL)) }
+                }
+            }
+
+            val imports = (standardImports + operationsImports + parametersTypesImport + parametersImport +
+                    resultAndBodyImports + resultAndBodySerializersImport)
+                    .toSet()
+                    .toList()
+                    .sortedBy {
+                        val prefix =
+                                if (it.fullClassName.startsWith(context.modelPackage)) {
+                                    "2"
+                                } else if (it.fullClassName.startsWith(context.controllerPackage) || it.fullClassName.startsWith(context.clientPackage)) {
+                                    "3"
+                                } else if (it.fullClassName.startsWith("org.iuv")) {
+                                    "1"
+                                } else {
+                                    "0"
+                                }
+                        prefix + it.fullClassName
+                    }
+
+            IUVAPI(apiName, paths, imports, baseUrl)
+        }
+
+        return IUVAPIServer(name, apis, components.values.toList(), baseUrl)
     }
 
     private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>, context: OpenAPIWriteContext, components: Map<String, IUVAPIComponent>): IUVAPIPath {
@@ -391,7 +418,7 @@ object OpenAPIReader {
         return IUVAPIOperation(path, type, operationId, parameters, resultType, bodyType)
     }
 
-    fun Schema<*>.resolveType(context: OpenAPIWriteContext, components: Map<String,IUVAPIComponent>) : IUVAPIType {
+    private fun Schema<*>.resolveType(context: OpenAPIWriteContext, components: Map<String,IUVAPIComponent>) : IUVAPIType {
         if (type != null) {
 
             when {

@@ -7,6 +7,7 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import org.iuv.openapi.IUVAPI
+import org.iuv.openapi.IUVAPIServer
 import org.iuv.openapi.OpenAPIReader
 import org.iuv.openapi.OpenAPIWriteContext
 import org.slf4j.LoggerFactory
@@ -37,25 +38,38 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
             .forEach {
                 try {
                     println("Processing file " + it.name)
-                    val apiName = toApiName(it)
+                    val serverName = toServerName(it)
 
                     val openAPIWriteContext = OpenAPIWriteContext(controllerPackage, clientPackage,
-                            "$modelPackage.${apiName.toLowerCase()}")
+                            "$modelPackage.${serverName.toLowerCase()}")
 
-                    val api = OpenAPIReader.parse(it.toURI().toURL(), apiName, openAPIWriteContext)
+                    val server = OpenAPIReader.parse(it.toURI().toURL(), serverName, openAPIWriteContext)
 
-                    if (api == null) {
+                    if (server == null) {
                         System.err.println("Error reading $it")
                         return@forEach
                     } else {
-                        runTemplate(controllerSourceFolder, controllerPackage, apiName + "Controller",
-                                "/openapi/templates/controller.mustache", api, openAPIWriteContext)
-                        runTemplate(clientSourceFolder, clientPackage, apiName + "Api",
-                                "/openapi/templates/client.mustache", api, openAPIWriteContext)
-                        runTemplate(clientSourceFolder, clientPackage, apiName + "ApiImpl",
-                                "/openapi/templates/clientImpl.mustache", api, openAPIWriteContext)
-                        runTemplate(modelSourceFolder, modelPackage, apiName + "Model",
-                                "/openapi/templates/components.mustache", api, openAPIWriteContext)
+
+                        server.apis.forEach { api ->
+
+                            val apiName = api.name
+
+                            val packageSuffix = "${serverName.toLowerCase()}.${apiName.toLowerCase()}"
+
+                            val context = openAPIWriteContext.copy(
+                                    controllerPackage = "$controllerPackage.$packageSuffix",
+                                    clientPackage = "$clientPackage.$packageSuffix")
+
+                            runTemplate(controllerSourceFolder, context.controllerPackage, apiName + "Controller",
+                                    "/openapi/templates/controller.mustache", api, context)
+                            runTemplate(clientSourceFolder, context.clientPackage, apiName + "Api",
+                                    "/openapi/templates/client.mustache", api, context)
+                            runTemplate(clientSourceFolder, context.clientPackage, apiName + "ApiImpl",
+                                    "/openapi/templates/clientImpl.mustache", api, context)
+                        }
+
+                        runTemplate(modelSourceFolder, modelPackage, serverName + "Model",
+                                "/openapi/templates/components.mustache", server, openAPIWriteContext)
                     }
                 } catch (e: Exception) {
                     System.err.println("Error reading $it")
@@ -69,6 +83,13 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
         val file = getOrCreateFile(sourceFolder, `package`, apiName)
         FileWriter(file).use { writer ->
             OpenAPIReader.runTemplate(getResource(resource), api, openAPIWriteContext, writer)
+        }
+    }
+
+    private fun runTemplate(sourceFolder: File, `package`: String, apiName: String, resource: String, server: IUVAPIServer, openAPIWriteContext: OpenAPIWriteContext) {
+        val file = getOrCreateFile(sourceFolder, `package`, apiName)
+        FileWriter(file).use { writer ->
+            OpenAPIReader.runTemplate(getResource(resource), mapOf("server" to server, "context" to openAPIWriteContext), writer)
         }
     }
 
@@ -93,7 +114,7 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
                 folder.listFiles { it: File -> it.isDirectory }.flatMap { getSwaggerFiles(it) }
     }
 
-    private fun toApiName(file: File) : String {
+    private fun toServerName(file: File) : String {
         return capitalize(file.nameWithoutExtension)
     }
 

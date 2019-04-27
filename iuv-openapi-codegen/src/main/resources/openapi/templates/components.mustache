@@ -2,7 +2,7 @@ package {{context.modelPackage}}
 
 import kotlinx.serialization.Serializable
 
-{{#api.components}}
+{{#server.components}}
 {{#aliasFor}}
 typealias {{name}} = {{{aliasFor.type}}}
 {{/aliasFor}}
@@ -16,4 +16,4 @@ data class {{name}}(
 {{^last}}
 
 
-{{/last}}{{/api.components}}
+{{/last}}{{/server.components}}

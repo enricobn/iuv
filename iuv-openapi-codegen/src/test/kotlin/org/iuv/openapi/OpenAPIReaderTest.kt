@@ -11,16 +11,18 @@ class OpenAPIReaderTest {
 
     @Test
     fun components() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
+        val server = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore",
+                context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), server,
+                    context, it)
             assertEquals("package org.iuv.test.models\n" +
                     "\n" +
                     "import kotlinx.serialization.Serializable\n" +
@@ -48,16 +50,17 @@ class OpenAPIReaderTest {
 
     @Test
     fun controller() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
+        val server = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore",
+                context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), server.apis[0], context, it)
             assertEquals("package org.iuv.test.controllers\n" +
                     "\n" +
                     "import org.springframework.web.bind.annotation.DeleteMapping\n" +
@@ -89,16 +92,17 @@ class OpenAPIReaderTest {
 
     @Test
     fun petstoreExpancedClientImpl() {
-        val api = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore", context)
+        val server = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore",
+                context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), server.apis[0], context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
@@ -159,22 +163,24 @@ class OpenAPIReaderTest {
 
     @Test
     fun petstoreUrl() {
-        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
-        assertEquals("https://petstore.swagger.io/v2", api?.baseUrl)
+        val server = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore",
+                context, false)
+        assertEquals("https://petstore.swagger.io/v2", server?.baseUrl)
     }
 
     @Test
     fun petstoreClientImpl() {
-        val api = OpenAPIReader.parse(getResource("/petstore.json"), "Petstore", context)
+        val server = OpenAPIReader.parse(getResource("/petstore.json"), "Petstore",
+                context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), server.apis[0], context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import kotlinx.serialization.ImplicitReflectionSerializer\n" +
@@ -329,16 +335,17 @@ class OpenAPIReaderTest {
 
     @Test
     fun petstoreClient() {
-        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
+        val server = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore",
+                context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/client.mustache"), server.apis[0], context, it)
             assertEquals("package org.iuv.test.client\n" +
                     "\n" +
                     "import org.iuv.core.MultipartFile\n" +
@@ -397,16 +404,17 @@ class OpenAPIReaderTest {
 
     @Test
     fun petstoreConroller() {
-        val api = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore", context)
+        val server = OpenAPIReader.parse(getResource("/petstore.json"), "PetStore",
+                context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/controller.mustache"), server.apis[0], context, it)
             assertEquals("package org.iuv.test.controllers\n" +
                     "\n" +
                     "import org.springframework.web.bind.annotation.DeleteMapping\n" +
@@ -493,32 +501,32 @@ class OpenAPIReaderTest {
 
     @Test
     fun githubClientImpl() {
-        val api = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context)
+        val server = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), server.apis[0], context, it)
             assertEquals("", it.toString())
         }
     }
 
     @Test
     fun githubComponents() {
-        val api = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context)
+        val server = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context, false)
 
-        if (api == null) {
+        if (server == null) {
             fail()
             return
         }
 
         val sw = StringWriter()
         sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), api, context, it)
+            OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), server, context, it)
             assertEquals("", it.toString())
         }
     }
