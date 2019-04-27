@@ -260,8 +260,6 @@ object OpenAPIReader {
         val apis = pathsByName.map {
             val apiName = it.key.capitalize()
 
-            println("Api $apiName")
-
             val paths = it.value
 
             val operationsImports = paths.flatMap { path ->

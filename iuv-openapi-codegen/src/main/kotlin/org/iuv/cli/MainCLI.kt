@@ -54,7 +54,9 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
 
                             val apiName = api.name
 
-                            val packageSuffix = "${serverName.toLowerCase()}.${apiName.toLowerCase()}"
+                            println("Creating api $serverName -> $apiName")
+
+                            val packageSuffix = serverName.toLowerCase()
 
                             val context = openAPIWriteContext.copy(
                                     controllerPackage = "$controllerPackage.$packageSuffix",
