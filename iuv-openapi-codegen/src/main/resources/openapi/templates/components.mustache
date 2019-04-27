@@ -10,7 +10,7 @@ typealias {{name}} = {{{aliasFor.type}}}
 @Serializable
 data class {{name}}(
 {{#properties}}
-  val {{name}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
+  val {{{name}}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
 {{/properties}}
 ){{/aliasFor}}
 {{^last}}
