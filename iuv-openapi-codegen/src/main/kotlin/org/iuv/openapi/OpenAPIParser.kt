@@ -183,7 +183,7 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
             if (RESERVED_KEYWORDS.contains(name))
                 "`$name`"
             else
-                name.mapIndexed { i, ch -> if ( i == 0 && ch.isDigit()) "n&ch" else if (ch.isLetterOrDigit()) ch.toString() else "_" }
+                name.mapIndexed { i, ch -> if ( i == 0 && ch.isDigit()) "n$ch" else if (ch.isLetterOrDigit()) ch.toString() else "_" }
                     .joinToString("")
                     .split("_")
                     .mapIndexed {i, s -> if (i == 0) s else s.capitalize() }
