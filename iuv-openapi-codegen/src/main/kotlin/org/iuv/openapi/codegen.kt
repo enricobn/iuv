@@ -30,7 +30,7 @@ interface Last {
 
 data class OpenAPIWriteContext(val controllerPackage: String, val clientPackage: String, val modelPackage: String)
 
-data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val imports: List<IUVImport>, val innerComponent :
+data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val imports: Set<IUVImport>, val innerComponent :
         IUVAPIComponent? = null) {
 
     override fun toString() = type
@@ -235,10 +235,10 @@ object OpenAPIReader {
 
     fun parse(url: URL, name: String, context: OpenAPIWriteContext, splitApisByPath : Boolean = true) : IUVAPIServer? {
         val standardImports = setOf(
-                IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
-                IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
-                IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
-                IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL))
+            IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
+            IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
+            IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
+            IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL))
         )
 
         val api = read(url) ?: return null
@@ -250,10 +250,10 @@ object OpenAPIReader {
         val allPaths = api.paths.map { toIUVAPIPath(it, context, components) }
 
         val pathsByName =
-                if (splitApisByPath)
-                    allPaths.groupBy({ it.path.split("/")[1] }) { it }
-                else
-                    mapOf(name to allPaths)
+            if (splitApisByPath)
+                allPaths.groupBy({ it.path.split("/")[1] }) { it }
+            else
+                mapOf(name to allPaths)
 
         val baseUrl = api.servers?.firstOrNull()?.url ?: ""
 
@@ -282,28 +282,29 @@ object OpenAPIReader {
             val resultAndBodySerializersImport = paths.flatMap { path ->
                 path.operations.flatMap { op ->
                     listOfNotNull(op.bodyType, op.resultType)
-                            .flatMap { type -> type.serializer.imports }
-                            .map { typeSerializerImport -> IUVImport(typeSerializerImport, setOf(IUVImportType.CLIENT_IMPL)) }
+                        .flatMap { type ->
+                            type.serializer.imports.map { imp -> IUVImport(imp, setOf(IUVImportType.CLIENT_IMPL)) } + type.imports
+                        }
                 }
             }
 
             val imports = (standardImports + operationsImports + parametersTypesImport + parametersImport +
-                    resultAndBodyImports + resultAndBodySerializersImport)
-                    .toSet()
-                    .toList()
-                    .sortedBy {
-                        val prefix =
-                                if (it.fullClassName.startsWith(context.modelPackage)) {
-                                    "2"
-                                } else if (it.fullClassName.startsWith(context.controllerPackage) || it.fullClassName.startsWith(context.clientPackage)) {
-                                    "3"
-                                } else if (it.fullClassName.startsWith("org.iuv")) {
-                                    "1"
-                                } else {
-                                    "0"
-                                }
-                        prefix + it.fullClassName
-                    }
+                resultAndBodyImports + resultAndBodySerializersImport)
+                .toSet()
+                .toList()
+                .sortedBy {
+                    val prefix =
+                            if (it.fullClassName.startsWith(context.modelPackage)) {
+                                "2"
+                            } else if (it.fullClassName.startsWith(context.controllerPackage) || it.fullClassName.startsWith(context.clientPackage)) {
+                                "3"
+                            } else if (it.fullClassName.startsWith("org.iuv")) {
+                                "1"
+                            } else {
+                                "0"
+                            }
+                    prefix + it.fullClassName
+                }
 
             IUVAPI(apiName, paths, imports, baseUrl)
         }
@@ -374,7 +375,7 @@ object OpenAPIReader {
                     if (type == IUVAPIOperationType.Get) {
                         throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
                     } else if (type == IUVAPIOperationType.Delete || schemaForProperties != null) {
-                        IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
+                        IUVAPIType("Unit", UNIT_SERIALIZER, emptySet())
                     } else bodyType
                             ?: throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : " +
                                     "no response and no body specified.")
@@ -382,7 +383,7 @@ object OpenAPIReader {
                     val responseContent = response.content
 
                     if (responseContent == null || responseContent.isEmpty())
-                        IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
+                        IUVAPIType("Unit", UNIT_SERIALIZER, emptySet())
                     else
                         responseContent[JSON]?.schema?.resolveType(context, components)
                                 ?: throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : " +
@@ -429,7 +430,7 @@ object OpenAPIReader {
                 }
                 this is FileSchema -> return IUVAPIType("MultipartFile",
                         IUVAPISerializer("", "",imports = emptySet()),
-                        listOf(
+                        setOf(
                                 IUVImport("org.iuv.core.MultiPartData", setOf(IUVImportType.CLIENT_IMPL)),
                                 IUVImport("org.iuv.core.MultipartFile", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
                                 IUVImport("org.springframework.web.multipart.MultipartFile",
@@ -449,7 +450,7 @@ object OpenAPIReader {
                                 mapType.imports)
                     } else {
                         // TODO
-                        return IUVAPIType("", IUVAPISerializer("", ""), emptyList())
+                        return IUVAPIType("", IUVAPISerializer("", ""), emptySet())
                     }
                 }
             }
@@ -458,7 +459,7 @@ object OpenAPIReader {
         }
 
         if (`$ref` == null) {
-            return IUVAPIType("Unit", UNIT_SERIALIZER, listOf())
+            return IUVAPIType("Unit", UNIT_SERIALIZER, emptySet())
         }
 
         val iuvapiComponent = components[`$ref`.split("/").last()]
@@ -470,12 +471,14 @@ object OpenAPIReader {
 
             if (iuvapiComponent.aliasFor != null) {
                 return IUVAPIType(type, iuvapiComponent.aliasFor.serializer,
-                        listOf(IUVImport(context.modelPackage + "." + type,
-                                setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
+                        setOf(IUVImport(context.modelPackage + "." + type,
+                                setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))) +
+                        iuvapiComponent.aliasFor.imports
+                )
             } else {
                 return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()",
                         imports = setOf("kotlinx.serialization.serializer")),
-                        listOf(IUVImport(context.modelPackage + "." + type,
+                        setOf(IUVImport(context.modelPackage + "." + type,
                                 setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
             }
         }
@@ -485,19 +488,19 @@ object OpenAPIReader {
     private fun toKotlinType(type: String, format: String?) =
         when (type) {
             "string" -> IUVAPIType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer",
-                    imports = setOf("kotlinx.serialization.internal.StringSerializer")), listOf())
+                    imports = setOf("kotlinx.serialization.internal.StringSerializer")), emptySet())
             "integer", "number" ->
                 if (format == "int64") {
                     IUVAPIType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer",
-                            imports = setOf("kotlinx.serialization.internal.LongSerializer")), listOf())
+                            imports = setOf("kotlinx.serialization.internal.LongSerializer")), emptySet())
                 } else {
                     IUVAPIType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer",
-                            imports = setOf("kotlinx.serialization.internal.IntSerializer")), listOf())
+                            imports = setOf("kotlinx.serialization.internal.IntSerializer")), emptySet())
                 }
             "boolean" -> IUVAPIType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
-                    imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), listOf())
+                    imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), emptySet())
             "file" -> IUVAPIType("MultipartFile", IUVAPISerializer("BooleanIUVSerializer", "MultipartFileSerializer",
-                    imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), listOf())
+                    imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), emptySet())
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
 

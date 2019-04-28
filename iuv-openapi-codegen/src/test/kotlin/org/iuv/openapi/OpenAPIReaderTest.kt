@@ -149,14 +149,14 @@ class OpenAPIReaderTest {
 
     @Test
     fun apiPathSubst() {
-        val path = IUVAPIPath("/api/{key}/{id1}", listOf())
+        val path = IUVAPIPath("/api/{key}/{id1}", emptyList())
 
         assertEquals("/api/\$key/\$id1", path.pathSubst)
     }
 
     @Test
     fun apiPathSubstWithNoParams() {
-        val path = IUVAPIPath("/api", listOf())
+        val path = IUVAPIPath("/api", emptyList())
 
         assertEquals("/api", path.pathSubst)
     }
@@ -497,38 +497,6 @@ class OpenAPIReaderTest {
                     "}", it.toString())
         }
 
-    }
-
-    @Test
-    fun githubClientImpl() {
-        val server = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context, false)
-
-        if (server == null) {
-            fail()
-            return
-        }
-
-        val sw = StringWriter()
-        sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/clientImpl.mustache"), server.apis[0], context, it)
-            assertEquals("", it.toString())
-        }
-    }
-
-    @Test
-    fun githubComponents() {
-        val server = OpenAPIReader.parse(getResource("/github.yaml"), "Github", context, false)
-
-        if (server == null) {
-            fail()
-            return
-        }
-
-        val sw = StringWriter()
-        sw.use {
-            OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), server, context, it)
-            assertEquals("", it.toString())
-        }
     }
 
     private fun getResource(resource: String) = this.javaClass.getResource(resource)
