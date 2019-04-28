@@ -222,22 +222,26 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
                         val properties = getProperties(properties, parentKey, parent)
 
                         if (properties.isEmpty()) {
-                            return MapParserType(toPrimitypeType("string", null))
+                            return MapParserType(toPrimitiveType("string", null))
                         }
 
                         val component = ConcreteParserComponent(parentKey, parent, properties)
                         return AnonymousParserType(component)
                     } else {
                         // TODO enums?
-                        return toPrimitypeType("string", null)
+                        return toPrimitiveType("string", null)
                     }
                 this is ComposedSchema -> {
-                    return allOf.filter { it.`$ref` != null }
-                            .firstOrNull()?.resolveType(parentKey, parent) ?: throw UnsupportedOpenAPISpecification("Cannot resolve type.")
+                    val filtered = allOf.filter { it.`$ref` != null }
+
+                    if (filtered.isEmpty())
+                        throw UnsupportedOpenAPISpecification("Composed schema, only one allOf is supported.")
+
+                    return filtered.first().resolveType(parentKey, parent)
                 }
             }
 
-            return toPrimitypeType(type, format)
+            return toPrimitiveType(type, format)
         }
 
         if (`$ref` == null) {
@@ -263,23 +267,23 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
         }
     }
 
-    private fun toPrimitypeType(type: String, format: String?) =
-            when (type) {
-                "string" -> PrimitiveParserType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer",
-                        imports = setOf("kotlinx.serialization.internal.StringSerializer")), emptySet())
-                "integer", "number" ->
-                    if (format == "int64") {
-                        PrimitiveParserType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer",
-                                imports = setOf("kotlinx.serialization.internal.LongSerializer")), emptySet())
-                    } else {
-                        PrimitiveParserType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer",
-                                imports = setOf("kotlinx.serialization.internal.IntSerializer")), emptySet())
-                    }
-                "boolean" -> PrimitiveParserType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
-                        imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), emptySet())
-                "file" -> PrimitiveParserType("MultipartFile", IUVAPISerializer("BooleanIUVSerializer", "MultipartFileSerializer",
-                        imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), emptySet())
-                else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
-            }
+    private fun toPrimitiveType(type: String, format: String?) =
+        when (type) {
+            "string" -> PrimitiveParserType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer",
+                    imports = setOf("kotlinx.serialization.internal.StringSerializer")), emptySet())
+            "integer", "number" ->
+                if (format == "int64") {
+                    PrimitiveParserType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer",
+                            imports = setOf("kotlinx.serialization.internal.LongSerializer")), emptySet())
+                } else {
+                    PrimitiveParserType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer",
+                            imports = setOf("kotlinx.serialization.internal.IntSerializer")), emptySet())
+                }
+            "boolean" -> PrimitiveParserType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
+                    imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), emptySet())
+            "file" -> PrimitiveParserType("MultipartFile", IUVAPISerializer("BooleanIUVSerializer", "MultipartFileSerializer",
+                    imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), emptySet())
+            else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
+        }
 
 }
