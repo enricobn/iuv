@@ -4,6 +4,7 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.media.ArraySchema
 import io.swagger.v3.oas.models.media.ComposedSchema
 import io.swagger.v3.oas.models.media.FileSchema
+import io.swagger.v3.oas.models.media.MapSchema
 import io.swagger.v3.oas.models.media.ObjectSchema
 import io.swagger.v3.oas.models.media.Schema
 
@@ -139,13 +140,29 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
 
         val required = schema.required
 
-        return if (schema is ArraySchema) {
+        try {
+            return if (schema is ArraySchema) {
                 AliasParserComponent(schemaKey, name, ArrayParserType(name, schema.items.resolveType(schemaKey, name)))
+            } else if (schema is MapSchema) {
+                if (schema.additionalProperties != null) {
+                    AliasParserComponent(schemaKey, name, resolveAdditionalProperties(schema, schemaKey, name))
+                } else
+                    throw UnsupportedOpenAPISpecification("No additional properties specified.")
             } else {
                 val properties = getProperties(componentProperties, schemaKey, name, required)
 
-                ConcreteParserComponent(schemaKey, name, properties)
+                if (properties.isEmpty()) {
+                    if (schema.`$ref` != null) {
+                        AliasParserComponent(schemaKey, name, RefParserType(schema.`$ref`.split("/").last()))
+                    } else
+                        throw UnsupportedOpenAPISpecification("No properties and no ref specified.")
+                } else {
+                    ConcreteParserComponent(schemaKey, name, properties)
+                }
             }
+        } catch (e: Exception) {
+            throw UnsupportedOpenAPISpecification("Cannot parse component $schemaKey")
+        }
     }
 
     private fun getProperties(componentProperties: Map<String, Schema<*>>, parentKey: String, parentName: String,
@@ -200,20 +217,16 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
                 this is FileSchema -> return MultipartFileParserType
                 this is ObjectSchema ->
                     if (additionalProperties != null) {
-                        additionalProperties.let {
-                            if (it is Boolean) {
-                                throw UnsupportedOpenAPISpecification("Unknown type.")
-                            } else if (it is Schema<*>) {
-                                val mapType = it.resolveType(parentKey, parent)
-                                return MapParserType(mapType)
-                            } else {
-                                throw UnsupportedOpenAPISpecification("Unknown additionaproperties type: " + additionalProperties::class)
-                            }
-                        }
+                        return resolveAdditionalProperties(this, parentKey, parent)
                     } else if (properties != null) {
-                            val properties = getProperties(properties, parentKey, parent)
-                            val component = ConcreteParserComponent(parentKey, parent, properties)
-                            return AnonymousParserType(component)
+                        val properties = getProperties(properties, parentKey, parent)
+
+                        if (properties.isEmpty()) {
+                            return MapParserType(toPrimitypeType("string", null))
+                        }
+
+                        val component = ConcreteParserComponent(parentKey, parent, properties)
+                        return AnonymousParserType(component)
                     } else {
                         // TODO enums?
                         return toPrimitypeType("string", null)
@@ -234,6 +247,20 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
         val refSimpleName = `$ref`.split("/").last()
 
         return RefParserType(refSimpleName)
+    }
+
+    private fun resolveAdditionalProperties(schema: Schema<*>, parentKey: String, parent: String) : MapParserType {
+        val additionalProperties = schema.additionalProperties
+        additionalProperties.let {
+            if (it is Boolean) {
+                throw UnsupportedOpenAPISpecification("Unsupported boolean additional properties.")
+            } else if (it is Schema<*>) {
+                val mapType = it.resolveType(parentKey, parent)
+                return MapParserType(mapType)
+            } else {
+                throw UnsupportedOpenAPISpecification("Unknown additional properties type: " + additionalProperties::class)
+            }
+        }
     }
 
     private fun toPrimitypeType(type: String, format: String?) =
