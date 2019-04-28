@@ -22,7 +22,7 @@ class ServletRouteMatcher(private val expression: String) {
 
     fun pathVariables(absolutePath: String?): Map<String,String> =
         if (absolutePath == null)
-            mapOf()
+            emptyMap()
         else {
             val pathComponents = splitAbsolutePath(absolutePath)
 
