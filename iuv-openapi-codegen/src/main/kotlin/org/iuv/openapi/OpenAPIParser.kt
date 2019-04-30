@@ -13,23 +13,23 @@ private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSeriali
 
 private val RESERVED_KEYWORDS = setOf("object")
 
-private sealed class ParserType
+sealed class ParserType
 
-private data class PrimitiveParserType(val type: String, val serializer: IUVAPISerializer, val imports: Set<IUVImport>) : ParserType()
+data class PrimitiveParserType(val type: String, val serializer: IUVAPISerializer, val imports: Set<IUVImport>) : ParserType()
 
-private object MultipartFileParserType : ParserType()
+object MultipartFileParserType : ParserType()
 
-private data class MapParserType(val valueType: ParserType) : ParserType()
+data class MapParserType(val valueType: ParserType) : ParserType()
 
-private data class RefParserType(val key : String) : ParserType()
+data class RefParserType(val key : String) : ParserType()
 
-private data class AnonymousParserType(val component: ParserComponent) : ParserType()
+data class AnonymousParserType(val component: ParserComponent) : ParserType()
 
-private data class ArrayParserType(val name : String, val itemsType: ParserType) : ParserType()
+data class ArrayParserType(val name : String, val itemsType: ParserType) : ParserType()
 
-private data class ParserProperty(val name: String, val type: ParserType, val optional: Boolean)
+data class ParserProperty(val name: String, val type: ParserType, val optional: Boolean)
 
-private sealed class ParserComponent {
+sealed class ParserComponent {
 
     abstract fun getTypes() : List<ParserType>
 
@@ -38,13 +38,13 @@ private sealed class ParserComponent {
     abstract val name : String
 }
 
-private data class ConcreteParserComponent(override val key : String, override val name: String, val properties: List<ParserProperty>) : ParserComponent() {
+data class ConcreteParserComponent(override val key : String, override val name: String, val properties: List<ParserProperty>) : ParserComponent() {
     override fun getTypes(): List<ParserType> {
         return properties.map { it.type }
     }
 }
 
-private data class AliasParserComponent(override val key : String, override val name: String, val alias: ParserType) : ParserComponent() {
+data class AliasParserComponent(override val key : String, override val name: String, val alias: ParserType) : ParserComponent() {
     override fun getTypes(): List<ParserType> {
         return listOf(alias)
     }
@@ -63,23 +63,36 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
                 .map { it.key to it }
                 .toMap()
 
-        return componentsMap.entries.map { it.key to toIUVAPIComponent(componentsMap, it.value) }.toMap()
+        return componentsMap.entries.map { it.key to it.value.toIUVAPIComponent(componentsMap) }.toMap()
     }
 
-    private fun toIUVAPIComponent(components: Map<String,ParserComponent>, component: ParserComponent) =
-            when (component) {
-                is AliasParserComponent ->
-                    IUVAPIComponent(component.name, emptyList(), aliasFor = toIUVAPIType(components, component.alias), key = component.key)
+    fun ParserComponent.toIUVAPIComponent(components: Map<String,ParserComponent>) : IUVAPIComponent =
+            when (this) {
+                is AliasParserComponent -> {
+                    val referenceCOmponent =
+                        if (this.alias is RefParserType) {
+                            val reference = components[this.alias.key]
+                            if (reference != null) {
+                                reference.toIUVAPIComponent(components)
+                            } else null
+                        } else null
+
+                    if (referenceCOmponent == null) {
+                        val aliasFor = alias.toIUVAPIType(components)
+                        IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key)
+                    } else referenceCOmponent
+
+                }
                 is ConcreteParserComponent ->
-                    IUVAPIComponent(component.name, component.properties.map { toIUVAPIProperty(components, it) }, key = component.key)
+                    IUVAPIComponent(name, properties.map { it.toIUVAPIProperty(components) }, key = key)
             }
 
-    private fun toIUVAPIProperty(components: Map<String,ParserComponent>, property: ParserProperty) =
-            IUVAPIComponentProperty(property.name, toIUVAPIType(components, property.type), property.optional)
+    fun ParserProperty.toIUVAPIProperty(components: Map<String,ParserComponent>) =
+            IUVAPIComponentProperty(name, type.toIUVAPIType(components), optional)
 
-    private fun toIUVAPIType(components: Map<String,ParserComponent>, type: ParserType): IUVAPIType =
-        when (type) {
-            is PrimitiveParserType -> IUVAPIType(type.type, type.serializer, type.imports)
+    fun ParserType.toIUVAPIType(components: Map<String,ParserComponent>): IUVAPIType =
+        when (this) {
+            is PrimitiveParserType -> IUVAPIType(type, serializer, imports)
             MultipartFileParserType -> IUVAPIType("MultipartFile",
                     IUVAPISerializer("", "", imports = emptySet()),
                     setOf(
@@ -90,7 +103,7 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
                     )
             )
             is MapParserType -> {
-                val mapType = toIUVAPIType(components, type.valueType)
+                val mapType = valueType.toIUVAPIType(components)
                 IUVAPIType("Map<String, $mapType>",
                         IUVAPISerializer("MapString${mapType.serializer.name}",
                                 "HashMapSerializer(StringSerializer,${mapType.serializer.code})",
@@ -99,15 +112,15 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
                         mapType.imports)
             }
             is RefParserType -> {
-                val component = components[type.key] ?: throw UnsupportedOpenAPISpecification("Cannot fine component " + type.key)
+                val component = components[key] ?: throw UnsupportedOpenAPISpecification("Cannot fine component " + key)
                 toComponentType(component)
             }
             is AnonymousParserType -> {
-                val component = type.component
+                val component = component
                 toComponentType(component)
             }
             is ArrayParserType -> {
-                val itemsType = toIUVAPIType(components, type.itemsType)
+                val itemsType = itemsType.toIUVAPIType(components)
 
                 IUVAPIType("List<$itemsType>",
                         IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",

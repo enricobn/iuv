@@ -43,12 +43,11 @@ class GithubOpenAPITest {
                     "import org.iuv.core.HttpMethod\n" +
                     "import org.iuv.shared.Task\n" +
                     "import org.iuv.test.models.Event\n" +
-                    "import org.iuv.test.models.Events\n" +
                     "\n" +
                     "class NetworksApiImpl(private val baseUrl : String = \"https://api.github.com/\") : NetworksApi {\n" +
                     "\n" +
                     "    @ImplicitReflectionSerializer\n" +
-                    "    override fun getNetworksByOwnerByRepoEvents(owner : String, repo : String, Accept : String) : Task<String,Events> =\n" +
+                    "    override fun getNetworksByOwnerByRepoEvents(owner : String, repo : String, Accept : String) : Task<String,List<Event>> =\n" +
                     "        Http.runner(HttpMethod.Get, \"\$baseUrl/networks/\$owner/\$repo/events\", ArrayListSerializer(Event::class.serializer()))\n" +
                     "            .headers(\"Accept\" to Accept)\n" +
                     "            .run()\n" +
@@ -62,7 +61,9 @@ class GithubOpenAPITest {
         val sw = StringWriter()
         sw.use {
             OpenAPIReader.runTemplate(getResource("/openapi/templates/components.mustache"), server, context, it)
-            Assert.assertEquals("", it.toString())
+
+            val expected = getResource("/Github.kt.expected").readText()
+            Assert.assertEquals(expected, it.toString())
         }
     }
 
