@@ -210,53 +210,59 @@ class UnsupportedOpenAPISpecification: Exception {
 
 }
 
-object OpenAPIReader {
-    private val LOGGER = LoggerFactory.getLogger(OpenAPIReader::class.java)
+class OpenAPIReader(private val name : String, private val api: OpenAPI, private val context: OpenAPIWriteContext) {
 
-    private fun read(url: URL): OpenAPI? = OpenAPIV3Parser().read(url.toURI().toString())
+    private val components = OpenAPIParser(api, context).components()
 
-    fun runTemplate(url: URL, api : IUVAPI, context: OpenAPIWriteContext, writer: Writer) {
-        val bundle = mapOf("context" to context, "api" to api)
-        runTemplate(url, bundle, writer)
-    }
+    companion object {
+        private val LOGGER = LoggerFactory.getLogger(OpenAPIReader::class.java)
 
-    fun runTemplate(url: URL, server : IUVAPIServer, context: OpenAPIWriteContext, writer: Writer) {
-        val bundle = mapOf("context" to context, "server" to server)
-        runTemplate(url, bundle, writer)
-    }
+        private fun read(url: URL): OpenAPI? = OpenAPIV3Parser().read(url.toURI().toString())
 
-    fun runTemplate(url: URL, bundle: Any, writer: Writer) {
-        val mf = DefaultMustacheFactory(URLMustacheResolver(url))
-        url.openStream().use { inputStream ->
-            InputStreamReader(inputStream, "UTF-8").use { reader ->
+        fun runTemplate(url: URL, api : IUVAPI, context: OpenAPIWriteContext, writer: Writer) {
+            val bundle = mapOf("context" to context, "api" to api)
+            runTemplate(url, bundle, writer)
+        }
 
-                val mustache = mf.compile(reader, "template.mustache")
-                mustache.execute(writer, bundle)
+        fun runTemplate(url: URL, server : IUVAPIServer, context: OpenAPIWriteContext, writer: Writer) {
+            val bundle = mapOf("context" to context, "server" to server)
+            runTemplate(url, bundle, writer)
+        }
+
+        fun runTemplate(url: URL, bundle: Any, writer: Writer) {
+            val mf = DefaultMustacheFactory(URLMustacheResolver(url))
+            url.openStream().use { inputStream ->
+                InputStreamReader(inputStream, "UTF-8").use { reader ->
+
+                    val mustache = mf.compile(reader, "template.mustache")
+                    mustache.execute(writer, bundle)
+                }
             }
         }
+
+        fun parse(url: URL, name: String, context: OpenAPIWriteContext, splitApisByPath : Boolean = true) : IUVAPIServer? {
+            val api = read(url) ?: return null
+
+            return OpenAPIReader(name, api, context).read(splitApisByPath)
+        }
+
     }
 
-    fun parse(url: URL, name: String, context: OpenAPIWriteContext, splitApisByPath : Boolean = true) : IUVAPIServer? {
+    private fun read(splitApisByPath : Boolean) : IUVAPIServer {
         val standardImports = setOf(
-            IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
-            IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
-            IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
-            IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL))
+                IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
+                IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL))
         )
 
-        val api = read(url) ?: return null
-
-        val openAPIParser = OpenAPIParser(api, context)
-
-        val components = openAPIParser.components()
-
-        val allPaths = api.paths.map { toIUVAPIPath(it, context, components) }
+        val allPaths = api.paths.map { toIUVAPIPath(it) }
 
         val pathsByName =
-            if (splitApisByPath)
-                allPaths.groupBy({ it.path.split("/")[1] }) { it }
-            else
-                mapOf(name to allPaths)
+                if (splitApisByPath)
+                    allPaths.groupBy({ it.path.split("/")[1] }) { it }
+                else
+                    mapOf(name to allPaths)
 
         val baseUrl = api.servers?.firstOrNull()?.url ?: ""
 
@@ -285,28 +291,28 @@ object OpenAPIReader {
             val resultAndBodySerializersImport = paths.flatMap { path ->
                 path.operations.flatMap { op ->
                     listOfNotNull(op.bodyType, op.resultType)
-                        .flatMap { type ->
-                            type.serializer.imports.map { imp -> IUVImport(imp, setOf(IUVImportType.CLIENT_IMPL)) } + type.imports
-                        }
+                            .flatMap { type ->
+                                type.serializer.imports.map { imp -> IUVImport(imp, setOf(IUVImportType.CLIENT_IMPL)) } + type.imports
+                            }
                 }
             }
 
             val imports = (standardImports + operationsImports + parametersTypesImport + parametersImport +
-                resultAndBodyImports + resultAndBodySerializersImport)
+                    resultAndBodyImports + resultAndBodySerializersImport)
                 .toSet()
                 .toList()
-                .sortedBy {
+                .sortedBy { imp ->
                     val prefix =
-                            if (it.fullClassName.startsWith(context.modelPackage)) {
-                                "2"
-                            } else if (it.fullClassName.startsWith(context.controllerPackage) || it.fullClassName.startsWith(context.clientPackage)) {
-                                "3"
-                            } else if (it.fullClassName.startsWith("org.iuv")) {
-                                "1"
-                            } else {
-                                "0"
-                            }
-                    prefix + it.fullClassName
+                        if (imp.fullClassName.startsWith(context.modelPackage)) {
+                            "2"
+                        } else if (imp.fullClassName.startsWith(context.controllerPackage) || imp.fullClassName.startsWith(context.clientPackage)) {
+                            "3"
+                        } else if (imp.fullClassName.startsWith("org.iuv")) {
+                            "1"
+                        } else {
+                            "0"
+                        }
+                    prefix + imp.fullClassName
                 }
 
             IUVAPI(apiName, paths, imports, baseUrl)
@@ -331,17 +337,17 @@ object OpenAPIReader {
 
     private fun Iterable<IUVAPIParameter>.types() = this.map { it.type.type }
 
-    private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>, context: OpenAPIWriteContext, components: Map<String, IUVAPIComponent>): IUVAPIPath {
+    private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
         val pathItem = pathEntry.value
 
         val iuvAPIOperations = mutableListOf<IUVAPIOperation>()
 
         val path = pathEntry.key
         try {
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Get, pathItem.get, context, components)
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Post, pathItem.post, context, components)
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Put, pathItem.put, context, components)
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Delete, pathItem.delete, context, components)
+            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Get, pathItem.get)
+            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Post, pathItem.post)
+            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Put, pathItem.put)
+            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Delete, pathItem.delete)
 
             return IUVAPIPath(path, iuvAPIOperations)
         } catch (e : UnsupportedOpenAPISpecification) {
@@ -350,11 +356,10 @@ object OpenAPIReader {
     }
 
     private fun addOperation(iuvAPIOperations: MutableList<IUVAPIOperation>, path: String,
-                             operationType: IUVAPIOperationType, op: Operation?,
-                             context: OpenAPIWriteContext, components: Map<String, IUVAPIComponent>) {
+                             operationType: IUVAPIOperationType, op: Operation?) {
         if (op != null) {
             try {
-                val iuvAPIOperation = toIUVAPIOperation(path, operationType, op, context, components)
+                val iuvAPIOperation = toIUVAPIOperation(path, operationType, op)
                 iuvAPIOperations.add(iuvAPIOperation)
             } catch (e: UnsupportedOpenAPISpecification) {
                 LOGGER.warn("Cannot add operation fot path '$path'", e)
@@ -363,7 +368,6 @@ object OpenAPIReader {
     }
 
     private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation,
-                                  context: OpenAPIWriteContext, components: Map<String, IUVAPIComponent>,
                                   responses: Set<String> = setOf("200", "201", "204", "205", "302")): IUVAPIOperation {
         var schemaForProperties : Schema<*>? = null
 
@@ -372,8 +376,8 @@ object OpenAPIReader {
         val bodyType = if (op.requestBody != null &&
                 op.requestBody.content.isNotEmpty()) {
                     if (op.requestBody.content.containsKey(JSON) || op.requestBody.content.containsKey(ALL_CONTENTS)) {
-                        val resolveType = op.requestBody?.content?.get(JSON)?.schema?.resolveType(context, components)
-                        resolveType ?: op.requestBody?.content?.get(ALL_CONTENTS)?.schema?.resolveType(context, components)
+                        val resolveType = op.requestBody?.content?.get(JSON)?.schema?.resolveType()
+                        resolveType ?: op.requestBody?.content?.get(ALL_CONTENTS)?.schema?.resolveType()
                     } else if (op.requestBody.content.containsKey(FORM_URL_ENCODED)) {
                         schemaForProperties = op.requestBody?.content?.get(FORM_URL_ENCODED)?.schema
                         null
@@ -402,14 +406,14 @@ object OpenAPIReader {
                 if (responseContent == null || responseContent.isEmpty())
                     unitType
                 else
-                    responseContent[JSON]?.schema?.resolveType(context, components)
+                    responseContent[JSON]?.schema?.resolveType()
                         ?: throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : " +
                             "only unit (void) response or JSON are supported.")
             }
 
-        val parameters = getIUVAPIParameters(op, bodyType, context, components) +
-                if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties, context,
-                        multiPartForm, components)
+        val parameters = getIUVAPIParameters(op, bodyType) +
+                if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties,
+                        multiPartForm)
 
         val operationId =
             if (op.operationId == null) {
@@ -434,12 +438,12 @@ object OpenAPIReader {
         return IUVAPIOperation(path, type, operationId, parameters, resultType, bodyType)
     }
 
-    private fun Schema<*>.resolveType(context: OpenAPIWriteContext, components: Map<String,IUVAPIComponent>) : IUVAPIType {
+    private fun Schema<*>.resolveType() : IUVAPIType {
         if (type != null) {
 
             when {
                 this is ArraySchema -> {
-                    val itemsType = items.resolveType(context, components)
+                    val itemsType = items.resolveType()
                     return IUVAPIType("List<$itemsType>",
                             IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
                                     imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
@@ -458,7 +462,7 @@ object OpenAPIReader {
                     if (it is Boolean)  {
                         throw UnsupportedOpenAPISpecification("Unknown type.")
                     } else if (it is Schema<*>) {
-                        val mapType = it.resolveType(context, components)
+                        val mapType = it.resolveType()
                         return IUVAPIType("Map<String, $mapType>",
                                 IUVAPISerializer("MapString${mapType.serializer.name}",
                                         "HashMapSerializer(StringSerializer,${mapType.serializer.code})",
@@ -493,16 +497,10 @@ object OpenAPIReader {
 
         val type = component.name
 
-        val aliasFor = component.aliasFor
-
-        if (aliasFor == null) {
-            return IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()",
-                    imports = setOf("kotlinx.serialization.serializer")),
-                    setOf(IUVImport(context.modelPackage + "." + type,
-                            setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
-        } else {
-            return aliasFor
-        }
+        return component.aliasFor ?: IUVAPIType(type, IUVAPISerializer("${type}IUVSerializer", "$type::class.serializer()",
+                imports = setOf("kotlinx.serialization.serializer")),
+                setOf(IUVImport(context.modelPackage + "." + type,
+                        setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
     }
 
     private fun toKotlinType(type: String, format: String?) =
@@ -524,22 +522,21 @@ object OpenAPIReader {
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
         }
 
-    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?, context: OpenAPIWriteContext,
-                                    components: Map<String, IUVAPIComponent>) : List<IUVAPIParameter> {
+    private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?) : List<IUVAPIParameter> {
         val parameters = op.parameters?.map {
             if (it.`in` == "query" || it is QueryParameter) {
                 try {
                     if ((it.style != null && it.style != Parameter.StyleEnum.FORM) || (it.explode != null && !it.explode)) {
                         throw UnsupportedOpenAPISpecification("Parameter ${it.name}: unsupported parameter style, only form and explode true is supported.")
                     }
-                    IUVAPIParameter(it.name, it.schema.resolveType(context, components), ParameterType.REQUEST_PARAM)
+                    IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.REQUEST_PARAM)
                 } catch (e: NullPointerException) {
                     throw e
                 }
             } else if (it.`in` == "header") {
-                IUVAPIParameter(it.name, it.schema.resolveType(context, components), ParameterType.HEADER)
+                IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.HEADER)
             } else {
-                IUVAPIParameter(it.name, it.schema.resolveType(context, components), ParameterType.PATH_VARIABLE)
+                IUVAPIParameter(it.name, it.schema.resolveType(), ParameterType.PATH_VARIABLE)
             }
         }.orEmpty()
 
@@ -550,10 +547,9 @@ object OpenAPIReader {
         return parameters
     }
 
-    private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, context: OpenAPIWriteContext, multiPartForm: Boolean,
-                                                        components: Map<String, IUVAPIComponent>) : List<IUVAPIParameter> {
+    private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, multiPartForm: Boolean) : List<IUVAPIParameter> {
         return schema.properties.map {
-            val type = it.value.resolveType(context, components)
+            val type = it.value.resolveType()
             IUVAPIParameter(it.key, type,
                 if (multiPartForm)
                     if (type.type == "MultipartFile")
