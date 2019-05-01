@@ -23,7 +23,7 @@ data class MapParserType(val valueType: ParserType) : ParserType()
 
 data class RefParserType(val key : String) : ParserType()
 
-data class AnonymousParserType(val component: ParserComponent) : ParserType()
+data class CustomParserType(val component: ParserComponent) : ParserType()
 
 data class ArrayParserType(val name : String, val itemsType: ParserType) : ParserType()
 
@@ -31,114 +31,52 @@ data class ParserProperty(val name: String, val type: ParserType, val optional: 
 
 sealed class ParserComponent {
 
-    abstract fun getTypes() : List<ParserType>
+    abstract fun getUsedTypes() : List<ParserType>
 
     abstract val key : String
 
     abstract val name : String
+
+    abstract val type : ParserType
 }
 
 data class ConcreteParserComponent(override val key : String, override val name: String, val properties: List<ParserProperty>) : ParserComponent() {
-    override fun getTypes(): List<ParserType> {
+    override fun getUsedTypes(): List<ParserType> {
         return properties.map { it.type }
     }
+
+    override val type: ParserType
+        get() = CustomParserType(this)
 }
 
 data class AliasParserComponent(override val key : String, override val name: String, val alias: ParserType) : ParserComponent() {
-    override fun getTypes(): List<ParserType> {
+    override fun getUsedTypes(): List<ParserType> {
         return listOf(alias)
     }
+
+    override val type: ParserType
+        get() = alias
 }
 
-class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteContext) {
+class OpenAPIParser(private val api: OpenAPI) {
 
-    fun components(): Map<String, IUVAPIComponent> {
+    fun components(): Map<String, ParserComponent> {
         val components = api.components.schemas.map { toParserComponent(it) }
 
         val anonymousParserTypes = components.flatMap { component ->
-            component.getTypes().flatMap { getAnonymousParserTypes(it) }
+            component.getUsedTypes().flatMap { getAnonymousParserTypes(it) }
         }
 
         val componentsMap = (components + anonymousParserTypes.map { it.component })
                 .map { it.key to it }
                 .toMap()
 
-        return componentsMap.entries.map { it.key to it.value.toIUVAPIComponent(componentsMap) }.toMap()
+        return componentsMap
     }
 
-    fun ParserComponent.toIUVAPIComponent(components: Map<String,ParserComponent>) : IUVAPIComponent =
-            when (this) {
-                is AliasParserComponent -> {
-                    val referenceCOmponent =
-                        if (this.alias is RefParserType) {
-                            val reference = components[this.alias.key]
-                            if (reference != null) {
-                                reference.toIUVAPIComponent(components)
-                            } else null
-                        } else null
-
-                    if (referenceCOmponent == null) {
-                        val aliasFor = alias.toIUVAPIType(components)
-                        IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key)
-                    } else referenceCOmponent
-
-                }
-                is ConcreteParserComponent ->
-                    IUVAPIComponent(name, properties.map { it.toIUVAPIProperty(components) }, key = key)
-            }
-
-    fun ParserProperty.toIUVAPIProperty(components: Map<String,ParserComponent>) =
-            IUVAPIComponentProperty(name, type.toIUVAPIType(components), optional)
-
-    fun ParserType.toIUVAPIType(components: Map<String,ParserComponent>): IUVAPIType =
-        when (this) {
-            is PrimitiveParserType -> IUVAPIType(type, serializer, imports)
-            MultipartFileParserType -> IUVAPIType("MultipartFile",
-                    IUVAPISerializer("", "", imports = emptySet()),
-                    setOf(
-                            IUVImport("org.iuv.core.MultiPartData", setOf(IUVImportType.CLIENT_IMPL)),
-                            IUVImport("org.iuv.core.MultipartFile", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
-                            IUVImport("org.springframework.web.multipart.MultipartFile",
-                                    setOf(IUVImportType.CONTROLLER))
-                    )
-            )
-            is MapParserType -> {
-                val mapType = valueType.toIUVAPIType(components)
-                IUVAPIType("Map<String, $mapType>",
-                        IUVAPISerializer("MapString${mapType.serializer.name}",
-                                "HashMapSerializer(StringSerializer,${mapType.serializer.code})",
-                                imports = setOf("kotlinx.serialization.internal.HashMapSerializer",
-                                        "kotlinx.serialization.internal.StringSerializer") + mapType.serializer.imports),
-                        mapType.imports)
-            }
-            is RefParserType -> {
-                val component = components[key] ?: throw UnsupportedOpenAPISpecification("Cannot fine component " + key)
-                toComponentType(component)
-            }
-            is AnonymousParserType -> {
-                val component = component
-                toComponentType(component)
-            }
-            is ArrayParserType -> {
-                val itemsType = itemsType.toIUVAPIType(components)
-
-                IUVAPIType("List<$itemsType>",
-                        IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
-                                imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
-                        itemsType.imports, itemsType.innerComponent)
-            }
-        }
-
-    private fun toComponentType(component: ParserComponent): IUVAPIType {
-        return IUVAPIType(component.name, IUVAPISerializer("${component.name}IUVSerializer", "${component.name}::class.serializer()",
-                imports = setOf("kotlinx.serialization.serializer")),
-                setOf(IUVImport(context.modelPackage + "." + component.name,
-                        setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
-    }
-
-    private fun getAnonymousParserTypes(type : ParserType) : List<AnonymousParserType> =
+    private fun getAnonymousParserTypes(type : ParserType) : List<CustomParserType> =
         when (type) {
-            is AnonymousParserType -> type.component.getTypes().flatMap { getAnonymousParserTypes(it) } + type
+            is CustomParserType -> type.component.getUsedTypes().flatMap { getAnonymousParserTypes(it) } + type
             is ArrayParserType -> getAnonymousParserTypes(type.itemsType)
             else -> emptyList()
         }
@@ -146,7 +84,7 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
     private fun toParserComponent(schemaEntry: Map.Entry<String, Schema<*>>) : ParserComponent {
         val schema = schemaEntry.value
 
-        val componentProperties = getProperties(schema)
+        val componentProperties = getProperties(api, schema)
         val schemaKey = schemaEntry.key
 
         val name = safeName(schemaKey).capitalize()
@@ -178,9 +116,61 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
         }
     }
 
-    private fun getProperties(componentProperties: Map<String, Schema<*>>, parentKey: String, parentName: String,
-                              required: List<String>? = null) =
-        componentProperties
+}
+
+fun Schema<*>.resolveType(parentKey: String, parent: String) : ParserType {
+    if (type != null) {
+        when {
+            this is ArraySchema -> {
+                val itemsType = items.resolveType(parentKey + "items", parent + "Items")
+                return ArrayParserType(parent, itemsType)
+            }
+            this is MapSchema -> {
+                val itemsType = (additionalProperties as Schema<*>).resolveType(parentKey + "items", parent + "Items")
+                return MapParserType(itemsType)
+            }
+            this is FileSchema -> return MultipartFileParserType
+            this is ObjectSchema ->
+                if (additionalProperties != null) {
+                    return resolveAdditionalProperties(this, parentKey, parent)
+                } else if (properties != null) {
+                    val properties = getProperties(properties, parentKey, parent)
+
+                    if (properties.isEmpty()) {
+                        return MapParserType(toPrimitiveType("string", null))
+                    }
+
+                    val component = ConcreteParserComponent(parentKey, parent, properties)
+                    return CustomParserType(component)
+                } else {
+                    // TODO enums?
+                    return toPrimitiveType("string", null)
+                }
+            this is ComposedSchema -> {
+                val filtered = allOf.filter { it.`$ref` != null }
+
+                if (filtered.isEmpty())
+                    throw UnsupportedOpenAPISpecification("Composed schema, only one allOf is supported.")
+
+                return filtered.first().resolveType(parentKey, parent)
+            }
+        }
+
+        return toPrimitiveType(type, format)
+    }
+
+    if (`$ref` == null) {
+        return PrimitiveParserType("Unit", UNIT_SERIALIZER, emptySet())
+    }
+
+    val refSimpleName = `$ref`.split("/").last()
+
+    return RefParserType(refSimpleName)
+}
+
+private fun getProperties(componentProperties: Map<String, Schema<*>>, parentKey: String, parentName: String,
+                          required: List<String>? = null) =
+    componentProperties
             .map {
                 try {
                     val name = safeName(parentName + it.key.capitalize()).capitalize()
@@ -192,111 +182,63 @@ class OpenAPIParser(private val api: OpenAPI, private val context: OpenAPIWriteC
                 }
             }
 
-    private fun safeName(name : String) =
-            if (RESERVED_KEYWORDS.contains(name))
-                "`$name`"
-            else
-                name.mapIndexed { i, ch -> if ( i == 0 && ch.isDigit()) "n$ch" else if (ch.isLetterOrDigit()) ch.toString() else "_" }
-                    .joinToString("")
-                    .split("_")
-                    .mapIndexed {i, s -> if (i == 0) s else s.capitalize() }
-                    .joinToString("")
+private fun safeName(name : String) =
+    if (RESERVED_KEYWORDS.contains(name))
+        "`$name`"
+    else
+        name.mapIndexed { i, ch -> if ( i == 0 && ch.isDigit()) "n$ch" else if (ch.isLetterOrDigit()) ch.toString() else "_" }
+                .joinToString("")
+                .split("_")
+                .mapIndexed {i, s -> if (i == 0) s else s.capitalize() }
+                .joinToString("")
 
-    private fun getProperties(schema: Schema<*>) : Map<String, Schema<*>> =
-            if (schema.`$ref` != null) {
-                // TODO handle reference to another api file
-                val refSchema = api.components.schemas[schema.`$ref`.split("/").last()]
-                getProperties(refSchema!!)
-            } else if (schema is ComposedSchema) {
-                if (schema.allOf != null) {
-                    schema.allOf
-                            .flatMap { getProperties(it).entries }
-                            .map { Pair(it.key, it.value) }
-                            .toMap()
-                } else {
-                    throw UnsupportedOpenAPISpecification("Error reading properties of schema ${schema.name}, only allOf is supported.")
-                }
+private fun toPrimitiveType(type: String, format: String?) =
+    when (type) {
+        "string" -> PrimitiveParserType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer",
+                imports = setOf("kotlinx.serialization.internal.StringSerializer")), emptySet())
+        "integer", "number" ->
+            if (format == "int64") {
+                PrimitiveParserType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer",
+                        imports = setOf("kotlinx.serialization.internal.LongSerializer")), emptySet())
             } else {
-                schema.properties ?: emptyMap()
+                PrimitiveParserType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer",
+                        imports = setOf("kotlinx.serialization.internal.IntSerializer")), emptySet())
             }
-
-    private fun Schema<*>.resolveType(parentKey: String, parent: String) : ParserType {
-        if (type != null) {
-            when {
-                this is ArraySchema -> {
-                    val itemsType = items.resolveType(parentKey + "items", parent + "Items")
-                    return ArrayParserType(parent, itemsType)
-                }
-                this is FileSchema -> return MultipartFileParserType
-                this is ObjectSchema ->
-                    if (additionalProperties != null) {
-                        return resolveAdditionalProperties(this, parentKey, parent)
-                    } else if (properties != null) {
-                        val properties = getProperties(properties, parentKey, parent)
-
-                        if (properties.isEmpty()) {
-                            return MapParserType(toPrimitiveType("string", null))
-                        }
-
-                        val component = ConcreteParserComponent(parentKey, parent, properties)
-                        return AnonymousParserType(component)
-                    } else {
-                        // TODO enums?
-                        return toPrimitiveType("string", null)
-                    }
-                this is ComposedSchema -> {
-                    val filtered = allOf.filter { it.`$ref` != null }
-
-                    if (filtered.isEmpty())
-                        throw UnsupportedOpenAPISpecification("Composed schema, only one allOf is supported.")
-
-                    return filtered.first().resolveType(parentKey, parent)
-                }
-            }
-
-            return toPrimitiveType(type, format)
-        }
-
-        if (`$ref` == null) {
-            return PrimitiveParserType("Unit", UNIT_SERIALIZER, emptySet())
-        }
-
-        val refSimpleName = `$ref`.split("/").last()
-
-        return RefParserType(refSimpleName)
+        "boolean" -> PrimitiveParserType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
+                imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), emptySet())
+        "file" -> PrimitiveParserType("MultipartFile", IUVAPISerializer("BooleanIUVSerializer", "MultipartFileSerializer",
+                imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), emptySet())
+        else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
     }
 
-    private fun resolveAdditionalProperties(schema: Schema<*>, parentKey: String, parent: String) : MapParserType {
-        val additionalProperties = schema.additionalProperties
-        additionalProperties.let {
-            if (it is Boolean) {
-                throw UnsupportedOpenAPISpecification("Unsupported boolean additional properties.")
-            } else if (it is Schema<*>) {
-                val mapType = it.resolveType(parentKey, parent)
-                return MapParserType(mapType)
-            } else {
-                throw UnsupportedOpenAPISpecification("Unknown additional properties type: " + additionalProperties::class)
-            }
+private fun resolveAdditionalProperties(schema: Schema<*>, parentKey: String, parent: String) : MapParserType {
+    val additionalProperties = schema.additionalProperties
+    additionalProperties.let {
+        if (it is Boolean) {
+            throw UnsupportedOpenAPISpecification("Unsupported boolean additional properties.")
+        } else if (it is Schema<*>) {
+            val mapType = it.resolveType(parentKey, parent)
+            return MapParserType(mapType)
+        } else {
+            throw UnsupportedOpenAPISpecification("Unknown additional properties type: " + additionalProperties::class)
         }
     }
-
-    private fun toPrimitiveType(type: String, format: String?) =
-        when (type) {
-            "string" -> PrimitiveParserType("String", IUVAPISerializer("StringIUVSerializer", "StringSerializer",
-                    imports = setOf("kotlinx.serialization.internal.StringSerializer")), emptySet())
-            "integer", "number" ->
-                if (format == "int64") {
-                    PrimitiveParserType("Long", IUVAPISerializer("LongIUVSerializer", "LongSerializer",
-                            imports = setOf("kotlinx.serialization.internal.LongSerializer")), emptySet())
-                } else {
-                    PrimitiveParserType("Int", IUVAPISerializer("IntIUVSerializer", "IntSerializer",
-                            imports = setOf("kotlinx.serialization.internal.IntSerializer")), emptySet())
-                }
-            "boolean" -> PrimitiveParserType("Boolean", IUVAPISerializer("BooleanIUVSerializer", "BooleanSerializer",
-                    imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), emptySet())
-            "file" -> PrimitiveParserType("MultipartFile", IUVAPISerializer("BooleanIUVSerializer", "MultipartFileSerializer",
-                    imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), emptySet())
-            else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")
-        }
-
 }
+
+private fun getProperties(api: OpenAPI, schema: Schema<*>) : Map<String, Schema<*>> =
+    if (schema.`$ref` != null) {
+        // TODO handle reference to another api file
+        val refSchema = api.components.schemas[schema.`$ref`.split("/").last()]
+        getProperties(api, refSchema!!)
+    } else if (schema is ComposedSchema) {
+        if (schema.allOf != null) {
+            schema.allOf
+                    .flatMap { getProperties(api, it).entries }
+                    .map { Pair(it.key, it.value) }
+                    .toMap()
+        } else {
+            throw UnsupportedOpenAPISpecification("Error reading properties of schema ${schema.name}, only allOf is supported.")
+        }
+    } else {
+        schema.properties ?: emptyMap()
+    }

@@ -59,12 +59,6 @@ data class AssetPatch(
   val name : String
 )
 
-typealias Assets = List<Asset>
-
-
-typealias Assignees = List<User>
-
-
 @Serializable
 data class Blob(
   val content : String? = null,
@@ -90,9 +84,6 @@ data class Branches(
   val commit : BranchesCommit? = null,
   val name : String? = null
 )
-
-typealias CodeFrequencyStats = List<Int>
-
 
 @Serializable
 data class Comment(
@@ -283,20 +274,11 @@ data class Download(
   val url : String? = null
 )
 
-typealias Downloads = List<Download>
-
-
 @Serializable
 data class EditTeam(
   val name : String,
   val permission : String? = null
 )
-
-typealias EmailsPost = List<String>
-
-
-typealias Emojis = Map<String, String>
-
 
 @Serializable
 data class Event(
@@ -309,9 +291,6 @@ data class Event(
   val repo : EventRepo? = null,
   val type : String? = null
 )
-
-typealias Events = List<Event>
-
 
 @Serializable
 data class Feeds(
@@ -328,9 +307,6 @@ data class Feeds(
 data class ForkBody(
   val organization : String? = null
 )
-
-typealias Repos = List<Repo>
-
 
 @Serializable
 data class Gist(
@@ -379,9 +355,6 @@ data class GitRefPatch(
   val force : Boolean? = null,
   val sha : String? = null
 )
-
-typealias Gitignore = List<String>
-
 
 @Serializable
 data class GitignoreLang(
@@ -432,9 +405,6 @@ data class IssueEvent(
   val issue : IssueEventIssue? = null,
   val url : String? = null
 )
-
-typealias IssueEvents = List<IssueEvent>
-
 
 @Serializable
 data class Issues(
@@ -501,9 +471,6 @@ data class Labels(
   val name : String? = null,
   val url : String? = null
 )
-
-typealias Languages = Map<String, Int>
-
 
 @Serializable
 data class Markdown(
@@ -1019,13 +986,13 @@ data class SearchUserByEmail(
 
 @Serializable
 data class SearchUsers(
-  val items : Users? = null,
+  val items : List<User>? = null,
   val totalCount : Int? = null
 )
 
 @Serializable
 data class SearchUsersByKeyword(
-  val users : Users? = null
+  val users : List<User>? = null
 )
 
 @Serializable
@@ -1063,9 +1030,6 @@ data class TagBody(
   val tagger : TagBodyTagger,
   val type : String
 )
-
-typealias Tags = List<Tag>
-
 
 @Serializable
 data class Team(
@@ -1152,9 +1116,6 @@ data class User(
   val url : String? = null
 )
 
-typealias UserEmails = List<String>
-
-
 @Serializable
 data class UserKeysKeyId(
   val id : Int? = null,
@@ -1179,9 +1140,6 @@ data class UserUpdate(
   val location : String? = null,
   val name : String? = null
 )
-
-typealias Users = List<User>
-
 
 @Serializable
 data class ActorPlan(
