@@ -58,7 +58,7 @@ enum class ParameterType(val controllerAnnotationClass: String) {
     HEADER("org.springframework.web.bind.annotation.RequestHeader")
 }
 
-data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
+data class IUVAPIParameter(val name: String, val description: String?, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
     // properties used by mustache templates
     @Suppress("unused")
     val pathVariable = parameterType == ParameterType.PATH_VARIABLE
@@ -83,6 +83,18 @@ data class IUVAPIParameter(val name: String, val type: IUVAPIType, val parameter
 
     @Suppress("unused")
     val requestPart = parameterType == ParameterType.MULTI_PART_FILE_PARAM
+
+    val hasDescription = description != null
+
+    val descriptions = description?.split("\n")
+
+    val firstDescriptionLine = descriptions?.first()
+
+    val otherDescriptionLines =
+        if (descriptions == null || descriptions.size == 1)
+            null
+        else
+            descriptions?.drop(1)
 }
 
 /**
@@ -98,7 +110,7 @@ enum class IUVAPIOperationType(val controllerAnnotationClass: String, @Suppress(
         controllerAnnotationClass.split('.').last() + "(\"$path\")"
 }
 
-data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>,
+data class IUVAPIOperation(val path: String, val description: String?, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>,
                            val resultType: IUVAPIType, val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
 
     init {
@@ -138,6 +150,9 @@ data class IUVAPIOperation(val path: String, val op: IUVAPIOperationType, val id
     @Suppress("unused")
     val headers = parameters.filter { it.requestHeader }.map { it.copy() }.calculateLast()
 
+    val hasDescription = description != null || parameters.any { it.description != null }
+
+    val descriptions = description?.split("\n")
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -450,7 +465,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
             throw UnsupportedOpenAPISpecification("Duplicated parameter names : " + duplicatedParameters.map { it.key })
         }
 
-        return IUVAPIOperation(path, type, operationId, parameters, resultType.toIUVAPIType(),
+        return IUVAPIOperation(path, op.description, type, operationId, parameters, resultType.toIUVAPIType(),
                 bodyType?.toIUVAPIType())
     }
 
@@ -462,19 +477,19 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     if ((it.style != null && it.style != Parameter.StyleEnum.FORM) || (it.explode != null && !it.explode)) {
                         throw UnsupportedOpenAPISpecification("Parameter ${it.name}: unsupported parameter style, only form and explode true is supported.")
                     }
-                    IUVAPIParameter(it.name, type, ParameterType.REQUEST_PARAM)
+                    IUVAPIParameter(it.name, it.description, type, ParameterType.REQUEST_PARAM)
                 } catch (e: NullPointerException) {
                     throw e
                 }
             } else if (it.`in` == "header") {
-                IUVAPIParameter(it.name, type, ParameterType.HEADER)
+                IUVAPIParameter(it.name, it.description, type, ParameterType.HEADER)
             } else {
-                IUVAPIParameter(it.name, type, ParameterType.PATH_VARIABLE)
+                IUVAPIParameter(it.name, it.description, type, ParameterType.PATH_VARIABLE)
             }
         }.orEmpty()
 
         if (bodyType != null) {
-            return parameters + IUVAPIParameter("body", bodyType, ParameterType.REQUEST_BODY)
+            return parameters + IUVAPIParameter("body", null, bodyType, ParameterType.REQUEST_BODY)
         }
 
         return parameters
@@ -483,7 +498,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
     private fun getIUVAPIParametersFromSchemaProperties(schema: Schema<*>, multiPartForm: Boolean) : List<IUVAPIParameter> {
         return schema.properties.map {
             val type = it.value.resolveType("", "").toIUVAPIType() // TODO parent
-            IUVAPIParameter(it.key, type,
+            IUVAPIParameter(it.key, it.value.description, type,
                 if (multiPartForm)
                     if (type.type == "MultipartFile")
                         ParameterType.MULTI_PART_FILE_PARAM

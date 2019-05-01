@@ -361,40 +361,108 @@ class OpenAPIReaderTest {
                     "\n" +
                     "    fun updatePet(body : Pet) : Task<String,Pet>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * Multiple status values can be provided with comma separated strings\n" +
+                    "     *\n" +
+                    "     * @param status Status values that need to be considered for filter\n" +
+                    "     */\n" +
                     "    fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.\n" +
+                    "     *\n" +
+                    "     * @param tags Tags to filter by\n" +
+                    "     */\n" +
                     "    fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * Returns a single pet\n" +
+                    "     *\n" +
+                    "     * @param petId ID of pet to return\n" +
+                    "     */\n" +
                     "    fun getPetById(petId : Long) : Task<String,Pet>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     *\n" +
+                    "     * @param petId ID of pet that needs to be updated\n" +
+                    "     * @param name Updated name of the pet\n" +
+                    "     * @param status Updated status of the pet\n" +
+                    "     */\n" +
                     "    fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     *\n" +
+                    "     * @param petId Pet id to delete\n" +
+                    "     */\n" +
                     "    fun deletePet(api_key : String, petId : Long) : Task<String,Unit>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     *\n" +
+                    "     * @param petId ID of pet to update\n" +
+                    "     * @param additionalMetadata Additional data to pass to server\n" +
+                    "     * @param file file to upload\n" +
+                    "     */\n" +
                     "    fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * Returns a map of status codes to quantities\n" +
+                    "     *\n" +
+                    "     */\n" +
                     "    fun getInventory() : Task<String,Map<String, Int>>\n" +
                     "\n" +
                     "    fun placeOrder(body : Order) : Task<String,Order>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions\n" +
+                    "     *\n" +
+                    "     * @param orderId ID of pet that needs to be fetched\n" +
+                    "     */\n" +
                     "    fun getOrderById(orderId : Long) : Task<String,Order>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors\n" +
+                    "     *\n" +
+                    "     * @param orderId ID of the order that needs to be deleted\n" +
+                    "     */\n" +
                     "    fun deleteOrder(orderId : Long) : Task<String,Unit>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * This can only be done by the logged in user.\n" +
+                    "     *\n" +
+                    "     */\n" +
                     "    fun createUser(body : User) : Task<String,Unit>\n" +
                     "\n" +
                     "    fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit>\n" +
                     "\n" +
                     "    fun createUsersWithListInput(body : List<User>) : Task<String,Unit>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     *\n" +
+                    "     * @param username The user name for login\n" +
+                    "     * @param password The password for login in clear text\n" +
+                    "     */\n" +
                     "    fun loginUser(username : String, password : String) : Task<String,String>\n" +
                     "\n" +
                     "    fun logoutUser() : Task<String,Unit>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     *\n" +
+                    "     * @param username The name that needs to be fetched. Use user1 for testing. \n" +
+                    "     */\n" +
                     "    fun getUserByName(username : String) : Task<String,User>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * This can only be done by the logged in user.\n" +
+                    "     *\n" +
+                    "     * @param username name that need to be updated\n" +
+                    "     */\n" +
                     "    fun updateUser(username : String, body : User) : Task<String,User>\n" +
                     "\n" +
+                    "    /**\n" +
+                    "     * This can only be done by the logged in user.\n" +
+                    "     *\n" +
+                    "     * @param username The name that needs to be deleted\n" +
+                    "     */\n" +
                     "    fun deleteUser(username : String) : Task<String,Unit>\n" +
                     "\n" +
                     "}", sw.toString())

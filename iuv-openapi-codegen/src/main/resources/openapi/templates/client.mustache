@@ -10,6 +10,22 @@ interface {{api.name}}Api {
 {{#api.paths}}
   {{#operations}}
 
+    {{#hasDescription}}
+    /**
+     {{#descriptions}}
+     * {{{.}}}
+     {{/descriptions}}
+     *
+     {{#parameters}}
+     {{#hasDescription}}
+     * @param {{name}} {{firstDescriptionLine}}
+     {{#otherDescriptionLines}}
+     *   {{{.}}}
+     {{/otherDescriptionLines}}
+     {{/hasDescription}}
+     {{/parameters}}
+     */
+    {{/hasDescription}}
     fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}>
   {{/operations}}
 {{/api.paths}}
