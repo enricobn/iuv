@@ -84,17 +84,21 @@ data class IUVAPIParameter(val name: String, val description: String?, val type:
     @Suppress("unused")
     val requestPart = parameterType == ParameterType.MULTI_PART_FILE_PARAM
 
+    @Suppress("unused")
     val hasDescription = description != null
 
+    @Suppress("private")
     val descriptions = description?.split("\n")
 
+    @Suppress("unused")
     val firstDescriptionLine = descriptions?.first()
 
+    @Suppress("unused")
     val otherDescriptionLines =
         if (descriptions == null || descriptions.size == 1)
             null
         else
-            descriptions?.drop(1)
+            descriptions.drop(1)
 }
 
 /**
@@ -150,8 +154,10 @@ data class IUVAPIOperation(val path: String, val description: String?, val op: I
     @Suppress("unused")
     val headers = parameters.filter { it.requestHeader }.map { it.copy() }.calculateLast()
 
+    @Suppress("unused")
     val hasDescription = description != null || parameters.any { it.description != null }
 
+    @Suppress("unused")
     val descriptions = description?.split("\n")
 }
 
@@ -346,18 +352,15 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
     private fun ParserComponent.toIUVAPIComponent() : IUVAPIComponent =
         when (this) {
             is AliasParserComponent -> {
-                val referenceCOmponent =
+                val referenceComponent =
                         if (this.alias is RefParserType) {
-                            val reference = components[this.alias.key]
-                            if (reference != null) {
-                                reference.toIUVAPIComponent()
-                            } else null
+                            components[alias.key]?.toIUVAPIComponent()
                         } else null
 
-                if (referenceCOmponent == null) {
+                if (referenceComponent == null) {
                     val aliasFor = alias.toIUVAPIType()
                     IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key)
-                } else referenceCOmponent
+                } else referenceComponent
 
             }
             is ConcreteParserComponent ->
