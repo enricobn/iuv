@@ -291,12 +291,12 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
         return this
     }
 
-    fun formData(formData: Map<String,String>) : HttpRequestRunner<RESULT> {
+    fun formData(formData: Map<String,String?>) : HttpRequestRunner<RESULT> {
         this.formData = formData
         return this
     }
 
-    fun formData(vararg formData: Pair<String,String>) : HttpRequestRunner<RESULT> {
+    fun formData(vararg formData: Pair<String,String?>) : HttpRequestRunner<RESULT> {
         this.formData = formData.toMap()
         return this
     }
@@ -341,7 +341,7 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
         return this
     }
 
-    fun header(key: String, value: Any) : HttpRequestRunner<RESULT> {
+    fun header(key: String, value: Any?) : HttpRequestRunner<RESULT> {
         this.headers[key] = value
         return this
     }
