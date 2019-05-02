@@ -1,0 +1,80 @@
+package org.iuv.test.controllers
+
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
+import org.springframework.web.multipart.MultipartFile
+import org.iuv.test.models.ApiResponse
+import org.iuv.test.models.Order
+import org.iuv.test.models.Pet
+import org.iuv.test.models.User
+
+interface PetStoreController {
+
+    @PostMapping("/pet")
+    fun addPet(@RequestBody body : Pet) : Pet
+
+    @PutMapping("/pet")
+    fun updatePet(@RequestBody body : Pet) : Pet
+
+    @GetMapping("/pet/findByStatus")
+    fun findPetsByStatus(@RequestParam status : List<String>) : List<Pet>
+
+    @GetMapping("/pet/findByTags")
+    fun findPetsByTags(@RequestParam tags : List<String>) : List<Pet>
+
+    @GetMapping("/pet/{petId}")
+    fun getPetById(@PathVariable petId : Long) : Pet
+
+    @PostMapping("/pet/{petId}")
+    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String, @RequestParam status : String) : Unit
+
+    @DeleteMapping("/pet/{petId}")
+    fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long) : Unit
+
+    @PostMapping("/pet/{petId}/uploadImage")
+    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String, @RequestPart file : MultipartFile) : ApiResponse
+
+    @GetMapping("/store/inventory")
+    fun getInventory() : Map<String, Int>
+
+    @PostMapping("/store/order")
+    fun placeOrder(@RequestBody body : Order) : Order
+
+    @GetMapping("/store/order/{orderId}")
+    fun getOrderById(@PathVariable orderId : Long) : Order
+
+    @DeleteMapping("/store/order/{orderId}")
+    fun deleteOrder(@PathVariable orderId : Long) : Unit
+
+    @PostMapping("/user")
+    fun createUser(@RequestBody body : User) : Unit
+
+    @PostMapping("/user/createWithArray")
+    fun createUsersWithArrayInput(@RequestBody body : List<User>) : Unit
+
+    @PostMapping("/user/createWithList")
+    fun createUsersWithListInput(@RequestBody body : List<User>) : Unit
+
+    @GetMapping("/user/login")
+    fun loginUser(@RequestParam username : String, @RequestParam password : String) : String
+
+    @GetMapping("/user/logout")
+    fun logoutUser() : Unit
+
+    @GetMapping("/user/{username}")
+    fun getUserByName(@PathVariable username : String) : User
+
+    @PutMapping("/user/{username}")
+    fun updateUser(@PathVariable username : String, @RequestBody body : User) : User
+
+    @DeleteMapping("/user/{username}")
+    fun deleteUser(@PathVariable username : String) : Unit
+
+}

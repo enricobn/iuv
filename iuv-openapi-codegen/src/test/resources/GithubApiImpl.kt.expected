@@ -1,0 +1,31 @@
+package org.iuv.test.client
+
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.internal.ArrayListSerializer
+import kotlinx.serialization.serializer
+import org.iuv.core.Authentication
+import org.iuv.core.Http
+import org.iuv.core.HttpMethod
+import org.iuv.shared.Task
+import org.iuv.test.models.Event
+
+class NetworksApiImpl(private val baseUrl : String = "https://api.github.com") : NetworksApi {
+    private var authentication : Authentication? = null
+
+    override fun authenticate(authentication: Authentication) {
+        this.authentication = authentication
+    }
+
+    @ImplicitReflectionSerializer
+    override fun getNetworksByOwnerByRepoEvents(owner : String, repo : String, Accept : String?) : Task<String,List<Event>> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/networks/$owner/$repo/events", ArrayListSerializer(Event::class.serializer()))
+            .headers("Accept" to Accept)
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+}

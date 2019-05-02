@@ -7,6 +7,7 @@ import {{fullClassName}}
 {{/last}}
 {{/api.clientImports}}
 interface {{api.name}}Api {
+    fun authenticate(authentication: Authentication)
 {{#api.paths}}
   {{#operations}}
 
@@ -26,7 +27,7 @@ interface {{api.name}}Api {
      {{/parameters}}
      */
     {{/hasDescription}}
-    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}>
+    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}>
   {{/operations}}
 {{/api.paths}}
 

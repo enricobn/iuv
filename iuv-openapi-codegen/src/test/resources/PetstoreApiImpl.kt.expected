@@ -1,0 +1,274 @@
+package org.iuv.test.client
+
+import kotlinx.serialization.ImplicitReflectionSerializer
+import kotlinx.serialization.internal.ArrayListSerializer
+import kotlinx.serialization.internal.HashMapSerializer
+import kotlinx.serialization.internal.IntSerializer
+import kotlinx.serialization.internal.StringSerializer
+import kotlinx.serialization.internal.UnitSerializer
+import kotlinx.serialization.serializer
+import org.iuv.core.Authentication
+import org.iuv.core.Http
+import org.iuv.core.HttpMethod
+import org.iuv.core.MultiPartData
+import org.iuv.core.MultipartFile
+import org.iuv.shared.Task
+import org.iuv.test.models.ApiResponse
+import org.iuv.test.models.Order
+import org.iuv.test.models.Pet
+import org.iuv.test.models.User
+
+class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.io/v2") : PetstoreApi {
+    private var authentication : Authentication? = null
+
+    override fun authenticate(authentication: Authentication) {
+        this.authentication = authentication
+    }
+
+    @ImplicitReflectionSerializer
+    override fun addPet(body : Pet) : Task<String,Pet> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/pet", Pet::class.serializer())
+            .body(body, Pet::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun updatePet(body : Pet) : Task<String,Pet> {
+        val runner = Http.runner(HttpMethod.Put, "$baseUrl/pet", Pet::class.serializer())
+            .body(body, Pet::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pet/findByStatus", ArrayListSerializer(Pet::class.serializer()))
+            .queryParams(
+                "status" to status
+            )
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pet/findByTags", ArrayListSerializer(Pet::class.serializer()))
+            .queryParams(
+                "tags" to tags
+            )
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun getPetById(petId : Long) : Task<String,Pet> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pet/$petId", Pet::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/pet/$petId", UnitSerializer)
+            .formData(
+                "name" to name,
+                "status" to status
+            )
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun deletePet(api_key : String?, petId : Long) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Delete, "$baseUrl/pet/$petId", UnitSerializer)
+            .headers("api_key" to api_key)
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/pet/$petId/uploadImage", ApiResponse::class.serializer())
+            .multiPartData(
+                MultiPartData.of("additionalMetadata", additionalMetadata),
+                MultiPartData.of("file", file)
+            )
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun getInventory() : Task<String,Map<String, Int>> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/store/inventory", HashMapSerializer(StringSerializer,IntSerializer))
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun placeOrder(body : Order) : Task<String,Order> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/store/order", Order::class.serializer())
+            .body(body, Order::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun getOrderById(orderId : Long) : Task<String,Order> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/store/order/$orderId", Order::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun deleteOrder(orderId : Long) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Delete, "$baseUrl/store/order/$orderId", UnitSerializer)
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun createUser(body : User) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/user", UnitSerializer)
+            .body(body, User::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/user/createWithArray", UnitSerializer)
+            .body(body, ArrayListSerializer(User::class.serializer()))
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun createUsersWithListInput(body : List<User>) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/user/createWithList", UnitSerializer)
+            .body(body, ArrayListSerializer(User::class.serializer()))
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun loginUser(username : String, password : String) : Task<String,String> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/user/login", StringSerializer)
+            .queryParams(
+                "username" to username,
+                "password" to password
+            )
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun logoutUser() : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/user/logout", UnitSerializer)
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun getUserByName(username : String) : Task<String,User> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/user/$username", User::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun updateUser(username : String, body : User) : Task<String,User> {
+        val runner = Http.runner(HttpMethod.Put, "$baseUrl/user/$username", User::class.serializer())
+            .body(body, User::class.serializer())
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+    @ImplicitReflectionSerializer
+    override fun deleteUser(username : String) : Task<String,Unit> {
+        val runner = Http.runner(HttpMethod.Delete, "$baseUrl/user/$username", UnitSerializer)
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
+
+}

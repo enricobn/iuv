@@ -7,40 +7,51 @@ import {{fullClassName}}
 {{/last}}
 {{/api.clientImplImports}}
 class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : {{api.name}}Api {
+    private var authentication : Authentication? = null
+
+    override fun authenticate(authentication: Authentication) {
+        this.authentication = authentication
+    }
 {{#api.paths}}
   {{#operations}}
 
     @ImplicitReflectionSerializer
-    override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> =
-        Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}", {{resultType.serializer.code}})
+    override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> {
+        val runner = Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}", {{resultType.serializer.code}})
             {{#bodyType}}
             .body(body, {{serializer.code}})
             {{/bodyType}}
             {{#hasFormData}}
             .formData(
                 {{#formData}}
-                "{{name}}" to {{name}}{{^last}}, {{/last}}
+                "{{name}}" to {{name}}{{^last}},{{/last}}
                 {{/formData}}
             )
             {{/hasFormData}}
             {{#hasClientQueryParams}}
             .queryParams(
                 {{#clientQueryParams}}
-                "{{name}}" to {{name}}{{^last}}, {{/last}}
+                "{{name}}" to {{name}}{{^last}},{{/last}}
                 {{/clientQueryParams}}
             )
             {{/hasClientQueryParams}}
             {{#hasMultiPartData}}
             .multiPartData(
                 {{#multiPartData}}
-                MultiPartData.of("{{name}}", {{name}}){{^last}}, {{/last}}
+                MultiPartData.of("{{name}}", {{name}}){{^last}},{{/last}}
                 {{/multiPartData}}
             )
             {{/hasMultiPartData}}
             {{#hasHeaders}}
-            .headers({{#headers}}"{{name}}" to {{name}}{{^last}}, {{/last}}{{/headers}})
+            .headers({{#headers}}"{{name}}" to {{name}}{{^last}},{{/last}}{{/headers}})
             {{/hasHeaders}}
-            .run()
+        authentication.let {
+            if (it != null) {
+                runner.configuration(it)
+            }
+        }
+        return runner.run()
+    }
   {{/operations}}
 {{/api.paths}}
 

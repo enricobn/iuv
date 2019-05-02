@@ -58,7 +58,8 @@ enum class ParameterType(val controllerAnnotationClass: String) {
     HEADER("org.springframework.web.bind.annotation.RequestHeader")
 }
 
-data class IUVAPIParameter(val name: String, val description: String?, val type: IUVAPIType, val parameterType: ParameterType, override var last: Boolean = false) : Last {
+data class IUVAPIParameter(val name: String, val description: String?, val type: IUVAPIType, val parameterType: ParameterType,
+                           val required: Boolean, override var last: Boolean = false) : Last {
     // properties used by mustache templates
     @Suppress("unused")
     val pathVariable = parameterType == ParameterType.PATH_VARIABLE
@@ -88,7 +89,7 @@ data class IUVAPIParameter(val name: String, val description: String?, val type:
     val hasDescription = description != null
 
     @Suppress("private")
-    val descriptions = description?.split("\n")
+    val descriptions = description?.split("\n")?.map { it.trim() }
 
     @Suppress("unused")
     val firstDescriptionLine = descriptions?.first()
@@ -158,7 +159,7 @@ data class IUVAPIOperation(val path: String, val description: String?, val op: I
     val hasDescription = description != null || parameters.any { it.description != null }
 
     @Suppress("unused")
-    val descriptions = description?.split("\n")
+    val descriptions = description?.split("\n")?.map { it.trim() }
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -272,7 +273,8 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
                 IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
-                IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL))
+                IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.iuv.core.Authentication", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))
         )
 
         val allPaths = api.paths.map { toIUVAPIPath(it) }
@@ -283,7 +285,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 else
                     mapOf(name to allPaths)
 
-        val baseUrl = api.servers?.firstOrNull()?.url ?: ""
+        val baseUrl = (api.servers?.firstOrNull()?.url ?: "").removeSuffix("/")
 
         val apis = pathsByName.map {
             val apiName = it.key.capitalize()
@@ -480,19 +482,19 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     if ((it.style != null && it.style != Parameter.StyleEnum.FORM) || (it.explode != null && !it.explode)) {
                         throw UnsupportedOpenAPISpecification("Parameter ${it.name}: unsupported parameter style, only form and explode true is supported.")
                     }
-                    IUVAPIParameter(it.name, it.description, type, ParameterType.REQUEST_PARAM)
+                    IUVAPIParameter(it.name, it.description, type, ParameterType.REQUEST_PARAM, it.required ?: false)
                 } catch (e: NullPointerException) {
                     throw e
                 }
             } else if (it.`in` == "header") {
-                IUVAPIParameter(it.name, it.description, type, ParameterType.HEADER)
+                IUVAPIParameter(it.name, it.description, type, ParameterType.HEADER, it.required ?: false)
             } else {
-                IUVAPIParameter(it.name, it.description, type, ParameterType.PATH_VARIABLE)
+                IUVAPIParameter(it.name, it.description, type, ParameterType.PATH_VARIABLE, it.required ?: false)
             }
         }.orEmpty()
 
         if (bodyType != null) {
-            return parameters + IUVAPIParameter("body", null, bodyType, ParameterType.REQUEST_BODY)
+            return parameters + IUVAPIParameter("body", null, bodyType, ParameterType.REQUEST_BODY, true)
         }
 
         return parameters
@@ -506,8 +508,8 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     if (type.type == "MultipartFile")
                         ParameterType.MULTI_PART_FILE_PARAM
                     else ParameterType.MULTI_PART_PARAM
-                else ParameterType.FORM_PARAM
-        ) }
+                else ParameterType.FORM_PARAM,
+                (schema.required?.contains(it.key) ?: false)) }
     }
 
     private fun ParserType.toIUVAPIType(): IUVAPIType =

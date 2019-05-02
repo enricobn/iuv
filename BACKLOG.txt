@@ -2,10 +2,9 @@ Doing
 -------
 - cli for OpenApi
   - client : pass requestParam in url
-  - anonymous object
   - anonymous enum?
-  - client request header parameter
   - required parameters (if then nullable)
+  - components properties Doc
 - cli for create new project
   - view
   - controller impl
