@@ -6,6 +6,7 @@ import kotlinx.serialization.json.JSON
 import org.iuv.shared.Task
 import org.w3c.files.File
 import org.w3c.xhr.XMLHttpRequest
+import kotlin.browser.window
 import kotlin.js.Date
 
 object Http {
@@ -106,7 +107,7 @@ object Http {
         try {
             val request = XMLHttpRequest()
 
-            request.onreadystatechange = { _ ->
+            request.onreadystatechange = { event ->
                 when (request.readyState) {
                     XMLHttpRequest.DONE ->
                         try {
@@ -114,11 +115,11 @@ object Http {
                                 if (serializer == UnitSerializer && request.responseText.isEmpty()) {
                                     onSuccess(Unit as RESULT)
                                 } else {
-                                    val response = JSON.parse(serializer, request.responseText)
+                                    val response = JSON.nonstrict.parse(serializer, request.responseText)
                                     onSuccess(response)
                                 }
                             } else {
-                                onFailure("Status ${request.status}")
+                                onFailure("Unsupported status ${request.status} (${request.statusText}) see console for details.")
                             }
                         } catch (e: Exception) {
                             onFailure(e.message ?: "Unknown error")
@@ -128,7 +129,12 @@ object Http {
                 }
             }
 
+            request.onerror = { event ->
+                onFailure("Unknown error")
+            }
+
             val urlWithQueryParameters: String = urlWithQueryParameters(url, queryParams)
+            //request.withCredentials = username != null
 
             request.open(method, bypassCache(urlWithQueryParameters), async, username, password)
 
@@ -277,7 +283,7 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
     private var user: String? = null
     private var password: String? = null
     private var multiPartData: List<MultiPartData>? = null
-    private var headers: Map<String, Any?> = emptyMap()
+    private var headers: MutableMap<String, Any?> = mutableMapOf()
 
     fun <BODY : Any> body(body: BODY, bodySerializer: KSerializer<BODY>) : HttpRequestRunner<RESULT> {
         this.body = body
@@ -295,12 +301,12 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
         return this
     }
 
-    fun queryParams(queryParams: Map<String,Any>) : HttpRequestRunner<RESULT> {
+    fun queryParams(queryParams: Map<String,Any?>) : HttpRequestRunner<RESULT> {
         this.queryParams = queryParams
         return this
     }
 
-    fun queryParams(vararg queryParams: Pair<String,Any>) : HttpRequestRunner<RESULT> {
+    fun queryParams(vararg queryParams: Pair<String,Any?>) : HttpRequestRunner<RESULT> {
         this.queryParams = queryParams.toMap()
         return this
     }
@@ -309,7 +315,7 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
         this.async = value
     }
 
-    fun authenticate(user: String, password: String) : HttpRequestRunner<RESULT> {
+    fun httpAuthentication(user: String, password: String) : HttpRequestRunner<RESULT> {
         this.user = user
         this.password = password
         return this
@@ -326,12 +332,22 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
     }
 
     fun headers(values: Map<String,Any?>) : HttpRequestRunner<RESULT> {
-        this.headers = values
+        this.headers.putAll(values)
         return this
     }
 
     fun headers(vararg values: Pair<String,Any?>) : HttpRequestRunner<RESULT> {
-        this.headers = values.toMap()
+        this.headers.putAll(values)
+        return this
+    }
+
+    fun header(key: String, value: Any) : HttpRequestRunner<RESULT> {
+        this.headers[key] = value
+        return this
+    }
+
+    fun configuration(configuration: HttpRequestRunnerConfiguration) : HttpRequestRunner<RESULT> {
+        configuration.configure(this)
         return this
     }
 
@@ -364,3 +380,20 @@ class HttpRequest<RESULT : Any>(private val method: HttpMethod,
         }
 
 }
+
+interface HttpRequestRunnerConfiguration {
+
+    fun configure(runner: HttpRequestRunner<*>)
+
+}
+
+interface Authentication : HttpRequestRunnerConfiguration
+
+class BasicAuthentication(private val username: String, private val password: String) : Authentication {
+    override fun configure(runner: HttpRequestRunner<*>) {
+        runner.header("Authorization", "Basic " + window.btoa("$username:$password"))
+    }
+
+}
+
+
