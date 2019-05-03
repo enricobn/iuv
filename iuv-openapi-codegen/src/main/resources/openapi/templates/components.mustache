@@ -1,16 +1,33 @@
 package {{context.modelPackage}}
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
 {{#server.components}}
 {{#aliasFor}}
 typealias {{name}} = {{{aliasFor.type}}}
 {{/aliasFor}}
 {{^aliasFor}}
+{{#hasDescription}}
+/**
+ {{#descriptions}}
+ * {{{.}}}
+ {{/descriptions}}
+ */
+{{/hasDescription}}
 @Serializable
 data class {{name}}(
 {{#properties}}
-  val {{{name}}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
+
+    {{#hasDescription}}
+    /**
+     {{#descriptions}}
+     * {{{.}}}
+     {{/descriptions}}
+     */
+    {{/hasDescription}}
+    @SerialName("{{{key}}}")
+    val {{{name}}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
 {{/properties}}
 ){{/aliasFor}}
 {{^last}}

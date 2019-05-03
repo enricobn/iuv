@@ -1,2330 +1,5225 @@
 package org.iuv.test.models
 
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerialName
 
+/**
+ * A user or organization
+ */
 @Serializable
 data class Actor(
-  val avatarUrl : String? = null,
-  val bio : String? = null,
-  val blog : String? = null,
-  val collaborators : Int? = null,
-  val company : String? = null,
-  val createdAt : String? = null,
-  val diskUsage : Int? = null,
-  val email : String? = null,
-  val followers : Int? = null,
-  val followersUrl : String? = null,
-  val following : Int? = null,
-  val followingUrl : String? = null,
-  val gistsUrl : String? = null,
-  val gravatarId : String? = null,
-  val hireable : Boolean? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val location : String? = null,
-  val login : String? = null,
-  val name : String? = null,
-  val organizationsUrl : String? = null,
-  val ownedPrivateRepos : Int? = null,
-  val plan : ActorPlan? = null,
-  val privateGists : Int? = null,
-  val publicGists : Int? = null,
-  val publicRepos : Int? = null,
-  val starredUrl : String? = null,
-  val subscriptionsUrl : String? = null,
-  val totalPrivateRepos : Int? = null,
-  val type : String? = null,
-  val updatedAt : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("bio")
+    val bio : String? = null,
+
+    /**
+     * The website URL from the profile page
+     */
+    @SerialName("blog")
+    val blog : String? = null,
+
+    @SerialName("collaborators")
+    val collaborators : Int? = null,
+
+    @SerialName("company")
+    val company : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("disk_usage")
+    val diskUsage : Int? = null,
+
+    /**
+     * Note: The returned email is the user’s publicly visible email address (or null if the user has not specified a public email address in their profile).
+     */
+    @SerialName("email")
+    val email : String? = null,
+
+    @SerialName("followers")
+    val followers : Int? = null,
+
+    @SerialName("followers_url")
+    val followersUrl : String? = null,
+
+    @SerialName("following")
+    val following : Int? = null,
+
+    @SerialName("following_url")
+    val followingUrl : String? = null,
+
+    @SerialName("gists_url")
+    val gistsUrl : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("hireable")
+    val hireable : Boolean? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("location")
+    val location : String? = null,
+
+    /**
+     * The account username
+     */
+    @SerialName("login")
+    val login : String? = null,
+
+    /**
+     * The full account name
+     */
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("organizations_url")
+    val organizationsUrl : String? = null,
+
+    @SerialName("owned_private_repos")
+    val ownedPrivateRepos : Int? = null,
+
+    @SerialName("plan")
+    val plan : ActorPlan? = null,
+
+    @SerialName("private_gists")
+    val privateGists : Int? = null,
+
+    @SerialName("public_gists")
+    val publicGists : Int? = null,
+
+    @SerialName("public_repos")
+    val publicRepos : Int? = null,
+
+    @SerialName("starred_url")
+    val starredUrl : String? = null,
+
+    @SerialName("subscriptions_url")
+    val subscriptionsUrl : String? = null,
+
+    @SerialName("total_private_repos")
+    val totalPrivateRepos : Int? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Asset(
-  val contentType : String? = null,
-  val createdAt : String? = null,
-  val downloadCount : Int? = null,
-  val id : Int? = null,
-  val label : String? = null,
-  val name : String? = null,
-  val size : Int? = null,
-  val state : String? = null,
-  val updatedAt : String? = null,
-  val uploader : User? = null,
-  val url : String? = null
+
+    @SerialName("content_type")
+    val contentType : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("download_count")
+    val downloadCount : Int? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("uploader")
+    val uploader : User? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class AssetPatch(
-  val label : String? = null,
-  val name : String
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("name")
+    val name : String
 )
 
 @Serializable
 data class Blob(
-  val content : String? = null,
-  val encoding : String? = null,
-  val sha : String? = null,
-  val size : Int? = null
+
+    @SerialName("content")
+    val content : String? = null,
+
+    @SerialName("encoding")
+    val encoding : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null
 )
 
 @Serializable
 data class Blobs(
-  val sha : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null
 )
 
 @Serializable
 data class Branch(
-  val Links : BranchLinks? = null,
-  val commit : BranchCommit? = null,
-  val name : String? = null
+
+    @SerialName("_links")
+    val Links : BranchLinks? = null,
+
+    @SerialName("commit")
+    val commit : BranchCommit? = null,
+
+    @SerialName("name")
+    val name : String? = null
 )
 
 @Serializable
 data class Branches(
-  val commit : BranchesCommit? = null,
-  val name : String? = null
+
+    @SerialName("commit")
+    val commit : BranchesCommit? = null,
+
+    @SerialName("name")
+    val name : String? = null
 )
 
 @Serializable
 data class Comment(
-  val body : String? = null
+
+    @SerialName("body")
+    val body : String? = null
 )
 
 @Serializable
 data class CommentBody(
-  val body : String
+
+    @SerialName("body")
+    val body : String
 )
 
 @Serializable
 data class Comments(
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val body : String? = null,
-  val user : User? = null,
-  val url : String? = null
+
+    /**
+     * ISO 8601.
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("user")
+    val user : User? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Commit(
-  val author : User? = null,
-  val commit : CommitCommit? = null,
-  val committer : User? = null,
-  val files : List<CommitFilesItems>? = null,
-  val parents : List<CommitParentsItems>? = null,
-  val sha : String? = null,
-  val stats : CommitStats? = null,
-  val url : String? = null
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("commit")
+    val commit : CommitCommit? = null,
+
+    @SerialName("committer")
+    val committer : User? = null,
+
+    @SerialName("files")
+    val files : List<CommitFilesItems>? = null,
+
+    @SerialName("parents")
+    val parents : List<CommitParentsItems>? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("stats")
+    val stats : CommitStats? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitActivityStats(
-  val total : Int? = null,
-  val week : Int? = null,
-  val days : List<Int>? = null
+
+    @SerialName("total")
+    val total : Int? = null,
+
+    @SerialName("week")
+    val week : Int? = null,
+
+    @SerialName("days")
+    val days : List<Int>? = null
 )
 
 @Serializable
 data class CommitComment(
-  val body : String? = null,
-  val commitId : String? = null,
-  val createdAt : String? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val line : Int? = null,
-  val path : String? = null,
-  val position : Int? = null,
-  val updatedAt : String? = null,
-  val url : String? = null,
-  val user : User? = null
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("line")
+    val line : Int? = null,
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("position")
+    val position : Int? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class CommitCommentBody(
-  val body : String,
-  val line : String? = null,
-  val number : String? = null,
-  val path : String? = null,
-  val position : Int? = null,
-  val sha : String
+
+    @SerialName("body")
+    val body : String,
+
+    /**
+     * Deprecated - Use position parameter instead.
+     */
+    @SerialName("line")
+    val line : String? = null,
+
+    /**
+     * Line number in the file to comment on. Defaults to null.
+     */
+    @SerialName("number")
+    val number : String? = null,
+
+    /**
+     * Relative path of the file to comment on.
+     */
+    @SerialName("path")
+    val path : String? = null,
+
+    /**
+     * Line index in the diff to comment on.
+     */
+    @SerialName("position")
+    val position : Int? = null,
+
+    /**
+     * SHA of the commit to comment on.
+     */
+    @SerialName("sha")
+    val sha : String
 )
 
 @Serializable
 data class Commits(
-  val committer : User? = null,
-  val author : User? = null,
-  val commit : CommitsCommit? = null,
-  val sha : String? = null,
-  val url : String? = null,
-  val parents : List<CommitsParentsItems>? = null
+
+    @SerialName("committer")
+    val committer : User? = null,
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("commit")
+    val commit : CommitsCommit? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("parents")
+    val parents : List<CommitsParentsItems>? = null
 )
 
 @Serializable
 data class CompareCommits(
-  val aheadBy : Int? = null,
-  val baseCommit : CompareCommitsBaseCommit? = null,
-  val behindBy : Int? = null,
-  val commits : List<CompareCommitsCommitsItems>? = null,
-  val diffUrl : String? = null,
-  val files : List<CompareCommitsFilesItems>? = null,
-  val htmlUrl : String? = null,
-  val patchUrl : String? = null,
-  val permalinkUrl : String? = null,
-  val status : String? = null,
-  val totalCommits : Int? = null,
-  val url : String? = null
+
+    @SerialName("ahead_by")
+    val aheadBy : Int? = null,
+
+    @SerialName("base_commit")
+    val baseCommit : CompareCommitsBaseCommit? = null,
+
+    @SerialName("behind_by")
+    val behindBy : Int? = null,
+
+    @SerialName("commits")
+    val commits : List<CompareCommitsCommitsItems>? = null,
+
+    @SerialName("diff_url")
+    val diffUrl : String? = null,
+
+    @SerialName("files")
+    val files : List<CompareCommitsFilesItems>? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("patch_url")
+    val patchUrl : String? = null,
+
+    @SerialName("permalink_url")
+    val permalinkUrl : String? = null,
+
+    @SerialName("status")
+    val status : String? = null,
+
+    @SerialName("total_commits")
+    val totalCommits : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class ContentsPath(
-  val Links : ContentsPathLinks? = null,
-  val content : String? = null,
-  val encoding : String? = null,
-  val gitUrl : String? = null,
-  val htmlUrl : String? = null,
-  val name : String? = null,
-  val path : String? = null,
-  val sha : String? = null,
-  val size : Int? = null,
-  val type : String? = null,
-  val url : String? = null
+
+    @SerialName("_links")
+    val Links : ContentsPathLinks? = null,
+
+    @SerialName("content")
+    val content : String? = null,
+
+    @SerialName("encoding")
+    val encoding : String? = null,
+
+    @SerialName("git_url")
+    val gitUrl : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class ContributorsStats(
-  val total : Int? = null,
-  val weeks : List<ContributorsStatsWeeksItems>? = null,
-  val author : ContributorsStatsAuthor? = null
+
+    /**
+     * The Total number of commits authored by the contributor.
+     */
+    @SerialName("total")
+    val total : Int? = null,
+
+    @SerialName("weeks")
+    val weeks : List<ContributorsStatsWeeksItems>? = null,
+
+    @SerialName("author")
+    val author : ContributorsStatsAuthor? = null
 )
 
 @Serializable
 data class CreateFile(
-  val commit : CreateFileCommit? = null,
-  val content : CreateFileContent? = null
+
+    @SerialName("commit")
+    val commit : CreateFileCommit? = null,
+
+    @SerialName("content")
+    val content : CreateFileContent? = null
 )
 
 @Serializable
 data class CreateFileBody(
-  val committer : CreateFileBodyCommitter? = null,
-  val content : String? = null,
-  val message : String? = null
+
+    @SerialName("committer")
+    val committer : CreateFileBodyCommitter? = null,
+
+    @SerialName("content")
+    val content : String? = null,
+
+    @SerialName("message")
+    val message : String? = null
 )
 
 @Serializable
 data class DeleteFile(
-  val commit : DeleteFileCommit? = null,
-  val content : String? = null
+
+    @SerialName("commit")
+    val commit : DeleteFileCommit? = null,
+
+    @SerialName("content")
+    val content : String? = null
 )
 
 @Serializable
 data class DeleteFileBody(
-  val committer : DeleteFileBodyCommitter? = null,
-  val message : String? = null,
-  val sha : String? = null
+
+    @SerialName("committer")
+    val committer : DeleteFileBodyCommitter? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null
 )
 
 @Serializable
 data class Deployment(
-  val description : String? = null,
-  val payload : DeploymentPayload? = null,
-  val ref : String? = null
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("payload")
+    val payload : DeploymentPayload? = null,
+
+    @SerialName("ref")
+    val ref : String? = null
 )
 
 @Serializable
 data class DeploymentResp(
-  val createdAt : String? = null,
-  val creator : User? = null,
-  val description : String? = null,
-  val id : Int? = null,
-  val payload : String? = null,
-  val sha : String? = null,
-  val statusesUrl : String? = null,
-  val updatedAt : String? = null,
-  val url : String? = null
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("creator")
+    val creator : User? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("payload")
+    val payload : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("statuses_url")
+    val statusesUrl : String? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class DeploymentStatuses(
-  val creator : User? = null,
-  val updatedAt : String? = null,
-  val payload : String? = null,
-  val targetUrl : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val id : Int? = null,
-  val state : String? = null,
-  val url : String? = null
+
+    @SerialName("creator")
+    val creator : User? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("payload")
+    val payload : String? = null,
+
+    @SerialName("target_url")
+    val targetUrl : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class DeploymentStatusesCreate(
-  val description : String? = null,
-  val state : String? = null,
-  val targetUrl : String? = null
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("target_url")
+    val targetUrl : String? = null
 )
 
 @Serializable
 data class Download(
-  val contentType : String? = null,
-  val description : String? = null,
-  val downloadCount : Int? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val name : String? = null,
-  val size : Int? = null,
-  val url : String? = null
+
+    @SerialName("content_type")
+    val contentType : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("download_count")
+    val downloadCount : Int? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class EditTeam(
-  val name : String,
-  val permission : String? = null
+
+    @SerialName("name")
+    val name : String,
+
+    @SerialName("permission")
+    val permission : String? = null
 )
 
 @Serializable
 data class Event(
-  val actor : Actor? = null,
-  val createdAt : Map<String, String>? = null,
-  val id : Int? = null,
-  val org : Organization? = null,
-  val payload : Map<String, String>? = null,
-  val public : Boolean? = null,
-  val repo : EventRepo? = null,
-  val type : String? = null
+
+    @SerialName("actor")
+    val actor : Actor? = null,
+
+    @SerialName("created_at")
+    val createdAt : Map<String, String>? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("org")
+    val org : Organization? = null,
+
+    @SerialName("payload")
+    val payload : Map<String, String>? = null,
+
+    @SerialName("public")
+    val public : Boolean? = null,
+
+    @SerialName("repo")
+    val repo : EventRepo? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class Feeds(
-  val Links : FeedsLinks? = null,
-  val currentUserActorUrl : String? = null,
-  val currentUserOrganizationUrl : String? = null,
-  val currentUserPublic : String? = null,
-  val currentUserUrl : String? = null,
-  val timelineUrl : String? = null,
-  val userUrl : String? = null
+
+    @SerialName("_links")
+    val Links : FeedsLinks? = null,
+
+    @SerialName("current_user_actor_url")
+    val currentUserActorUrl : String? = null,
+
+    @SerialName("current_user_organization_url")
+    val currentUserOrganizationUrl : String? = null,
+
+    @SerialName("current_user_public")
+    val currentUserPublic : String? = null,
+
+    @SerialName("current_user_url")
+    val currentUserUrl : String? = null,
+
+    @SerialName("timeline_url")
+    val timelineUrl : String? = null,
+
+    @SerialName("user_url")
+    val userUrl : String? = null
 )
 
 @Serializable
 data class ForkBody(
-  val organization : String? = null
+
+    @SerialName("organization")
+    val organization : String? = null
 )
 
 @Serializable
 data class Gist(
-  val comments : Int? = null,
-  val commentsUrl : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val files : GistFiles? = null,
-  val forks : List<GistForksItems>? = null,
-  val gitPullUrl : String? = null,
-  val gitPushUrl : String? = null,
-  val history : List<GistHistoryItems>? = null,
-  val htmlUrl : String? = null,
-  val id : String? = null,
-  val public : Boolean? = null,
-  val url : String? = null,
-  val user : User? = null
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    @SerialName("comments_url")
+    val commentsUrl : String? = null,
+
+    /**
+     * Timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("files")
+    val files : GistFiles? = null,
+
+    @SerialName("forks")
+    val forks : List<GistForksItems>? = null,
+
+    @SerialName("git_pull_url")
+    val gitPullUrl : String? = null,
+
+    @SerialName("git_push_url")
+    val gitPushUrl : String? = null,
+
+    @SerialName("history")
+    val history : List<GistHistoryItems>? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : String? = null,
+
+    @SerialName("public")
+    val public : Boolean? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class Gists(
-  val comments : Int? = null,
-  val gitPushUrl : String? = null,
-  val public : Boolean? = null,
-  val htmlUrl : String? = null,
-  val commentsUrl : String? = null,
-  val gitPullUrl : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val files : GistsFiles? = null,
-  val id : String? = null,
-  val user : User? = null,
-  val url : String? = null
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    @SerialName("git_push_url")
+    val gitPushUrl : String? = null,
+
+    @SerialName("public")
+    val public : Boolean? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("comments_url")
+    val commentsUrl : String? = null,
+
+    @SerialName("git_pull_url")
+    val gitPullUrl : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("files")
+    val files : GistsFiles? = null,
+
+    @SerialName("id")
+    val id : String? = null,
+
+    @SerialName("user")
+    val user : User? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class GitCommit(
-  val author : GitCommitAuthor? = null,
-  val message : String? = null,
-  val parents : String? = null,
-  val tree : String? = null
+
+    @SerialName("author")
+    val author : GitCommitAuthor? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("parents")
+    val parents : String? = null,
+
+    @SerialName("tree")
+    val tree : String? = null
 )
 
 @Serializable
 data class GitRefPatch(
-  val force : Boolean? = null,
-  val sha : String? = null
+
+    @SerialName("force")
+    val force : Boolean? = null,
+
+    @SerialName("sha")
+    val sha : String? = null
 )
 
 @Serializable
 data class GitignoreLang(
-  val name : String? = null,
-  val source : String? = null
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("source")
+    val source : String? = null
 )
 
 @Serializable
 data class HeadBranch(
-  val `object` : HeadBranchObject? = null,
-  val ref : String? = null,
-  val url : String? = null
+
+    @SerialName("object")
+    val `object` : HeadBranchObject? = null,
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Hook(
-  val updatedAt : String? = null,
-  val name : String? = null,
-  val active : Boolean? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val config : HookConfig? = null,
-  val events : List<String>? = null,
-  val url : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("active")
+    val active : Boolean? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("config")
+    val config : HookConfig? = null,
+
+    @SerialName("events")
+    val events : List<String>? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class HookBody(
-  val active : Boolean? = null,
-  val addEvents : List<String>? = null
+
+    @SerialName("active")
+    val active : Boolean? = null,
+
+    @SerialName("add_events")
+    val addEvents : List<String>? = null
 )
 
 @Serializable
 data class Issue(
-  val assignee : String? = null,
-  val body : String? = null,
-  val labels : List<String>? = null,
-  val milestone : Int? = null,
-  val title : String? = null
+
+    @SerialName("assignee")
+    val assignee : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("labels")
+    val labels : List<String>? = null,
+
+    @SerialName("milestone")
+    val milestone : Int? = null,
+
+    @SerialName("title")
+    val title : String? = null
 )
 
 @Serializable
 data class IssueEvent(
-  val actor : Actor? = null,
-  val commitId : String? = null,
-  val createdAt : String? = null,
-  val event : String? = null,
-  val issue : IssueEventIssue? = null,
-  val url : String? = null
+
+    @SerialName("actor")
+    val actor : Actor? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("event")
+    val event : String? = null,
+
+    @SerialName("issue")
+    val issue : IssueEventIssue? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Issues(
-  val pullRequest : IssuesPullRequest? = null,
-  val closedAt : String? = null,
-  val comments : Int? = null,
-  val createdAt : String? = null,
-  val body : String? = null,
-  val title : String? = null,
-  val url : String? = null,
-  val labels : List<IssuesLabelsItems>? = null,
-  val number : Int? = null,
-  val milestone : IssuesMilestone? = null,
-  val updatedAt : String? = null,
-  val htmlUrl : String? = null,
-  val assignee : User? = null,
-  val state : String? = null,
-  val user : User? = null
+
+    @SerialName("pull_request")
+    val pullRequest : IssuesPullRequest? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("closed_at")
+    val closedAt : String? = null,
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("labels")
+    val labels : List<IssuesLabelsItems>? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("milestone")
+    val milestone : IssuesMilestone? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("assignee")
+    val assignee : User? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class IssuesComment(
-  val body : String? = null,
-  val createdAt : String? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val updatedAt : String? = null,
-  val url : String? = null,
-  val user : User? = null
+
+    @SerialName("body")
+    val body : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class IssuesComments(
-  val path : String? = null,
-  val updatedAt : String? = null,
-  val Links : IssuesCommentsLinks? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val position : Int? = null,
-  val body : String? = null,
-  val commitId : String? = null,
-  val user : User? = null,
-  val url : String? = null
+
+    @SerialName("path")
+    val path : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("_links")
+    val Links : IssuesCommentsLinks? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("position")
+    val position : Int? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    @SerialName("user")
+    val user : User? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Keys(
-  val id : Int? = null,
-  val title : String? = null,
-  val key : String? = null,
-  val url : String? = null
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("key")
+    val key : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Label(
-  val color : String? = null,
-  val name : String? = null,
-  val url : String? = null
+
+    @SerialName("color")
+    val color : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Labels(
-  val color : String? = null,
-  val name : String? = null,
-  val url : String? = null
+
+    @SerialName("color")
+    val color : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Markdown(
-  val context : String? = null,
-  val mode : String? = null,
-  val text : String? = null
+
+    @SerialName("context")
+    val context : String? = null,
+
+    @SerialName("mode")
+    val mode : String? = null,
+
+    @SerialName("text")
+    val text : String? = null
 )
 
 @Serializable
 data class Merge(
-  val merged : Boolean? = null,
-  val message : String? = null,
-  val sha : String? = null
+
+    @SerialName("merged")
+    val merged : Boolean? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null
 )
 
 @Serializable
 data class MergePullBody(
-  val commitMessage : String? = null
+
+    @SerialName("commit_message")
+    val commitMessage : String? = null
 )
 
 @Serializable
 data class MergesBody(
-  val base : String? = null,
-  val commitMessage : String? = null,
-  val head : String? = null
+
+    @SerialName("base")
+    val base : String? = null,
+
+    @SerialName("commit_message")
+    val commitMessage : String? = null,
+
+    @SerialName("head")
+    val head : String? = null
 )
 
 @Serializable
 data class MergesConflict(
-  val message : String? = null
+
+    /**
+     * Error message
+     */
+    @SerialName("message")
+    val message : String? = null
 )
 
 @Serializable
 data class MergesSuccessful(
-  val author : User? = null,
-  val commentsUrl : String? = null,
-  val commit : MergesSuccessfulCommit? = null,
-  val committer : User? = null,
-  val merged : Boolean? = null,
-  val message : String? = null,
-  val parents : List<MergesSuccessfulParentsItems>? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("comments_url")
+    val commentsUrl : String? = null,
+
+    @SerialName("commit")
+    val commit : MergesSuccessfulCommit? = null,
+
+    @SerialName("committer")
+    val committer : User? = null,
+
+    @SerialName("merged")
+    val merged : Boolean? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("parents")
+    val parents : List<MergesSuccessfulParentsItems>? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Meta(
-  val git : List<String>? = null,
-  val hooks : List<String>? = null
+
+    @SerialName("git")
+    val git : List<String>? = null,
+
+    @SerialName("hooks")
+    val hooks : List<String>? = null
 )
 
 @Serializable
 data class Milestone(
-  val closedIssues : Int? = null,
-  val createdAt : String? = null,
-  val creator : User? = null,
-  val description : String? = null,
-  val dueOn : String? = null,
-  val number : Int? = null,
-  val openIssues : Int? = null,
-  val state : String? = null,
-  val title : String? = null,
-  val url : String? = null
+
+    @SerialName("closed_issues")
+    val closedIssues : Int? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("creator")
+    val creator : User? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("due_on")
+    val dueOn : String? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("open_issues")
+    val openIssues : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class MilestoneUpdate(
-  val description : String? = null,
-  val dueOn : String? = null,
-  val state : String? = null,
-  val title : String? = null
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("due_on")
+    val dueOn : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("title")
+    val title : String? = null
 )
 
 @Serializable
 data class NotificationMarkRead(
-  val lastReadAt : String? = null
+
+    @SerialName("last_read_at")
+    val lastReadAt : String? = null
 )
 
 @Serializable
 data class Notifications(
-  val id : Int? = null,
-  val lastReadAt : String? = null,
-  val reason : String? = null,
-  val repository : NotificationsRepository? = null,
-  val subject : NotificationsSubject? = null,
-  val unread : Boolean? = null,
-  val updatedAt : String? = null,
-  val url : String? = null
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("last_read_at")
+    val lastReadAt : String? = null,
+
+    @SerialName("reason")
+    val reason : String? = null,
+
+    @SerialName("repository")
+    val repository : NotificationsRepository? = null,
+
+    @SerialName("subject")
+    val subject : NotificationsSubject? = null,
+
+    @SerialName("unread")
+    val unread : Boolean? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class OrgTeamsPost(
-  val name : String,
-  val permission : String? = null,
-  val repoNames : List<String>? = null
+
+    @SerialName("name")
+    val name : String,
+
+    @SerialName("permission")
+    val permission : String? = null,
+
+    @SerialName("repo_names")
+    val repoNames : List<String>? = null
 )
 
 @Serializable
 data class Organization(
-  val avatarUrl : String? = null,
-  val bio : String? = null,
-  val blog : String? = null,
-  val collaborators : Int? = null,
-  val company : String? = null,
-  val createdAt : String? = null,
-  val diskUsage : Int? = null,
-  val email : String? = null,
-  val followers : Int? = null,
-  val followersUrl : String? = null,
-  val following : Int? = null,
-  val followingUrl : String? = null,
-  val gistsUrl : String? = null,
-  val gravatarId : String? = null,
-  val hireable : Boolean? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val location : String? = null,
-  val login : String? = null,
-  val name : String? = null,
-  val organizationsUrl : String? = null,
-  val ownedPrivateRepos : Int? = null,
-  val plan : OrganizationPlan? = null,
-  val privateGists : Int? = null,
-  val publicGists : Int? = null,
-  val publicRepos : Int? = null,
-  val starredUrl : String? = null,
-  val subscriptionsUrl : String? = null,
-  val totalPrivateRepos : Int? = null,
-  val type : String? = null,
-  val updatedAt : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("bio")
+    val bio : String? = null,
+
+    /**
+     * The website URL from the profile page
+     */
+    @SerialName("blog")
+    val blog : String? = null,
+
+    @SerialName("collaborators")
+    val collaborators : Int? = null,
+
+    @SerialName("company")
+    val company : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("disk_usage")
+    val diskUsage : Int? = null,
+
+    /**
+     * Note: The returned email is the user’s publicly visible email address (or null if the user has not specified a public email address in their profile).
+     */
+    @SerialName("email")
+    val email : String? = null,
+
+    @SerialName("followers")
+    val followers : Int? = null,
+
+    @SerialName("followers_url")
+    val followersUrl : String? = null,
+
+    @SerialName("following")
+    val following : Int? = null,
+
+    @SerialName("following_url")
+    val followingUrl : String? = null,
+
+    @SerialName("gists_url")
+    val gistsUrl : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("hireable")
+    val hireable : Boolean? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("location")
+    val location : String? = null,
+
+    /**
+     * The account username
+     */
+    @SerialName("login")
+    val login : String? = null,
+
+    /**
+     * The full account name
+     */
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("organizations_url")
+    val organizationsUrl : String? = null,
+
+    @SerialName("owned_private_repos")
+    val ownedPrivateRepos : Int? = null,
+
+    @SerialName("plan")
+    val plan : OrganizationPlan? = null,
+
+    @SerialName("private_gists")
+    val privateGists : Int? = null,
+
+    @SerialName("public_gists")
+    val publicGists : Int? = null,
+
+    @SerialName("public_repos")
+    val publicRepos : Int? = null,
+
+    @SerialName("starred_url")
+    val starredUrl : String? = null,
+
+    @SerialName("subscriptions_url")
+    val subscriptionsUrl : String? = null,
+
+    @SerialName("total_private_repos")
+    val totalPrivateRepos : Int? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class OrganizationAsTeamMember(
-  val errors : List<OrganizationAsTeamMemberErrorsItems>? = null,
-  val message : String? = null
+
+    @SerialName("errors")
+    val errors : List<OrganizationAsTeamMemberErrorsItems>? = null,
+
+    @SerialName("message")
+    val message : String? = null
 )
 
 @Serializable
 data class ParticipationStats(
-  val all : List<Int>? = null,
-  val owner : List<Int>? = null
+
+    @SerialName("all")
+    val all : List<Int>? = null,
+
+    @SerialName("owner")
+    val owner : List<Int>? = null
 )
 
 @Serializable
 data class PatchGist(
-  val description : String? = null,
-  val files : PatchGistFiles? = null
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("files")
+    val files : PatchGistFiles? = null
 )
 
 @Serializable
 data class PatchOrg(
-  val billingEmail : String? = null,
-  val company : String? = null,
-  val email : String? = null,
-  val location : String? = null,
-  val name : String? = null
+
+    /**
+     * Billing email address. This address is not publicized.
+     */
+    @SerialName("billing_email")
+    val billingEmail : String? = null,
+
+    @SerialName("company")
+    val company : String? = null,
+
+    /**
+     * Publicly visible email address.
+     */
+    @SerialName("email")
+    val email : String? = null,
+
+    @SerialName("location")
+    val location : String? = null,
+
+    @SerialName("name")
+    val name : String? = null
 )
 
 @Serializable
 data class PostGist(
-  val description : String? = null,
-  val files : PostGistFiles? = null,
-  val public : Boolean? = null
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("files")
+    val files : PostGistFiles? = null,
+
+    @SerialName("public")
+    val public : Boolean? = null
 )
 
 @Serializable
 data class PostRepo(
-  val autoInit : Boolean? = null,
-  val description : String? = null,
-  val gitignoreTemplate : String? = null,
-  val hasDownloads : Boolean? = null,
-  val hasIssues : Boolean? = null,
-  val hasWiki : Boolean? = null,
-  val homepage : String? = null,
-  val name : String,
-  val private : Boolean? = null,
-  val teamId : Int? = null
+
+    /**
+     * True to create an initial commit with empty README. Default is false.
+     */
+    @SerialName("auto_init")
+    val autoInit : Boolean? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    /**
+     * Desired language or platform .gitignore template to apply. Use the name of the template without the extension. For example, "Haskell" Ignored if auto_init parameter is not provided.
+     */
+    @SerialName("gitignore_template")
+    val gitignoreTemplate : String? = null,
+
+    /**
+     * True to enable downloads for this repository, false to disable them. Default is true.
+     */
+    @SerialName("has_downloads")
+    val hasDownloads : Boolean? = null,
+
+    /**
+     * True to enable issues for this repository, false to disable them. Default is true.
+     */
+    @SerialName("has_issues")
+    val hasIssues : Boolean? = null,
+
+    /**
+     * True to enable the wiki for this repository, false to disable it. Default is true.
+     */
+    @SerialName("has_wiki")
+    val hasWiki : Boolean? = null,
+
+    @SerialName("homepage")
+    val homepage : String? = null,
+
+    @SerialName("name")
+    val name : String,
+
+    /**
+     * True to create a private repository, false to create a public one. Creating private repositories requires a paid GitHub account.
+     */
+    @SerialName("private")
+    val private : Boolean? = null,
+
+    /**
+     * The id of the team that will be granted access to this repository. This is only valid when creating a repo in an organization.
+     */
+    @SerialName("team_id")
+    val teamId : Int? = null
 )
 
 @Serializable
 data class PullRequest(
-  val Links : PullRequestLinks? = null,
-  val additions : Int? = null,
-  val base : PullRequestBase? = null,
-  val body : String? = null,
-  val changedFiles : Int? = null,
-  val closedAt : String? = null,
-  val comments : Int? = null,
-  val commits : Int? = null,
-  val createdAt : String? = null,
-  val deletions : Int? = null,
-  val diffUrl : String? = null,
-  val head : PullRequestHead? = null,
-  val htmlUrl : String? = null,
-  val issueUrl : String? = null,
-  val mergeCommitSha : String? = null,
-  val mergeable : Boolean? = null,
-  val merged : Boolean? = null,
-  val mergedAt : String? = null,
-  val mergedBy : PullRequestMergedBy? = null,
-  val number : Int? = null,
-  val patchUrl : String? = null,
-  val state : String? = null,
-  val title : String? = null,
-  val updatedAt : String? = null,
-  val url : String? = null,
-  val user : PullRequestUser? = null
+
+    @SerialName("_links")
+    val Links : PullRequestLinks? = null,
+
+    @SerialName("additions")
+    val additions : Int? = null,
+
+    @SerialName("base")
+    val base : PullRequestBase? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("changed_files")
+    val changedFiles : Int? = null,
+
+    @SerialName("closed_at")
+    val closedAt : String? = null,
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    @SerialName("commits")
+    val commits : Int? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("deletions")
+    val deletions : Int? = null,
+
+    @SerialName("diff_url")
+    val diffUrl : String? = null,
+
+    @SerialName("head")
+    val head : PullRequestHead? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("issue_url")
+    val issueUrl : String? = null,
+
+    @SerialName("merge_commit_sha")
+    val mergeCommitSha : String? = null,
+
+    @SerialName("mergeable")
+    val mergeable : Boolean? = null,
+
+    @SerialName("merged")
+    val merged : Boolean? = null,
+
+    @SerialName("merged_at")
+    val mergedAt : String? = null,
+
+    @SerialName("merged_by")
+    val mergedBy : PullRequestMergedBy? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("patch_url")
+    val patchUrl : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("user")
+    val user : PullRequestUser? = null
 )
 
 @Serializable
 data class PullUpdate(
-  val body : String? = null,
-  val state : String? = null,
-  val title : String? = null
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("title")
+    val title : String? = null
 )
 
 @Serializable
 data class Pulls(
-  val issueUrl : String? = null,
-  val closedAt : String? = null,
-  val Links : PullsLinks? = null,
-  val mergedAt : String? = null,
-  val createdAt : String? = null,
-  val diffUrl : String? = null,
-  val body : String? = null,
-  val title : String? = null,
-  val url : String? = null,
-  val head : PullsHead? = null,
-  val number : Int? = null,
-  val patchUrl : String? = null,
-  val updatedAt : String? = null,
-  val htmlUrl : String? = null,
-  val state : String? = null,
-  val user : PullsUser? = null,
-  val base : PullsBase? = null
+
+    @SerialName("issue_url")
+    val issueUrl : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("closed_at")
+    val closedAt : String? = null,
+
+    @SerialName("_links")
+    val Links : PullsLinks? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("merged_at")
+    val mergedAt : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("diff_url")
+    val diffUrl : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("head")
+    val head : PullsHead? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("patch_url")
+    val patchUrl : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("user")
+    val user : PullsUser? = null,
+
+    @SerialName("base")
+    val base : PullsBase? = null
 )
 
 @Serializable
 data class PullsComment(
-  val Links : PullsCommentLinks? = null,
-  val body : String? = null,
-  val commitId : String? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val path : String? = null,
-  val position : Int? = null,
-  val updatedAt : String? = null,
-  val url : String? = null,
-  val user : PullsCommentUser? = null
+
+    @SerialName("_links")
+    val Links : PullsCommentLinks? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("position")
+    val position : Int? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("user")
+    val user : PullsCommentUser? = null
 )
 
 @Serializable
 data class PullsCommentPost(
-  val body : String? = null,
-  val commitId : String? = null,
-  val path : String? = null,
-  val position : Int? = null
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("position")
+    val position : Int? = null
 )
 
 @Serializable
 data class PullsComments(
-  val path : String? = null,
-  val updatedAt : String? = null,
-  val Links : PullsCommentsLinks? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val position : Int? = null,
-  val body : String? = null,
-  val commitId : String? = null,
-  val user : PullsCommentsUser? = null,
-  val url : String? = null
+
+    @SerialName("path")
+    val path : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("_links")
+    val Links : PullsCommentsLinks? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("position")
+    val position : Int? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    @SerialName("user")
+    val user : PullsCommentsUser? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullsPost(
-  val base : String? = null,
-  val body : String? = null,
-  val head : String? = null,
-  val title : String? = null
+
+    @SerialName("base")
+    val base : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("head")
+    val head : String? = null,
+
+    @SerialName("title")
+    val title : String? = null
 )
 
 @Serializable
 data class PutSubscription(
-  val createdAt : String? = null,
-  val ignored : Boolean? = null,
-  val reason : Map<String, String>? = null,
-  val subscribed : Boolean? = null,
-  val threadUrl : String? = null,
-  val url : String? = null
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("ignored")
+    val ignored : Boolean? = null,
+
+    @SerialName("reason")
+    val reason : Map<String, String>? = null,
+
+    @SerialName("subscribed")
+    val subscribed : Boolean? = null,
+
+    @SerialName("thread_url")
+    val threadUrl : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RateLimit(
-  val rate : RateLimitRate? = null
+
+    @SerialName("rate")
+    val rate : RateLimitRate? = null
 )
 
 @Serializable
 data class Ref(
-  val creator : RefCreator? = null,
-  val updatedAt : String? = null,
-  val targetUrl : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val id : Int? = null,
-  val state : String? = null,
-  val url : String? = null
+
+    @SerialName("creator")
+    val creator : RefCreator? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("target_url")
+    val targetUrl : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RefStatus(
-  val commitUrl : String? = null,
-  val name : String? = null,
-  val statuses : List<RefStatusStatusesItems>? = null,
-  val repositoryUrl : String? = null,
-  val state : String? = null,
-  val sha : String? = null
+
+    @SerialName("commit_url")
+    val commitUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("statuses")
+    val statuses : List<RefStatusStatusesItems>? = null,
+
+    @SerialName("repository_url")
+    val repositoryUrl : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null
 )
 
 @Serializable
 data class Refs(
-  val ref : String? = null,
-  val url : String? = null,
-  val `object` : RefsObject? = null
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("object")
+    val `object` : RefsObject? = null
 )
 
 @Serializable
 data class RefsBody(
-  val ref : String? = null,
-  val sha : String? = null
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null
 )
 
 @Serializable
 data class Release(
-  val assets : List<ReleaseAssetsItems>? = null,
-  val assetsUrl : String? = null,
-  val author : User? = null,
-  val body : String? = null,
-  val createdAt : String? = null,
-  val draft : Boolean? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val name : String? = null,
-  val prerelease : Boolean? = null,
-  val publishedAt : String? = null,
-  val tagName : String? = null,
-  val tarballUrl : String? = null,
-  val targetCommitish : String? = null,
-  val uploadUrl : String? = null,
-  val url : String? = null,
-  val zipballUrl : String? = null
+
+    @SerialName("assets")
+    val assets : List<ReleaseAssetsItems>? = null,
+
+    @SerialName("assets_url")
+    val assetsUrl : String? = null,
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("draft")
+    val draft : Boolean? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("prerelease")
+    val prerelease : Boolean? = null,
+
+    @SerialName("published_at")
+    val publishedAt : String? = null,
+
+    @SerialName("tag_name")
+    val tagName : String? = null,
+
+    @SerialName("tarball_url")
+    val tarballUrl : String? = null,
+
+    @SerialName("target_commitish")
+    val targetCommitish : String? = null,
+
+    @SerialName("upload_url")
+    val uploadUrl : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("zipball_url")
+    val zipballUrl : String? = null
 )
 
 @Serializable
 data class ReleaseCreate(
-  val body : String? = null,
-  val draft : Boolean? = null,
-  val name : String? = null,
-  val prerelease : Boolean? = null,
-  val tagName : String? = null,
-  val targetCommitish : String? = null
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("draft")
+    val draft : Boolean? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("prerelease")
+    val prerelease : Boolean? = null,
+
+    @SerialName("tag_name")
+    val tagName : String? = null,
+
+    @SerialName("target_commitish")
+    val targetCommitish : String? = null
 )
 
 @Serializable
 data class Releases(
-  val author : User? = null,
-  val tagName : String? = null,
-  val createdAt : String? = null,
-  val body : String? = null,
-  val url : String? = null,
-  val assetsUrl : String? = null,
-  val assets : List<ReleasesAssetsItems>? = null,
-  val prerelease : Boolean? = null,
-  val draft : Boolean? = null,
-  val htmlUrl : String? = null,
-  val targetCommitish : String? = null,
-  val zipballUrl : String? = null,
-  val name : String? = null,
-  val uploadUrl : String? = null,
-  val id : Int? = null,
-  val publishedAt : String? = null,
-  val tarballUrl : String? = null
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("tag_name")
+    val tagName : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("assets_url")
+    val assetsUrl : String? = null,
+
+    @SerialName("assets")
+    val assets : List<ReleasesAssetsItems>? = null,
+
+    @SerialName("prerelease")
+    val prerelease : Boolean? = null,
+
+    @SerialName("draft")
+    val draft : Boolean? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("target_commitish")
+    val targetCommitish : String? = null,
+
+    @SerialName("zipball_url")
+    val zipballUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("upload_url")
+    val uploadUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("published_at")
+    val publishedAt : String? = null,
+
+    @SerialName("tarball_url")
+    val tarballUrl : String? = null
 )
 
 @Serializable
 data class Repo(
-  val cloneUrl : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val fork : Boolean? = null,
-  val forks : Int? = null,
-  val forksCount : Int? = null,
-  val fullName : String? = null,
-  val gitUrl : String? = null,
-  val hasDownloads : Boolean? = null,
-  val hasIssues : Boolean? = null,
-  val hasWiki : Boolean? = null,
-  val homepage : String? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val language : String? = null,
-  val masterBranch : String? = null,
-  val mirrorUrl : String? = null,
-  val name : String? = null,
-  val openIssues : Int? = null,
-  val openIssuesCount : Int? = null,
-  val organization : Organization? = null,
-  val owner : Actor? = null,
-  val parent : Repo? = null,
-  val private : Boolean? = null,
-  val pushedAt : String? = null,
-  val size : Int? = null,
-  val source : Repo? = null,
-  val sshUrl : String? = null,
-  val svnUrl : String? = null,
-  val updatedAt : String? = null,
-  val url : String? = null,
-  val watchers : Int? = null,
-  val watchersCount : Int? = null
+
+    @SerialName("clone_url")
+    val cloneUrl : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("fork")
+    val fork : Boolean? = null,
+
+    @SerialName("forks")
+    val forks : Int? = null,
+
+    @SerialName("forks_count")
+    val forksCount : Int? = null,
+
+    @SerialName("full_name")
+    val fullName : String? = null,
+
+    @SerialName("git_url")
+    val gitUrl : String? = null,
+
+    @SerialName("has_downloads")
+    val hasDownloads : Boolean? = null,
+
+    @SerialName("has_issues")
+    val hasIssues : Boolean? = null,
+
+    @SerialName("has_wiki")
+    val hasWiki : Boolean? = null,
+
+    @SerialName("homepage")
+    val homepage : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("language")
+    val language : String? = null,
+
+    @SerialName("master_branch")
+    val masterBranch : String? = null,
+
+    @SerialName("mirror_url")
+    val mirrorUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("open_issues")
+    val openIssues : Int? = null,
+
+    @SerialName("open_issues_count")
+    val openIssuesCount : Int? = null,
+
+    @SerialName("organization")
+    val organization : Organization? = null,
+
+    @SerialName("owner")
+    val owner : Actor? = null,
+
+    @SerialName("parent")
+    val parent : Repo? = null,
+
+    @SerialName("private")
+    val private : Boolean? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("pushed_at")
+    val pushedAt : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("source")
+    val source : Repo? = null,
+
+    @SerialName("ssh_url")
+    val sshUrl : String? = null,
+
+    @SerialName("svn_url")
+    val svnUrl : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("watchers")
+    val watchers : Int? = null,
+
+    @SerialName("watchers_count")
+    val watchersCount : Int? = null
 )
 
 @Serializable
 data class RepoDeployments(
-  val creator : User? = null,
-  val updatedAt : String? = null,
-  val payload : String? = null,
-  val statusesUrl : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val id : Int? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("creator")
+    val creator : User? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("payload")
+    val payload : String? = null,
+
+    @SerialName("statuses_url")
+    val statusesUrl : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RepoComments(
-  val path : String? = null,
-  val updatedAt : String? = null,
-  val line : Int? = null,
-  val htmlUrl : String? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val position : Int? = null,
-  val body : String? = null,
-  val commitId : String? = null,
-  val user : User? = null,
-  val url : String? = null
+
+    @SerialName("path")
+    val path : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("line")
+    val line : Int? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("position")
+    val position : Int? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("commit_id")
+    val commitId : String? = null,
+
+    @SerialName("user")
+    val user : User? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RepoCommit(
-  val author : RepoCommitAuthor? = null,
-  val committer : RepoCommitCommitter? = null,
-  val message : String? = null,
-  val parents : List<RepoCommitParentsItems>? = null,
-  val sha : String? = null,
-  val tree : RepoCommitTree? = null,
-  val url : String? = null
+
+    @SerialName("author")
+    val author : RepoCommitAuthor? = null,
+
+    @SerialName("committer")
+    val committer : RepoCommitCommitter? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("parents")
+    val parents : List<RepoCommitParentsItems>? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("tree")
+    val tree : RepoCommitTree? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RepoCommitBody(
-  val author : RepoCommitBodyAuthor? = null,
-  val message : String,
-  val parents : List<String>,
-  val tree : String
+
+    @SerialName("author")
+    val author : RepoCommitBodyAuthor? = null,
+
+    @SerialName("message")
+    val message : String,
+
+    @SerialName("parents")
+    val parents : List<String>,
+
+    @SerialName("tree")
+    val tree : String
 )
 
 @Serializable
 data class RepoEdit(
-  val description : String? = null,
-  val hasDownloads : Boolean? = null,
-  val hasIssues : Boolean? = null,
-  val hasWiki : Boolean? = null,
-  val homepage : String? = null,
-  val name : String? = null,
-  val private : Boolean? = null
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("has_downloads")
+    val hasDownloads : Boolean? = null,
+
+    @SerialName("has_issues")
+    val hasIssues : Boolean? = null,
+
+    @SerialName("has_wiki")
+    val hasWiki : Boolean? = null,
+
+    @SerialName("homepage")
+    val homepage : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("private")
+    val private : Boolean? = null
 )
 
 @Serializable
 data class SearchCode(
-  val items : List<SearchCodeItemsItems>? = null,
-  val totalCount : Int? = null
+
+    @SerialName("items")
+    val items : List<SearchCodeItemsItems>? = null,
+
+    @SerialName("total_count")
+    val totalCount : Int? = null
 )
 
 @Serializable
 data class SearchIssues(
-  val items : List<SearchIssuesItemsItems>? = null,
-  val totalCount : Int? = null
+
+    @SerialName("items")
+    val items : List<SearchIssuesItemsItems>? = null,
+
+    @SerialName("total_count")
+    val totalCount : Int? = null
 )
 
 @Serializable
 data class SearchIssuesByKeyword(
-  val issues : List<SearchIssuesByKeywordIssuesItems>? = null
+
+    @SerialName("issues")
+    val issues : List<SearchIssuesByKeywordIssuesItems>? = null
 )
 
 @Serializable
 data class SearchRepositories(
-  val items : List<Repo>? = null,
-  val totalCount : Int? = null
+
+    @SerialName("items")
+    val items : List<Repo>? = null,
+
+    @SerialName("total_count")
+    val totalCount : Int? = null
 )
 
 @Serializable
 data class SearchRepositoriesByKeyword(
-  val repositories : List<Repo>? = null
+
+    @SerialName("repositories")
+    val repositories : List<Repo>? = null
 )
 
 @Serializable
 data class SearchUserByEmail(
-  val user : User? = null
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class SearchUsers(
-  val items : List<User>? = null,
-  val totalCount : Int? = null
+
+    @SerialName("items")
+    val items : List<User>? = null,
+
+    @SerialName("total_count")
+    val totalCount : Int? = null
 )
 
 @Serializable
 data class SearchUsersByKeyword(
-  val users : List<User>? = null
+
+    @SerialName("users")
+    val users : List<User>? = null
 )
 
 @Serializable
 data class Subscription(
-  val createdAt : String? = null,
-  val ignored : Boolean? = null,
-  val reason : String? = null,
-  val repositoryUrl : String? = null,
-  val subscribed : Boolean? = null,
-  val threadUrl : String? = null,
-  val url : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("ignored")
+    val ignored : Boolean? = null,
+
+    @SerialName("reason")
+    val reason : String? = null,
+
+    @SerialName("repository_url")
+    val repositoryUrl : String? = null,
+
+    @SerialName("subscribed")
+    val subscribed : Boolean? = null,
+
+    @SerialName("thread_url")
+    val threadUrl : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class SubscriptionBody(
-  val ignored : Boolean? = null,
-  val subscribed : Boolean? = null
+
+    @SerialName("ignored")
+    val ignored : Boolean? = null,
+
+    @SerialName("subscribed")
+    val subscribed : Boolean? = null
 )
 
 @Serializable
 data class Tag(
-  val message : String? = null,
-  val `object` : TagObject? = null,
-  val sha : String? = null,
-  val tag : String? = null,
-  val tagger : TagTagger? = null,
-  val url : String? = null
+
+    /**
+     * String of the tag message.
+     */
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("object")
+    val `object` : TagObject? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    /**
+     * The tag's name. This is typically a version (e.g., "v0.0.1").
+     */
+    @SerialName("tag")
+    val tag : String? = null,
+
+    @SerialName("tagger")
+    val tagger : TagTagger? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class TagBody(
-  val message : String,
-  val `object` : String,
-  val tag : String,
-  val tagger : TagBodyTagger,
-  val type : String
+
+    /**
+     * String of the tag message.
+     */
+    @SerialName("message")
+    val message : String,
+
+    /**
+     * String of the SHA of the git object this is tagging.
+     */
+    @SerialName("object")
+    val `object` : String,
+
+    /**
+     * The tag's name. This is typically a version (e.g., "v0.0.1").
+     */
+    @SerialName("tag")
+    val tag : String,
+
+    @SerialName("tagger")
+    val tagger : TagBodyTagger,
+
+    /**
+     * String of the type of the object we’re tagging. Normally this is a commit but it can also be a tree or a blob.
+     */
+    @SerialName("type")
+    val type : String
 )
 
 @Serializable
 data class Team(
-  val id : Int? = null,
-  val membersCount : Int? = null,
-  val name : String? = null,
-  val permission : String? = null,
-  val reposCount : Int? = null,
-  val url : String? = null
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("members_count")
+    val membersCount : Int? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("permission")
+    val permission : String? = null,
+
+    @SerialName("repos_count")
+    val reposCount : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class TeamMembership(
-  val state : String? = null,
-  val url : String? = null
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Teams(
-  val name : String? = null,
-  val id : Int? = null,
-  val url : String? = null
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class TeamsList(
-  val reposCount : Int? = null,
-  val organization : TeamsListOrganization? = null,
-  val name : String? = null,
-  val membersCount : Int? = null,
-  val permission : String? = null,
-  val id : Int? = null,
-  val url : String? = null
+
+    @SerialName("repos_count")
+    val reposCount : Int? = null,
+
+    @SerialName("organization")
+    val organization : TeamsListOrganization? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("members_count")
+    val membersCount : Int? = null,
+
+    @SerialName("permission")
+    val permission : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Tree(
-  val sha : String? = null,
-  val tree : List<TreeTreeItems>? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("tree")
+    val tree : List<TreeTreeItems>? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class Trees(
-  val baseTree : String? = null,
-  val sha : String? = null,
-  val tree : List<Tree>? = null,
-  val url : String? = null
+
+    @SerialName("base_tree")
+    val baseTree : String? = null,
+
+    /**
+     * SHA1 checksum ID of the object in the tree.
+     */
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("tree")
+    val tree : List<Tree>? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class User(
-  val avatarUrl : String? = null,
-  val bio : String? = null,
-  val blog : String? = null,
-  val collaborators : Int? = null,
-  val company : String? = null,
-  val createdAt : String? = null,
-  val diskUsage : Int? = null,
-  val email : String? = null,
-  val followers : Int? = null,
-  val followersUrl : String? = null,
-  val following : Int? = null,
-  val followingUrl : String? = null,
-  val gistsUrl : String? = null,
-  val gravatarId : String? = null,
-  val hireable : Boolean? = null,
-  val htmlUrl : String? = null,
-  val id : Int? = null,
-  val location : String? = null,
-  val login : String? = null,
-  val name : String? = null,
-  val organizationsUrl : String? = null,
-  val ownedPrivateRepos : Int? = null,
-  val plan : UserPlan? = null,
-  val privateGists : Int? = null,
-  val publicGists : Int? = null,
-  val publicRepos : Int? = null,
-  val starredUrl : String? = null,
-  val subscriptionsUrl : String? = null,
-  val totalPrivateRepos : Int? = null,
-  val type : String? = null,
-  val updatedAt : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("bio")
+    val bio : String? = null,
+
+    /**
+     * The website URL from the profile page
+     */
+    @SerialName("blog")
+    val blog : String? = null,
+
+    @SerialName("collaborators")
+    val collaborators : Int? = null,
+
+    @SerialName("company")
+    val company : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("disk_usage")
+    val diskUsage : Int? = null,
+
+    /**
+     * Note: The returned email is the user’s publicly visible email address (or null if the user has not specified a public email address in their profile).
+     */
+    @SerialName("email")
+    val email : String? = null,
+
+    @SerialName("followers")
+    val followers : Int? = null,
+
+    @SerialName("followers_url")
+    val followersUrl : String? = null,
+
+    @SerialName("following")
+    val following : Int? = null,
+
+    @SerialName("following_url")
+    val followingUrl : String? = null,
+
+    @SerialName("gists_url")
+    val gistsUrl : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("hireable")
+    val hireable : Boolean? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("location")
+    val location : String? = null,
+
+    /**
+     * The account username
+     */
+    @SerialName("login")
+    val login : String? = null,
+
+    /**
+     * The full account name
+     */
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("organizations_url")
+    val organizationsUrl : String? = null,
+
+    @SerialName("owned_private_repos")
+    val ownedPrivateRepos : Int? = null,
+
+    @SerialName("plan")
+    val plan : UserPlan? = null,
+
+    @SerialName("private_gists")
+    val privateGists : Int? = null,
+
+    @SerialName("public_gists")
+    val publicGists : Int? = null,
+
+    @SerialName("public_repos")
+    val publicRepos : Int? = null,
+
+    @SerialName("starred_url")
+    val starredUrl : String? = null,
+
+    @SerialName("subscriptions_url")
+    val subscriptionsUrl : String? = null,
+
+    @SerialName("total_private_repos")
+    val totalPrivateRepos : Int? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class UserKeysKeyId(
-  val id : Int? = null,
-  val key : String? = null,
-  val title : String? = null,
-  val url : String? = null
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("key")
+    val key : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class UserKeysPost(
-  val key : String? = null,
-  val title : String? = null
+
+    @SerialName("key")
+    val key : String? = null,
+
+    @SerialName("title")
+    val title : String? = null
 )
 
 @Serializable
 data class UserUpdate(
-  val bio : String? = null,
-  val blog : String? = null,
-  val company : String? = null,
-  val email : String? = null,
-  val hireable : Boolean? = null,
-  val location : String? = null,
-  val name : String? = null
+
+    @SerialName("bio")
+    val bio : String? = null,
+
+    @SerialName("blog")
+    val blog : String? = null,
+
+    @SerialName("company")
+    val company : String? = null,
+
+    @SerialName("email")
+    val email : String? = null,
+
+    @SerialName("hireable")
+    val hireable : Boolean? = null,
+
+    @SerialName("location")
+    val location : String? = null,
+
+    @SerialName("name")
+    val name : String? = null
 )
 
 @Serializable
 data class ActorPlan(
-  val privateRepos : Int? = null,
-  val name : String? = null,
-  val collaborators : Int? = null,
-  val space : Int? = null
+
+    @SerialName("private_repos")
+    val privateRepos : Int? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("collaborators")
+    val collaborators : Int? = null,
+
+    @SerialName("space")
+    val space : Int? = null
 )
 
 @Serializable
 data class BranchLinks(
-  val self : String? = null,
-  val html : String? = null
+
+    @SerialName("self")
+    val self : String? = null,
+
+    @SerialName("html")
+    val html : String? = null
 )
 
 @Serializable
 data class BranchCommitCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class BranchCommitCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class BranchCommitCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class BranchCommitCommit(
-  val committer : BranchCommitCommitCommitter? = null,
-  val author : BranchCommitCommitAuthor? = null,
-  val tree : BranchCommitCommitTree? = null,
-  val message : String? = null,
-  val url : String? = null
+
+    @SerialName("committer")
+    val committer : BranchCommitCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : BranchCommitCommitAuthor? = null,
+
+    @SerialName("tree")
+    val tree : BranchCommitCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class BranchCommitParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class BranchCommit(
-  val committer : User? = null,
-  val author : User? = null,
-  val commit : BranchCommitCommit? = null,
-  val sha : String? = null,
-  val url : String? = null,
-  val parents : List<BranchCommitParentsItems>? = null
+
+    @SerialName("committer")
+    val committer : User? = null,
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("commit")
+    val commit : BranchCommitCommit? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("parents")
+    val parents : List<BranchCommitParentsItems>? = null
 )
 
 @Serializable
 data class BranchesCommit(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CommitCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CommitCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitCommit(
-  val committer : CommitCommitCommitter? = null,
-  val author : CommitCommitAuthor? = null,
-  val tree : CommitCommitTree? = null,
-  val message : String? = null,
-  val url : String? = null
+
+    @SerialName("committer")
+    val committer : CommitCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : CommitCommitAuthor? = null,
+
+    @SerialName("tree")
+    val tree : CommitCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitFilesItems(
-  val patch : String? = null,
-  val filename : String? = null,
-  val additions : Int? = null,
-  val deletions : Int? = null,
-  val changes : Int? = null,
-  val blobUrl : String? = null,
-  val rawUrl : String? = null,
-  val status : String? = null
+
+    @SerialName("patch")
+    val patch : String? = null,
+
+    @SerialName("filename")
+    val filename : String? = null,
+
+    @SerialName("additions")
+    val additions : Int? = null,
+
+    @SerialName("deletions")
+    val deletions : Int? = null,
+
+    @SerialName("changes")
+    val changes : Int? = null,
+
+    @SerialName("blob_url")
+    val blobUrl : String? = null,
+
+    @SerialName("raw_url")
+    val rawUrl : String? = null,
+
+    @SerialName("status")
+    val status : String? = null
 )
 
 @Serializable
 data class CommitParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitStats(
-  val total : Int? = null,
-  val additions : Int? = null,
-  val deletions : Int? = null
+
+    @SerialName("total")
+    val total : Int? = null,
+
+    @SerialName("additions")
+    val additions : Int? = null,
+
+    @SerialName("deletions")
+    val deletions : Int? = null
 )
 
 @Serializable
 data class CommitsCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CommitsCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CommitsCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitsCommit(
-  val committer : CommitsCommitCommitter? = null,
-  val author : CommitsCommitAuthor? = null,
-  val tree : CommitsCommitTree? = null,
-  val message : String? = null,
-  val url : String? = null
+
+    @SerialName("committer")
+    val committer : CommitsCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : CommitsCommitAuthor? = null,
+
+    @SerialName("tree")
+    val tree : CommitsCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CommitsParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsBaseCommitCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CompareCommitsBaseCommitCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CompareCommitsBaseCommitCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsBaseCommitCommit(
-  val committer : CompareCommitsBaseCommitCommitCommitter? = null,
-  val author : CompareCommitsBaseCommitCommitAuthor? = null,
-  val tree : CompareCommitsBaseCommitCommitTree? = null,
-  val message : String? = null,
-  val url : String? = null
+
+    @SerialName("committer")
+    val committer : CompareCommitsBaseCommitCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : CompareCommitsBaseCommitCommitAuthor? = null,
+
+    @SerialName("tree")
+    val tree : CompareCommitsBaseCommitCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsBaseCommitParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsBaseCommit(
-  val committer : User? = null,
-  val author : User? = null,
-  val commit : CompareCommitsBaseCommitCommit? = null,
-  val sha : String? = null,
-  val url : String? = null,
-  val parents : List<CompareCommitsBaseCommitParentsItems>? = null
+
+    @SerialName("committer")
+    val committer : User? = null,
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("commit")
+    val commit : CompareCommitsBaseCommitCommit? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("parents")
+    val parents : List<CompareCommitsBaseCommitParentsItems>? = null
 )
 
 @Serializable
 data class CompareCommitsCommitsItemsCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CompareCommitsCommitsItemsCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CompareCommitsCommitsItemsCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsCommitsItemsCommit(
-  val committer : CompareCommitsCommitsItemsCommitCommitter? = null,
-  val author : CompareCommitsCommitsItemsCommitAuthor? = null,
-  val tree : CompareCommitsCommitsItemsCommitTree? = null,
-  val message : String? = null,
-  val url : String? = null
+
+    @SerialName("committer")
+    val committer : CompareCommitsCommitsItemsCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : CompareCommitsCommitsItemsCommitAuthor? = null,
+
+    @SerialName("tree")
+    val tree : CompareCommitsCommitsItemsCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsCommitsItemsParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CompareCommitsCommitsItems(
-  val committer : User? = null,
-  val author : User? = null,
-  val commit : CompareCommitsCommitsItemsCommit? = null,
-  val sha : String? = null,
-  val url : String? = null,
-  val parents : List<CompareCommitsCommitsItemsParentsItems>? = null
+
+    @SerialName("committer")
+    val committer : User? = null,
+
+    @SerialName("author")
+    val author : User? = null,
+
+    @SerialName("commit")
+    val commit : CompareCommitsCommitsItemsCommit? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("parents")
+    val parents : List<CompareCommitsCommitsItemsParentsItems>? = null
 )
 
 @Serializable
 data class CompareCommitsFilesItems(
-  val patch : String? = null,
-  val filename : String? = null,
-  val additions : Int? = null,
-  val deletions : Int? = null,
-  val changes : Int? = null,
-  val blobUrl : String? = null,
-  val sha : String? = null,
-  val rawUrl : String? = null,
-  val contentsUrl : String? = null,
-  val status : String? = null
+
+    @SerialName("patch")
+    val patch : String? = null,
+
+    @SerialName("filename")
+    val filename : String? = null,
+
+    @SerialName("additions")
+    val additions : Int? = null,
+
+    @SerialName("deletions")
+    val deletions : Int? = null,
+
+    @SerialName("changes")
+    val changes : Int? = null,
+
+    @SerialName("blob_url")
+    val blobUrl : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("raw_url")
+    val rawUrl : String? = null,
+
+    @SerialName("contents_url")
+    val contentsUrl : String? = null,
+
+    @SerialName("status")
+    val status : String? = null
 )
 
 @Serializable
 data class ContentsPathLinks(
-  val git : String? = null,
-  val self : String? = null,
-  val html : String? = null
+
+    @SerialName("git")
+    val git : String? = null,
+
+    @SerialName("self")
+    val self : String? = null,
+
+    @SerialName("html")
+    val html : String? = null
 )
 
 @Serializable
 data class ContributorsStatsWeeksItems(
-  val a : Int? = null,
-  val c : Int? = null,
-  val d : Int? = null,
-  val w : String? = null
+
+    /**
+     * Number of additions.
+     */
+    @SerialName("a")
+    val a : Int? = null,
+
+    /**
+     * Number of commits.
+     */
+    @SerialName("c")
+    val c : Int? = null,
+
+    /**
+     * Number of deletions.
+     */
+    @SerialName("d")
+    val d : Int? = null,
+
+    /**
+     * Start of the week.
+     */
+    @SerialName("w")
+    val w : String? = null
 )
 
 @Serializable
 data class ContributorsStatsAuthor(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CreateFileCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CreateFileCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class CreateFileCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CreateFileCommitParentsItems(
-  val htmlUrl : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CreateFileCommit(
-  val committer : CreateFileCommitCommitter? = null,
-  val author : CreateFileCommitAuthor? = null,
-  val htmlUrl : String? = null,
-  val tree : CreateFileCommitTree? = null,
-  val message : String? = null,
-  val sha : String? = null,
-  val url : String? = null,
-  val parents : List<CreateFileCommitParentsItems>? = null
+
+    @SerialName("committer")
+    val committer : CreateFileCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : CreateFileCommitAuthor? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("tree")
+    val tree : CreateFileCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("parents")
+    val parents : List<CreateFileCommitParentsItems>? = null
 )
 
 @Serializable
 data class CreateFileContentLinks(
-  val git : String? = null,
-  val self : String? = null,
-  val html : String? = null
+
+    @SerialName("git")
+    val git : String? = null,
+
+    @SerialName("self")
+    val self : String? = null,
+
+    @SerialName("html")
+    val html : String? = null
 )
 
 @Serializable
 data class CreateFileContent(
-  val path : String? = null,
-  val size : Int? = null,
-  val Links : CreateFileContentLinks? = null,
-  val htmlUrl : String? = null,
-  val name : String? = null,
-  val gitUrl : String? = null,
-  val type : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("_links")
+    val Links : CreateFileContentLinks? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("git_url")
+    val gitUrl : String? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class CreateFileBodyCommitter(
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class DeleteFileCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class DeleteFileCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class DeleteFileCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class DeleteFileCommitParents(
-  val htmlUrl : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class DeleteFileCommit(
-  val committer : DeleteFileCommitCommitter? = null,
-  val author : DeleteFileCommitAuthor? = null,
-  val htmlUrl : String? = null,
-  val tree : DeleteFileCommitTree? = null,
-  val message : String? = null,
-  val sha : String? = null,
-  val url : String? = null,
-  val parents : DeleteFileCommitParents? = null
+
+    @SerialName("committer")
+    val committer : DeleteFileCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : DeleteFileCommitAuthor? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("tree")
+    val tree : DeleteFileCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("parents")
+    val parents : DeleteFileCommitParents? = null
 )
 
 @Serializable
 data class DeleteFileBodyCommitter(
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class DeploymentPayload(
-  val roomId : Int? = null,
-  val environment : String? = null,
-  val deployUser : String? = null
+
+    @SerialName("room_id")
+    val roomId : Int? = null,
+
+    @SerialName("environment")
+    val environment : String? = null,
+
+    @SerialName("deploy_user")
+    val deployUser : String? = null
 )
 
 @Serializable
 data class EventRepo(
-  val name : String? = null,
-  val id : Int? = null,
-  val url : String? = null
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class FeedsLinksCurrentUserOrganization(
-  val href : String? = null,
-  val type : String? = null
+
+    @SerialName("href")
+    val href : String? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class FeedsLinksCurrentUserActor(
-  val href : String? = null,
-  val type : String? = null
+
+    @SerialName("href")
+    val href : String? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class FeedsLinksTimeline(
-  val href : String? = null,
-  val type : String? = null
+
+    @SerialName("href")
+    val href : String? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class FeedsLinksUser(
-  val href : String? = null,
-  val type : String? = null
+
+    @SerialName("href")
+    val href : String? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class FeedsLinksCurrentUserPublic(
-  val href : String? = null,
-  val type : String? = null
+
+    @SerialName("href")
+    val href : String? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class FeedsLinksCurrentUser(
-  val href : String? = null,
-  val type : String? = null
+
+    @SerialName("href")
+    val href : String? = null,
+
+    @SerialName("type")
+    val type : String? = null
 )
 
 @Serializable
 data class FeedsLinks(
-  val currentUserOrganization : FeedsLinksCurrentUserOrganization? = null,
-  val currentUserActor : FeedsLinksCurrentUserActor? = null,
-  val timeline : FeedsLinksTimeline? = null,
-  val user : FeedsLinksUser? = null,
-  val currentUserPublic : FeedsLinksCurrentUserPublic? = null,
-  val currentUser : FeedsLinksCurrentUser? = null
+
+    @SerialName("current_user_organization")
+    val currentUserOrganization : FeedsLinksCurrentUserOrganization? = null,
+
+    @SerialName("current_user_actor")
+    val currentUserActor : FeedsLinksCurrentUserActor? = null,
+
+    @SerialName("timeline")
+    val timeline : FeedsLinksTimeline? = null,
+
+    @SerialName("user")
+    val user : FeedsLinksUser? = null,
+
+    @SerialName("current_user_public")
+    val currentUserPublic : FeedsLinksCurrentUserPublic? = null,
+
+    @SerialName("current_user")
+    val currentUser : FeedsLinksCurrentUser? = null
 )
 
 @Serializable
 data class GistFilesRingErl(
-  val filename : String? = null,
-  val size : Int? = null,
-  val rawUrl : String? = null
+
+    @SerialName("filename")
+    val filename : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("raw_url")
+    val rawUrl : String? = null
 )
 
 @Serializable
 data class GistFiles(
-  val ringErl : GistFilesRingErl? = null
+
+    @SerialName("ring.erl")
+    val ringErl : GistFilesRingErl? = null
 )
 
 @Serializable
 data class GistForksItems(
-  val createdAt : String? = null,
-  val user : User? = null,
-  val url : String? = null
+
+    /**
+     * Timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("user")
+    val user : User? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class GistHistoryItemsChangeStatus(
-  val total : Int? = null,
-  val additions : Int? = null,
-  val deletions : Int? = null
+
+    @SerialName("total")
+    val total : Int? = null,
+
+    @SerialName("additions")
+    val additions : Int? = null,
+
+    @SerialName("deletions")
+    val deletions : Int? = null
 )
 
 @Serializable
 data class GistHistoryItems(
-  val committedAt : String? = null,
-  val changeStatus : GistHistoryItemsChangeStatus? = null,
-  val user : User? = null,
-  val version : String? = null,
-  val url : String? = null
+
+    /**
+     * Timestamp in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ.
+     */
+    @SerialName("committed_at")
+    val committedAt : String? = null,
+
+    @SerialName("change_status")
+    val changeStatus : GistHistoryItemsChangeStatus? = null,
+
+    @SerialName("user")
+    val user : User? = null,
+
+    @SerialName("version")
+    val version : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class GistsFilesRingErl(
-  val filename : String? = null,
-  val size : Int? = null,
-  val rawUrl : String? = null
+
+    @SerialName("filename")
+    val filename : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("raw_url")
+    val rawUrl : String? = null
 )
 
 @Serializable
 data class GistsFiles(
-  val ringErl : GistsFilesRingErl? = null
+
+    @SerialName("ring.erl")
+    val ringErl : GistsFilesRingErl? = null
 )
 
 @Serializable
 data class GitCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class HeadBranchObject(
-  val type : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("type")
+    val type : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class HookConfig(
-  val contentType : String? = null,
-  val url : String? = null
+
+    @SerialName("content_type")
+    val contentType : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class IssueEventIssuePullRequest(
-  val patchUrl : String? = null,
-  val htmlUrl : String? = null,
-  val diffUrl : String? = null
+
+    @SerialName("patch_url")
+    val patchUrl : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("diff_url")
+    val diffUrl : String? = null
 )
 
 @Serializable
 data class IssueEventIssueLabelsItems(
-  val color : String? = null,
-  val name : String? = null,
-  val url : String? = null
+
+    @SerialName("color")
+    val color : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class IssueEventIssueMilestone(
-  val number : Int? = null,
-  val creator : User? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val state : String? = null,
-  val closedIssues : Int? = null,
-  val openIssues : Int? = null,
-  val title : String? = null,
-  val dueOn : String? = null,
-  val url : String? = null
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("creator")
+    val creator : User? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("closed_issues")
+    val closedIssues : Int? = null,
+
+    @SerialName("open_issues")
+    val openIssues : Int? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("due_on")
+    val dueOn : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class IssueEventIssue(
-  val pullRequest : IssueEventIssuePullRequest? = null,
-  val closedAt : String? = null,
-  val comments : Int? = null,
-  val createdAt : String? = null,
-  val body : String? = null,
-  val title : String? = null,
-  val url : String? = null,
-  val labels : List<IssueEventIssueLabelsItems>? = null,
-  val number : Int? = null,
-  val milestone : IssueEventIssueMilestone? = null,
-  val updatedAt : String? = null,
-  val htmlUrl : String? = null,
-  val assignee : User? = null,
-  val state : String? = null,
-  val user : User? = null
+
+    @SerialName("pull_request")
+    val pullRequest : IssueEventIssuePullRequest? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("closed_at")
+    val closedAt : String? = null,
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("labels")
+    val labels : List<IssueEventIssueLabelsItems>? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("milestone")
+    val milestone : IssueEventIssueMilestone? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("assignee")
+    val assignee : User? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class IssuesPullRequest(
-  val patchUrl : String? = null,
-  val htmlUrl : String? = null,
-  val diffUrl : String? = null
+
+    @SerialName("patch_url")
+    val patchUrl : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("diff_url")
+    val diffUrl : String? = null
 )
 
 @Serializable
 data class IssuesLabelsItems(
-  val color : String? = null,
-  val name : String? = null,
-  val url : String? = null
+
+    @SerialName("color")
+    val color : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class IssuesMilestone(
-  val number : Int? = null,
-  val creator : User? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val state : String? = null,
-  val closedIssues : Int? = null,
-  val openIssues : Int? = null,
-  val title : String? = null,
-  val dueOn : String? = null,
-  val url : String? = null
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("creator")
+    val creator : User? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("closed_issues")
+    val closedIssues : Int? = null,
+
+    @SerialName("open_issues")
+    val openIssues : Int? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("due_on")
+    val dueOn : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class IssuesCommentsLinksPullRequest(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class IssuesCommentsLinksSelf(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class IssuesCommentsLinksHtml(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class IssuesCommentsLinks(
-  val pullRequest : IssuesCommentsLinksPullRequest? = null,
-  val self : IssuesCommentsLinksSelf? = null,
-  val html : IssuesCommentsLinksHtml? = null
+
+    @SerialName("pull_request")
+    val pullRequest : IssuesCommentsLinksPullRequest? = null,
+
+    @SerialName("self")
+    val self : IssuesCommentsLinksSelf? = null,
+
+    @SerialName("html")
+    val html : IssuesCommentsLinksHtml? = null
 )
 
 @Serializable
 data class MergesSuccessfulCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class MergesSuccessfulCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class MergesSuccessfulCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class MergesSuccessfulCommit(
-  val commentCount : Int? = null,
-  val committer : MergesSuccessfulCommitCommitter? = null,
-  val author : MergesSuccessfulCommitAuthor? = null,
-  val tree : MergesSuccessfulCommitTree? = null,
-  val message : String? = null,
-  val url : String? = null
+
+    @SerialName("comment_count")
+    val commentCount : Int? = null,
+
+    @SerialName("committer")
+    val committer : MergesSuccessfulCommitCommitter? = null,
+
+    @SerialName("author")
+    val author : MergesSuccessfulCommitAuthor? = null,
+
+    @SerialName("tree")
+    val tree : MergesSuccessfulCommitTree? = null,
+
+    @SerialName("message")
+    val message : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class MergesSuccessfulParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class NotificationsRepository(
-  val owner : Actor? = null,
-  val fork : Boolean? = null,
-  val private : Boolean? = null,
-  val fullName : String? = null,
-  val htmlUrl : String? = null,
-  val name : String? = null,
-  val description : String? = null,
-  val id : Int? = null,
-  val url : String? = null
+
+    @SerialName("owner")
+    val owner : Actor? = null,
+
+    @SerialName("fork")
+    val fork : Boolean? = null,
+
+    @SerialName("private")
+    val private : Boolean? = null,
+
+    @SerialName("full_name")
+    val fullName : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class NotificationsSubject(
-  val latestCommentUrl : String? = null,
-  val title : String? = null,
-  val type : String? = null,
-  val url : String? = null
+
+    @SerialName("latest_comment_url")
+    val latestCommentUrl : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class OrganizationPlan(
-  val privateRepos : Int? = null,
-  val name : String? = null,
-  val collaborators : Int? = null,
-  val space : Int? = null
+
+    @SerialName("private_repos")
+    val privateRepos : Int? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("collaborators")
+    val collaborators : Int? = null,
+
+    @SerialName("space")
+    val space : Int? = null
 )
 
 @Serializable
 data class OrganizationAsTeamMemberErrorsItems(
-  val code : String? = null,
-  val field : String? = null,
-  val resource : String? = null
+
+    @SerialName("code")
+    val code : String? = null,
+
+    @SerialName("field")
+    val field : String? = null,
+
+    @SerialName("resource")
+    val resource : String? = null
 )
 
 @Serializable
 data class PatchGistFilesNewFileTxt(
-  val content : String? = null
+
+    @SerialName("content")
+    val content : String? = null
 )
 
 @Serializable
 data class PatchGistFilesFile1Txt(
-  val content : String? = null
+
+    @SerialName("content")
+    val content : String? = null
 )
 
 @Serializable
 data class PatchGistFilesOldNameTxt(
-  val filename : String? = null,
-  val content : String? = null
+
+    @SerialName("filename")
+    val filename : String? = null,
+
+    @SerialName("content")
+    val content : String? = null
 )
 
 @Serializable
 data class PatchGistFiles(
-  val deleteThisFileTxt : String? = null,
-  val newFileTxt : PatchGistFilesNewFileTxt? = null,
-  val file1Txt : PatchGistFilesFile1Txt? = null,
-  val oldNameTxt : PatchGistFilesOldNameTxt? = null
+
+    @SerialName("delete_this_file.txt")
+    val deleteThisFileTxt : String? = null,
+
+    @SerialName("new_file.txt")
+    val newFileTxt : PatchGistFilesNewFileTxt? = null,
+
+    @SerialName("file1.txt")
+    val file1Txt : PatchGistFilesFile1Txt? = null,
+
+    @SerialName("old_name.txt")
+    val oldNameTxt : PatchGistFilesOldNameTxt? = null
 )
 
 @Serializable
 data class PostGistFilesFile1Txt(
-  val content : String? = null
+
+    @SerialName("content")
+    val content : String? = null
 )
 
 @Serializable
 data class PostGistFiles(
-  val file1Txt : PostGistFilesFile1Txt? = null
+
+    @SerialName("file1.txt")
+    val file1Txt : PostGistFilesFile1Txt? = null
 )
 
 @Serializable
 data class PullRequestLinksComments(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullRequestLinksReviewComments(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullRequestLinksSelf(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullRequestLinksHtml(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullRequestLinks(
-  val comments : PullRequestLinksComments? = null,
-  val reviewComments : PullRequestLinksReviewComments? = null,
-  val self : PullRequestLinksSelf? = null,
-  val html : PullRequestLinksHtml? = null
+
+    @SerialName("comments")
+    val comments : PullRequestLinksComments? = null,
+
+    @SerialName("review_comments")
+    val reviewComments : PullRequestLinksReviewComments? = null,
+
+    @SerialName("self")
+    val self : PullRequestLinksSelf? = null,
+
+    @SerialName("html")
+    val html : PullRequestLinksHtml? = null
 )
 
 @Serializable
 data class PullRequestBaseUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullRequestBase(
-  val ref : String? = null,
-  val repo : Repo? = null,
-  val label : String? = null,
-  val sha : String? = null,
-  val user : PullRequestBaseUser? = null
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("repo")
+    val repo : Repo? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("user")
+    val user : PullRequestBaseUser? = null
 )
 
 @Serializable
 data class PullRequestHeadUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullRequestHead(
-  val ref : String? = null,
-  val repo : Repo? = null,
-  val label : String? = null,
-  val sha : String? = null,
-  val user : PullRequestHeadUser? = null
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("repo")
+    val repo : Repo? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("user")
+    val user : PullRequestHeadUser? = null
 )
 
 @Serializable
 data class PullRequestMergedBy(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullRequestUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullsLinksComments(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsLinksReviewComments(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsLinksSelf(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsLinksHtml(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsLinks(
-  val comments : PullsLinksComments? = null,
-  val reviewComments : PullsLinksReviewComments? = null,
-  val self : PullsLinksSelf? = null,
-  val html : PullsLinksHtml? = null
+
+    @SerialName("comments")
+    val comments : PullsLinksComments? = null,
+
+    @SerialName("review_comments")
+    val reviewComments : PullsLinksReviewComments? = null,
+
+    @SerialName("self")
+    val self : PullsLinksSelf? = null,
+
+    @SerialName("html")
+    val html : PullsLinksHtml? = null
 )
 
 @Serializable
 data class PullsHeadUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullsHead(
-  val ref : String? = null,
-  val repo : Repo? = null,
-  val label : String? = null,
-  val sha : String? = null,
-  val user : PullsHeadUser? = null
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("repo")
+    val repo : Repo? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("user")
+    val user : PullsHeadUser? = null
 )
 
 @Serializable
 data class PullsUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullsBaseUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullsBase(
-  val ref : String? = null,
-  val repo : Repo? = null,
-  val label : String? = null,
-  val sha : String? = null,
-  val user : PullsBaseUser? = null
+
+    @SerialName("ref")
+    val ref : String? = null,
+
+    @SerialName("repo")
+    val repo : Repo? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("user")
+    val user : PullsBaseUser? = null
 )
 
 @Serializable
 data class PullsCommentLinksPullRequest(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsCommentLinksSelf(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsCommentLinksHtml(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsCommentLinks(
-  val pullRequest : PullsCommentLinksPullRequest? = null,
-  val self : PullsCommentLinksSelf? = null,
-  val html : PullsCommentLinksHtml? = null
+
+    @SerialName("pull_request")
+    val pullRequest : PullsCommentLinksPullRequest? = null,
+
+    @SerialName("self")
+    val self : PullsCommentLinksSelf? = null,
+
+    @SerialName("html")
+    val html : PullsCommentLinksHtml? = null
 )
 
 @Serializable
 data class PullsCommentUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class PullsCommentsLinksPullRequest(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsCommentsLinksSelf(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsCommentsLinksHtml(
-  val href : String? = null
+
+    @SerialName("href")
+    val href : String? = null
 )
 
 @Serializable
 data class PullsCommentsLinks(
-  val pullRequest : PullsCommentsLinksPullRequest? = null,
-  val self : PullsCommentsLinksSelf? = null,
-  val html : PullsCommentsLinksHtml? = null
+
+    @SerialName("pull_request")
+    val pullRequest : PullsCommentsLinksPullRequest? = null,
+
+    @SerialName("self")
+    val self : PullsCommentsLinksSelf? = null,
+
+    @SerialName("html")
+    val html : PullsCommentsLinksHtml? = null
 )
 
 @Serializable
 data class PullsCommentsUser(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RateLimitRate(
-  val limit : Int? = null,
-  val reset : Int? = null,
-  val remaining : Int? = null
+
+    @SerialName("limit")
+    val limit : Int? = null,
+
+    @SerialName("reset")
+    val reset : Int? = null,
+
+    @SerialName("remaining")
+    val remaining : Int? = null
 )
 
 @Serializable
 data class RefCreator(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val gravatarId : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RefStatusStatusesItems(
-  val updatedAt : String? = null,
-  val targetUrl : String? = null,
-  val context : String? = null,
-  val createdAt : String? = null,
-  val description : String? = null,
-  val id : Int? = null,
-  val state : String? = null,
-  val url : String? = null
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("target_url")
+    val targetUrl : String? = null,
+
+    @SerialName("context")
+    val context : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RefsObject(
-  val type : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("type")
+    val type : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class ReleaseAssetsItems(
-  val contentType : String? = null,
-  val size : Int? = null,
-  val updatedAt : String? = null,
-  val uploader : User? = null,
-  val name : String? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val label : String? = null,
-  val state : String? = null,
-  val url : String? = null,
-  val downloadCount : Int? = null
+
+    @SerialName("content_type")
+    val contentType : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("uploader")
+    val uploader : User? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("download_count")
+    val downloadCount : Int? = null
 )
 
 @Serializable
 data class ReleasesAssetsItems(
-  val contentType : String? = null,
-  val size : Int? = null,
-  val updatedAt : String? = null,
-  val uploader : User? = null,
-  val name : String? = null,
-  val createdAt : String? = null,
-  val id : Int? = null,
-  val label : String? = null,
-  val state : String? = null,
-  val url : String? = null,
-  val downloadCount : Int? = null
+
+    @SerialName("content_type")
+    val contentType : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("uploader")
+    val uploader : User? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("label")
+    val label : String? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("download_count")
+    val downloadCount : Int? = null
 )
 
 @Serializable
 data class RepoCommitAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class RepoCommitCommitter(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class RepoCommitParentsItems(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RepoCommitTree(
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class RepoCommitBodyAuthor(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    @SerialName("date")
+    val date : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class SearchCodeItemsItemsRepository(
-  val tagsUrl : String? = null,
-  val contributorsUrl : String? = null,
-  val private : Boolean? = null,
-  val notificationsUrl : String? = null,
-  val description : String? = null,
-  val subscriptionUrl : String? = null,
-  val branchesUrl : String? = null,
-  val keysUrl : String? = null,
-  val issueCommentUrl : String? = null,
-  val labelsUrl : String? = null,
-  val subscribersUrl : String? = null,
-  val commentsUrl : String? = null,
-  val stargazersUrl : String? = null,
-  val id : Int? = null,
-  val owner : Actor? = null,
-  val archiveUrl : String? = null,
-  val commitsUrl : String? = null,
-  val gitRefsUrl : String? = null,
-  val compareUrl : String? = null,
-  val forksUrl : String? = null,
-  val statusesUrl : String? = null,
-  val gitCommitsUrl : String? = null,
-  val blobsUrl : String? = null,
-  val gitTagsUrl : String? = null,
-  val mergesUrl : String? = null,
-  val downloadsUrl : String? = null,
-  val url : String? = null,
-  val contentsUrl : String? = null,
-  val milestonesUrl : String? = null,
-  val teamsUrl : String? = null,
-  val fork : Boolean? = null,
-  val issuesUrl : String? = null,
-  val fullName : String? = null,
-  val eventsUrl : String? = null,
-  val issueEventsUrl : String? = null,
-  val languagesUrl : String? = null,
-  val collaboratorsUrl : String? = null,
-  val htmlUrl : String? = null,
-  val name : String? = null,
-  val pullsUrl : String? = null,
-  val hooksUrl : String? = null,
-  val assigneesUrl : String? = null,
-  val treesUrl : String? = null
+
+    @SerialName("tags_url")
+    val tagsUrl : String? = null,
+
+    @SerialName("contributors_url")
+    val contributorsUrl : String? = null,
+
+    @SerialName("private")
+    val private : Boolean? = null,
+
+    @SerialName("notifications_url")
+    val notificationsUrl : String? = null,
+
+    @SerialName("description")
+    val description : String? = null,
+
+    @SerialName("subscription_url")
+    val subscriptionUrl : String? = null,
+
+    @SerialName("branches_url")
+    val branchesUrl : String? = null,
+
+    @SerialName("keys_url")
+    val keysUrl : String? = null,
+
+    @SerialName("issue_comment_url")
+    val issueCommentUrl : String? = null,
+
+    @SerialName("labels_url")
+    val labelsUrl : String? = null,
+
+    @SerialName("subscribers_url")
+    val subscribersUrl : String? = null,
+
+    @SerialName("comments_url")
+    val commentsUrl : String? = null,
+
+    @SerialName("stargazers_url")
+    val stargazersUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("owner")
+    val owner : Actor? = null,
+
+    @SerialName("archive_url")
+    val archiveUrl : String? = null,
+
+    @SerialName("commits_url")
+    val commitsUrl : String? = null,
+
+    @SerialName("git_refs_url")
+    val gitRefsUrl : String? = null,
+
+    @SerialName("compare_url")
+    val compareUrl : String? = null,
+
+    @SerialName("forks_url")
+    val forksUrl : String? = null,
+
+    @SerialName("statuses_url")
+    val statusesUrl : String? = null,
+
+    @SerialName("git_commits_url")
+    val gitCommitsUrl : String? = null,
+
+    @SerialName("blobs_url")
+    val blobsUrl : String? = null,
+
+    @SerialName("git_tags_url")
+    val gitTagsUrl : String? = null,
+
+    @SerialName("merges_url")
+    val mergesUrl : String? = null,
+
+    @SerialName("downloads_url")
+    val downloadsUrl : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("contents_url")
+    val contentsUrl : String? = null,
+
+    @SerialName("milestones_url")
+    val milestonesUrl : String? = null,
+
+    @SerialName("teams_url")
+    val teamsUrl : String? = null,
+
+    @SerialName("fork")
+    val fork : Boolean? = null,
+
+    @SerialName("issues_url")
+    val issuesUrl : String? = null,
+
+    @SerialName("full_name")
+    val fullName : String? = null,
+
+    @SerialName("events_url")
+    val eventsUrl : String? = null,
+
+    @SerialName("issue_events_url")
+    val issueEventsUrl : String? = null,
+
+    @SerialName("languages_url")
+    val languagesUrl : String? = null,
+
+    @SerialName("collaborators_url")
+    val collaboratorsUrl : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("pulls_url")
+    val pullsUrl : String? = null,
+
+    @SerialName("hooks_url")
+    val hooksUrl : String? = null,
+
+    @SerialName("assignees_url")
+    val assigneesUrl : String? = null,
+
+    @SerialName("trees_url")
+    val treesUrl : String? = null
 )
 
 @Serializable
 data class SearchCodeItemsItems(
-  val path : String? = null,
-  val score : Int? = null,
-  val htmlUrl : String? = null,
-  val name : String? = null,
-  val gitUrl : String? = null,
-  val repository : SearchCodeItemsItemsRepository? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("score")
+    val score : Int? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("git_url")
+    val gitUrl : String? = null,
+
+    @SerialName("repository")
+    val repository : SearchCodeItemsItemsRepository? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class SearchIssuesItemsItemsLabelsItems(
-  val color : String? = null,
-  val name : String? = null,
-  val url : String? = null
+
+    @SerialName("color")
+    val color : String? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class SearchIssuesItemsItems(
-  val pullRequest : Map<String, String>? = null,
-  val comments : Int? = null,
-  val createdAt : String? = null,
-  val body : String? = null,
-  val title : String? = null,
-  val url : String? = null,
-  val labels : List<SearchIssuesItemsItemsLabelsItems>? = null,
-  val labelsUrl : String? = null,
-  val number : Int? = null,
-  val score : Int? = null,
-  val updatedAt : String? = null,
-  val eventsUrl : String? = null,
-  val htmlUrl : String? = null,
-  val commentsUrl : String? = null,
-  val id : Int? = null,
-  val state : String? = null,
-  val user : User? = null
+
+    @SerialName("pull_request")
+    val pullRequest : Map<String, String>? = null,
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("url")
+    val url : String? = null,
+
+    @SerialName("labels")
+    val labels : List<SearchIssuesItemsItemsLabelsItems>? = null,
+
+    @SerialName("labels_url")
+    val labelsUrl : String? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("score")
+    val score : Int? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("events_url")
+    val eventsUrl : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("comments_url")
+    val commentsUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("user")
+    val user : User? = null
 )
 
 @Serializable
 data class SearchIssuesByKeywordIssuesItems(
-  val comments : Int? = null,
-  val createdAt : String? = null,
-  val body : String? = null,
-  val title : String? = null,
-  val labels : List<String>? = null,
-  val number : Int? = null,
-  val updatedAt : String? = null,
-  val htmlUrl : String? = null,
-  val votes : Int? = null,
-  val position : Int? = null,
-  val state : String? = null,
-  val gravatarId : String? = null,
-  val user : String? = null
+
+    @SerialName("comments")
+    val comments : Int? = null,
+
+    @SerialName("created_at")
+    val createdAt : String? = null,
+
+    @SerialName("body")
+    val body : String? = null,
+
+    @SerialName("title")
+    val title : String? = null,
+
+    @SerialName("labels")
+    val labels : List<String>? = null,
+
+    @SerialName("number")
+    val number : Int? = null,
+
+    @SerialName("updated_at")
+    val updatedAt : String? = null,
+
+    @SerialName("html_url")
+    val htmlUrl : String? = null,
+
+    @SerialName("votes")
+    val votes : Int? = null,
+
+    @SerialName("position")
+    val position : Int? = null,
+
+    @SerialName("state")
+    val state : String? = null,
+
+    @SerialName("gravatar_id")
+    val gravatarId : String? = null,
+
+    @SerialName("user")
+    val user : String? = null
 )
 
 @Serializable
 data class TagObject(
-  val type : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    /**
+     * String of the type of the tagged object. Normally this is a commit but it can also be a tree or a blob.
+     */
+    @SerialName("type")
+    val type : String? = null,
+
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class TagTagger(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * Timestamp of when this object was tagged, in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    /**
+     * String of the name of the author of the tag.
+     */
+    @SerialName("name")
+    val name : String? = null,
+
+    /**
+     * String of the email of the author of the tag.
+     */
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class TagBodyTagger(
-  val date : String? = null,
-  val name : String? = null,
-  val email : String? = null
+
+    /**
+     * Timestamp of when this object was tagged, in ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ
+     */
+    @SerialName("date")
+    val date : String? = null,
+
+    /**
+     * String of the name of the author of the tag.
+     */
+    @SerialName("name")
+    val name : String? = null,
+
+    /**
+     * String of the email of the author of the tag.
+     */
+    @SerialName("email")
+    val email : String? = null
 )
 
 @Serializable
 data class TeamsListOrganization(
-  val avatarUrl : String? = null,
-  val id : Int? = null,
-  val login : String? = null,
-  val url : String? = null
+
+    @SerialName("avatar_url")
+    val avatarUrl : String? = null,
+
+    @SerialName("id")
+    val id : Int? = null,
+
+    @SerialName("login")
+    val login : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class TreeTreeItems(
-  val mode : String? = null,
-  val path : String? = null,
-  val size : Int? = null,
-  val type : String? = null,
-  val sha : String? = null,
-  val url : String? = null
+
+    /**
+     * One of 100644 for file (blob), 100755 for executable (blob), 040000 for subdirectory (tree), 160000 for submodule (commit) or 120000 for a blob that specifies the path of a symlink.
+     */
+    @SerialName("mode")
+    val mode : String? = null,
+
+    @SerialName("path")
+    val path : String? = null,
+
+    @SerialName("size")
+    val size : Int? = null,
+
+    @SerialName("type")
+    val type : String? = null,
+
+    /**
+     * SHA1 checksum ID of the object in the tree.
+     */
+    @SerialName("sha")
+    val sha : String? = null,
+
+    @SerialName("url")
+    val url : String? = null
 )
 
 @Serializable
 data class UserPlan(
-  val privateRepos : Int? = null,
-  val name : String? = null,
-  val collaborators : Int? = null,
-  val space : Int? = null
+
+    @SerialName("private_repos")
+    val privateRepos : Int? = null,
+
+    @SerialName("name")
+    val name : String? = null,
+
+    @SerialName("collaborators")
+    val collaborators : Int? = null,
+
+    @SerialName("space")
+    val space : Int? = null
 )

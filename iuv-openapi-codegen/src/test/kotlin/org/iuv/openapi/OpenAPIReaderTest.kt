@@ -26,24 +26,39 @@ class OpenAPIReaderTest {
             assertEquals("package org.iuv.test.models\n" +
                     "\n" +
                     "import kotlinx.serialization.Serializable\n" +
+                    "import kotlinx.serialization.SerialName\n" +
                     "\n" +
                     "@Serializable\n" +
                     "data class Pet(\n" +
-                    "  val name : String? = null,\n" +
-                    "  val tag : String? = null,\n" +
-                    "  val id : Long? = null\n" +
+                    "\n" +
+                    "    @SerialName(\"name\")\n" +
+                    "    val name : String? = null,\n" +
+                    "\n" +
+                    "    @SerialName(\"tag\")\n" +
+                    "    val tag : String? = null,\n" +
+                    "\n" +
+                    "    @SerialName(\"id\")\n" +
+                    "    val id : Long? = null\n" +
                     ")\n" +
                     "\n" +
                     "@Serializable\n" +
                     "data class NewPet(\n" +
-                    "  val name : String,\n" +
-                    "  val tag : String? = null\n" +
+                    "\n" +
+                    "    @SerialName(\"name\")\n" +
+                    "    val name : String,\n" +
+                    "\n" +
+                    "    @SerialName(\"tag\")\n" +
+                    "    val tag : String? = null\n" +
                     ")\n" +
                     "\n" +
                     "@Serializable\n" +
                     "data class Error(\n" +
-                    "  val code : Int,\n" +
-                    "  val message : String\n" +
+                    "\n" +
+                    "    @SerialName(\"code\")\n" +
+                    "    val code : Int,\n" +
+                    "\n" +
+                    "    @SerialName(\"message\")\n" +
+                    "    val message : String\n" +
                     ")", sw.toString())
         }
     }

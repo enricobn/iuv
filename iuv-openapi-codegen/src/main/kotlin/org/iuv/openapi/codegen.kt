@@ -39,13 +39,27 @@ data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val im
 
 data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false, val imports: Set<String> = emptySet()) : Last
 
-data class IUVAPIComponentProperty(val name: String, val type: IUVAPIType, val optional: Boolean, override var last: Boolean = false) : Last
+data class IUVAPIComponentProperty(val key: String, val name: String, val type: IUVAPIType, val optional: Boolean,
+                                   val description: String?, override var last: Boolean = false) : Last {
+    @Suppress("private,unused")
+    val descriptions = description?.split("\n")?.map { it.trim() }
+
+    @Suppress("unused")
+    val hasDescription = description != null
+
+}
 
 data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponentProperty>, override var last: Boolean = false,
-                           val aliasFor: IUVAPIType? = null, val key : String) : Last {
+                           val aliasFor: IUVAPIType? = null, val key : String, val description: String?) : Last {
     init {
         properties.calculateLast()
     }
+
+    @Suppress("private,unused")
+    val descriptions = description?.split("\n")?.map { it.trim() }
+
+    @Suppress("unused")
+    val hasDescription = description != null
 }
 
 enum class ParameterType(val controllerAnnotationClass: String) {
@@ -361,16 +375,16 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
 
                 if (referenceComponent == null) {
                     val aliasFor = alias.toIUVAPIType()
-                    IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key)
+                    IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key, description = description)
                 } else referenceComponent
 
             }
             is ConcreteParserComponent ->
-                IUVAPIComponent(name, properties.map { it.toIUVAPIProperty() }, key = key)
+                IUVAPIComponent(name, properties.map { it.toIUVAPIProperty() }, key = key, description = description)
         }
 
     private fun ParserProperty.toIUVAPIProperty() =
-            IUVAPIComponentProperty(name, type.toIUVAPIType(), optional)
+            IUVAPIComponentProperty(key, name, type.toIUVAPIType(), optional, description)
 
     private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
         val pathItem = pathEntry.value

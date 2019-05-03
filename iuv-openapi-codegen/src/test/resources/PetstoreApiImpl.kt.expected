@@ -89,7 +89,7 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
     }
 
     @ImplicitReflectionSerializer
-    override fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit> {
+    override fun updatePetWithForm(petId : Long, name : String?, status : String?) : Task<String,Unit> {
         val runner = Http.runner(HttpMethod.Post, "$baseUrl/pet/$petId", UnitSerializer)
             .formData(
                 "name" to name,
@@ -116,7 +116,7 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
     }
 
     @ImplicitReflectionSerializer
-    override fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse> {
+    override fun uploadFile(petId : Long, additionalMetadata : String?, file : MultipartFile?) : Task<String,ApiResponse> {
         val runner = Http.runner(HttpMethod.Post, "$baseUrl/pet/$petId/uploadImage", ApiResponse::class.serializer())
             .multiPartData(
                 MultiPartData.of("additionalMetadata", additionalMetadata),

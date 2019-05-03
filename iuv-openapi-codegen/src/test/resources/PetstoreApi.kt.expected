@@ -42,7 +42,7 @@ interface PetStoreApi {
      * @param name Updated name of the pet
      * @param status Updated status of the pet
      */
-    fun updatePetWithForm(petId : Long, name : String, status : String) : Task<String,Unit>
+    fun updatePetWithForm(petId : Long, name : String?, status : String?) : Task<String,Unit>
 
     /**
      *
@@ -56,7 +56,7 @@ interface PetStoreApi {
      * @param additionalMetadata Additional data to pass to server
      * @param file file to upload
      */
-    fun uploadFile(petId : Long, additionalMetadata : String, file : MultipartFile) : Task<String,ApiResponse>
+    fun uploadFile(petId : Long, additionalMetadata : String?, file : MultipartFile?) : Task<String,ApiResponse>
 
     /**
      * Returns a map of status codes to quantities

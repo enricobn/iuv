@@ -27,7 +27,7 @@ data class CustomParserType(val component: ParserComponent) : ParserType()
 
 data class ArrayParserType(val name : String, val itemsType: ParserType) : ParserType()
 
-data class ParserProperty(val name: String, val type: ParserType, val optional: Boolean)
+data class ParserProperty(val key: String, val name: String, val type: ParserType, val optional: Boolean, val description: String?)
 
 sealed class ParserComponent {
 
@@ -38,9 +38,11 @@ sealed class ParserComponent {
     abstract val name : String
 
     abstract val type : ParserType
+
+    abstract val description: String?
 }
 
-data class ConcreteParserComponent(override val key : String, override val name: String, val properties: List<ParserProperty>) : ParserComponent() {
+data class ConcreteParserComponent(override val key : String, override val name: String, val properties: List<ParserProperty>, override val description: String?) : ParserComponent() {
     override fun getUsedTypes(): List<ParserType> {
         return properties.map { it.type }
     }
@@ -56,6 +58,9 @@ data class AliasParserComponent(override val key : String, override val name: St
 
     override val type: ParserType
         get() = alias
+
+    override val description: String?
+        get() = null
 }
 
 class OpenAPIParser(private val api: OpenAPI) {
@@ -108,7 +113,7 @@ class OpenAPIParser(private val api: OpenAPI) {
                     } else
                         throw UnsupportedOpenAPISpecification("No properties and no ref specified.")
                 } else {
-                    ConcreteParserComponent(schemaKey, name, properties)
+                    ConcreteParserComponent(schemaKey, name, properties, schema.description)
                 }
             }
         } catch (e: Exception) {
@@ -140,7 +145,7 @@ fun Schema<*>.resolveType(parentKey: String, parent: String) : ParserType {
                         return MapParserType(toPrimitiveType("string", null))
                     }
 
-                    val component = ConcreteParserComponent(parentKey, parent, properties)
+                    val component = ConcreteParserComponent(parentKey, parent, properties, description)
                     return CustomParserType(component)
                 } else {
                     // TODO enums?
@@ -176,7 +181,7 @@ private fun getProperties(componentProperties: Map<String, Schema<*>>, parentKey
                     val name = safeName(parentName + it.key.capitalize()).capitalize()
                     val type = it.value.resolveType(parentKey + it.key, name)
 
-                    ParserProperty(safeName(it.key), type, !(required?.contains(it.key) ?: false))
+                    ParserProperty(it.key, safeName(it.key), type, !(required?.contains(it.key) ?: false), it.value.description)
                 } catch (e: Exception) {
                     throw UnsupportedOpenAPISpecification("Cannot create component ${it.key}.", e)
                 }

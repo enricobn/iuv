@@ -33,13 +33,13 @@ interface PetStoreController {
     fun getPetById(@PathVariable petId : Long) : Pet
 
     @PostMapping("/pet/{petId}")
-    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String, @RequestParam status : String) : Unit
+    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String?, @RequestParam status : String?) : Unit
 
     @DeleteMapping("/pet/{petId}")
     fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long) : Unit
 
     @PostMapping("/pet/{petId}/uploadImage")
-    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String, @RequestPart file : MultipartFile) : ApiResponse
+    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String?, @RequestPart file : MultipartFile?) : ApiResponse
 
     @GetMapping("/store/inventory")
     fun getInventory() : Map<String, Int>
