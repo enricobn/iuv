@@ -174,6 +174,9 @@ data class IUVAPIOperation(val path: String, val description: String?, val op: I
 
     @Suppress("unused")
     val descriptions = description?.split("\n")?.map { it.trim() }
+
+    @Suppress("unused")
+    val hasResultType = resultType.type != "Unit"
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {

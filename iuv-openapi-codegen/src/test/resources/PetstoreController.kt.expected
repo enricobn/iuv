@@ -33,10 +33,10 @@ interface PetStoreController {
     fun getPetById(@PathVariable petId : Long) : Pet
 
     @PostMapping("/pet/{petId}")
-    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String?, @RequestParam status : String?) : Unit
+    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String?, @RequestParam status : String?)
 
     @DeleteMapping("/pet/{petId}")
-    fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long) : Unit
+    fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long)
 
     @PostMapping("/pet/{petId}/uploadImage")
     fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String?, @RequestPart file : MultipartFile?) : ApiResponse
@@ -51,22 +51,22 @@ interface PetStoreController {
     fun getOrderById(@PathVariable orderId : Long) : Order
 
     @DeleteMapping("/store/order/{orderId}")
-    fun deleteOrder(@PathVariable orderId : Long) : Unit
+    fun deleteOrder(@PathVariable orderId : Long)
 
     @PostMapping("/user")
-    fun createUser(@RequestBody body : User) : Unit
+    fun createUser(@RequestBody body : User)
 
     @PostMapping("/user/createWithArray")
-    fun createUsersWithArrayInput(@RequestBody body : List<User>) : Unit
+    fun createUsersWithArrayInput(@RequestBody body : List<User>)
 
     @PostMapping("/user/createWithList")
-    fun createUsersWithListInput(@RequestBody body : List<User>) : Unit
+    fun createUsersWithListInput(@RequestBody body : List<User>)
 
     @GetMapping("/user/login")
     fun loginUser(@RequestParam username : String, @RequestParam password : String) : String
 
     @GetMapping("/user/logout")
-    fun logoutUser() : Unit
+    fun logoutUser()
 
     @GetMapping("/user/{username}")
     fun getUserByName(@PathVariable username : String) : User
@@ -75,6 +75,6 @@ interface PetStoreController {
     fun updateUser(@PathVariable username : String, @RequestBody body : User) : User
 
     @DeleteMapping("/user/{username}")
-    fun deleteUser(@PathVariable username : String) : Unit
+    fun deleteUser(@PathVariable username : String)
 
 }

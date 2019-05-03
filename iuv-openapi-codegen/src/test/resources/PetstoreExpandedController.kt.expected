@@ -21,6 +21,6 @@ interface PetStoreController {
     fun findPetById(@PathVariable id : Long) : Pet
 
     @DeleteMapping("/pets/{id}")
-    fun deletePet(@PathVariable id : Long) : Unit
+    fun deletePet(@PathVariable id : Long)
 
 }
