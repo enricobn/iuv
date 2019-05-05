@@ -102,7 +102,8 @@ object Http {
                          formData: Map<String,Any?>? = null,
                          queryParams: Map<String,Any?> = emptyMap(),
                          multiPartData: List<MultiPartData>? = null,
-                         headers: Map<String,Any?> = emptyMap()
+                         headers: Map<String,Any?> = emptyMap(),
+                         json: JSON = JSON.nonstrict
     ) where RESULT : Any {
         try {
             val request = XMLHttpRequest()
@@ -115,7 +116,7 @@ object Http {
                                 if (serializer == UnitSerializer && request.responseText.isEmpty()) {
                                     onSuccess(Unit as RESULT)
                                 } else {
-                                    val response = JSON.nonstrict.parse(serializer, request.responseText)
+                                    val response = json.parse(serializer, request.responseText)
                                     onSuccess(response)
                                 }
                             } else {
@@ -158,87 +159,82 @@ object Http {
         }
     }
 
-    // from https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Sending_forms_through_JavaScript
-    private fun encodeMultipartData(values: List<MultiPartData>, boundary: String): dynamic {
-        var data = ""
+    fun runner(method: HttpMethod, url: String) = HttpRequestRunner(method, url)
 
-        values.forEach { multiPartData ->
+}
 
-            when (multiPartData) {
-                is MultiPartFileParameter -> {
-                    if (multiPartData.file != null) {
-                        val file = multiPartData.file.file
+// from https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Sending_forms_through_JavaScript
+private fun encodeMultipartData(values: List<MultiPartData>, boundary: String): dynamic {
+    var data = ""
 
-                        // Start a new part in our body's request
-                        data += "--$boundary\r\n";
+    values.forEach { multiPartData ->
 
-                        // Describe it as form data
-                        data += "content-disposition: form-data; "
-                        // Define the name of the form data
-                        data += "name=\"" + multiPartData.name + "\"; "
-                        // Provide the real name of the file
-                        data += "filename=\"" + file.name + "\"\r\n"
-                        // And the MIME type of the file
-                        data += "Content-Type: " + file.type + "\r\n"
+        when (multiPartData) {
+            is MultiPartFileParameter -> {
+                if (multiPartData.file != null) {
+                    val file = multiPartData.file.file
 
-                        // There's a blank line between the metadata and the data
-                        data += "\r\n"
+                    // Start a new part in our body's request
+                    data += "--$boundary\r\n";
 
-                        // Append the binary data to our body's request
-                        data += (multiPartData.file.binary + "\r\n") as? Any
-                    }
-                }
-                is MultiPartParameter -> {
-                    if (multiPartData.value != null) {
-                        // Text data is simpler
-                        // Start a new part in our body's request
-                        data += "--$boundary\r\n"
+                    // Describe it as form data
+                    data += "content-disposition: form-data; "
+                    // Define the name of the form data
+                    data += "name=\"" + multiPartData.name + "\"; "
+                    // Provide the real name of the file
+                    data += "filename=\"" + file.name + "\"\r\n"
+                    // And the MIME type of the file
+                    data += "Content-Type: " + file.type + "\r\n"
 
-                        // Say it's form data, and name it
-                        data += "content-disposition: form-data; name=\"" + multiPartData.name + "\"\r\n"
-                        // There's a blank line between the metadata and the data
-                        data += "\r\n"
+                    // There's a blank line between the metadata and the data
+                    data += "\r\n"
 
-                        // Append the text data to our body's request
-                        data += encodeParam(multiPartData.value) + "\r\n"
-                    }
+                    // Append the binary data to our body's request
+                    data += (multiPartData.file.binary + "\r\n") as? Any
                 }
             }
+            is MultiPartParameter -> {
+                if (multiPartData.value != null) {
+                    // Text data is simpler
+                    // Start a new part in our body's request
+                    data += "--$boundary\r\n"
 
+                    // Say it's form data, and name it
+                    data += "content-disposition: form-data; name=\"" + multiPartData.name + "\"\r\n"
+                    // There's a blank line between the metadata and the data
+                    data += "\r\n"
+
+                    // Append the text data to our body's request
+                    data += encodeParam(multiPartData.value) + "\r\n"
+                }
+            }
         }
 
-        // Once we are done, "close" the body's request
-        data += "--$boundary--";
-
-        return data
     }
 
-    fun <RESULT: Any> runner(method: HttpMethod, url: String, serializer: KSerializer<RESULT>) =
-        if (method == HttpMethod.Delete) {
-            HttpRequestRunner(url, serializer, method, setOf(200, 204))
-        } else {
-            HttpRequestRunner(url, serializer, method)
-        }
+    // Once we are done, "close" the body's request
+    data += "--$boundary--"
 
-    private fun urlWithQueryParameters(url: String, queryParams: Map<String, Any?>): String {
-        val queryParamsToString = encodeParams(queryParams)
-        return if (url.contains("?")) {
-            "$url&$queryParamsToString"
-        } else {
-            "$url?$queryParamsToString"
-        }
+    return data
+}
+
+private fun urlWithQueryParameters(url: String, queryParams: Map<String, Any?>): String {
+    val queryParamsToString = encodeParams(queryParams)
+    return if (url.contains("?")) {
+        "$url&$queryParamsToString"
+    } else {
+        "$url?$queryParamsToString"
     }
+}
 
-    private fun encodeParams(params: Map<String, Any?>) =
-            params.filter { it.value != null }.map { it.key + "=" + encodeParam(it.value!!) }.joinToString("&")
+private fun encodeParams(params: Map<String, Any?>) =
+        params.filter { it.value != null }.map { it.key + "=" + encodeParam(it.value!!) }.joinToString("&")
 
-    private fun encodeParam(value: Any): String {
-        if (value is List<*>) {
-            return value.joinToString(",") { encodeParam(it ?: "") }
-        }
-        return value.toString()
+private fun encodeParam(value: Any): String {
+    if (value is List<*>) {
+        return value.joinToString(",") { encodeParam(it ?: "") }
     }
-
+    return value.toString()
 }
 
 sealed class MultiPartData {
@@ -273,8 +269,12 @@ enum class HttpMethod(val method: String) {
     Delete("delete")
 }
 
-class HttpRequestRunner<RESULT: Any>(private val url: String, private val serializer: KSerializer<RESULT>,
-                                     private val method: HttpMethod, private val successStatuses : Set<Int> = setOf(200)) {
+data class HttpError(val status: Int, val statusText: String?, val message: String?, val responseHeaders: Map<String,String>, val responseText: String?)
+
+data class HttpResult<RESULT: Any?>(val status: Int, val result: RESULT, val responseHeaders: Map<String,String>)
+
+class HttpRequestRunner(private val method: HttpMethod, private val url: String) {
+    private var json: JSON = JSON.nonstrict
     private var body: dynamic = null
     private var bodySerializer: KSerializer<Any>? = null
     private var formData: Map<String,Any?>? = null
@@ -285,28 +285,28 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
     private var multiPartData: List<MultiPartData>? = null
     private var headers: MutableMap<String, Any?> = mutableMapOf()
 
-    fun <BODY : Any> body(body: BODY, bodySerializer: KSerializer<BODY>) : HttpRequestRunner<RESULT> {
+    fun <BODY : Any> body(body: BODY, bodySerializer: KSerializer<BODY>) : HttpRequestRunner {
         this.body = body
         this.bodySerializer = bodySerializer as KSerializer<Any>
         return this
     }
 
-    fun formData(formData: Map<String,String?>) : HttpRequestRunner<RESULT> {
+    fun formData(formData: Map<String,String?>) : HttpRequestRunner {
         this.formData = formData
         return this
     }
 
-    fun formData(vararg formData: Pair<String,String?>) : HttpRequestRunner<RESULT> {
+    fun formData(vararg formData: Pair<String,String?>) : HttpRequestRunner {
         this.formData = formData.toMap()
         return this
     }
 
-    fun queryParams(queryParams: Map<String,Any?>) : HttpRequestRunner<RESULT> {
+    fun queryParams(queryParams: Map<String,Any?>) : HttpRequestRunner {
         this.queryParams = queryParams
         return this
     }
 
-    fun queryParams(vararg queryParams: Pair<String,Any?>) : HttpRequestRunner<RESULT> {
+    fun queryParams(vararg queryParams: Pair<String,Any?>) : HttpRequestRunner {
         this.queryParams = queryParams.toMap()
         return this
     }
@@ -315,82 +315,162 @@ class HttpRequestRunner<RESULT: Any>(private val url: String, private val serial
         this.async = value
     }
 
-    fun httpAuthentication(user: String, password: String) : HttpRequestRunner<RESULT> {
+    fun httpAuthentication(user: String, password: String) : HttpRequestRunner {
         this.user = user
         this.password = password
         return this
     }
 
-    fun multiPartData(values: List<MultiPartData>) : HttpRequestRunner<RESULT> {
+    fun multiPartData(values: List<MultiPartData>) : HttpRequestRunner {
         this.multiPartData = values
         return this
     }
 
-    fun multiPartData(vararg values: MultiPartData) : HttpRequestRunner<RESULT> {
+    fun multiPartData(vararg values: MultiPartData) : HttpRequestRunner {
         this.multiPartData = values.toList()
         return this
     }
 
-    fun headers(values: Map<String,Any?>) : HttpRequestRunner<RESULT> {
+    fun headers(values: Map<String,Any?>) : HttpRequestRunner {
         this.headers.putAll(values)
         return this
     }
 
-    fun headers(vararg values: Pair<String,Any?>) : HttpRequestRunner<RESULT> {
+    fun headers(vararg values: Pair<String,Any?>) : HttpRequestRunner {
         this.headers.putAll(values)
         return this
     }
 
-    fun header(key: String, value: Any?) : HttpRequestRunner<RESULT> {
+    fun header(key: String, value: Any?) : HttpRequestRunner {
         this.headers[key] = value
         return this
     }
 
-    fun configuration(configuration: HttpRequestRunnerConfiguration) : HttpRequestRunner<RESULT> {
+    fun configuration(configuration: HttpRequestRunnerConfiguration) : HttpRequestRunner {
         configuration.configure(this)
         return this
     }
 
-    fun run() = build().run()
+    fun json(json: JSON) : HttpRequestRunner {
+        this.json = json
+        return this
+    }
 
-    private fun build() =
-            HttpRequest(method, url, serializer, body, bodySerializer, async, user, password, successStatuses,
-                    formData, queryParams, multiPartData, headers)
+    fun <BASE_RESULT: Any, RESULT: BASE_RESULT?> run(resultSerializer: KSerializer<BASE_RESULT>) : Task<HttpError,HttpResult<RESULT>> {
+        return HttpRequest(method, url, body, bodySerializer, async, user, password, formData, queryParams, multiPartData,
+                headers, json).run<BASE_RESULT, RESULT>(resultSerializer)
+    }
 
 }
 
-class HttpRequest<RESULT : Any>(private val method: HttpMethod,
-                                private val url: String,
-                                private val serializer: KSerializer<RESULT>,
-                                private val body: dynamic,
-                                private val bodySerializer: KSerializer<Any>?,
-                                private val async: Boolean,
-                                private val user: String?,
-                                private val password: String?,
-                                private val successStatuses: Set<Int>,
-                                private val formData: Map<String, Any?>?,
-                                private val queryParams: Map<String, Any?>,
-                                private val multiPartData: List<MultiPartData>?,
-                                private val headers: Map<String, Any?>) {
+private fun getResponseHeaders(request: XMLHttpRequest) =
+        request.getAllResponseHeaders().split("\r\n").mapNotNull {
+            val i = it.indexOf(":")
+            if (i <= 0 || (i + 2) > it.length)
+                null
+            else
+                Pair(it.substring(0, i), it.substring(i + 2))
+        }.toMap()
 
-    fun run() : Task<String,RESULT> =
+class HttpRequest(
+        private val method: HttpMethod,
+        private val url: String,
+        private val body: dynamic,
+        private val bodySerializer: KSerializer<Any>?,
+        private val async: Boolean,
+        private val user: String?,
+        private val password: String?,
+        private val formData: Map<String, Any?>?,
+        private val queryParams: Map<String, Any?>,
+        private val multiPartData: List<MultiPartData>?,
+        private val headers: Map<String, Any?>,
+        private val json: JSON) {
+
+    fun <BASE_RESULT: Any, RESULT : BASE_RESULT?> run(resultSerializer: KSerializer<BASE_RESULT>) : Task<HttpError,HttpResult<RESULT>> =
         Task { onFailure, onSuccess ->
-            Http.request(method.method, url, serializer, onFailure, onSuccess, body, bodySerializer, async, user, password,
-                    successStatuses, formData, queryParams, multiPartData, headers)
+            val request = XMLHttpRequest()
+            try {
+
+                request.onreadystatechange = { _ ->
+                    val status = request.status.toInt()
+                    val responseHeaders = getResponseHeaders(request)
+                    when (request.readyState) {
+                        XMLHttpRequest.DONE ->
+                            try {
+                                if (request.status in 200..299) {
+                                    if (resultSerializer == UnitSerializer) {
+                                        onSuccess(HttpResult(status, Unit as RESULT, responseHeaders))
+                                    } else if (status == 204) {
+                                        onSuccess(HttpResult(status, null as RESULT, responseHeaders))
+                                    } else {
+                                        val response = json.parse(resultSerializer, request.responseText)
+                                        onSuccess(HttpResult(status, response as RESULT, responseHeaders))
+                                    }
+                                } else if (request.status in 300..399) {
+                                    // For what I have understood 3xx means redirection and should be handled by the
+                                    // XMLHttpRequest itself, so if I get here probably there's something wrong.
+                                    // TODO if I want to know that a redirection has happened (not here, but in 2xx statuses)
+                                    //      then I can check responseURL, if it's not the same as the url then a redirection
+                                    //      happened
+                                    onFailure(HttpError(status, request.statusText, null, responseHeaders,
+                                            request.responseText))
+                                } else {
+                                    onFailure(HttpError(status, request.statusText, null, responseHeaders,
+                                            request.responseText))
+                                }
+                            } catch (e: Exception) {
+                                onFailure(HttpError(status, request.statusText,e.message ?: "Unknown error",
+                                        responseHeaders, request.responseText))
+                                console.error(e)
+                            }
+                        XMLHttpRequest.UNSENT -> onFailure(HttpError(0, null,"Unsent message",
+                                responseHeaders, null))
+                    }
+                }
+
+                request.onerror = { _ ->
+                    val responseHeaders = getResponseHeaders(request)
+                    onFailure(HttpError(request.status.toInt(), request.statusText,"Unknown error", responseHeaders, request.responseText))
+                }
+
+                val urlWithQueryParameters: String = urlWithQueryParameters(url, queryParams)
+                //request.withCredentials = username != null
+
+                request.open(method.method, bypassCache(urlWithQueryParameters), async, user, password)
+
+                headers.filter { it.value != null }.forEach {
+                    request.setRequestHeader(it.key, encodeParam(it.value!!)) // is correct to encode? Or get only strings?
+                }
+
+                if (multiPartData != null) {
+                    request.setRequestHeader("Content-Type", "multipart/form-data; boundary=blob")
+                    request.send(encodeMultipartData(multiPartData, "blob"))
+                } else if (body != null && bodySerializer != null) {
+                    request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
+                    request.send(JSON.stringify(bodySerializer, body))
+                } else if (formData != null) {
+                    request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
+                    request.send(encodeParams(formData))
+                } else
+                    request.send()
+            } catch (e: Exception) {
+                onFailure(HttpError(request.status.toInt(), request.statusText, "Error sending the request: " + e.message,
+                        getResponseHeaders(request), request.responseText))
+            }
         }
 
 }
 
 interface HttpRequestRunnerConfiguration {
 
-    fun configure(runner: HttpRequestRunner<*>)
+    fun configure(runner: HttpRequestRunner)
 
 }
 
 interface Authentication : HttpRequestRunnerConfiguration
 
 class BasicAuthentication(private val username: String, private val password: String) : Authentication {
-    override fun configure(runner: HttpRequestRunner<*>) {
+    override fun configure(runner: HttpRequestRunner) {
         runner.header("Authorization", "Basic " + window.btoa("$username:$password"))
     }
 
