@@ -1,5 +1,6 @@
 package org.iuv.test.controllers
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -13,15 +14,15 @@ import org.iuv.test.models.Pet
 interface PetStoreController {
 
     @GetMapping("/pets")
-    fun findPets(@RequestParam tags : List<String>?, @RequestParam limit : Int?) : List<Pet>
+    fun findPets(@RequestParam tags : List<String>?, @RequestParam limit : Int?) : ResponseEntity<List<Pet>>
 
     @PostMapping("/pets")
-    fun addPet(@RequestBody body : NewPet) : Pet
+    fun addPet(@RequestBody body : NewPet) : ResponseEntity<Pet>
 
     @GetMapping("/pets/{id}")
-    fun findPetById(@PathVariable id : Long) : Pet
+    fun findPetById(@PathVariable id : Long) : ResponseEntity<Pet>
 
     @DeleteMapping("/pets/{id}")
-    fun deletePet(@PathVariable id : Long) : Error?
+    fun deletePet(@PathVariable id : Long) : ResponseEntity<Error?>
 
 }

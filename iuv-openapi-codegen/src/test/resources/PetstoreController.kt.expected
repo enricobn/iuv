@@ -1,5 +1,6 @@
 package org.iuv.test.controllers
 
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -18,63 +19,63 @@ import org.iuv.test.models.User
 interface PetStoreController {
 
     @PostMapping("/pet")
-    fun addPet(@RequestBody body : Pet) : Pet
+    fun addPet(@RequestBody body : Pet) : ResponseEntity<Pet>
 
     @PutMapping("/pet")
-    fun updatePet(@RequestBody body : Pet) : Pet
+    fun updatePet(@RequestBody body : Pet) : ResponseEntity<Pet>
 
     @GetMapping("/pet/findByStatus")
-    fun findPetsByStatus(@RequestParam status : List<String>) : List<Pet>
+    fun findPetsByStatus(@RequestParam status : List<String>) : ResponseEntity<List<Pet>>
 
     @GetMapping("/pet/findByTags")
-    fun findPetsByTags(@RequestParam tags : List<String>) : List<Pet>
+    fun findPetsByTags(@RequestParam tags : List<String>) : ResponseEntity<List<Pet>>
 
     @GetMapping("/pet/{petId}")
-    fun getPetById(@PathVariable petId : Long) : Pet
+    fun getPetById(@PathVariable petId : Long) : ResponseEntity<Pet>
 
     @PostMapping("/pet/{petId}")
-    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String?, @RequestParam status : String?)
+    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String?, @RequestParam status : String?) : ResponseEntity<Unit>
 
     @DeleteMapping("/pet/{petId}")
-    fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long)
+    fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long) : ResponseEntity<Unit>
 
     @PostMapping("/pet/{petId}/uploadImage")
-    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String?, @RequestPart file : MultipartFile?) : ApiResponse
+    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String?, @RequestPart file : MultipartFile?) : ResponseEntity<ApiResponse>
 
     @GetMapping("/store/inventory")
-    fun getInventory() : Map<String, Int>
+    fun getInventory() : ResponseEntity<Map<String, Int>>
 
     @PostMapping("/store/order")
-    fun placeOrder(@RequestBody body : Order) : Order
+    fun placeOrder(@RequestBody body : Order) : ResponseEntity<Order>
 
     @GetMapping("/store/order/{orderId}")
-    fun getOrderById(@PathVariable orderId : Long) : Order
+    fun getOrderById(@PathVariable orderId : Long) : ResponseEntity<Order>
 
     @DeleteMapping("/store/order/{orderId}")
-    fun deleteOrder(@PathVariable orderId : Long)
+    fun deleteOrder(@PathVariable orderId : Long) : ResponseEntity<Unit>
 
     @PostMapping("/user")
-    fun createUser(@RequestBody body : User)
+    fun createUser(@RequestBody body : User) : ResponseEntity<Unit>
 
     @PostMapping("/user/createWithArray")
-    fun createUsersWithArrayInput(@RequestBody body : List<User>)
+    fun createUsersWithArrayInput(@RequestBody body : List<User>) : ResponseEntity<Unit>
 
     @PostMapping("/user/createWithList")
-    fun createUsersWithListInput(@RequestBody body : List<User>)
+    fun createUsersWithListInput(@RequestBody body : List<User>) : ResponseEntity<Unit>
 
     @GetMapping("/user/login")
-    fun loginUser(@RequestParam username : String, @RequestParam password : String) : String
+    fun loginUser(@RequestParam username : String, @RequestParam password : String) : ResponseEntity<String>
 
     @GetMapping("/user/logout")
-    fun logoutUser()
+    fun logoutUser() : ResponseEntity<Unit>
 
     @GetMapping("/user/{username}")
-    fun getUserByName(@PathVariable username : String) : User
+    fun getUserByName(@PathVariable username : String) : ResponseEntity<User>
 
     @PutMapping("/user/{username}")
-    fun updateUser(@PathVariable username : String, @RequestBody body : User) : User
+    fun updateUser(@PathVariable username : String, @RequestBody body : User) : ResponseEntity<User>
 
     @DeleteMapping("/user/{username}")
-    fun deleteUser(@PathVariable username : String)
+    fun deleteUser(@PathVariable username : String) : ResponseEntity<Unit>
 
 }

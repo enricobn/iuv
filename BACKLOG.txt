@@ -4,7 +4,6 @@ Doing
   - client : pass requestParam in url
   - anonymous enum?
   - required parameters (if then nullable)
-  - use spring ResponseEntity as return type
   - controller documentation
 - cli for create new project
   - view

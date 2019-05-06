@@ -177,8 +177,6 @@ data class IUVAPIOperation(val path: String, val description: String?, val op: I
     @Suppress("unused")
     val descriptions = description?.split("\n")?.map { it.trim() }
 
-    @Suppress("unused")
-    val hasResultType = resultType.type != "Unit"
 }
 
 data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
@@ -295,7 +293,8 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 IUVImport("org.iuv.core.HttpError", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
                 IUVImport("org.iuv.core.HttpResult", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
                 IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL)),
-                IUVImport("org.iuv.core.Authentication", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))
+                IUVImport("org.iuv.core.Authentication", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.springframework.http.ResponseEntity", setOf(IUVImportType.CONTROLLER))
         )
 
         val allPaths = api.paths.map { toIUVAPIPath(it) }
