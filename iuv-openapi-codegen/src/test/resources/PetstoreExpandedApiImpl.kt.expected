@@ -2,12 +2,14 @@ package org.iuv.test.client
 
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.internal.ArrayListSerializer
-import kotlinx.serialization.internal.UnitSerializer
 import kotlinx.serialization.serializer
 import org.iuv.core.Authentication
 import org.iuv.core.Http
+import org.iuv.core.HttpError
 import org.iuv.core.HttpMethod
+import org.iuv.core.HttpResult
 import org.iuv.shared.Task
+import org.iuv.test.models.Error
 import org.iuv.test.models.NewPet
 import org.iuv.test.models.Pet
 
@@ -19,8 +21,8 @@ class PetStoreApiImpl(private val baseUrl : String = "http://petstore.swagger.io
     }
 
     @ImplicitReflectionSerializer
-    override fun findPets(tags : List<String>?, limit : Int?) : Task<String,List<Pet>> {
-        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pets", ArrayListSerializer(Pet::class.serializer()))
+    override fun findPets(tags : List<String>?, limit : Int?) : Task<HttpError,HttpResult<List<Pet>>> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pets")
             .queryParams(
                 "tags" to tags,
                 "limit" to limit
@@ -30,41 +32,41 @@ class PetStoreApiImpl(private val baseUrl : String = "http://petstore.swagger.io
                 runner.configuration(it)
             }
         }
-        return runner.run()
+        return runner.run(ArrayListSerializer(Pet::class.serializer()))
     }
 
     @ImplicitReflectionSerializer
-    override fun addPet(body : NewPet) : Task<String,Pet> {
-        val runner = Http.runner(HttpMethod.Post, "$baseUrl/pets", Pet::class.serializer())
+    override fun addPet(body : NewPet) : Task<HttpError,HttpResult<Pet>> {
+        val runner = Http.runner(HttpMethod.Post, "$baseUrl/pets")
             .body(body, NewPet::class.serializer())
         authentication.let {
             if (it != null) {
                 runner.configuration(it)
             }
         }
-        return runner.run()
+        return runner.run(Pet::class.serializer())
     }
 
     @ImplicitReflectionSerializer
-    override fun findPetById(id : Long) : Task<String,Pet> {
-        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pets/$id", Pet::class.serializer())
+    override fun findPetById(id : Long) : Task<HttpError,HttpResult<Pet>> {
+        val runner = Http.runner(HttpMethod.Get, "$baseUrl/pets/$id")
         authentication.let {
             if (it != null) {
                 runner.configuration(it)
             }
         }
-        return runner.run()
+        return runner.run(Pet::class.serializer())
     }
 
     @ImplicitReflectionSerializer
-    override fun deletePet(id : Long) : Task<String,Unit> {
-        val runner = Http.runner(HttpMethod.Delete, "$baseUrl/pets/$id", UnitSerializer)
+    override fun deletePet(id : Long) : Task<HttpError,HttpResult<Error?>> {
+        val runner = Http.runner(HttpMethod.Delete, "$baseUrl/pets/$id")
         authentication.let {
             if (it != null) {
                 runner.configuration(it)
             }
         }
-        return runner.run()
+        return runner.run<Error , Error?>(Error::class.serializer())
     }
 
 }

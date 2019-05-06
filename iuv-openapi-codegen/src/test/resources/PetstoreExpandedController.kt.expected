@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import org.iuv.test.models.Error
 import org.iuv.test.models.NewPet
 import org.iuv.test.models.Pet
 
@@ -21,6 +22,6 @@ interface PetStoreController {
     fun findPetById(@PathVariable id : Long) : Pet
 
     @DeleteMapping("/pets/{id}")
-    fun deletePet(@PathVariable id : Long)
+    fun deletePet(@PathVariable id : Long) : Error?
 
 }

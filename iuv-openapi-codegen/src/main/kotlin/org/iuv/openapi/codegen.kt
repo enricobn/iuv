@@ -129,8 +129,10 @@ enum class IUVAPIOperationType(val controllerAnnotationClass: String, @Suppress(
         controllerAnnotationClass.split('.').last() + "(\"$path\")"
 }
 
-data class IUVAPIOperation(val path: String, val description: String?, val op: IUVAPIOperationType, val id: String, val parameters: List<IUVAPIParameter>,
-                           val resultType: IUVAPIType, val bodyType: IUVAPIType?, override var last: Boolean = false) : Last {
+data class IUVAPIOperation(val path: String, val description: String?, val op: IUVAPIOperationType, val id: String,
+                           val parameters: List<IUVAPIParameter>, val resultType: IUVAPIType, val bodyType: IUVAPIType?,
+                           val nullableResult: Boolean,
+                           override var last: Boolean = false) : Last {
 
     init {
         parameters.calculateLast()
@@ -290,6 +292,8 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
                 IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.iuv.core.HttpError", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
+                IUVImport("org.iuv.core.HttpResult", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
                 IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Authentication", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))
         )
@@ -419,8 +423,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
         }
     }
 
-    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation,
-                                  responses: Set<String> = setOf("200", "201", "204", "205", "302")): IUVAPIOperation {
+    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation): IUVAPIOperation {
         var schemaForProperties : Schema<*>? = null
 
         var multiPartForm = false
@@ -443,12 +446,21 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     }
                 } else null
 
-        val response = op.responses.filterKeys { responses.contains(it) || it == "default" }.values.firstOrNull()
+
+        val responseKeysFilter: (String) -> Boolean = { it.startsWith("2") && it != "204" || it == "default" }
+        val responses = op.responses.filterKeys(responseKeysFilter).values
+
+        if (responses.size > 1) {
+            val validKeys = op.responses.keys.filter(responseKeysFilter)
+            LOGGER.warn("$path '$type' operation: found more than one valid response (${validKeys.joinToString()}), first is taken.")
+        }
+
+        val response = responses.firstOrNull()
 
         val resultType =
             if (response == null) {
                 if (type == IUVAPIOperationType.Get) {
-                    throw UnsupportedOpenAPISpecification("No definition for '$type' operation for responses ${responses.joinToString()}.")
+                    throw UnsupportedOpenAPISpecification("No definition for '$type' operation response.")
                 } else if (type == IUVAPIOperationType.Delete) {
                     unitType
                 } else bodyType ?: unitType
@@ -462,6 +474,8 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                         ?: throw UnsupportedOpenAPISpecification("Unsupported response content of '$type' operation : " +
                             "only unit (void) response or JSON are supported.")
             }
+
+        val nullableResponse = resultType != unitType && op.responses.keys.contains("204")
 
         val parameters = getIUVAPIParameters(op, bodyType?.toIUVAPIType()) +
                 if (schemaForProperties == null) emptyList() else getIUVAPIParametersFromSchemaProperties(schemaForProperties,
@@ -488,7 +502,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
         }
 
         return IUVAPIOperation(path, op.description, type, operationId, parameters, resultType.toIUVAPIType(),
-                bodyType?.toIUVAPIType())
+                bodyType?.toIUVAPIType(), nullableResponse)
     }
 
     private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?) : List<IUVAPIParameter> {

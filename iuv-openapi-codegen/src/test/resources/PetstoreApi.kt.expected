@@ -1,6 +1,8 @@
 package org.iuv.test.client
 
 import org.iuv.core.Authentication
+import org.iuv.core.HttpError
+import org.iuv.core.HttpResult
 import org.iuv.core.MultipartFile
 import org.iuv.shared.Task
 import org.iuv.test.models.ApiResponse
@@ -11,30 +13,30 @@ import org.iuv.test.models.User
 interface PetStoreApi {
     fun authenticate(authentication: Authentication)
 
-    fun addPet(body : Pet) : Task<String,Pet>
+    fun addPet(body : Pet) : Task<HttpError,HttpResult<Pet>>
 
-    fun updatePet(body : Pet) : Task<String,Pet>
+    fun updatePet(body : Pet) : Task<HttpError,HttpResult<Pet>>
 
     /**
      * Multiple status values can be provided with comma separated strings
      *
      * @param status Status values that need to be considered for filter
      */
-    fun findPetsByStatus(status : List<String>) : Task<String,List<Pet>>
+    fun findPetsByStatus(status : List<String>) : Task<HttpError,HttpResult<List<Pet>>>
 
     /**
      * Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
      *
      * @param tags Tags to filter by
      */
-    fun findPetsByTags(tags : List<String>) : Task<String,List<Pet>>
+    fun findPetsByTags(tags : List<String>) : Task<HttpError,HttpResult<List<Pet>>>
 
     /**
      * Returns a single pet
      *
      * @param petId ID of pet to return
      */
-    fun getPetById(petId : Long) : Task<String,Pet>
+    fun getPetById(petId : Long) : Task<HttpError,HttpResult<Pet>>
 
     /**
      *
@@ -42,13 +44,13 @@ interface PetStoreApi {
      * @param name Updated name of the pet
      * @param status Updated status of the pet
      */
-    fun updatePetWithForm(petId : Long, name : String?, status : String?) : Task<String,Unit>
+    fun updatePetWithForm(petId : Long, name : String?, status : String?) : Task<HttpError,HttpResult<Unit>>
 
     /**
      *
      * @param petId Pet id to delete
      */
-    fun deletePet(api_key : String?, petId : Long) : Task<String,Unit>
+    fun deletePet(api_key : String?, petId : Long) : Task<HttpError,HttpResult<Unit>>
 
     /**
      *
@@ -56,67 +58,67 @@ interface PetStoreApi {
      * @param additionalMetadata Additional data to pass to server
      * @param file file to upload
      */
-    fun uploadFile(petId : Long, additionalMetadata : String?, file : MultipartFile?) : Task<String,ApiResponse>
+    fun uploadFile(petId : Long, additionalMetadata : String?, file : MultipartFile?) : Task<HttpError,HttpResult<ApiResponse>>
 
     /**
      * Returns a map of status codes to quantities
      *
      */
-    fun getInventory() : Task<String,Map<String, Int>>
+    fun getInventory() : Task<HttpError,HttpResult<Map<String, Int>>>
 
-    fun placeOrder(body : Order) : Task<String,Order>
+    fun placeOrder(body : Order) : Task<HttpError,HttpResult<Order>>
 
     /**
      * For valid response try integer IDs with value >= 1 and <= 10. Other values will generated exceptions
      *
      * @param orderId ID of pet that needs to be fetched
      */
-    fun getOrderById(orderId : Long) : Task<String,Order>
+    fun getOrderById(orderId : Long) : Task<HttpError,HttpResult<Order>>
 
     /**
      * For valid response try integer IDs with positive integer value. Negative or non-integer values will generate API errors
      *
      * @param orderId ID of the order that needs to be deleted
      */
-    fun deleteOrder(orderId : Long) : Task<String,Unit>
+    fun deleteOrder(orderId : Long) : Task<HttpError,HttpResult<Unit>>
 
     /**
      * This can only be done by the logged in user.
      *
      */
-    fun createUser(body : User) : Task<String,Unit>
+    fun createUser(body : User) : Task<HttpError,HttpResult<Unit>>
 
-    fun createUsersWithArrayInput(body : List<User>) : Task<String,Unit>
+    fun createUsersWithArrayInput(body : List<User>) : Task<HttpError,HttpResult<Unit>>
 
-    fun createUsersWithListInput(body : List<User>) : Task<String,Unit>
+    fun createUsersWithListInput(body : List<User>) : Task<HttpError,HttpResult<Unit>>
 
     /**
      *
      * @param username The user name for login
      * @param password The password for login in clear text
      */
-    fun loginUser(username : String, password : String) : Task<String,String>
+    fun loginUser(username : String, password : String) : Task<HttpError,HttpResult<String>>
 
-    fun logoutUser() : Task<String,Unit>
+    fun logoutUser() : Task<HttpError,HttpResult<Unit>>
 
     /**
      *
      * @param username The name that needs to be fetched. Use user1 for testing.
      */
-    fun getUserByName(username : String) : Task<String,User>
+    fun getUserByName(username : String) : Task<HttpError,HttpResult<User>>
 
     /**
      * This can only be done by the logged in user.
      *
      * @param username name that need to be updated
      */
-    fun updateUser(username : String, body : User) : Task<String,User>
+    fun updateUser(username : String, body : User) : Task<HttpError,HttpResult<User>>
 
     /**
      * This can only be done by the logged in user.
      *
      * @param username The name that needs to be deleted
      */
-    fun deleteUser(username : String) : Task<String,Unit>
+    fun deleteUser(username : String) : Task<HttpError,HttpResult<Unit>>
 
 }

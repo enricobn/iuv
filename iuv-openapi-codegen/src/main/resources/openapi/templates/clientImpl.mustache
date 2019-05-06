@@ -16,8 +16,8 @@ class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : 
   {{#operations}}
 
     @ImplicitReflectionSerializer
-    override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<String,{{{resultType}}}> {
-        val runner = Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}", {{resultType.serializer.code}})
+    override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<HttpError,HttpResult<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>> {
+        val runner = Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}")
             {{#bodyType}}
             .body(body, {{serializer.code}})
             {{/bodyType}}
@@ -50,7 +50,12 @@ class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : 
                 runner.configuration(it)
             }
         }
-        return runner.run()
+        {{#nullableResult}}
+        return runner.run<{{{resultType}}} , {{{resultType}}}?>({{resultType.serializer.code}})
+        {{/nullableResult}}
+        {{^nullableResult}}
+        return runner.run({{resultType.serializer.code}})
+        {{/nullableResult}}
     }
   {{/operations}}
 {{/api.paths}}
