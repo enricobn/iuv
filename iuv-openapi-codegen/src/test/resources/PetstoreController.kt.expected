@@ -34,13 +34,13 @@ interface PetStoreController {
     fun getPetById(@PathVariable petId : Long) : ResponseEntity<Pet>
 
     @PostMapping("/pet/{petId}")
-    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String?, @RequestParam status : String?) : ResponseEntity<Unit>
+    fun updatePetWithForm(@PathVariable petId : Long, @RequestParam name : String? = null, @RequestParam status : String? = null) : ResponseEntity<Unit>
 
     @DeleteMapping("/pet/{petId}")
-    fun deletePet(@RequestHeader api_key : String?, @PathVariable petId : Long) : ResponseEntity<Unit>
+    fun deletePet(@RequestHeader api_key : String? = null, @PathVariable petId : Long) : ResponseEntity<Unit>
 
     @PostMapping("/pet/{petId}/uploadImage")
-    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String?, @RequestPart file : MultipartFile?) : ResponseEntity<ApiResponse>
+    fun uploadFile(@PathVariable petId : Long, @RequestParam additionalMetadata : String? = null, @RequestPart file : MultipartFile? = null) : ResponseEntity<ApiResponse>
 
     @GetMapping("/store/inventory")
     fun getInventory() : ResponseEntity<Map<String, Int>>

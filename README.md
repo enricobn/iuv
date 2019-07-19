@@ -15,7 +15,7 @@ The first time it will be slow since it will download node js, yarn and all java
 
 That task creates a "web" folder under iuv-examples/build, then you have to open index.html with a browser.  
 
-### Build command line tool
+### Build code generation command line tool
 From the command line : `./gradlew iuv-openapi-codegen:shadowJar`  
 
 An executable jar file in iuv-openapi-codegen/build/libs named *-all.jar should 

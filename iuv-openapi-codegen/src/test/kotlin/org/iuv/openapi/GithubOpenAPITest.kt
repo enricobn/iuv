@@ -1,6 +1,7 @@
 package org.iuv.openapi
 
 import org.junit.Assert
+import org.junit.Assert.assertEquals
 import org.junit.BeforeClass
 import org.junit.Test
 import java.io.StringWriter
@@ -35,7 +36,7 @@ class GithubOpenAPITest {
 
             val expected = getResource("/GithubApiImpl.kt.expected").readText()
 
-            Assert.assertEquals(expected, it.toString())
+            assertEquals(expected, it.toString())
         }
     }
 
@@ -47,10 +48,31 @@ class GithubOpenAPITest {
 
             val expected = getResource("/Github.kt.expected").readText()
 
-            Assert.assertEquals(expected, it.toString())
+            assertEquals(expected, it.toString())
         }
     }
 
+    @Test
+    fun issuesParameters() {
+        val issues = server.apis.first { it.name == "Issues" }
+
+        val parametersNames = issues.paths[0].operations[0].parameters.map { it.name }
+
+        assertEquals(listOf("filter", "state", "labels", "sort", "direction", "since", "Accept"), parametersNames)
+    }
+
+    @Test
+    fun issuesParametersSorted() {
+        val context = OpenAPIWriteContext("org.iuv.test.controllers",
+                "org.iuv.test.client", "org.iuv.test.models", true, true)
+        val server =  OpenAPIReader.parse(org.iuv.openapi.getResource("/github.yaml"), "Github", context)!!
+
+        val issues = server.apis.first { it.name == "Issues" }
+
+        val parametersNames = issues.paths[0].operations[0].parameters.map { it.name }
+
+        assertEquals(listOf("labels", "filter", "state", "sort", "direction", "since", "Accept"), parametersNames)
+    }
 }
 
 private fun getResource(resource: String) = GithubOpenAPITest::class.java.getResource(resource)

@@ -14,7 +14,7 @@ import org.iuv.test.models.Pet
 interface PetStoreController {
 
     @GetMapping("/pets")
-    fun findPets(@RequestParam tags : List<String>?, @RequestParam limit : Int?) : ResponseEntity<List<Pet>>
+    fun findPets(@RequestParam tags : List<String>? = null, @RequestParam limit : Int? = null) : ResponseEntity<List<Pet>>
 
     @PostMapping("/pets")
     fun addPet(@RequestBody body : NewPet) : ResponseEntity<Pet>

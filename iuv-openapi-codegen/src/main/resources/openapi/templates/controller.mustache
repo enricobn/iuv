@@ -11,7 +11,7 @@ interface {{api.name}}Controller {
   {{#operations}}
 
     @{{{operationAnnotation}}}
-    fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : ResponseEntity<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>
+    fun {{name}}({{#parameters}}{{> parameterAnnotations }} {{name}} : {{{typeAndDefault}}}{{^last}}, {{/last}}{{/parameters}}) : ResponseEntity<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>
   {{/operations}}
 {{/api.paths}}
 

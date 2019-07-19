@@ -2,8 +2,7 @@ Doing
 -------
 - cli for OpenApi
   - client : pass requestParam in url
-  - anonymous enum?
-  - required parameters (if then nullable)
+  - anonymous enum
   - controller documentation
 - cli for create new project
   - view
@@ -11,10 +10,13 @@ Doing
   - client api
   - why I cannot add package to test and main?
   - add test or make Karma work if there are no tests
-- can I use build instead of shadowJar?
 
 Next
 -----
+- command line tools:
+    - can I use build instead of shadowJar?
+    - is it correct to sort properties and parameters? For now I have added two parameters to the command line tool,
+      by default they are false
 - data class for exceptions for client
 - ServletRouteMatcher could have a similar Interface of the IUVRouter RouteMatcher
 - Intellij does not compile, there are not errors, it simply don't compile!!!

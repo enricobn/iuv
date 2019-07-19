@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.CliktCommand
 import com.github.ajalt.clikt.core.subcommands
 import com.github.ajalt.clikt.parameters.arguments.argument
 import com.github.ajalt.clikt.parameters.options.default
+import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.file
 import org.iuv.openapi.IUVAPI
@@ -32,6 +33,8 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
     private val clientPackage by argument(help="Client package")
     private val modelSourceFolder by argument(help="Model source folder").file(exists = true, fileOkay = false)
     private val modelPackage by argument(help="Model package")
+    private val sortProperties by option(help = "Sort properties").flag()
+    private val sortParameters by option(help = "Sort parameters").flag()
 
     override fun run() {
         getSwaggerFiles(swaggerFilesFolder)
@@ -41,7 +44,7 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
                     val serverName = toServerName(it)
 
                     val openAPIWriteContext = OpenAPIWriteContext(controllerPackage, clientPackage,
-                            "$modelPackage.${serverName.toLowerCase()}")
+                            "$modelPackage.${serverName.toLowerCase()}", sortProperties, sortParameters)
 
                     val server = OpenAPIReader.parse(it.toURI().toURL(), serverName, openAPIWriteContext)
 

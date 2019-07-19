@@ -4,10 +4,6 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerialName
 
 {{#server.components}}
-{{#aliasFor}}
-typealias {{name}} = {{{aliasFor.type}}}
-{{/aliasFor}}
-{{^aliasFor}}
 {{#hasDescription}}
 /**
  {{#descriptions}}
@@ -15,6 +11,13 @@ typealias {{name}} = {{{aliasFor.type}}}
  {{/descriptions}}
  */
 {{/hasDescription}}
+{{#isEnum}}
+enum class {{name}} {
+{{#enumValues}}
+    {{{value}}}{{^last}},{{/last}}
+{{/enumValues}}
+}{{/isEnum}}
+{{^isEnum}}
 @Serializable
 data class {{name}}(
 {{#properties}}
@@ -27,9 +30,9 @@ data class {{name}}(
      */
     {{/hasDescription}}
     @SerialName("{{{key}}}")
-    val {{{name}}} : {{{type}}}{{#optional}}? = null{{/optional}}{{^last}},{{\n}}{{/last}}
+    val {{{name}}} : {{{typeAndDefault}}}{{^last}},{{\n}}{{/last}}
 {{/properties}}
-){{/aliasFor}}
+){{/isEnum}}
 {{^last}}
 
 

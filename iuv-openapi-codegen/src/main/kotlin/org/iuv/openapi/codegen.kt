@@ -28,7 +28,8 @@ interface Last {
     var last: Boolean
 }
 
-data class OpenAPIWriteContext(val controllerPackage: String, val clientPackage: String, val modelPackage: String)
+data class OpenAPIWriteContext(val controllerPackage: String, val clientPackage: String, val modelPackage: String,
+                               val sortProperties: Boolean = false, val sortParameters: Boolean = false)
 
 data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val imports: Set<IUVImport>, val innerComponent :
         IUVAPIComponent? = null) {
@@ -39,8 +40,13 @@ data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val im
 
 data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false, val imports: Set<String> = emptySet()) : Last
 
-data class IUVAPIComponentProperty(val key: String, val name: String, val type: IUVAPIType, val optional: Boolean,
-                                   val description: String?, override var last: Boolean = false) : Last {
+data class IUVAPIComponentProperty(val key: String, val name: String, val type: IUVAPIType, val required: Boolean,
+                                   val description: String?, val default: String?, override var last: Boolean = false) : Last {
+
+    @Suppress("unused")
+    val typeAndDefault = toTypeAndDefault(type.type, required, default)
+
+    // properties used by mustache templates
     @Suppress("private,unused")
     val descriptions = description?.split("\n")?.map { it.trim() }
 
@@ -49,17 +55,48 @@ data class IUVAPIComponentProperty(val key: String, val name: String, val type: 
 
 }
 
-data class IUVAPIComponent(val name: String, val properties: List<IUVAPIComponentProperty>, override var last: Boolean = false,
-                           val aliasFor: IUVAPIType? = null, val key : String, val description: String?) : Last {
-    init {
-        properties.calculateLast()
+fun toTypeAndDefault(type: String, required: Boolean, default: String? ) =
+        type + if (!required) {
+            if (default == null)
+                "? = null"
+            else
+                "? = $default"
+        } else {
+            if (default == null)
+                ""
+            else
+                " = $default"
+        }
+
+data class WithLast<T>(val value: T, override var last: Boolean = false) : Last
+
+data class IUVAPIComponent(val name: String, val _properties: List<IUVAPIComponentProperty>, override var last: Boolean = false,
+                           val aliasFor: IUVAPIType? = null, val key: String, val description: String?,
+                           val _enumValues: List<String>?, val sortProperties: Boolean) : Last {
+
+    // properties used by mustache templates
+    @Suppress("unused")
+    val properties: List<IUVAPIComponentProperty> by lazy {
+      if (sortProperties)
+          _properties.sortedBy { if (it.default == null && it.required) 1 else 2 }.calculateLast()
+        else
+          _properties.calculateLast()
     }
+
+    @Suppress("unused")
+    val enumValues : List<WithLast<String>>? by lazy {
+        _enumValues?.map { WithLast(it) }?.calculateLast()
+    }
+
+    @Suppress("unused")
+    val isEnum = _enumValues != null
 
     @Suppress("private,unused")
     val descriptions = description?.split("\n")?.map { it.trim() }
 
     @Suppress("unused")
     val hasDescription = description != null
+
 }
 
 enum class ParameterType(val controllerAnnotationClass: String) {
@@ -73,8 +110,12 @@ enum class ParameterType(val controllerAnnotationClass: String) {
 }
 
 data class IUVAPIParameter(val name: String, val description: String?, val type: IUVAPIType, val parameterType: ParameterType,
-                           val required: Boolean, override var last: Boolean = false) : Last {
+                           val required: Boolean, val default: String?, override var last: Boolean = false) : Last {
     // properties used by mustache templates
+
+    @Suppress("unused")
+    val typeAndDefault = toTypeAndDefault(type.type, required, default)
+
     @Suppress("unused")
     val pathVariable = parameterType == ParameterType.PATH_VARIABLE
 
@@ -130,19 +171,34 @@ enum class IUVAPIOperationType(val controllerAnnotationClass: String, @Suppress(
 }
 
 data class IUVAPIOperation(val path: String, val description: String?, val op: IUVAPIOperationType, val id: String,
-                           val parameters: List<IUVAPIParameter>, val resultType: IUVAPIType, val bodyType: IUVAPIType?,
-                           val nullableResult: Boolean,
+                           val _parameters: List<IUVAPIParameter>, val resultType: IUVAPIType, val bodyType: IUVAPIType?,
+                           val nullableResult: Boolean, val sortParameters: Boolean,
                            override var last: Boolean = false) : Last {
-
-    init {
-        parameters.calculateLast()
-    }
 
     fun name() : String {
         return id.split(" ").mapIndexed { i,s -> if (i != 0) s.capitalize() else s }.joinToString("")
     }
 
     // properties used by mustache templates
+
+    val parameters: List<IUVAPIParameter> by lazy {
+        if (sortParameters) {
+            _parameters.sortedBy {
+                val forDefault = if (it.default == null && it.required) 10 else 20
+                val forType = when (it.parameterType) {
+                    ParameterType.PATH_VARIABLE -> 1
+                    ParameterType.REQUEST_PARAM -> 2
+                    ParameterType.MULTI_PART_PARAM -> 3
+                    ParameterType.MULTI_PART_FILE_PARAM -> 3
+                    ParameterType.HEADER -> 4
+                    else -> 5
+                }
+                forDefault + forType
+            }.calculateLast()
+        } else {
+            _parameters.calculateLast()
+        }
+    }
 
     @Suppress("unused")
     val operationAnnotation = op.annotation(path)
@@ -381,16 +437,21 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
 
                 if (referenceComponent == null) {
                     val aliasFor = alias.toIUVAPIType()
-                    IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key, description = description)
+                    IUVAPIComponent(name, emptyList(), aliasFor = aliasFor, key = key, description = description,
+                        _enumValues = null, sortProperties = context.sortProperties)
                 } else referenceComponent
 
             }
             is ConcreteParserComponent ->
-                IUVAPIComponent(name, properties.map { it.toIUVAPIProperty() }, key = key, description = description)
+                IUVAPIComponent(name, properties.map { it.toIUVAPIProperty() }, key = key, description = description,
+                    _enumValues = null, sortProperties = context.sortProperties)
+            is EnumParserComponent ->
+                IUVAPIComponent(name, emptyList(), key = key, _enumValues = this.values, description = description,
+                    sortProperties = context.sortProperties)
         }
 
     private fun ParserProperty.toIUVAPIProperty() =
-            IUVAPIComponentProperty(key, name, type.toIUVAPIType(), optional, description)
+            IUVAPIComponentProperty(key, name, type.toIUVAPIType(), required, description, default)
 
     private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
         val pathItem = pathEntry.value
@@ -447,6 +508,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
 
 
         val responseKeysFilter: (String) -> Boolean = { it.startsWith("2") && it != "204" || it == "default" }
+
         val responses = op.responses.filterKeys(responseKeysFilter).values
 
         if (responses.size > 1) {
@@ -501,7 +563,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
         }
 
         return IUVAPIOperation(path, op.description, type, operationId, parameters, resultType.toIUVAPIType(),
-                bodyType?.toIUVAPIType(), nullableResponse)
+                bodyType?.toIUVAPIType(), nullableResponse, sortParameters = context.sortParameters)
     }
 
     private fun getIUVAPIParameters(op: Operation, bodyType: IUVAPIType?) : List<IUVAPIParameter> {
@@ -512,19 +574,20 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     if ((it.style != null && it.style != Parameter.StyleEnum.FORM) || (it.explode != null && !it.explode)) {
                         throw UnsupportedOpenAPISpecification("Parameter ${it.name}: unsupported parameter style, only form and explode true is supported.")
                     }
-                    IUVAPIParameter(it.name, it.description, type, ParameterType.REQUEST_PARAM, it.required ?: false)
+                    IUVAPIParameter(it.name, it.description, type, ParameterType.REQUEST_PARAM, it.required ?: false, getDefault(it.schema.default))
                 } catch (e: NullPointerException) {
                     throw e
                 }
             } else if (it.`in` == "header") {
-                IUVAPIParameter(it.name, it.description, type, ParameterType.HEADER, it.required ?: false)
+                IUVAPIParameter(it.name, it.description, type, ParameterType.HEADER, it.required ?: false, getDefault(it.schema.default))
             } else {
-                IUVAPIParameter(it.name, it.description, type, ParameterType.PATH_VARIABLE, it.required ?: false)
+                // path parameters are always required
+                IUVAPIParameter(it.name, it.description, type, ParameterType.PATH_VARIABLE, true, null)
             }
         }.orEmpty()
 
         if (bodyType != null) {
-            return parameters + IUVAPIParameter("body", null, bodyType, ParameterType.REQUEST_BODY, true)
+            return parameters + IUVAPIParameter("body", null, bodyType, ParameterType.REQUEST_BODY, true, null)
         }
 
         return parameters
@@ -539,7 +602,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                         ParameterType.MULTI_PART_FILE_PARAM
                     else ParameterType.MULTI_PART_PARAM
                 else ParameterType.FORM_PARAM,
-                (schema.required?.contains(it.key) ?: false)) }
+                (schema.required?.contains(it.key) ?: false), getDefault(it.value.default)) }
     }
 
     private fun ParserType.toIUVAPIType(): IUVAPIType =
@@ -581,6 +644,12 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                         IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
                                 imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
                         itemsType.imports, itemsType.innerComponent)
+            }
+            is EnumParserType -> {
+                IUVAPIType(name,
+                        IUVAPISerializer("", "EnumSerializer($name::class)",
+                                imports = setOf("kotlinx.serialization.internal.EnumSerializer")),
+                        emptySet(), null)
             }
         }
 

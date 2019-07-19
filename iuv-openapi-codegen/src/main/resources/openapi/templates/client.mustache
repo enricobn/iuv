@@ -27,7 +27,7 @@ interface {{api.name}}Api {
      {{/parameters}}
      */
     {{/hasDescription}}
-    fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<HttpError,HttpResult<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>>
+    fun {{name}}({{#parameters}}{{name}} : {{{typeAndDefault}}}{{^last}}, {{/last}}{{/parameters}}) : Task<HttpError,HttpResult<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>>
   {{/operations}}
 {{/api.paths}}
 

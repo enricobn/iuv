@@ -44,13 +44,13 @@ interface PetStoreApi {
      * @param name Updated name of the pet
      * @param status Updated status of the pet
      */
-    fun updatePetWithForm(petId : Long, name : String?, status : String?) : Task<HttpError,HttpResult<Unit>>
+    fun updatePetWithForm(petId : Long, name : String? = null, status : String? = null) : Task<HttpError,HttpResult<Unit>>
 
     /**
      *
      * @param petId Pet id to delete
      */
-    fun deletePet(api_key : String?, petId : Long) : Task<HttpError,HttpResult<Unit>>
+    fun deletePet(api_key : String? = null, petId : Long) : Task<HttpError,HttpResult<Unit>>
 
     /**
      *
@@ -58,7 +58,7 @@ interface PetStoreApi {
      * @param additionalMetadata Additional data to pass to server
      * @param file file to upload
      */
-    fun uploadFile(petId : Long, additionalMetadata : String?, file : MultipartFile?) : Task<HttpError,HttpResult<ApiResponse>>
+    fun uploadFile(petId : Long, additionalMetadata : String? = null, file : MultipartFile? = null) : Task<HttpError,HttpResult<ApiResponse>>
 
     /**
      * Returns a map of status codes to quantities

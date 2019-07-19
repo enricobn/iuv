@@ -27,7 +27,9 @@ data class CustomParserType(val component: ParserComponent) : ParserType()
 
 data class ArrayParserType(val name : String, val itemsType: ParserType) : ParserType()
 
-data class ParserProperty(val key: String, val name: String, val type: ParserType, val optional: Boolean, val description: String?)
+data class ParserProperty(val key: String, val name: String, val type: ParserType, val required: Boolean, val description: String?, val default: String?)
+
+data class EnumParserType(val name : String) : ParserType()
 
 sealed class ParserComponent {
 
@@ -49,6 +51,7 @@ data class ConcreteParserComponent(override val key : String, override val name:
 
     override val type: ParserType
         get() = CustomParserType(this)
+
 }
 
 data class AliasParserComponent(override val key : String, override val name: String, val alias: ParserType) : ParserComponent() {
@@ -61,6 +64,17 @@ data class AliasParserComponent(override val key : String, override val name: St
 
     override val description: String?
         get() = null
+}
+
+data class EnumParserComponent(override val key: String, override val name: String, override  val description: String?,
+                               val values: List<String>) : ParserComponent() {
+    override fun getUsedTypes(): List<ParserType> {
+        return emptyList()
+    }
+
+    override val type: ParserType
+        get() = EnumParserType(name)
+
 }
 
 class OpenAPIParser(private val api: OpenAPI) {
@@ -110,6 +124,8 @@ class OpenAPIParser(private val api: OpenAPI) {
                 if (properties.isEmpty()) {
                     if (schema.`$ref` != null) {
                         AliasParserComponent(schemaKey, name, RefParserType(schema.`$ref`.split("/").last()))
+                    } else if (schema.enum.isNotEmpty()) {
+                        EnumParserComponent(schemaKey, name, schema.description, schema.enum.map { it.toString() })
                     } else
                         throw UnsupportedOpenAPISpecification("No properties and no ref specified.")
                 } else {
@@ -117,7 +133,7 @@ class OpenAPIParser(private val api: OpenAPI) {
                 }
             }
         } catch (e: Exception) {
-            throw UnsupportedOpenAPISpecification("Cannot parse component $schemaKey")
+            throw UnsupportedOpenAPISpecification("Cannot parse component $schemaKey", e)
         }
     }
 
@@ -180,12 +196,22 @@ private fun getProperties(componentProperties: Map<String, Schema<*>>, parentKey
                 try {
                     val name = safeName(parentName + it.key.capitalize()).capitalize()
                     val type = it.value.resolveType(parentKey + it.key, name)
+                    val def = getDefault(it.value.default)
 
-                    ParserProperty(it.key, safeName(it.key), type, !(required?.contains(it.key) ?: false), it.value.description)
+                    ParserProperty(it.key, safeName(it.key), type, (required?.contains(it.key) ?: false), it.value.description, def)
                 } catch (e: Exception) {
                     throw UnsupportedOpenAPISpecification("Cannot create component ${it.key}.", e)
                 }
             }
+
+fun getDefault(value: Any?) =
+    if (value is Boolean || value is Number)
+        value.toString()
+    else if (value is String)
+        "\"$value\""
+    else
+        null
+
 
 private fun safeName(name : String) =
     if (RESERVED_KEYWORDS.contains(name))
