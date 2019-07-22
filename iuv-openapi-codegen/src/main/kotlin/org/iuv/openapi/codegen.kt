@@ -459,16 +459,13 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
         val iuvAPIOperations = mutableListOf<IUVAPIOperation>()
 
         val path = pathEntry.key
-        try {
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Get, pathItem.get)
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Post, pathItem.post)
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Put, pathItem.put)
-            addOperation(iuvAPIOperations, path, IUVAPIOperationType.Delete, pathItem.delete)
 
-            return IUVAPIPath(path, iuvAPIOperations)
-        } catch (e : UnsupportedOpenAPISpecification) {
-            throw UnsupportedOpenAPISpecification("Error resolving operations for path $path : ${e.message}", e)
-        }
+        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Get, pathItem.get)
+        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Post, pathItem.post)
+        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Put, pathItem.put)
+        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Delete, pathItem.delete)
+
+        return IUVAPIPath(path, iuvAPIOperations)
     }
 
     private fun addOperation(iuvAPIOperations: MutableList<IUVAPIOperation>, path: String,
@@ -506,13 +503,13 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     }
                 } else null
 
+        val responseKeysFilter: (String) -> Boolean = { it.startsWith("2") || it == "default" }
 
-        val responseKeysFilter: (String) -> Boolean = { it.startsWith("2") && it != "204" || it == "default" }
-
-        val responses = op.responses.filterKeys(responseKeysFilter).values
+        val responses = op.responses.filterKeys(responseKeysFilter)
+                .toSortedMap().values
 
         if (responses.size > 1) {
-            val validKeys = op.responses.keys.filter(responseKeysFilter)
+            val validKeys = op.responses.keys.filter(responseKeysFilter).sorted()
             LOGGER.warn("$path '$type' operation: found more than one valid response (${validKeys.joinToString()}), first is taken.")
         }
 
@@ -520,11 +517,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
 
         val resultType =
             if (response == null) {
-                if (type == IUVAPIOperationType.Get) {
-                    throw UnsupportedOpenAPISpecification("No definition for '$type' operation response.")
-                } else if (type == IUVAPIOperationType.Delete) {
-                    unitType
-                } else bodyType ?: unitType
+                bodyType ?: unitType
             } else {
                 val responseContent = response.content
 

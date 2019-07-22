@@ -7,7 +7,11 @@ import org.iuv.shared.Task
 import org.slf4j.LoggerFactory
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import org.springframework.web.socket.*
+import org.springframework.web.socket.CloseStatus
+import org.springframework.web.socket.TextMessage
+import org.springframework.web.socket.WebSocketHandler
+import org.springframework.web.socket.WebSocketMessage
+import org.springframework.web.socket.WebSocketSession
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor
 import java.util.*
 import javax.servlet.http.HttpSession
@@ -64,10 +68,11 @@ class IUVWebSocketHandlerImpl : WebSocketHandler, IUVScheduler {
     override fun <T: Any> scheduleTask(kSerializer: KSerializer<T>, function: () -> Task<String, T>): String {
         val id = UUID.randomUUID().toString()
         val sessionId = currentHttpSession().id
+        // TODO use an executor
         Thread {
             val result = function.invoke()
             result.run({
-                LOG.error("Sending error $it to session $sessionId")
+                LOG.error("Sending error '$it' to session $sessionId")
                 val iuvWebSocketMessage = IUVWebSocketMessage(id, null, it)
                 sendToHttpSession(sessionId, JSON.stringify(IUVWebSocketMessage.serializer(), iuvWebSocketMessage))
             }) {

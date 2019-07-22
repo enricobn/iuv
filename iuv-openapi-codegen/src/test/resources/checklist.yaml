@@ -1,0 +1,152 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Checklist
+  description: Checklists
+  termsOfService: http://swagger.io/terms/
+  contact:
+    name: Swagger API Team
+    email: apiteam@swagger.io
+    url: http://swagger.io
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+  - url: api/v1
+paths:
+  /checklistDefs/search:
+    get:
+      description: |
+        Returns all checklist definitions
+      operationId: searchChecklistDef
+      parameters:
+        - name: searchFilter
+          in: query
+          description: filter
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: page
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          description: page size
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChecklistDefDTO'
+
+  /checklists/search:
+    get:
+      description: |
+        Returns all checklist definitions
+      operationId: searchChecklist
+      parameters:
+        - name: searchFilter
+          in: query
+          description: filter
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: page
+          required: true
+          schema:
+            type: integer
+            format: int32
+        - name: pageSize
+          in: query
+          description: page size
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ChecklistDTO'
+
+components:
+  schemas:
+    ChecklistDefDTO:
+      required:
+        - id
+        - title
+        - children
+        - editable
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistDefDTO'
+        editable:
+          type: boolean
+        threeState:
+          type: boolean
+          default: false
+        auditInfo:
+          $ref: '#/components/schemas/AuditInfoDTO'
+
+    ChecklistDTO:
+      required:
+        - id
+        - title
+        - status
+        - children
+        - editable
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        status:
+          $ref: '#/components/schemas/RunStatus'
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChecklistDTO'
+        editable:
+          type: boolean
+        threeState:
+          type: boolean
+          default: true
+        auditInfo:
+          $ref: '#/components/schemas/AuditInfoDTO'
+
+    RunStatus:
+      type: string
+      enum:
+        - NOT_RUN
+        - FAILED
+        - SUCCEEDED
+
+    AuditInfoDTO:
+      properties:
+        createDate:
+          type: string
+        lastChangeDate:
+          type: string

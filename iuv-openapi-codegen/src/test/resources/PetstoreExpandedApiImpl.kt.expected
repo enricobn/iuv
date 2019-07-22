@@ -2,6 +2,7 @@ package org.iuv.test.client
 
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.internal.ArrayListSerializer
+import kotlinx.serialization.internal.UnitSerializer
 import kotlinx.serialization.serializer
 import org.iuv.core.Authentication
 import org.iuv.core.Http
@@ -9,7 +10,6 @@ import org.iuv.core.HttpError
 import org.iuv.core.HttpMethod
 import org.iuv.core.HttpResult
 import org.iuv.shared.Task
-import org.iuv.test.models.Error
 import org.iuv.test.models.NewPet
 import org.iuv.test.models.Pet
 
@@ -59,14 +59,14 @@ class PetStoreApiImpl(private val baseUrl : String = "http://petstore.swagger.io
     }
 
     @ImplicitReflectionSerializer
-    override fun deletePet(id : Long) : Task<HttpError,HttpResult<Error?>> {
+    override fun deletePet(id : Long) : Task<HttpError,HttpResult<Unit>> {
         val runner = Http.runner(HttpMethod.Delete, "$baseUrl/pets/$id")
         authentication.let {
             if (it != null) {
                 runner.configuration(it)
             }
         }
-        return runner.run<Error , Error?>(Error::class.serializer())
+        return runner.run(UnitSerializer)
     }
 
 }

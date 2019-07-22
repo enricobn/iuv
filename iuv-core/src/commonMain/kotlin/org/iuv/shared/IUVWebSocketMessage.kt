@@ -10,10 +10,10 @@ import org.iuv.shared.utils.Right
 data class IUVWebSocketMessage(val id: String, private val message: String?, private val error: String?) {
 
     fun toEither() : Either<String, String> =
-            if (error != null) {
-                Left(error)
-            } else {
-                Right(message!!)
-            }
+        if (error != null) {
+            Left(error)
+        } else {
+            Right(message!!)
+        }
 
 }
