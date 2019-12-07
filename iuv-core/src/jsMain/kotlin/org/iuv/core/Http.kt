@@ -175,7 +175,7 @@ private fun encodeMultipartData(values: List<MultiPartData>, boundary: String): 
                     val file = multiPartData.file.file
 
                     // Start a new part in our body's request
-                    data += "--$boundary\r\n";
+                    data += "--$boundary\r\n"
 
                     // Describe it as form data
                     data += "content-disposition: form-data; "

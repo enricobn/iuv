@@ -27,7 +27,7 @@ interface Sub<out MESSAGE> {
             val notNone = subs.filter { it !is SubNone }
 
             if (notNone.isEmpty()) {
-                return Sub.none()
+                return none()
             }
 
             return object : Sub<MESSAGE> {
