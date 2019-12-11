@@ -8,19 +8,18 @@ Doing
   - view
   - controller impl
   - client api
-  - why I cannot add package to test and main?
-  - add test or make Karma work if there are no tests
 
 Next
 -----
+- new project:
+  - is settings.gradle.mustache for shared project needed?
 - command line tools:
     - can I use build instead of shadowJar?
     - is it correct to sort properties and parameters? For now I have added two parameters to the command line tool,
       by default they are false
 - data class for exceptions for client
 - ServletRouteMatcher could have a similar Interface of the IUVRouter RouteMatcher
-- Intellij does not compile, there are not errors, it simply don't compile!!!
-- rename IUVRoute typealias (ParamToView?) and rename RouteMatcher to IUVRoute
+- rename IUVRoute type alias (ParamToView?) and rename RouteMatcher to IUVRoute
 - HTML children (InputH for example) inherits all the functions of HTML (body for example) : there must be a coherent tree
 - iuv-examples/node_modules are used only for tests. Can I create a node_modules_test and node_modules so I can use them in index.html?
 - can I get rid of message wrappers for a child component?
