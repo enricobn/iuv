@@ -85,7 +85,7 @@ class OpenAPIReaderTest {
     }
 
     @Test
-    fun petstoreExpancedClientImpl() {
+    fun petstoreExpandedClientImpl() {
         val server = OpenAPIReader.parse(getResource("/petstore-expanded.yaml"), "PetStore",
                 context, false)
 

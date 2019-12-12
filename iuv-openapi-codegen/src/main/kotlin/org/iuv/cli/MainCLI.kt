@@ -115,8 +115,9 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
     private fun getResource(resource: String) = this.javaClass.getResource(resource)
 
     private fun getSwaggerFiles(folder: File) : List<File> {
-        return folder.listFiles { it : File -> it.extension == "yaml" || it.extension == "json" }.toList() +
-                folder.listFiles { it: File -> it.isDirectory }.flatMap { getSwaggerFiles(it) }
+        val yamlFiles = folder.listFiles { it: File -> it.extension == "yaml" || it.extension == "json" } ?: emptyArray()
+        val directories = folder.listFiles { it: File -> it.isDirectory } ?: emptyArray()
+        return yamlFiles.toList() + directories.flatMap { getSwaggerFiles(it) }
     }
 
     private fun toServerName(file: File) : String {
@@ -164,7 +165,7 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
         runTemplate("", ".gitignore")
         runTemplate("", "build.gradle")
 
-        copyResource("gradlew")
+        copyResource("gradlew", executable = true)
         copyResource("gradlew.bat")
 
         runTemplate("", "README.md")
@@ -179,6 +180,8 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
         runTemplate("ui", "package.json", destFolder = "$projectName-ui")
         runTemplate("ui", "web.gradle", destFolder = "$projectName-ui")
         runTemplate("ui/src/main", "Main.kt", destFolder = "$projectName-ui/src/main/kotlin/" +
+                packageToDir(projectContext.clientPackage))
+        runTemplate("ui/src/main", "ExampleView.kt", destFolder = "$projectName-ui/src/main/kotlin/" +
                 packageToDir(projectContext.clientPackage))
 
         runTemplate("ui/web", "index.html", destFolder = "$projectName-ui/web")
@@ -207,8 +210,13 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
 
     private fun packageToDir(`package`: String) = `package`.replace('.', '/')
 
-    private fun copyResource(resource: String, fileName: String = resource) {
-        getResource("/project/templates/$resource").openStream().copyTo(File(fileName))
+    private fun copyResource(resource: String, fileName: String = resource, executable: Boolean = false) {
+        val file = File(fileName)
+        getResource("/project/templates/$resource").openStream().copyTo(file)
+
+        if (executable) {
+            file.setExecutable(true)
+        }
     }
 
     private fun runTemplate(folder: String, fileName: String, resource: String = fileName, destFolder: String = folder) {

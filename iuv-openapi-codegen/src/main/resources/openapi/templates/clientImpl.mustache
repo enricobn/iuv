@@ -17,7 +17,10 @@ class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : 
 
     @ImplicitReflectionSerializer
     override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<HttpError,HttpResult<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>> {
-        val runner = Http.runner({{op.clientMethod}}, "$baseUrl{{pathSubst}}")
+        val path = "{{pathSubst}}".removePrefix("/")
+        val fullPath = "$baseUrl/$path".removePrefix("/")
+
+        val runner = httpRequestRunner({{op.clientMethod}}, fullPath)
             {{#bodyType}}
             .body(body, {{serializer.code}})
             {{/bodyType}}
@@ -60,4 +63,18 @@ class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : 
   {{/operations}}
 {{/api.paths}}
 
+    private fun httpRequestRunner(method: HttpMethod, fullPath: String): HttpRequestRunner {
+        console.log("creating httpRequestRunner")
+        val runner = Http.runner(method, fullPath)
+
+        val meta = document.getElementsByTagName("meta")
+        val csrfHeader = meta["_csrf_header"]?.getAttribute("content")
+        val csrf = meta["_csrf"]?.getAttribute("content")
+
+        if (!csrf.isNullOrEmpty() && !csrfHeader.isNullOrEmpty()) {
+            runner.header(csrfHeader, csrf)
+        }
+
+        return runner
+    }
 }

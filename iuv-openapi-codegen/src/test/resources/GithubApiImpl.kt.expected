@@ -1,12 +1,15 @@
 package org.iuv.test.client
 
+import kotlin.browser.document
 import kotlinx.serialization.ImplicitReflectionSerializer
 import kotlinx.serialization.internal.ArrayListSerializer
 import kotlinx.serialization.serializer
+import org.w3c.dom.get
 import org.iuv.core.Authentication
 import org.iuv.core.Http
 import org.iuv.core.HttpError
 import org.iuv.core.HttpMethod
+import org.iuv.core.HttpRequestRunner
 import org.iuv.core.HttpResult
 import org.iuv.shared.Task
 import org.iuv.test.models.Event
@@ -20,7 +23,10 @@ class NetworksApiImpl(private val baseUrl : String = "https://api.github.com") :
 
     @ImplicitReflectionSerializer
     override fun getNetworksByOwnerByRepoEvents(owner : String, repo : String, Accept : String?) : Task<HttpError,HttpResult<List<Event>>> {
-        val runner = Http.runner(HttpMethod.Get, "$baseUrl/networks/$owner/$repo/events")
+        val path = "/networks/$owner/$repo/events".removePrefix("/")
+        val fullPath = "$baseUrl/$path".removePrefix("/")
+
+        val runner = httpRequestRunner(HttpMethod.Get, fullPath)
             .headers("Accept" to Accept)
         authentication.let {
             if (it != null) {
@@ -30,4 +36,18 @@ class NetworksApiImpl(private val baseUrl : String = "https://api.github.com") :
         return runner.run(ArrayListSerializer(Event::class.serializer()))
     }
 
+    private fun httpRequestRunner(method: HttpMethod, fullPath: String): HttpRequestRunner {
+        console.log("creating httpRequestRunner")
+        val runner = Http.runner(method, fullPath)
+
+        val meta = document.getElementsByTagName("meta")
+        val csrfHeader = meta["_csrf_header"]?.getAttribute("content")
+        val csrf = meta["_csrf"]?.getAttribute("content")
+
+        if (!csrf.isNullOrEmpty() && !csrfHeader.isNullOrEmpty()) {
+            runner.header(csrfHeader, csrf)
+        }
+
+        return runner
+    }
 }

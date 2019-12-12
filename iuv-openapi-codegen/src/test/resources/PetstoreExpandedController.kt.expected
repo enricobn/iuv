@@ -12,16 +12,16 @@ import org.iuv.test.models.Pet
 
 interface PetStoreController {
 
-    @GetMapping("/pets")
+    @GetMapping("api/pets")
     fun findPets(@RequestParam tags : List<String>? = null, @RequestParam limit : Int? = null) : ResponseEntity<List<Pet>>
 
-    @PostMapping("/pets")
+    @PostMapping("api/pets")
     fun addPet(@RequestBody body : NewPet) : ResponseEntity<Pet>
 
-    @GetMapping("/pets/{id}")
+    @GetMapping("api/pets/{id}")
     fun findPetById(@PathVariable id : Long) : ResponseEntity<Pet>
 
-    @DeleteMapping("/pets/{id}")
+    @DeleteMapping("api/pets/{id}")
     fun deletePet(@PathVariable id : Long) : ResponseEntity<Unit>
 
 }

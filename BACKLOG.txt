@@ -1,9 +1,14 @@
 Doing
 -------
 - cli for OpenApi
+  - use a .json or .yaml or to configure the api instead of command line args
   - client : pass requestParam in url
   - anonymous enum
   - controller documentation
+  - handle multiple servers
+  - option to create only client (per api)
+  - model file is not "in package": I think is not a bad idea, otherwise I must make a directory with only one file,
+    but the IDE complains
 - cli for create new project
   - view
   - controller impl

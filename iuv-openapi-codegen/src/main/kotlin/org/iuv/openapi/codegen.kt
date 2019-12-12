@@ -170,7 +170,7 @@ enum class IUVAPIOperationType(val controllerAnnotationClass: String, @Suppress(
         controllerAnnotationClass.split('.').last() + "(\"$path\")"
 }
 
-data class IUVAPIOperation(val path: String, val description: String?, val op: IUVAPIOperationType, val id: String,
+data class IUVAPIOperation(val serverPath: String, val path: String, val description: String?, val op: IUVAPIOperationType, val id: String,
                            val _parameters: List<IUVAPIParameter>, val resultType: IUVAPIType, val bodyType: IUVAPIType?,
                            val nullableResult: Boolean, val sortParameters: Boolean,
                            override var last: Boolean = false) : Last {
@@ -201,7 +201,12 @@ data class IUVAPIOperation(val path: String, val description: String?, val op: I
     }
 
     @Suppress("unused")
-    val operationAnnotation = op.annotation(path)
+    val operationAnnotation : String
+        get() {
+            val path = this.path.removePrefix("/")
+            val fullPath = "$serverPath/$path".removePrefix("/")
+            return op.annotation(fullPath)
+        }
 
     @Suppress("unused")
     val hasFormData = parameters.any { it.formParam }
@@ -240,6 +245,11 @@ data class IUVAPIPath(val path: String, val operations: List<IUVAPIOperation>) {
         operations.calculateLast()
     }
 
+    /**
+     * used in the clientImpl template to transform a path like list/{id} in a path like list/$id
+     * so it can be directly interpreted by kotlin via substitution since the id is a parameter of the client method
+     * fun list(id: String)
+     */
     val pathSubst =
         Regex("(\\{.*?})").replace(path) {
             val group = it.groups[1]
@@ -347,21 +357,37 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.HttpError", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
+                IUVImport("org.iuv.core.HttpRequestRunner", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.HttpResult", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
                 IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("org.w3c.dom.get", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("kotlin.browser.document", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Authentication", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.springframework.http.ResponseEntity", setOf(IUVImportType.CONTROLLER))
         )
 
-        val allPaths = api.paths.map { toIUVAPIPath(it) }
+        val baseUrl = (api.servers?.firstOrNull()?.url ?: "").removeSuffix("/")
+
+        val indexOfDoubleSlash = baseUrl.indexOf("//")
+
+        val serverPath = if (indexOfDoubleSlash > 0) {
+            val indexOf = baseUrl.indexOf('/', indexOfDoubleSlash + 2)
+            if (indexOf < 0) {
+                ""
+            } else {
+                baseUrl.substring(indexOf + 1)
+            }
+        } else {
+            baseUrl
+        }
+
+        val allPaths = api.paths.map { toIUVAPIPath(serverPath, it) }
 
         val pathsByName =
                 if (splitApisByPath)
                     allPaths.groupBy({ it.path.split("/")[1] }) { it }
                 else
                     mapOf(name to allPaths)
-
-        val baseUrl = (api.servers?.firstOrNull()?.url ?: "").removeSuffix("/")
 
         val apis = pathsByName.map {
             val apiName = it.key.capitalize()
@@ -377,6 +403,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                     op.parameters.map { par -> IUVImport(par.parameterType.controllerAnnotationClass, setOf(IUVImportType.CONTROLLER)) }
                 }
             }
+
             val parametersImport = paths.flatMap { path ->
                 path.operations.flatMap { op -> op.parameters.flatMap { par -> par.type.imports } }
             }
@@ -442,9 +469,11 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 } else referenceComponent
 
             }
+
             is ConcreteParserComponent ->
                 IUVAPIComponent(name, properties.map { it.toIUVAPIProperty() }, key = key, description = description,
                     _enumValues = null, sortProperties = context.sortProperties)
+
             is EnumParserComponent ->
                 IUVAPIComponent(name, emptyList(), key = key, _enumValues = this.values, description = description,
                     sortProperties = context.sortProperties)
@@ -453,26 +482,26 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
     private fun ParserProperty.toIUVAPIProperty() =
             IUVAPIComponentProperty(key, name, type.toIUVAPIType(), required, description, default)
 
-    private fun toIUVAPIPath(pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
+    private fun toIUVAPIPath(serverPath: String, pathEntry: Map.Entry<String, PathItem>): IUVAPIPath {
         val pathItem = pathEntry.value
 
         val iuvAPIOperations = mutableListOf<IUVAPIOperation>()
 
         val path = pathEntry.key
 
-        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Get, pathItem.get)
-        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Post, pathItem.post)
-        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Put, pathItem.put)
-        addOperation(iuvAPIOperations, path, IUVAPIOperationType.Delete, pathItem.delete)
+        addOperation(serverPath, iuvAPIOperations, path, IUVAPIOperationType.Get, pathItem.get)
+        addOperation(serverPath, iuvAPIOperations, path, IUVAPIOperationType.Post, pathItem.post)
+        addOperation(serverPath, iuvAPIOperations, path, IUVAPIOperationType.Put, pathItem.put)
+        addOperation(serverPath, iuvAPIOperations, path, IUVAPIOperationType.Delete, pathItem.delete)
 
-        return IUVAPIPath(path, iuvAPIOperations)
+        return IUVAPIPath(pathEntry.key, iuvAPIOperations)
     }
 
-    private fun addOperation(iuvAPIOperations: MutableList<IUVAPIOperation>, path: String,
+    private fun addOperation(serverPath: String, iuvAPIOperations: MutableList<IUVAPIOperation>, path: String,
                              operationType: IUVAPIOperationType, op: Operation?) {
         if (op != null) {
             try {
-                val iuvAPIOperation = toIUVAPIOperation(path, operationType, op)
+                val iuvAPIOperation = toIUVAPIOperation(serverPath, path, operationType, op)
                 iuvAPIOperations.add(iuvAPIOperation)
             } catch (e: UnsupportedOpenAPISpecification) {
                 LOGGER.warn("Cannot add operation fot path '$path'", e)
@@ -480,7 +509,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
         }
     }
 
-    private fun toIUVAPIOperation(path: String, type: IUVAPIOperationType, op: Operation): IUVAPIOperation {
+    private fun toIUVAPIOperation(serverPath: String, path: String, type: IUVAPIOperationType, op: Operation): IUVAPIOperation {
         var schemaForProperties : Schema<*>? = null
 
         var multiPartForm = false
@@ -555,7 +584,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
             throw UnsupportedOpenAPISpecification("Duplicated parameter names : " + duplicatedParameters.map { it.key })
         }
 
-        return IUVAPIOperation(path, op.description, type, operationId, parameters, resultType.toIUVAPIType(),
+        return IUVAPIOperation(serverPath, path, op.description, type, operationId, parameters, resultType.toIUVAPIType(),
                 bodyType?.toIUVAPIType(), nullableResponse, sortParameters = context.sortParameters)
     }
 

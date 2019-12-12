@@ -1,0 +1,64 @@
+package {{clientPackage}}
+
+import kotlinx.serialization.ImplicitReflectionSerializer
+import org.iuv.core.*
+import org.w3c.dom.events.Event
+
+object ExampleView : View<ExampleView.Model, ExampleView.Message> {
+
+    data class Model(val messages: List<String>)
+
+    interface Message
+
+    private object None : Message
+
+    private data class Delete(val index: Int) : Message
+
+    private data class Add(val value: String) : Message
+
+    override fun init(): Pair<Model, Cmd<Message>> {
+        return Pair(Model(emptyList()), Cmd.none())
+    }
+
+    @ImplicitReflectionSerializer
+    override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> {
+        return when (message) {
+            is Add -> Pair(model.copy(model.messages + message.value), Cmd.none())
+            is Delete -> Pair(model.copy(model.messages.filterIndexed {index, _ -> index != message.index}), Cmd.none())
+            else -> Pair(model, Cmd.none())
+        }
+    }
+
+    override fun view(model: Model): HTML<Message> = html {
+        +"Add message "
+        input {
+            onEnter({ None }, ::Add)
+        }
+
+        br()
+        br()
+
+        model.messages.forEachIndexed { index, message ->
+            div {
+                +message
+                on("click") { _ : Event ->
+                    Delete(index)
+                }
+            }
+        }
+    }
+
+}
+
+private fun <MESSAGE> InputH<MESSAGE>.onEnter(onFailure : (String) -> MESSAGE, onSuccess: (String) -> MESSAGE) {
+    onKeydown { event, value ->
+        if (event.keyCode == 13) {
+            val input = event.currentTarget.asDynamic()
+            val message = onSuccess(value)
+            input.value = ""
+            message
+        } else {
+            onFailure(value)
+        }
+    }
+}
