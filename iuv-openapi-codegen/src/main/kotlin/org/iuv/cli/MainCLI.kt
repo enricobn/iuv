@@ -142,8 +142,14 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
 data class NewProjectContext(val group: String, val projectName: String, val kotlinVersion: String, val iuvVersion: String,
                              val serializationVersion: String, val springBootVersion: String, val jarFileName: String) {
 
-    val clientPackage = "$group.ui"
-    val webPackage = "$group.web"
+    companion object {
+        fun safePackage(packageName: String) : String =
+            packageName.filter { it == '.' || it.isLetterOrDigit() }
+    }
+
+    val clientPackage = safePackage("$group.ui")
+
+    val webPackage = safePackage("$group.web")
 
 }
 
