@@ -8,11 +8,11 @@ import org.iuv.examples.components.mdlTable
 import org.iuv.examples.components.mdlTableCheckbox
 
 // MESSAGES
-interface GridMessage
+sealed class GridMessage
 
-data class GridOnRowClick(val row: Int) : GridMessage
+data class GridOnRowClick(val row: Int) : GridMessage()
 
-object GridOnAllRowsClick : GridMessage
+object GridOnAllRowsClick : GridMessage()
 
 // MODEL
 data class Column<in ROW>(val header: String, val classes: ((ROW) -> String?)? = null, val fn: (ROW) -> String)
@@ -52,9 +52,14 @@ class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, G
 
                 Pair(model.copy(selectedRows = newSelectedRows), Cmd.none())
             }
-            is GridOnAllRowsClick -> Pair(model, Cmd.none()) // TODO
-            else -> {
-                Pair(model, Cmd.none())
+            is GridOnAllRowsClick -> {
+                val allSelected = model.rows.size == model.selectedRows.size
+
+                if (allSelected) {
+                    Pair(model.copy(selectedRows = emptySet()), Cmd.none())
+                } else {
+                    Pair(model.copy(selectedRows = IntRange(0, model.rows.size - 1).toSet()), Cmd.none())
+                }
             }
         }
 
@@ -81,21 +86,21 @@ class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, G
                 }
 
                 tbody {
-                    for ((i, row) in model.rows.withIndex()) {
+                    for ((index, row) in model.rows.withIndex()) {
 
                         tr {
-                            if (model.selectedRows.contains(i)) {
+                            if (model.selectedRows.contains(index)) {
                                 appendClasses(IUVMDL.isSelected)
                             }
 
                             if (multiSelect) {
                                 td {
-                                    mdlTableCheckbox((i + 1).toString(), model.selectedRows.contains(i)) {
-                                        onChange(GridOnRowClick(i))
+                                    mdlTableCheckbox((index + 1).toString(), model.selectedRows.contains(index)) {
+                                        onChange(GridOnRowClick(index))
                                     }
                                 }
                             } else {
-                                onClick(GridOnRowClick(i))
+                                onClick(GridOnRowClick(index))
                             }
 
                             for (column in model.columns) {
@@ -104,7 +109,7 @@ class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, G
 
                                     val cl = column.classes?.invoke(row)
                                     if (cl != null) {
-                                        classes = classes + " " + cl
+                                        classes = "$classes $cl"
                                     }
 
                                     +column.fn(row)

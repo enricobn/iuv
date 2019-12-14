@@ -42,6 +42,8 @@ fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, 
 
         if (checked) {
             runJs("window.document.getElementById('$labelId').MaterialCheckbox.check()")
+        } else {
+            runJs("window.document.getElementById('$labelId').MaterialCheckbox.uncheck()")
         }
 
         input {
