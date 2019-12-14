@@ -134,6 +134,22 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(FormH(), init)
     }
 
+    fun section(init: SectionH<MESSAGE>.() -> Unit) {
+        element(SectionH(), init)
+    }
+
+    fun h1(init: H1H<MESSAGE>.() -> Unit) {
+        element(H1H(), init)
+    }
+
+    fun strong(init: StrongH<MESSAGE>.() -> Unit) {
+        element(StrongH(), init)
+    }
+
+    fun footer(init: FooterH<MESSAGE>.() -> Unit) {
+        element(FooterH(), init)
+    }
+
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
@@ -554,6 +570,12 @@ class LabelH<MESSAGE> : HTML<MESSAGE>("label") {
             addAttribute("for", value)
         }
         get() = getAttribute("for") as String?
+
+    var title: String?
+        set(value) {
+            addAttribute("title", value)
+        }
+        get() = getAttribute("title") as String?
 }
 
 class UlH<MESSAGE> : HTML<MESSAGE>("ul")
@@ -593,6 +615,14 @@ class IMAGEH<MESSAGE> : HTML<MESSAGE>("img") {
 class MainH<MESSAGE> : HTML<MESSAGE>("main")
 
 class FormH<MESSAGE> : HTML<MESSAGE>("form")
+
+class SectionH<MESSAGE> : HTML<MESSAGE>("section")
+
+class H1H<MESSAGE> : HTML<MESSAGE>("h1")
+
+class StrongH<MESSAGE> : HTML<MESSAGE>("strong")
+
+class FooterH<MESSAGE> : HTML<MESSAGE>("footer")
 
 interface HTMLRenderer {
     fun <MESSAGE> render(element: Element, html: HTML<MESSAGE>)
