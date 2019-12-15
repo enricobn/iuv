@@ -16,6 +16,7 @@ dependencies {
     implementation "com.github.spullara.mustache.java:compiler:0.9.6"
     implementation 'com.github.ajalt:clikt:1.7.0'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
+    implementation 'org.jsoup:jsoup:1.12.1'
     testCompile "junit:junit:4.12"
 }
 

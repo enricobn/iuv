@@ -1,8 +1,10 @@
 Doing
 -------
+- HTMLtoIUV
 
 Next
 -----
+- rename project iuv-openapi-codegen to iuv-cli
 - cli for OpenApi
   - use a .json or .yaml or to configure the api instead of command line args
   - client : pass requestParam in url
