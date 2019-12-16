@@ -1,3 +1,8 @@
 rootProject.name = 'iuv'
 
-include "iuv-core", "iuv-examples", "iuv-spring", "iuv-openapi-codegen"
+include 'iuv-core',
+        'iuv-examples',
+        'iuv-spring',
+        'iuv-openapi-codegen',
+        'iuv-idea-plugin'
+

@@ -1,0 +1,28 @@
+<idea-plugin>
+    <id>org.iuv.idea-plugin</id>
+    <name>IUV</name>
+    <!-- TODO -->
+    <vendor email="support@IUV.org" url="http://www.IUV.org">IUV project</vendor>
+
+    <description><![CDATA[
+    IDEA plugin for IUV projects.<br>
+    Adds the menu "Paste Html (IUV)" to contextual menu on editing.
+    ]]></description>
+
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <!-- uncomment to enable plugin in all products
+    <depends>com.intellij.modules.lang</depends>
+    -->
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <action id="org.iuv.idea.action.HtmlToIUVAction" class="org.iuv.idea.action.HtmlToIUVAction" text="Paste Html (IUV)"
+                description="Paste HTML to IUV DSL">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="$Paste"/>
+        </action>
+    </actions>
+</idea-plugin>

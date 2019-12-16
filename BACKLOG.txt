@@ -1,9 +1,14 @@
 Doing
 -------
-- HTMLtoIUV
 
 Next
 -----
+- IDEA plugin:
+ - building (buildPlugin) seems not to put classes from dependencies (iuv-openapi-codegen project)
+ - activate "Paste Html (IUV)" only if there's some HTML text to paste and it's a kotlin file
+ - can I change "safely" the standard paste behavior?
+ - doc in README
+- doc in README for HTMLtoIUV command line
 - rename project iuv-openapi-codegen to iuv-cli
 - cli for OpenApi
   - use a .json or .yaml or to configure the api instead of command line args

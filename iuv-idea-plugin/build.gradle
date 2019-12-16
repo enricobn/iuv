@@ -1,0 +1,41 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.intellij' version '0.4.15'
+    id 'kotlin'
+}
+
+group 'org.iuv'
+version '0.1-SNAPSHOT'
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version '2019.2.4'
+}
+patchPluginXml {
+    changeNotes """
+      Add change notes here.<br>
+      <em>most HTML tags may be used</em>"""
+}
+
+sourceSets {
+    main {
+        kotlin.srcDirs("src/$platformVersion/main/kotlin")
+        resources.srcDirs("src/$platformVersion/main/resources")
+    }
+    test {
+        kotlin.srcDirs("src/$platformVersion/test/kotlin")
+        resources.srcDirs("src/$platformVersion/test/resources")
+    }
+}
+
+dependencies {
+    compile project(':iuv-openapi-codegen')
+}
