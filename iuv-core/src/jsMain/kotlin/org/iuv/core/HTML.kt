@@ -138,8 +138,24 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(SectionH(), init)
     }
 
-    fun h1(init: H1H<MESSAGE>.() -> Unit) {
-        element(H1H(), init)
+    fun h1(init: HH<MESSAGE>.() -> Unit) {
+        element(HH(1), init)
+    }
+
+    fun h2(init: HH<MESSAGE>.() -> Unit) {
+        element(HH(2), init)
+    }
+
+    fun h3(init: HH<MESSAGE>.() -> Unit) {
+        element(HH(3), init)
+    }
+
+    fun h4(init: HH<MESSAGE>.() -> Unit) {
+        element(HH(4), init)
+    }
+
+    fun h5(init: HH<MESSAGE>.() -> Unit) {
+        element(HH(5), init)
     }
 
     fun strong(init: StrongH<MESSAGE>.() -> Unit) {
@@ -148,6 +164,10 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     fun footer(init: FooterH<MESSAGE>.() -> Unit) {
         element(FooterH(), init)
+    }
+
+    fun i(init: IH<MESSAGE>.() -> Unit) {
+        element(IH(), init)
     }
 
     protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
@@ -618,11 +638,13 @@ class FormH<MESSAGE> : HTML<MESSAGE>("form")
 
 class SectionH<MESSAGE> : HTML<MESSAGE>("section")
 
-class H1H<MESSAGE> : HTML<MESSAGE>("h1")
+class HH<MESSAGE>(size: Int) : HTML<MESSAGE>("h$size")
 
 class StrongH<MESSAGE> : HTML<MESSAGE>("strong")
 
 class FooterH<MESSAGE> : HTML<MESSAGE>("footer")
+
+class IH<MESSAGE> : HTML<MESSAGE>("i")
 
 interface HTMLRenderer {
     fun <MESSAGE> render(element: Element, html: HTML<MESSAGE>)
