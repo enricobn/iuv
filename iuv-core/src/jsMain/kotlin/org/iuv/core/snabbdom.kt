@@ -116,6 +116,26 @@ class SnabbdomRenderer : HTMLRenderer {
         data.props = html.props
         data.attrs = html.attrs
         data.on = html.handlers
+
+        val onElementDestroy = html.onElementDestroy
+        val onElementInsert = html.onElementInsert
+
+        if (onElementDestroy != null || onElementInsert != null) {
+            data.hook = object {}
+        }
+
+        if (onElementDestroy != null) {
+            data.hook.destroy = { vnode: dynamic ->
+                onElementDestroy.invoke(vnode.elm)
+            }
+        }
+
+        if (onElementInsert != null) {
+            data.hook.insert = { vnode: dynamic ->
+                onElementInsert.invoke(vnode.elm)
+            }
+        }
+
         return data
     }
 

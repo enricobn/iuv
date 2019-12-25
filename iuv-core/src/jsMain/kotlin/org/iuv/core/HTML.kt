@@ -18,6 +18,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
     private var text : String? = null
     private var mapFun : ((Any) -> Any)? = null
     private var parent : HTML<Any>? = null
+    internal var onElementDestroy : ((Element) -> Unit)? = null
+    internal var onElementInsert : ((Element) -> Unit)? = null
 
     private fun messageBus() : MessageBus<MESSAGE> { return IUVGlobals.getMessageBus() as MessageBus<MESSAGE>
     }
@@ -352,6 +354,20 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 //        }
 //        sb.indent(indent).append("}\n")
         return sb.toString()
+    }
+
+    /**
+     * called when an element is going to be destroyed, can be used to make some cleanup
+     */
+    fun onElementDestroy(fn: (Element) -> Unit) {
+        this.onElementDestroy = fn
+    }
+
+    /**
+     * called when an element is inserted in the DOM, can be used to make some specific initialization
+     */
+    fun onElementInsert(fn: (Element) -> Unit) {
+        this.onElementInsert = fn
     }
 
     private fun StringBuilder.indent(indent: Int) : StringBuilder {
