@@ -3,6 +3,18 @@ Doing
 
 Next
 -----
+- runJs
+  runJs is not efficient, the getJsToRun function is called on every HTML element!
+  But it seems to be testable (add a test for it).
+  the test (try it).
+  - idea: make the SnabbdomRenderer an object then add a function addJsToRun that is called on Component.runJs
+    then the js snippets will be run by the renderer after rendering and cleaned before rendering.
+    Problem: is that we will be tied with the SnabbdomRenderer implementation (we can use a provider (an object) so
+    it will be hard coded only in one place), I don't think it's a great problem since I don't think that multiple, switchable,
+    implementations will be needed.
+    Problem: how can I test it!
+  - idea: add the addJsToRun function to an interface extended by HTMLRendered then pass it to the components / views that need it.
+    The problem is that we must pass the interface to all the chain of views / components to reach the component / view that needs it.
 - IDEA plugin:
  - building (buildPlugin) seems not to put classes from dependencies (iuv-openapi-codegen project)
  - activate "Paste Html (IUV)" only if there's some HTML text to paste and it's a kotlin file
