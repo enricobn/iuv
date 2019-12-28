@@ -228,6 +228,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         }
         get() = getAttribute("class")
 
+    @Deprecated("Use addClasses instead")
     fun appendClasses(vararg classesToAppend: String) {
         val allClasses =
                 classes.let {
@@ -238,6 +239,13 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
                     }
                 } + classesToAppend.joinToString(" ")
         classes = allClasses
+    }
+
+    /**
+     * classes are separated by spaces
+     */
+    fun addClasses(classesToAdd: String) {
+        classes = if (classes.isNullOrEmpty()) classesToAdd else "$classes $classesToAdd"
     }
 
     var style: String?
@@ -293,16 +301,18 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         return getProperty(key) == null
     }
 
-    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE) {
+    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?) {
         if (handlers == null) {
             handlers = object {}
         }
         handlers[name] = { event : EVENT ->
-            val msg = handler(event) as Any
+            val msg = handler(event) as Any?
 
-            val html : HTML<Any>? = this as HTML<Any>
+            if (msg != null) {
+                val html: HTML<Any>? = this as HTML<Any>
 
-            messageBus().send(mapMessage(msg, html))
+                messageBus().send(mapMessage(msg, html))
+            }
         }
     }
 
@@ -439,7 +449,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
 class SpanH<MESSAGE> : HTML<MESSAGE>("span"),ClickableHTML<MESSAGE>
 
-class DivH<MESSAGE> : HTML<MESSAGE>("div")
+open class DivH<MESSAGE> : HTML<MESSAGE>("div")
 
 class TableH<MESSAGE> : HTML<MESSAGE>("table")
 
@@ -555,7 +565,7 @@ open class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
         on("blur", { _: InputEvent -> message })
     }
 
-    fun onKeydown(handler: (KeyboardEvent, String) -> MESSAGE) {
+    fun onKeydown(handler: (KeyboardEvent, String) -> MESSAGE?) {
         on("keydown", { event: KeyboardEvent ->
             handler(event, event.target?.asDynamic().value)
         })
@@ -667,7 +677,9 @@ interface HTMLRenderer {
 }
 
 interface OnHTMLEvents<in MESSAGE> {
-    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE)
+
+    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?)
+
 }
 
 interface ClickableHTML<in MESSAGE> : OnHTMLEvents<MESSAGE> {
