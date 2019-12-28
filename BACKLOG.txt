@@ -15,6 +15,7 @@ Next
     Problem: how can I test it!
   - idea: add the addJsToRun function to an interface extended by HTMLRendered then pass it to the components / views that need it.
     The problem is that we must pass the interface to all the chain of views / components to reach the component / view that needs it.
+- use xsd to generate markup tags  (https://github.com/stefangrunert/XHTML5-XML-Schema/blob/master/xhtml5.xsd)
 - IDEA plugin:
  - building (buildPlugin) seems not to put classes from dependencies (iuv-openapi-codegen project)
  - activate "Paste Html (IUV)" only if there's some HTML text to paste and it's a kotlin file
