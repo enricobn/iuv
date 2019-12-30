@@ -48,8 +48,8 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
 
     fun getJsTorRun() = jsToRun.toList()
 
-    fun div(init: DivH<MESSAGE>.() -> Unit) {
-        element(DivH(), init)
+    fun div(classes: String? = null, init: DivH<MESSAGE>.() -> Unit) {
+        element(DivH(), classes, init)
     }
 
     fun td(init: TDH<MESSAGE>.() -> Unit) {
@@ -172,7 +172,15 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         element(IH(), init)
     }
 
-    protected fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
+    fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
+        element.init()
+        add(element)
+    }
+
+    fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, classes: String?, init: ELEMENT.() -> Unit) {
+        if (classes != null) {
+            element.addClasses(classes)
+        }
         element.init()
         add(element)
     }
