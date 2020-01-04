@@ -108,7 +108,7 @@ class SnabbdomRenderer : HTMLRenderer {
                         snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
                     }
                 is HTMLTextChild -> htmlChild.text
-                else -> throw IllegalStateException()
+                else -> error("Invalid child")
             }
 
     private fun getData(html: HTML<*>) : dynamic {

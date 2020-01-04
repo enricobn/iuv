@@ -13,11 +13,11 @@ class SubListenersHelper<T> : Dispatcher<T> {
     fun <MESSAGE> subscribe(handler: (T) -> MESSAGE) : Sub<MESSAGE> =
         object : Sub<MESSAGE> {
             override fun addListener(listener: SubListener<MESSAGE>) {
-                subListeners.add(Pair(listener, handler))
+                subListeners.add(listener to handler)
             }
 
             override fun removeListener(listener: SubListener<MESSAGE>) {
-                subListeners.remove(Pair(listener, handler))
+                subListeners.remove(listener to handler)
             }
         }
 

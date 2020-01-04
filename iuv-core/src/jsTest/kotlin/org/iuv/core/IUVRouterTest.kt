@@ -149,7 +149,7 @@ class IUVRouterTest {
     fun testMapRouterMatcherLink() {
         val matcher = MapRouteMatcher("/customer/:customerId/order/:orderId")
 
-        val link = matcher.link(linkedMapOf(Pair("customerId", "customer001"), Pair("orderId", "order001")))
+        val link = matcher.link(linkedMapOf("customerId" to "customer001", "orderId" to "order001"))
 
         assertEquals("/customer/customer001/order/order001", link)
     }

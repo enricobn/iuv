@@ -65,7 +65,7 @@ abstract class AbstractRouteMatcher<P>(expression: String) : RouteMatcher<P> {
 
     init {
         if (!expression.startsWith("/")) {
-            throw Exception("Expression must start with /")
+            error("Expression must start with /")
         }
     }
 
@@ -85,7 +85,7 @@ abstract class AbstractRouteMatcher<P>(expression: String) : RouteMatcher<P> {
         return expComponents
                 .zip(pathComponents)
                 .filter { it.first.startsWith(":") }
-                .map { Pair(it.first.substring(1), it.second) }
+                .map { it.first.substring(1) to it.second }
     }
 
     final override fun validate(): String? = null
@@ -166,7 +166,7 @@ class IUVRouter(private val rootView: View<*, *>, val testMode: Boolean = false)
             errorMessage = "Duplicate matcher: $routeMatcher."
             return
         }
-        routes.add(Pair(routeMatcher, iuvRoute))
+        routes.add(routeMatcher to iuvRoute)
     }
 
     fun <CHILD_MODEL, CHILD_MESSAGE> add(path: String, view: View<CHILD_MODEL, CHILD_MESSAGE>) =

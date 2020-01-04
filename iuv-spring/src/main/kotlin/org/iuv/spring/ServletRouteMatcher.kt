@@ -28,7 +28,6 @@ class ServletRouteMatcher(private val expression: String) {
 
             pathVariableNames
                     .zip(pathComponents)
-                    .map { Pair(it.first, it.second) }
                     .toMap()
         }
 

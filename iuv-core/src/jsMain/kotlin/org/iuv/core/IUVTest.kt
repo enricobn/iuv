@@ -170,10 +170,7 @@ open class TestingHTML(val html: HTML<*>, val parent: TestingHTML? = null) {
     }
 
     fun callHandler(name: String, event: Event) {
-        val handler = html.getHandler(name)
-        if (handler == null) {
-            throw Exception()
-        }
+        val handler = html.getHandler(name) ?: error("Cannot find handler '$name'")
         handler(event)
     }
 

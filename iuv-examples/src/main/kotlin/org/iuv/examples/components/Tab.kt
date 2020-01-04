@@ -16,7 +16,7 @@ data class TabModel(val activeTab: Int, val childModels: Map<Int,Any>)
 class Tab : View<TabModel, TabMessage> {
     private val tabs = mutableListOf<TabData>()
 
-    fun add(text: String, view: View<*,*>) {
+    fun add(text: String, view: View<Any,Any>) {
         tabs.add(TabData(text, view))
     }
 
@@ -66,15 +66,15 @@ class Tab : View<TabModel, TabMessage> {
         val iuv = tabs[tab].view
 
         return ChildView(
-                iuv as View<Any, Any>,
+                iuv,
                 { TabMessageWrapper(tab, it) },
-                { it.childModels[tab]!! },
+                { it.childModels[tab] ?: error("Cannot find tab '$tab'") },
                 { parentModel, childModel ->
-                    parentModel.copy(childModels = parentModel.childModels.plus(Pair(tab, childModel)))
+                    parentModel.copy(childModels = parentModel.childModels.plus(tab to childModel))
                 }
         )
     }
 
 }
 
-private data class TabData(val text: String, val view: View<*,*>)
+private data class TabData(val text: String, val view: View<Any,Any>)
