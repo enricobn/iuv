@@ -21,7 +21,8 @@
   "resolutions": {
     "extend": "^3.0.2",
     "stringstream": "^0.0.6",
-    "fstream": "^1.0.12"
+    "fstream": "^1.0.12",
+    "cryptiles": "^4.1.2"
   },
   "scripts": {
     "test": "karma start"
