@@ -128,6 +128,10 @@ open class IUVTest<MESSAGE> {
                 return sameChildren
             }
 
+            if (this.getJsTorRun() != other.getJsTorRun()) {
+                return SameResult("Not same js, '${getJsTorRun()}' vs '${other.getJsTorRun()}'")
+            }
+
             return SameResult()
         }
 
