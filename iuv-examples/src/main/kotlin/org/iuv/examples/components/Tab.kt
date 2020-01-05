@@ -16,8 +16,8 @@ data class TabModel(val activeTab: Int, val childModels: Map<Int,Any>)
 class Tab : View<TabModel, TabMessage> {
     private val tabs = mutableListOf<TabData>()
 
-    fun add(text: String, view: View<Any,Any>) {
-        tabs.add(TabData(text, view))
+    fun <MODEL : Any, MESSAGE: Any> add(text: String, view: View<MODEL,MESSAGE>) {
+        tabs.add(TabData(text, view as View<Any,Any>))
     }
 
     override fun init(): Pair<TabModel, Cmd<TabMessage>> =
