@@ -108,7 +108,7 @@ object Http {
         try {
             val request = XMLHttpRequest()
 
-            request.onreadystatechange = { event ->
+            request.onreadystatechange = {
                 when (request.readyState) {
                     XMLHttpRequest.DONE ->
                         try {
@@ -130,7 +130,7 @@ object Http {
                 }
             }
 
-            request.onerror = { event ->
+            request.onerror = {
                 onFailure("Unknown error")
             }
 

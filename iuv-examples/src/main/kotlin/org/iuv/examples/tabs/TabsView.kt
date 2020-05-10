@@ -70,7 +70,7 @@ class TabView(val msg: String) : View<TabView.Model, TabView.Message> {
 
         br()
 
-        0.rangeTo(model.count).forEach {
+        0.rangeTo(model.count).forEach { _ ->
             +model.msg
         }
     }

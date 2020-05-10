@@ -23,7 +23,6 @@ private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSeriali
         imports = setOf("kotlinx.serialization.internal.UnitSerializer"))
 private val unitType = PrimitiveParserType("Unit", UNIT_SERIALIZER, emptySet())
 
-
 interface Last {
     var last: Boolean
 }
@@ -47,7 +46,7 @@ data class IUVAPIComponentProperty(val key: String, val name: String, val type: 
     val typeAndDefault = toTypeAndDefault(type.type, required, default)
 
     // properties used by mustache templates
-    @Suppress("private,unused")
+    @Suppress("private", "unused")
     val descriptions = description?.split("\n")?.map { it.trim() }
 
     @Suppress("unused")
@@ -91,7 +90,7 @@ data class IUVAPIComponent(val name: String, val _properties: List<IUVAPICompone
     @Suppress("unused")
     val isEnum = _enumValues != null
 
-    @Suppress("private,unused")
+    @Suppress("private", "unused")
     val descriptions = description?.split("\n")?.map { it.trim() }
 
     @Suppress("unused")

@@ -46,7 +46,7 @@ class IUVDebugger<MODEL, MESSAGE>(view: View<MODEL, MESSAGE>) : View<IUVDebugger
             div {
                 classes = "IUVDebugger"
 
-                if (!model.messagesAndModels.isEmpty()) {
+                if (model.messagesAndModels.isNotEmpty()) {
                     +"History: "
                     input {
                         key = "IUVDebugger-slider"

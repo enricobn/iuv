@@ -43,7 +43,7 @@ class ButtonComponentTest : IUVTest<ButtonComponentMessage>() {
             button {
                 +"test"
 
-                onClick { _ -> SelectedButtonMessageWrapper(SelectedButtonClick) }
+                onClick { SelectedButtonMessageWrapper(SelectedButtonClick) }
 
                 classes = "ButtonComponentSelected"
             }

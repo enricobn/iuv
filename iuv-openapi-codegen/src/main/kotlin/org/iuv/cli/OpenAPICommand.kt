@@ -105,8 +105,8 @@ class OpenAPICommand : CliktCommand(name = "openAPI") {
     private fun getResource(resource: String) = this.javaClass.getResource(resource)
 
     private fun getSwaggerFiles(folder: File) : List<File> {
-        val yamlFiles = folder.listFiles { it: File -> it.extension == "yaml" || it.extension == "json" } ?: emptyArray()
-        val directories = folder.listFiles { it: File -> it.isDirectory } ?: emptyArray()
+        val yamlFiles = folder.listFiles { file: File -> file.extension == "yaml" || file.extension == "json" } ?: emptyArray()
+        val directories = folder.listFiles { file: File -> file.isDirectory } ?: emptyArray()
         return yamlFiles.toList() + directories.flatMap { getSwaggerFiles(it) }
     }
 

@@ -5,6 +5,7 @@ Doing
 
 Next
 -----
+- IUVRouter use window.onhashchange and window.hash instead of href
 - runJs
   runJs is not efficient, the getJsToRun function is called on every HTML element!
   But it seems to be testable (add a test for it).

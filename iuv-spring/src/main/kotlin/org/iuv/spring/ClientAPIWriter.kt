@@ -94,7 +94,7 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
     }
 
     private fun StringBuilder.indent(num: Int = 1) : StringBuilder {
-        IntRange(1, num).forEach { append("    ") }
+        IntRange(1, num).forEach { _ -> append("    ") }
         return this
     }
 

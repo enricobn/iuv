@@ -64,8 +64,8 @@ class GithubOpenAPITest {
     @Test
     fun issuesParametersSorted() {
         val context = OpenAPIWriteContext("org.iuv.test.controllers",
-                "org.iuv.test.client", "org.iuv.test.models", true, true)
-        val server =  OpenAPIReader.parse(org.iuv.openapi.getResource("/github.yaml"), "Github", context)!!
+                "org.iuv.test.client", "org.iuv.test.models", sortProperties = true, sortParameters = true)
+        val server =  OpenAPIReader.parse(getResource("/github.yaml"), "Github", context)!!
 
         val issues = server.apis.first { it.name == "Issues" }
 

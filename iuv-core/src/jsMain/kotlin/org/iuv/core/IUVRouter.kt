@@ -1,6 +1,5 @@
 package org.iuv.core
 
-import org.w3c.dom.events.Event
 import kotlin.browser.window
 
 typealias IUVRoute<MODEL, MESSAGE, PARAMETERS> = (PARAMETERS) -> View<MODEL, MESSAGE>
@@ -203,7 +202,7 @@ class IUVRouter(private val rootView: View<*, *>, val testMode: Boolean = false)
                         object : Cmd<RouterMessage> {
                             override fun run(messageBus: MessageBus<RouterMessage>) {
                                 if (!testMode) {
-                                    window.addEventListener("popstate", { _: Event ->
+                                    window.addEventListener("popstate", {
                                         val (_, poppedPath) = parseHref(window.location.href)
                                         messageBus.send(Goto(poppedPath, true))
                                     })

@@ -1,12 +1,7 @@
 package org.iuv.openapi
 
 import io.swagger.v3.oas.models.OpenAPI
-import io.swagger.v3.oas.models.media.ArraySchema
-import io.swagger.v3.oas.models.media.ComposedSchema
-import io.swagger.v3.oas.models.media.FileSchema
-import io.swagger.v3.oas.models.media.MapSchema
-import io.swagger.v3.oas.models.media.ObjectSchema
-import io.swagger.v3.oas.models.media.Schema
+import io.swagger.v3.oas.models.media.*
 
 private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer",
         imports = setOf("kotlinx.serialization.internal.UnitSerializer"))
@@ -86,11 +81,9 @@ class OpenAPIParser(private val api: OpenAPI) {
             component.getUsedTypes().flatMap { getAnonymousParserTypes(it) }
         }
 
-        val componentsMap = (components + anonymousParserTypes.map { it.component })
+        return (components + anonymousParserTypes.map { it.component })
                 .map { it.key to it }
                 .toMap()
-
-        return componentsMap
     }
 
     private fun getAnonymousParserTypes(type : ParserType) : List<CustomParserType> =

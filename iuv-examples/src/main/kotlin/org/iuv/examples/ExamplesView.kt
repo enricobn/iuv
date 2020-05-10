@@ -5,7 +5,7 @@ import org.iuv.core.HTML
 import org.iuv.core.View
 import org.iuv.examples.components.vBox
 
-class ExamplesView() : View<ExamplesView.Model, ExamplesView.Message> {
+class ExamplesView : View<ExamplesView.Model, ExamplesView.Message> {
 
     companion object {
         // Messages

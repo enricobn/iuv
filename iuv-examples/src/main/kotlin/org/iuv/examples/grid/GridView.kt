@@ -29,7 +29,7 @@ object GridView : View<GridView.Model, GridView.Message> {
     val columns : List<Column<Match>> = listOf(
             Column("Home") { it.home },
             Column("Visitor") { it.visitor },
-            Column("Result", { _ -> "Center" }) { "${it.result.home} - ${it.result.visitor}" }
+            Column("Result", { "Center" }) { "${it.result.home} - ${it.result.visitor}" }
     )
 
     private val grid = Grid<Match>(true)
