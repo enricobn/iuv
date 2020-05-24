@@ -19,7 +19,7 @@ private const val JSON = "application/json"
 private const val ALL_CONTENTS = "*/*"
 private const val FORM_URL_ENCODED = "application/x-www-form-urlencoded"
 private const val MULTIPART_FORM_DATA = "multipart/form-data"
-private val UNIT_SERIALIZER = IUVAPISerializer("UnitIUVSerializer", "UnitSerializer",
+private val UNIT_SERIALIZER = IUVAPISerializer("UnitSerializer",
         imports = setOf("kotlinx.serialization.internal.UnitSerializer"))
 private val unitType = PrimitiveParserType("Unit", UNIT_SERIALIZER, emptySet())
 
@@ -37,7 +37,7 @@ data class IUVAPIType(val type: String, val serializer: IUVAPISerializer, val im
 
 }
 
-data class IUVAPISerializer(val name: String, val code: String, override var last: Boolean = false, val imports: Set<String> = emptySet()) : Last
+data class IUVAPISerializer(val code: String, override var last: Boolean = false, val imports: Set<String> = emptySet()) : Last
 
 data class IUVAPIComponentProperty(val key: String, val name: String, val type: IUVAPIType, val required: Boolean,
                                    val description: String?, val default: String?, override var last: Boolean = false) : Last {
@@ -315,6 +315,8 @@ class UnsupportedOpenAPISpecification: Exception {
 class OpenAPIReader(private val name : String, private val api: OpenAPI, private val context: OpenAPIWriteContext) {
 
     private val components = OpenAPIParser(api).components()
+            .map { it.key to it }
+            .toMap()
 
     companion object {
         private val LOGGER = LoggerFactory.getLogger(OpenAPIReader::class.java)
@@ -630,7 +632,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
         when (this) {
             is PrimitiveParserType -> IUVAPIType(type, serializer, imports)
             MultipartFileParserType -> IUVAPIType("MultipartFile",
-                    IUVAPISerializer("", "", imports = emptySet()),
+                    IUVAPISerializer("", imports = emptySet()),
                     setOf(
                             IUVImport("org.iuv.core.MultiPartData", setOf(IUVImportType.CLIENT_IMPL)),
                             IUVImport("org.iuv.core.MultipartFile", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
@@ -641,7 +643,7 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
             is MapParserType -> {
                 val mapType = valueType.toIUVAPIType()
                 IUVAPIType("Map<String, $mapType>",
-                        IUVAPISerializer("MapString${mapType.serializer.name}",
+                        IUVAPISerializer(
                                 "HashMapSerializer(StringSerializer,${mapType.serializer.code})",
                                 imports = setOf("kotlinx.serialization.internal.HashMapSerializer",
                                         "kotlinx.serialization.internal.StringSerializer") + mapType.serializer.imports),
@@ -662,20 +664,20 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 val itemsType = itemsType.toIUVAPIType()
 
                 IUVAPIType("List<$itemsType>",
-                        IUVAPISerializer("List${itemsType.serializer.name}", "ArrayListSerializer(${itemsType.serializer.code})",
+                        IUVAPISerializer("ArrayListSerializer(${itemsType.serializer.code})",
                                 imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
                         itemsType.imports, itemsType.innerComponent)
             }
             is EnumParserType -> {
                 IUVAPIType(name,
-                        IUVAPISerializer("", "EnumSerializer($name::class)",
+                        IUVAPISerializer("EnumSerializer($name::class)",
                                 imports = setOf("kotlinx.serialization.internal.EnumSerializer")),
                         emptySet(), null)
             }
         }
 
     private fun toComponentType(component: ParserComponent): IUVAPIType {
-        return IUVAPIType(component.name, IUVAPISerializer("${component.name}IUVSerializer", "${component.name}::class.serializer()",
+        return IUVAPIType(component.name, IUVAPISerializer( "${component.name}::class.serializer()",
                 imports = setOf("kotlinx.serialization.serializer")),
                 setOf(IUVImport(context.modelPackage + "." + component.name,
                         setOf(IUVImportType.CONTROLLER, IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL))))
