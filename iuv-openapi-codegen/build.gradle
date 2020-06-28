@@ -17,6 +17,9 @@ dependencies {
     implementation 'com.github.ajalt:clikt:1.7.0'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
     implementation 'org.jsoup:jsoup:1.12.1'
+
+    compile project(':iuv-core')
+
     testCompile "junit:junit:4.12"
 }
 

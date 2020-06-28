@@ -58,6 +58,7 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
         copyResource("gradle/wrapper/gradle-wrapper.jar.copy", "gradle/wrapper/gradle-wrapper.jar")
 
         runTemplate("", "openapi.sh")
+        runTemplate("", "openapi.properties")
 
         File("openapi.sh").setExecutable(true)
 
