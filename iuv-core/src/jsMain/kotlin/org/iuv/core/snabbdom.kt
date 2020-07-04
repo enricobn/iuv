@@ -92,7 +92,7 @@ class SnabbdomRenderer : HTMLRenderer {
             when (htmlChild) {
                 is HTML<*> ->
                     if (htmlChild.getText() != null) {
-                        snabbdom.h(htmlChild.name, getData(htmlChild), htmlChild.getText())
+                        snabbdom.h(htmlChild.elementName, getData(htmlChild), htmlChild.getText())
                     } else {
                         val renderedChildren = htmlChild.children.map { toH(it) }
 
@@ -105,7 +105,7 @@ class SnabbdomRenderer : HTMLRenderer {
 //                        }
 //                    }
 
-                        snabbdom.h(htmlChild.name, getData(htmlChild), renderedChildren.toTypedArray())
+                        snabbdom.h(htmlChild.elementName, getData(htmlChild), renderedChildren.toTypedArray())
                     }
                 is HTMLTextChild -> htmlChild.text
                 else -> error("Invalid child")

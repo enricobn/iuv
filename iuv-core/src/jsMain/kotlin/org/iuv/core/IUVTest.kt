@@ -29,7 +29,7 @@ open class IUVTest<MESSAGE> {
         }
 
         fun withName(name: String) : HTMLPredicate = { html ->
-            html.name == name
+            html.elementName == name
         }
 
         private fun sameChildren(html: HTML<*>, other: HTML<*>) : SameResult {
@@ -110,8 +110,8 @@ open class IUVTest<MESSAGE> {
         fun HTML<*>.same(other: HTML<*>): SameResult {
             if (this === other) return SameResult()
 
-            if (name != other.name) {
-                return SameResult("Not same name, '$name' vs '${other.name}'.")
+            if (elementName != other.elementName) {
+                return SameResult("Not same name, '$elementName' vs '${other.elementName}'.")
             }
 
             if (getText() != other.getText()) {

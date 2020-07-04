@@ -9,7 +9,7 @@ import kotlin.browser.window
 @DslMarker
 annotation class HtmlTagMarker
 @HtmlTagMarker
-open class HTML<MESSAGE>(val name: String) : HTMLChild {
+open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
     internal val attrs: dynamic = object {}
     internal val children = mutableListOf<HTMLChild>()
     private val jsToRun = mutableListOf<String>()
@@ -290,22 +290,22 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
         return getAttribute(key) == null
     }
 
-    fun addProperty(name: String, prop: dynamic) {
+    override fun addProperty(name: String, prop: dynamic) {
         if (props == null) {
             props = object {}
         }
         props[name] = prop
     }
 
-    fun removeProperty(name: String) {
+    override fun removeProperty(name: String) {
         deleteProperty(props, name)
     }
 
-    fun getProperty(key: String) : dynamic {
+    override fun getProperty(key: String) : dynamic {
         return if (props == null) props else props[key]
     }
 
-    fun hasProperty(key: String) : Boolean {
+    override fun hasProperty(key: String) : Boolean {
         return getProperty(key) == null
     }
 
@@ -400,7 +400,7 @@ open class HTML<MESSAGE>(val name: String) : HTMLChild {
                 } else {
                     ", text='$text'"
                 }
-        return "HTML(name='$name', attrs=${getAttrs()}, children.size=${children.size}$txt)"
+        return "HTML(name='$elementName', attrs=${getAttrs()}, children.size=${children.size}$txt)"
     }
 
 //    fun <CHILD_MODEL,CHILD_MESSAGE> childView(uv: Component<CHILD_MODEL, CHILD_MESSAGE>,
