@@ -1,0 +1,14 @@
+package {{nameSpace}}
+{{#imports}}
+import {{.}}
+{{/imports}}
+
+enum class {{className}}(val value: String) {
+    {{#values}}
+        {{name}}("{{value}}"),
+    {{/values}}
+    ;
+     companion object {
+            fun fromValue(value: String): {{className}} = values().first { it.value == value }
+    }
+}

@@ -1,0 +1,95 @@
+buildscript {
+
+    repositories {
+        mavenCentral()
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath("org.jetbrains.kotlin:kotlin-allopen:${kotlin_version}")
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.multiplatform'
+}
+
+repositories {
+    mavenCentral()
+}
+
+/*
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "com.github.spullara.mustache.java:compiler:0.9.6"
+    compile group: 'org.apache.ws.commons.schema', name: 'XmlSchema', version: '1.4.7'
+    compile project(':iuv-core')
+}
+
+ */
+
+//sourceSets.main.kotlin.srcDirs += "src/generated/kotlin"
+//sourceSets.jsMain.kotlin.srcDirs += "src/generated/kotlin"
+
+kotlin {
+    targets {
+        fromPreset(presets.jvm, 'jvm8') {
+            // Configure a single target's compilations (main and test)
+            compilations.all {
+                tasks[compileKotlinTaskName].kotlinOptions {
+                    jvmTarget = '1.8'
+                }
+            }
+        }
+
+        fromPreset(presets.js, 'js') {
+            // Configure a single target's compilations (main and test)
+            compilations.all {
+                tasks[compileKotlinTaskName].kotlinOptions {
+                    moduleKind = "umd"
+                    sourceMap = true
+                    metaInfo = true
+                    sourceMapEmbedSources = "always"
+                }
+            }
+        }
+    }
+
+    sourceSets {
+        jvm8Main {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+                implementation "com.github.spullara.mustache.java:compiler:0.9.6"
+                implementation 'org.apache.ws.commons.schema:XmlSchema:1.4.7'
+                implementation project(':iuv-core')
+            }
+        }
+        jvm8Test {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test'
+                implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+            }
+        }
+        jsMain {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+                implementation project(':iuv-core')
+            }
+        }
+        jsTest {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test-js'
+            }
+        }
+        jsGenerated {
+            dependsOn jsMain
+            /*dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
+                implementation project(':iuv-core')
+            }
+
+             */
+        }
+    }
+}

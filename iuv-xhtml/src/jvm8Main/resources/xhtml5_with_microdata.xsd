@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- =====================================================================
+     Extension of the A W3C XML Schema for XHTML 5 by Olivier Ishacian
+
+     Author: Stefan Grunert
+     ===================================================================== -->
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns="http://www.w3.org/1999/xhtml"
+           targetNamespace="http://www.w3.org/1999/xhtml"
+           elementFormDefault="qualified">
+
+    <xs:redefine schemaLocation="xhtml5.xsd">
+        <xs:attributeGroup name="globalAttributeGroup">
+            <xs:attributeGroup ref="globalAttributeGroup"/>
+            <xs:attributeGroup ref="microdataAttributes"/>
+            <!-- "data-*" attributes not supported. -->
+        </xs:attributeGroup>
+
+        <xs:group name="flowContent">
+            <xs:choice>
+                <xs:group ref="flowContent"/>
+                <xs:element name="meta" type="metaInBody"/>
+            </xs:choice>
+        </xs:group>
+
+        <xs:group name="phrasingContent">
+            <xs:choice>
+                <xs:group ref="phrasingContent"/>
+                <xs:element name="meta" type="metaInBody"/>
+            </xs:choice>
+        </xs:group>
+    </xs:redefine>
+
+    <xs:attributeGroup name="microdataAttributes">
+        <xs:attribute name="itemscope" type="uri"/>
+        <xs:attribute name="itemtype" type="string"/>
+        <xs:attribute name="itemprop" type="nonEmptyToken"/>
+        <xs:attribute name="itemid" type="nonEmptyToken"/>
+    </xs:attributeGroup>
+
+    <xs:complexType name="metaInBody">
+        <xs:attribute name="itemprop" type="nonEmptyToken" use="required"/>
+        <xs:attribute name="content" type="nonEmptyToken" use="required"/>
+    </xs:complexType>
+
+</xs:schema>

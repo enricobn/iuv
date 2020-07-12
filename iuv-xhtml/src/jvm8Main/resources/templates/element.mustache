@@ -1,0 +1,21 @@
+package {{nameSpace}}
+{{#imports}}
+import {{.}}
+{{/imports}}
+
+class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
+ {{#attributes.groups}},{{className}}{{/attributes.groups}}
+ {
+    {{#attributes.attributes}}
+    var {{name}}: {{type.className}}?
+        set(value) {
+            if (value == null) {
+                removeProperty("{{name}}")
+            } else {
+                addProperty("{{name}}", value{{type.value}})
+            }
+        }
+        get() = {{type.valueOf}}getProperty("{{name}}"))
+
+    {{/attributes.attributes}}
+}
