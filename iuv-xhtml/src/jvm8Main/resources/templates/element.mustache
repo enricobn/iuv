@@ -18,4 +18,10 @@ class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
         get() = {{type.valueOf}}getProperty("{{name}}"))
 
     {{/attributes.attributes}}
+
+    {{#children}}
+        fun {{name}}(init: {{className}}<MESSAGE>.() -> Unit) {
+            element({{className}}(), init)
+        }
+    {{/children}}
 }
