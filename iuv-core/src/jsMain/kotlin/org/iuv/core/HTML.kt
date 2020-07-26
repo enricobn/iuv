@@ -48,135 +48,12 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
 
     fun getJsTorRun() = jsToRun.toList()
 
-    fun div(classes: String? = null, init: DivH<MESSAGE>.() -> Unit) {
-        element(DivH(), classes, init)
-    }
-
-    fun td(init: TDH<MESSAGE>.() -> Unit) {
-        element(TDH(), init)
-    }
-
-    fun tr(init: TRH<MESSAGE>.() -> Unit) {
-        element(TRH(), init)
-    }
-
-    fun table(init: TableH<MESSAGE>.() -> Unit) {
-        element(TableH(), init)
-    }
-
-    fun button(init: ButtonH<MESSAGE>.() -> Unit) {
-        element(ButtonH(), init)
-    }
-
-    fun span(init: SpanH<MESSAGE>.() -> Unit) {
-        element(SpanH(), init)
-    }
-
-    fun thead(init: TheadH<MESSAGE>.() -> Unit) {
-        element(TheadH(), init)
-    }
-
-    fun tbody(init: TbodyH<MESSAGE>.() -> Unit) {
-        element(TbodyH(), init)
-    }
-
-    fun th(init: THH<MESSAGE>.() -> Unit) {
-        element(THH(), init)
-    }
-
-    fun input(init: InputH<MESSAGE>.() -> Unit) {
-        element(InputH(), init)
-    }
-
-    fun b(init: BH<MESSAGE>.() -> Unit) {
-        element(BH(), init)
-    }
-
-    fun label(init: LabelH<MESSAGE>.() -> Unit) {
-        element(LabelH(), init)
-    }
-
-    fun ul(init: UlH<MESSAGE>.() -> Unit) {
-        element(UlH(), init)
-    }
-
-    fun li(init: LiH<MESSAGE>.() -> Unit) {
-        element(LiH(), init)
-    }
-
-    fun header(init: HeaderH<MESSAGE>.() -> Unit) {
-        element(HeaderH(), init)
-    }
-
-    fun nav(init: NavH<MESSAGE>.() -> Unit) {
-        element(NavH(), init)
-    }
-
-    fun a(init: AH<MESSAGE>.() -> Unit) {
-        element(AH(), init)
-    }
-
-    fun main(init: MainH<MESSAGE>.() -> Unit) {
-        element(MainH(), init)
-    }
-
-    fun br() {
-        add(HTML<MESSAGE>("br"))
-    }
-
-    fun checkbox(init: CheckBoxH<MESSAGE>.() -> Unit) {
-        element(CheckBoxH(), init)
-    }
-
-    fun img(init: IMAGEH<MESSAGE>.() -> Unit) {
-        element(IMAGEH(), init)
-    }
-
-    fun form(init: FormH<MESSAGE>.() -> Unit) {
-        element(FormH(), init)
-    }
-
-    fun section(init: SectionH<MESSAGE>.() -> Unit) {
-        element(SectionH(), init)
-    }
-
-    fun h1(init: HH<MESSAGE>.() -> Unit) {
-        element(HH(1), init)
-    }
-
-    fun h2(init: HH<MESSAGE>.() -> Unit) {
-        element(HH(2), init)
-    }
-
-    fun h3(init: HH<MESSAGE>.() -> Unit) {
-        element(HH(3), init)
-    }
-
-    fun h4(init: HH<MESSAGE>.() -> Unit) {
-        element(HH(4), init)
-    }
-
-    fun h5(init: HH<MESSAGE>.() -> Unit) {
-        element(HH(5), init)
-    }
-
-    fun strong(init: StrongH<MESSAGE>.() -> Unit) {
-        element(StrongH(), init)
-    }
-
-    fun footer(init: FooterH<MESSAGE>.() -> Unit) {
-        element(FooterH(), init)
-    }
-
-    fun i(init: IH<MESSAGE>.() -> Unit) {
-        element(IH(), init)
-    }
-
     fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
         element.init()
         add(element)
     }
 
+    /*
     fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, classes: String?, init: ELEMENT.() -> Unit) {
         if (classes != null) {
             element.addClasses(classes)
@@ -184,6 +61,8 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
         element.init()
         add(element)
     }
+
+     */
 
     //    fun <CHILD_MESSAGE> add(html: HTML<CHILD_MESSAGE>, mapFun: (CHILD_MESSAGE) -> MESSAGE) {
 //        val newMessageBus = MessageBusImpl<CHILD_MESSAGE> {message -> messageBus.send(mapFun.invoke(message))}
@@ -230,25 +109,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
         children.add(HTMLTextChild(this))
     }
 
-    var classes: String?
-        set(value) {
-            addAttribute("class", value)
-        }
-        get() = getAttribute("class")
-
-    @Deprecated("Use addClasses instead")
-    fun appendClasses(vararg classesToAppend: String) {
-        val allClasses =
-                classes.let {
-                    if (it != null && it.isNotEmpty()) {
-                        it + " "
-                    } else {
-                        ""
-                    }
-                } + classesToAppend.joinToString(" ")
-        classes = allClasses
-    }
-
+    /*
     /**
      * classes are separated by spaces
      */
@@ -256,23 +117,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
         classes = if (classes.isNullOrEmpty()) classesToAdd else "$classes $classesToAdd"
     }
 
-    var style: String?
-        set(value) {
-            addAttribute("style", value)
-        }
-        get() = getAttribute("style") as String?
-
-    var id: String?
-        set(value) {
-            addAttribute("id", value)
-        }
-        get() = getAttribute("id") as String?
-
-    var key: String?
-        set(value) {
-            addAttribute("key", value)
-        }
-        get() = getAttribute("key") as String?
+     */
 
     fun addAttribute(name: String, attr: dynamic) {
         attrs[name] = attr

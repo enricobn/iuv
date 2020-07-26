@@ -1,53 +1,123 @@
 package org.iuv.xhtml
 
-import com.github.mustachejava.DefaultMustacheFactory
 import com.github.mustachejava.MustacheResolver
 import org.apache.ws.commons.schema.*
 import org.apache.ws.commons.schema.resolver.URIResolver
+import org.iuv.xhtml.impl.XHTMLFileResourceProvider
 import org.xml.sax.InputSource
-import java.io.*
+import java.io.InputStreamReader
+import java.io.Reader
 import java.net.URL
 
 fun main() {
-    val definitions = XHTMLReader.read()
+    val resourceProvider = XHTMLFileResourceProvider()
+    val definitions = XHTMLReader.read(resourceProvider)
+    val xhtmlTemplaterRunner = XHTMLTemplaterRunner(resourceProvider)
 
     definitions.elements.forEach {
-        XHTMLReader.runTemplate("/templates/element.mustache", "elements", it)
+        xhtmlTemplaterRunner.runTemplate("/templates/element.mustache", "elements", it)
     }
 
     definitions.enums.forEach {
-        XHTMLReader.runTemplate("/templates/enum.mustache", "enums", it)
+        xhtmlTemplaterRunner.runTemplate("/templates/enum.mustache", "enums", it)
     }
 
     definitions.attributeGroups.forEach {
-        XHTMLReader.runTemplate("/templates/group.mustache", "attributegroups", it)
+        xhtmlTemplaterRunner.runTemplate("/templates/group.mustache", "attributegroups", it)
     }
 
 }
 
 object XHTMLReader {
 
-    fun read(): XHTMLDefinitions {
-        val `is` = resourceURL("/xhtml5.xsd").openStream()
+    fun read(resourceProvider: XHTMLResourceProvider): XHTMLDefinitions {
+        val `is` = resourceProvider.getUrl("/xhtml5.xsd").openStream()
         val schemaCol = XmlSchemaCollection()
         schemaCol.schemaResolver = URIResolver { _, schemaLocation, _ ->
-            InputSource(resourceURL("/$schemaLocation").openStream())
+            InputSource(resourceProvider.getUrl("/$schemaLocation").openStream())
         }
 
         val schema = schemaCol.read(InputSource(`is`), ValidationEventHandler())
 
-        val elements = mutableListOf<XHTMLElement>()
-
-        val types = mutableMapOf<String, GeneratedClass>()
-        types["string"] = SimpleGeneratedClass("String")
-        types["token"] = SimpleGeneratedClass("String")
-        types["tokens"] = SimpleGeneratedClass("String")
-
-        val enums = mutableListOf<XHTMLEnumType>()
-        val tokens = mutableMapOf<String, XHTMLToken>()
+        val context = XHTMLReaderContext()
 
         val indenter = Indenter()
 
+        parseSchemaTypes(indenter, schema, context)
+
+        parseAttributeGroups(indenter, schema, context)
+
+        parseGroups(indenter, schema, context)
+
+        parseElements(indenter, schema, context)
+
+        return context.toDefinitions()
+    }
+
+    private fun parseElements(indenter: Indenter, schema: XmlSchema, context: XHTMLReaderContext) {
+        println()
+        println("Elements")
+
+        indenter.indent {
+            schema.elements.values.forEach { element ->
+                if (element is XmlSchemaElement) {
+                    println(element.name)
+                    indenter.indent {
+                        val schemaType = element.schemaType
+                        if (schemaType is XmlSchemaComplexType) {
+                            context.add(toXHTMLElement(indenter, context, schemaType, element))
+                        } else {
+                            println("Unknown shema type $schemaType")
+                        }
+                    }
+                } else {
+                    println("Unknown element $element")
+                }
+            }
+        }
+    }
+
+    private fun parseGroups(indenter: Indenter, schema: XmlSchema, context: XHTMLReaderContext) {
+        println()
+        println("Groups")
+
+        indenter.indent {
+            schema.groups.values.forEach { group ->
+                if (group is XmlSchemaGroup) {
+                    println(group.name.localPart)
+                    indenter.indent {
+                        val groupElements = parseParticle(indenter, context, group.particle, group)
+                        context.add(XHTMLGroup(group.name.localPart, groupElements))
+                    }
+                } else {
+                    println("Unknown group $group")
+                }
+            }
+        }
+    }
+
+    private fun parseAttributeGroups(indenter: Indenter, schema: XmlSchema, context: XHTMLReaderContext) {
+        println()
+        println("Attribute groups")
+
+        indenter.indent {
+            schema.attributeGroups.values.forEach {
+                if (it is XmlSchemaAttributeGroup) {
+                    println(it.name)
+
+                    indent {
+                        val attributes = getAttributes(indenter, context, it.attributes)
+
+                        context.add(XHTMLAttributeGroup(it.name.localPart, attributes))
+                    }
+                } else {
+                    println("Unknown attribute group $it")
+                }
+            }
+        }
+    }
+
+    private fun parseSchemaTypes(indenter: Indenter, schema: XmlSchema, context: XHTMLReaderContext) {
         println()
         println("Schema types")
 
@@ -64,121 +134,53 @@ object XHTMLReader {
                                     if (facet is XmlSchemaEnumerationFacet) {
                                         enumValues.add(XHTMLEnumValue(facet.value.toString()))
                                     } else {
-                                        println("Invalid facet $facet")
+                                        println("Unknown facet $facet")
                                     }
                                 }
-                                val xhtmlEnumType = XHTMLEnumType(it.name, enumValues)
-                                types[it.name] = xhtmlEnumType
-                                enums.add(xhtmlEnumType)
+                                context.add(XHTMLEnumType(it.name, enumValues))
                             } else if (content.baseTypeName.localPart == "token") {
                                 val enums = mutableListOf<String>()
                                 content.facets.iterator.forEach { facet ->
                                     if (facet is XmlSchemaEnumerationFacet) {
                                         enums.add(facet.value.toString())
                                     } else {
-                                        println("Invalid facet $facet")
+                                        println("Unknown facet $facet")
                                     }
                                 }
-                                val xhtmlToken = XHTMLToken(enums)
-
-                                tokens[it.name] = xhtmlToken
+                                context.add(XHTMLToken(it.name, enums))
                             } else {
-                                println("Invalid content type ${content.baseTypeName.localPart}")
+                                println("Unknown content type ${content.baseTypeName.localPart}")
                             }
                         } else {
-                            println("Invalid content  ${content}")
+                            println("Unknown content  ${content}")
                         }
                     }
                 } else if (it is XmlSchemaComplexType) {
                     println("Complex: ${it.name}")
                 } else {
-                    println("Invalid schemaType $it")
+                    println("Unknown schemaType $it")
                 }
             }
         }
-
-        val attributeGroups = mutableMapOf<String, XHTMLAttributeGroup>()
-
-        println()
-        println("Attribute groups")
-
-        indenter.indent {
-            schema.attributeGroups.values.forEach {
-                if (it is XmlSchemaAttributeGroup) {
-                    println(it.name)
-
-                    indent {
-                        val attributes = getAttributes(indenter, it.attributes, types)
-
-                        val group = XHTMLAttributeGroup(it.name.localPart, attributes)
-                        attributeGroups[it.name.localPart] = group
-                    }
-                } else {
-                    println("Unknown attribute group $it")
-                }
-            }
-        }
-
-        println()
-        println("Groups")
-
-        val groups = mutableMapOf<String, XHTMLGroup>()
-
-        indenter.indent {
-            schema.groups.values.forEach { group ->
-                if (group is XmlSchemaGroup) {
-                    println(group.name.localPart)
-                    indenter.indent {
-                        val groupElements = parseParticle(group.particle, group, groups)
-                        groups[group.name.localPart] = XHTMLGroup(group.name.localPart, groupElements)
-                    }
-                } else {
-                    indenter.println("Unknown group $group")
-                }
-            }
-        }
-
-        println()
-        println("Elements")
-
-        indenter.indent {
-            schema.elements.values.forEach { element ->
-                if (element is XmlSchemaElement) {
-                    println(element.name)
-                    indenter.indent {
-                        val schemaType = element.schemaType
-                        if (schemaType is XmlSchemaComplexType) {
-                            elements.add(toXHTMLElement(indenter, schemaType, element, types, groups))
-                        } else {
-                            println("Unknown shema type $schemaType")
-                        }
-                    }
-                } else {
-                    println("Unknown element $element")
-                }
-            }
-        }
-
-        return XHTMLDefinitions(elements, enums, attributeGroups.values.toList())
     }
 
-    private fun parseParticle(particle: XmlSchemaGroupBase, parent: Any?, groups: Map<String, XHTMLGroup>): MutableList<String> {
+    private fun parseParticle(indenter: Indenter, context: XHTMLReaderContext, particle: XmlSchemaGroupBase, parent: Any?): MutableList<String> {
         val groupElements = mutableListOf<String>()
         particle.items.iterator.forEach {
             if (it is XmlSchemaElement) {
                 groupElements.add(it.name)
             } else if (it is XmlSchemaGroupRef) {
-                val group = groups[it.refName.localPart]!!
+                val group = context.getGroup(it.refName.localPart)!!
                 groupElements.addAll(group.elements)
             } else {
-                println("Unknown elements for parent $parent : $it")
+                indenter.println("Unknown elements for parent $parent : $it")
             }
         }
         return groupElements
     }
 
-    private fun toXHTMLElement(indenter: Indenter, schemaType: XmlSchemaComplexType, element: XmlSchemaElement, types: Map<String, GeneratedClass>, groups: Map<String, XHTMLGroup>): XHTMLElement {
-        val attributes = getAttributes(indenter, schemaType, types)
+    private fun toXHTMLElement(indenter: Indenter, context: XHTMLReaderContext, schemaType: XmlSchemaComplexType, element: XmlSchemaElement): XHTMLElement {
+        val attributes = getAttributes(indenter, context, schemaType)
 
         val contentModel = schemaType.contentModel
         if (contentModel is XmlSchemaComplexContent) {
@@ -193,7 +195,7 @@ object XHTMLReader {
         val particle = schemaType.particle
 
         if (particle is XmlSchemaGroupBase) {
-            children = parseParticle(particle, element, groups).map { SimpleGeneratedClass(it) }
+            children = parseParticle(indenter, context, particle, element).map { SimpleGeneratedClass(it) }
         } else if (particle != null) {
             indenter.println("Unknown particle type: $particle")
         }
@@ -201,36 +203,36 @@ object XHTMLReader {
         return XHTMLElement(element.name, attributes, children)
     }
 
-    private fun getAttributes(indenter: Indenter, schemaType: XmlSchemaComplexType, types: Map<String, GeneratedClass>): XHTMLAttributes {
-        var result = getAttributes(indenter, schemaType.attributes, types)
+    private fun getAttributes(indenter: Indenter, context: XHTMLReaderContext, schemaType: XmlSchemaComplexType): XHTMLAttributes {
+        var result = getAttributes(indenter, context, schemaType.attributes)
 
         val contentModel = schemaType.contentModel
 
         if (contentModel is XmlSchemaComplexContent) {
             val content = contentModel.content
             if (content is XmlSchemaComplexContentExtension) {
-                result = result.add(getAttributes(indenter, content.attributes, types))
+                result = result.add(getAttributes(indenter, context, content.attributes))
             } else {
-                indenter.println("Invalid content $content")
+                indenter.println("Unknown content $content")
             }
         } else if (contentModel != null) {
-            indenter.println("Invalid contentModel $contentModel")
+            indenter.println("Unknown contentModel $contentModel")
         }
 
         return result
     }
 
-    private fun getAttributes(indenter: Indenter, attributes: XmlSchemaObjectCollection, types: Map<String, GeneratedClass>): XHTMLAttributes {
+    private fun getAttributes(indenter: Indenter, context: XHTMLReaderContext, attributes: XmlSchemaObjectCollection): XHTMLAttributes {
         val simpleAttributes = mutableListOf<XHTMLAttribute>()
         val attributeGroups = mutableListOf<AttributeGroupReference>()
         attributes.iterator.iterator().forEach {
             if (it is XmlSchemaAttribute) {
                 if (it.schemaTypeName == null) {
-                    simpleAttributes.add(XHTMLAttribute(it.name, types["string"] ?: error("Cannot find String type")))
+                    simpleAttributes.add(XHTMLAttribute(it.name, context.getType("string") ?: error("Cannot find String type")))
                 } else {
-                    val type = types[it.schemaTypeName.localPart]
+                    val type = context.getType(it.schemaTypeName.localPart)
                     if (type == null) {
-                        indenter.println("Invalid attribute type for ${it.name}: ${it.schemaTypeName.localPart}")
+                        indenter.println("Unknown attribute type for ${it.name}: ${it.schemaTypeName.localPart}")
                     } else {
                         simpleAttributes.add(XHTMLAttribute(it.name, type))
                     }
@@ -238,47 +240,17 @@ object XHTMLReader {
             } else if (it is XmlSchemaAttributeGroupRef) {
                 attributeGroups.add(AttributeGroupReference(it.refName.localPart))
             } else {
-                indenter.println("Invalid attribute $it")
+                indenter.println("Unknown attribute $it")
             }
         }
         return XHTMLAttributes(simpleAttributes, attributeGroups)
-    }
-
-    fun runTemplate(resource: String, `package`: String, generatedClass: GeneratedClass) {
-        val url = resourceURL(resource)
-        val file = File("iuv-xhtml/src/jsMain/kotlin/org/iuv/html/$`package`")
-        //val file = File("iuv-xhtml/src/jsGenerated/kotlin/org/iuv/html")
-        file.mkdirs()
-        val writer = FileWriter(File(file, generatedClass.className() + ".kt"))
-        runTemplate(url, generatedClass, writer)
-    }
-
-    private fun resourceURL(resource: String): URL {
-        //val url = XHTMLReader.javaClass.getResource(resource)
-        return File("iuv-xhtml/src/jvm8Main/resources$resource").toURI().toURL()
-    }
-
-    private fun runTemplate(url: URL, bundle: Any, writer: Writer) {
-        val mf = DefaultMustacheFactory(URLMustacheResolver(url))
-        url.openStream().use { inputStream ->
-            InputStreamReader(inputStream, "UTF-8").use { reader ->
-                val mustache = mf.compile(reader, "template.mustache")
-                mustache.execute(writer, bundle)
-                writer.flush()
-            }
-        }
     }
 
 }
 
 data class XHTMLAttribute(val originalName: String, val type: GeneratedClass) {
 
-    val name =
-            if (originalName == "class") {
-                "classes"
-            } else {
-                originalName.replace("-", "").replace(":", "")
-            }
+    val name = normalizeName(originalName)
 
 }
 
@@ -304,12 +276,18 @@ interface GeneratedClass {
 
 }
 
-data class SimpleGeneratedClass(override val name: String) : GeneratedClass {
+data class SimpleGeneratedClass(val originalName: String) : GeneratedClass {
     override val imports: List<String> = listOf()
 
     override val value = ""
 
     override val valueOf = "("
+
+    override val name = normalizeName(originalName)
+
+    override fun className(): String {
+        return originalName.capitalize()
+    }
 
 }
 
@@ -364,12 +342,23 @@ data class XHTMLEnumType(override val name: String, val values: List<XHTMLEnumVa
 
 data class XHTMLEnumValue(val value: String) {
 
-    val name = value.replace("-", "")
-            .replace(Regex("^\\d+.*")) { matchResult ->
-                "_" + matchResult.value
-            }
+    val name = normalizeName(value)
 
 }
+
+fun normalizeName(name: String) : String =
+    if (name == "var") {
+        "var_"
+    } else if (name == "object") {
+        "object_"
+    } else if (name == "class") {
+        "classes"
+    } else {
+        name.replace("-", "")
+                .replace(Regex("^\\d+.*")) { matchResult ->
+                    "_" + matchResult.value
+                }
+    }
 
 data class XHTMLDefinitions(val elements: List<XHTMLElement>, val enums: List<XHTMLEnumType>,
                             val attributeGroups: List<XHTMLAttributeGroup>)
@@ -401,7 +390,7 @@ data class XHTMLAttributes(val attributes: List<XHTMLAttribute>, val groups: Lis
 
 }
 
-data class XHTMLToken(val tokens: List<String>)
+data class XHTMLToken(val name: String, val tokens: List<String>)
 
 data class XHTMLGroup(override val name: String, val elements: List<String>) : GeneratedClass {
     override val imports: List<String> = listOf()
@@ -412,25 +401,3 @@ data class XHTMLGroup(override val name: String, val elements: List<String>) : G
     }
 }
 
-class Indenter(val size: Int = 2) {
-    private var level = 0;
-
-    private fun open() {
-        level++
-    }
-
-    private fun close() {
-        level--
-    }
-
-    fun println(s: String) {
-        kotlin.io.println(" ".repeat(level * size) + s)
-    }
-
-    fun indent(init: Indenter.() -> Unit) {
-        open()
-        init.invoke(this)
-        close()
-    }
-
-}
