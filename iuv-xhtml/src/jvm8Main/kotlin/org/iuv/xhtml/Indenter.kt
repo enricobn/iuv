@@ -1,6 +1,8 @@
 package org.iuv.xhtml
 
-class Indenter(val size: Int = 2) {
+import java.io.PrintStream
+
+class Indenter(val size: Int = 2, val ps: PrintStream = System.out) {
     private var level = 0;
 
     private fun open() {
@@ -12,7 +14,7 @@ class Indenter(val size: Int = 2) {
     }
 
     fun println(s: String) {
-        kotlin.io.println(" ".repeat(level * size) + s)
+        ps.println(" ".repeat(level * size) + s)
     }
 
     fun indent(init: Indenter.() -> Unit) {

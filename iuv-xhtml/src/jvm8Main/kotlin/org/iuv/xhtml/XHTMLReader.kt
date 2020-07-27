@@ -31,13 +31,13 @@ fun main() {
 object XHTMLReader {
 
     fun read(resourceProvider: XHTMLResourceProvider): XHTMLDefinitions {
-        val `is` = resourceProvider.getUrl("/xhtml5.xsd").openStream()
+        val inputStream = resourceProvider.getUrl("/xhtml5.xsd").openStream()
         val schemaCol = XmlSchemaCollection()
         schemaCol.schemaResolver = URIResolver { _, schemaLocation, _ ->
             InputSource(resourceProvider.getUrl("/$schemaLocation").openStream())
         }
 
-        val schema = schemaCol.read(InputSource(`is`), ValidationEventHandler())
+        val schema = schemaCol.read(InputSource(inputStream), ValidationEventHandler())
 
         val context = XHTMLReaderContext()
 
@@ -260,9 +260,15 @@ interface GeneratedClass {
 
     fun className(): String = name.capitalize()
 
-    val value: String
+    /**
+     * an expression to get a string representation
+     */
+    fun value() : String = ""
 
-    val valueOf: String
+    /**
+     * the name of a function to use to parse the value from the string representation
+     */
+    fun valueOf() : String = ""
 
     val imports: List<String>
 
@@ -279,10 +285,6 @@ interface GeneratedClass {
 data class SimpleGeneratedClass(val originalName: String) : GeneratedClass {
     override val imports: List<String> = listOf()
 
-    override val value = ""
-
-    override val valueOf = "("
-
     override val name = normalizeName(originalName)
 
     override fun className(): String {
@@ -294,21 +296,12 @@ data class SimpleGeneratedClass(val originalName: String) : GeneratedClass {
 data class AttributeGroupReference(override val name: String) : GeneratedClass {
     override val imports: List<String> = listOf()
 
-    override val value = ""
-
-    override val valueOf = "("
-
     override fun nameSpace(): String {
         return super.nameSpace() + ".attributegroups"
     }
 }
 
 data class XHTMLElement(override val name: String, val attributes: XHTMLAttributes, val children: List<GeneratedClass>) : GeneratedClass {
-
-    // TODO I don't like it
-    override val value = ""
-
-    override val valueOf = "("
 
     override fun nameSpace(): String {
         return super.nameSpace() + ".elements"
@@ -329,9 +322,9 @@ class URLMustacheResolver(private val url: URL) : MustacheResolver {
 
 data class XHTMLEnumType(override val name: String, val values: List<XHTMLEnumValue>) : GeneratedClass {
 
-    override val value = ".value"
+    override fun value() = ".value"
 
-    override val valueOf = className() + ".fromValue("
+    override fun valueOf() = className() + ".fromValue"
 
     override val imports: List<String> = listOf()
 
@@ -358,15 +351,13 @@ fun normalizeName(name: String) : String =
                 .replace(Regex("^\\d+.*")) { matchResult ->
                     "_" + matchResult.value
                 }
+                .replace(":", "_")
     }
 
 data class XHTMLDefinitions(val elements: List<XHTMLElement>, val enums: List<XHTMLEnumType>,
                             val attributeGroups: List<XHTMLAttributeGroup>)
 
 data class XHTMLAttributeGroup(override val name: String, val attributes: XHTMLAttributes) : GeneratedClass {
-    override val value: String = ""
-    override val valueOf: String = ""
-
     override val imports: List<String> = attributes.imports
 
     override fun nameSpace(): String {
@@ -394,8 +385,6 @@ data class XHTMLToken(val name: String, val tokens: List<String>)
 
 data class XHTMLGroup(override val name: String, val elements: List<String>) : GeneratedClass {
     override val imports: List<String> = listOf()
-    override val value: String = ""
-    override val valueOf: String = ""
     override fun nameSpace(): String {
         return super.nameSpace() + ".groups"
     }

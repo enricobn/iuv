@@ -10,12 +10,12 @@ class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
     var {{name}}: {{type.className}}?
         set(value) {
             if (value == null) {
-                removeProperty("{{name}}")
+                removeProperty("{{originalName}}")
             } else {
-                addProperty("{{name}}", value{{type.value}})
+                addProperty("{{originalName}}", value{{type.value}})
             }
         }
-        get() = {{type.valueOf}}getProperty("{{name}}"))
+        get() = {{type.valueOf}}(getProperty("{{originalName}}"))
 
     {{/attributes.attributes}}
 
