@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.attributegroups.VideoAttributeGroup
 
 class FlowContentVideo<MESSAGE> : org.iuv.core.HTML<MESSAGE>("video")
- ,GlobalAttributeGroup,VideoAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>,VideoAttributeGroup<MESSAGE>
  ,org.iuv.core.html.groups.FlowContent<MESSAGE>
  {
 
@@ -13,4 +13,5 @@ class FlowContentVideo<MESSAGE> : org.iuv.core.HTML<MESSAGE>("video")
     fun track(init: Track<MESSAGE>.() -> Unit) {
         element(Track(), init)
     }
+
 }

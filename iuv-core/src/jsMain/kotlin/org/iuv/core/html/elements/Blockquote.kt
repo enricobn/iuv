@@ -15,4 +15,5 @@ class Blockquote<MESSAGE> : org.iuv.core.HTML<MESSAGE>("blockquote")
         get() = (getProperty("cite"))
 
 
+
 }

@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.Wrap
 
 class Textarea<MESSAGE> : org.iuv.core.HTML<MESSAGE>("textarea")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var name: String?
@@ -115,6 +115,7 @@ class Textarea<MESSAGE> : org.iuv.core.HTML<MESSAGE>("textarea")
             }
         }
         get() = Wrap.fromValue(getProperty("wrap"))
+
 
 
 }

@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface CoreAttributeGroupNodir : HTMLElementAttributes
+interface CoreAttributeGroupNodir<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var classes: String?
@@ -104,5 +104,6 @@ interface CoreAttributeGroupNodir : HTMLElementAttributes
             }
         }
         get() = (getProperty("title"))
+
 
 }

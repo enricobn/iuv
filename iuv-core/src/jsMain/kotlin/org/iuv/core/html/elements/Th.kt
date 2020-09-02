@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.ThAttributeGroup
 import org.iuv.core.html.enums.Scope
 
 class Th<MESSAGE> : org.iuv.core.HTML<MESSAGE>("th")
- ,ThAttributeGroup
+ ,ThAttributeGroup<MESSAGE>
  
  {
     var scope: Scope?
@@ -15,6 +15,7 @@ class Th<MESSAGE> : org.iuv.core.HTML<MESSAGE>("th")
             }
         }
         get() = Scope.fromValue(getProperty("scope"))
+
 
 
 }

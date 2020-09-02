@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Details<MESSAGE> : org.iuv.core.HTML<MESSAGE>("details")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  ,org.iuv.core.html.groups.FlowContent<MESSAGE>
  {
     var open: String?
@@ -19,4 +19,5 @@ class Details<MESSAGE> : org.iuv.core.HTML<MESSAGE>("details")
     fun summary(init: Summary<MESSAGE>.() -> Unit) {
         element(Summary(), init)
     }
+
 }

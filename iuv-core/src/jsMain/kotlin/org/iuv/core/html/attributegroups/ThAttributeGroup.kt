@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface ThAttributeGroup : HTMLElementAttributes
+interface ThAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var colspan: Int?
@@ -24,5 +24,6 @@ interface ThAttributeGroup : HTMLElementAttributes
             }
         }
         get() = (getProperty("rowspan"))
+
 
 }

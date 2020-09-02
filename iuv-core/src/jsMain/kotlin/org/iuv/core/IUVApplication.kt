@@ -1,8 +1,8 @@
 package org.iuv.core
 
+import kotlinx.browser.document
 import org.iuv.core.impl.MessageBusImpl
 import org.w3c.dom.Element
-import kotlin.browser.document
 import kotlin.js.Date
 
 class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,

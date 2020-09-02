@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Base<MESSAGE> : org.iuv.core.HTML<MESSAGE>("base")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var href: String?
@@ -14,6 +14,7 @@ class Base<MESSAGE> : org.iuv.core.HTML<MESSAGE>("base")
             }
         }
         get() = (getProperty("href"))
+
 
 
 }

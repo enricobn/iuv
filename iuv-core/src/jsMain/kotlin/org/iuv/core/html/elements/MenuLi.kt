@@ -5,4 +5,5 @@ class MenuLi<MESSAGE> : org.iuv.core.HTML<MESSAGE>("li")
  
  {
 
+
 }

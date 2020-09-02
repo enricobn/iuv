@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.TrackKind
 
 class Track<MESSAGE> : org.iuv.core.HTML<MESSAGE>("track")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var kind: TrackKind?
@@ -45,6 +45,7 @@ class Track<MESSAGE> : org.iuv.core.HTML<MESSAGE>("track")
             }
         }
         get() = (getProperty("default"))
+
 
 
 }

@@ -1,15 +1,15 @@
 package org.iuv.core
 
+import kotlinx.browser.window
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
-import kotlin.browser.window
 
 @DslMarker
 annotation class HtmlTagMarker
 @HtmlTagMarker
-open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSAGE>, HTMLElementAttributes {
+open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSAGE>, HTMLElementAttributes<MESSAGE> {
     internal val attrs: dynamic = object {}
     internal val children = mutableListOf<HTMLChild>()
     private val jsToRun = mutableListOf<String>()
@@ -149,7 +149,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
         return getProperty(key) == null
     }
 
-    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?) {
+    override fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?) {
         if (handlers == null) {
             handlers = object {}
         }
@@ -164,7 +164,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
         }
     }
 
-    fun <EVENT : Event> on(name: String, handler: (EVENT, MessageBus<MESSAGE>) -> Unit) {
+    override fun <EVENT : Event> on(name: String, handler: (EVENT, MessageBus<MESSAGE>) -> Unit) {
         if (handlers == null) {
             handlers = object {}
         }

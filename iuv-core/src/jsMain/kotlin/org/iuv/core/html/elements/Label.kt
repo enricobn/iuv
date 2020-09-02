@@ -25,4 +25,5 @@ class Label<MESSAGE> : org.iuv.core.HTML<MESSAGE>("label")
         get() = (getProperty("form"))
 
 
+
 }

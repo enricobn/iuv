@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface AudioAttributeGroup : HTMLElementAttributes
+interface AudioAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var src: String?
@@ -64,5 +64,6 @@ interface AudioAttributeGroup : HTMLElementAttributes
             }
         }
         get() = (getProperty("mediagroup"))
+
 
 }

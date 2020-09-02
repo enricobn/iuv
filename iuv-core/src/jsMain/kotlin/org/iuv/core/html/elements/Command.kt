@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.CommandType
 
 class Command<MESSAGE> : org.iuv.core.HTML<MESSAGE>("command")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var type: CommandType?
@@ -65,6 +65,7 @@ class Command<MESSAGE> : org.iuv.core.HTML<MESSAGE>("command")
             }
         }
         get() = (getProperty("checked"))
+
 
 
 }

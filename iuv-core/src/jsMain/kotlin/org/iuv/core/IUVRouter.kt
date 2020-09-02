@@ -1,6 +1,6 @@
 package org.iuv.core
 
-import kotlin.browser.window
+import kotlinx.browser.window
 
 typealias IUVRoute<MODEL, MESSAGE, PARAMETERS> = (PARAMETERS) -> View<MODEL, MESSAGE>
 

@@ -1,6 +1,8 @@
 package org.iuv.core
 
-interface HTMLElementAttributes {
+import org.w3c.dom.events.Event
+
+interface HTMLElementAttributes<MESSAGE> {
 
     fun addProperty(name: String, prop: dynamic)
 
@@ -9,5 +11,9 @@ interface HTMLElementAttributes {
     fun getProperty(key: String) : dynamic
 
     fun hasProperty(key: String) : Boolean
+
+    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?)
+
+    fun <EVENT : Event> on(name: String, handler: (EVENT, MessageBus<MESSAGE>) -> Unit)
 
 }

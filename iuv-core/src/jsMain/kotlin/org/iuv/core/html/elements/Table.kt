@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Table<MESSAGE> : org.iuv.core.HTML<MESSAGE>("table")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var border: String?
@@ -25,4 +25,5 @@ class Table<MESSAGE> : org.iuv.core.HTML<MESSAGE>("table")
     fun thead(init: Thead<MESSAGE>.() -> Unit) {
         element(Thead(), init)
     }
+
 }

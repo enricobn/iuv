@@ -303,6 +303,7 @@ object XHTMLReader {
     private fun getAttributes(indenter: Indenter, context: XHTMLReaderContext, attributes: XmlSchemaObjectCollection): XHTMLAttributes {
         val simpleAttributes = mutableListOf<XHTMLAttribute>()
         val attributeGroups = mutableListOf<AttributeGroupReference>()
+        val functions = mutableListOf<XHTMLEventHandler>()
         attributes.iterator.iterator().forEach {
             if (it is XmlSchemaAttribute) {
                 if (it.schemaTypeName == null) {
@@ -310,7 +311,15 @@ object XHTMLReader {
                 } else {
                     val type = context.getType(it.schemaTypeName.localPart)
                     if (type == null) {
-                        indenter.println("Unknown attribute type for ${it.name}: ${it.schemaTypeName.localPart}")
+                        if (it.schemaTypeName.localPart == "functionBody") {
+                            if (it.name.startsWith("on")) {
+                                functions.add(XHTMLEventHandler(it.name))
+                            } else {
+                                indenter.println("Unknown function: ${it.name}")
+                            }
+                        } else {
+                            indenter.println("Unknown attribute type for ${it.name}: ${it.schemaTypeName.localPart}")
+                        }
                     } else {
                         simpleAttributes.add(XHTMLAttribute(it.name, type))
                     }
@@ -321,7 +330,7 @@ object XHTMLReader {
                 indenter.println("Unknown attribute $it")
             }
         }
-        return XHTMLAttributes(simpleAttributes, attributeGroups)
+        return XHTMLAttributes(simpleAttributes, attributeGroups, functions)
     }
 
 }
@@ -493,10 +502,10 @@ data class XHTMLAttributeGroup(override val name: String, val attributes: XHTMLA
     }
 }
 
-data class XHTMLAttributes(val attributes: List<XHTMLAttribute>, val groups: List<AttributeGroupReference>) {
+data class XHTMLAttributes(val attributes: List<XHTMLAttribute>, val groups: List<AttributeGroupReference>, val functions: List<XHTMLEventHandler>) {
 
     fun add(xhtmlAttributes: XHTMLAttributes): XHTMLAttributes =
-            XHTMLAttributes(attributes + xhtmlAttributes.attributes, groups + xhtmlAttributes.groups)
+            XHTMLAttributes(attributes + xhtmlAttributes.attributes, groups + xhtmlAttributes.groups, functions + xhtmlAttributes.functions)
 
     val imports = (groups.map { it.fullClassName() } + attributes.flatMap {
         val type = it.type
@@ -518,4 +527,17 @@ data class XHTMLGroup(override val name: String, val groups: List<GeneratedClass
     override fun nameSpace(): String {
         return super.nameSpace() + ".groups"
     }
+}
+
+data class XHTMLEventHandler(val name: String) {
+
+    val eventName = name.substring(2)
+
+    val eventType = if (eventName == "keydown") {
+            "org.w3c.dom.events.KeyboardEvent"
+        } else {
+            "org.w3c.dom.events.Event"
+        }
+
+
 }

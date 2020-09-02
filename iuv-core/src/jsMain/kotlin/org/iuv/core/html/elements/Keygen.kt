@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.Keytype
 
 class Keygen<MESSAGE> : org.iuv.core.HTML<MESSAGE>("keygen")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var challenge: String?
@@ -65,6 +65,7 @@ class Keygen<MESSAGE> : org.iuv.core.HTML<MESSAGE>("keygen")
             }
         }
         get() = (getProperty("form"))
+
 
 
 }

@@ -1,9 +1,9 @@
 package org.iuv.core
 
+import kotlinx.browser.document
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.KeyboardEvent
 import org.w3c.dom.events.MouseEvent
-import kotlin.browser.document
 
 interface DocumentEventSub<out T : Event> {
     operator fun <MESSAGE> invoke(handler : (T) -> MESSAGE) : Sub<MESSAGE>

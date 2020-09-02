@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.OlType
 
 class Ol<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ol")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var type: OlType?
@@ -40,4 +40,5 @@ class Ol<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ol")
     fun li(init: OlLi<MESSAGE>.() -> Unit) {
         element(OlLi(), init)
     }
+
 }

@@ -4,7 +4,7 @@ import {{.}}
 {{/imports}}
 
 class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
- {{#attributes.groups}},{{className}}{{/attributes.groups}}
+ {{#attributes.groups}},{{className}}<MESSAGE>{{/attributes.groups}}
  {{#groups}},{{fullClassName}}<MESSAGE>{{/groups}}
  {
     {{#attributes.attributes}}
@@ -25,4 +25,16 @@ class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
         element({{className}}(), init)
     }
     {{/children}}
+
+    {{#attributes.functions}}
+    fun {{name}}(handler: ({{eventType}},String) -> MESSAGE) {
+        on("{{eventName}}") { event: {{eventType}} ->
+            handler(event, event.target?.asDynamic().value as String)
+        }
+    }
+    fun {{name}}(message: MESSAGE) {
+        on("{{eventName}}") { _: {{eventType}} -> message }
+    }
+
+    {{/attributes.functions}}
 }

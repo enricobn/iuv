@@ -3,8 +3,8 @@ package org.iuv.core.html.attributegroups
 import org.iuv.core.HTMLElementAttributes
 import org.iuv.core.html.enums.Dir
 
-interface CoreAttributeGroup : HTMLElementAttributes
- ,CoreAttributeGroupNodir
+interface CoreAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
+ ,CoreAttributeGroupNodir<MESSAGE>
  {
     var dir: Dir?
         set(value) {
@@ -15,5 +15,6 @@ interface CoreAttributeGroup : HTMLElementAttributes
             }
         }
         get() = Dir.fromValue(getProperty("dir"))
+
 
 }

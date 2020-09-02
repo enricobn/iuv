@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Dl<MESSAGE> : org.iuv.core.HTML<MESSAGE>("dl")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
 
@@ -12,4 +12,5 @@ class Dl<MESSAGE> : org.iuv.core.HTML<MESSAGE>("dl")
     fun dd(init: Dd<MESSAGE>.() -> Unit) {
         element(Dd(), init)
     }
+
 }

@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Select<MESSAGE> : org.iuv.core.HTML<MESSAGE>("select")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var name: String?
@@ -82,4 +82,5 @@ class Select<MESSAGE> : org.iuv.core.HTML<MESSAGE>("select")
     fun optgroup(init: Optgroup<MESSAGE>.() -> Unit) {
         element(Optgroup(), init)
     }
+
 }

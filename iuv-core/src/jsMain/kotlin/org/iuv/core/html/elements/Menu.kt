@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.MenuType
 
 class Menu<MESSAGE> : org.iuv.core.HTML<MESSAGE>("menu")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  ,org.iuv.core.html.groups.FlowContent<MESSAGE>
  {
     var type: MenuType?
@@ -30,4 +30,5 @@ class Menu<MESSAGE> : org.iuv.core.HTML<MESSAGE>("menu")
     fun li(init: MenuLi<MESSAGE>.() -> Unit) {
         element(MenuLi(), init)
     }
+
 }

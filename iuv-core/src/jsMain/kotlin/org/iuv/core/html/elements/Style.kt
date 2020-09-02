@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Style<MESSAGE> : org.iuv.core.HTML<MESSAGE>("style")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var scoped: String?
@@ -14,6 +14,7 @@ class Style<MESSAGE> : org.iuv.core.HTML<MESSAGE>("style")
             }
         }
         get() = (getProperty("scoped"))
+
 
 
 }

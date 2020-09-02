@@ -1,6 +1,6 @@
 package org.iuv.core
 
-import kotlin.browser.window
+import kotlinx.browser.window
 import kotlin.js.Date
 
 internal const val printTime = false

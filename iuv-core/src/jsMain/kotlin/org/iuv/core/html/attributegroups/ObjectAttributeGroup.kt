@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface ObjectAttributeGroup : HTMLElementAttributes
+interface ObjectAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var data: String?
@@ -64,5 +64,6 @@ interface ObjectAttributeGroup : HTMLElementAttributes
             }
         }
         get() = (getProperty("form"))
+
 
 }

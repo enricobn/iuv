@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface AAttributeGroup : HTMLElementAttributes
+interface AAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var href: String?
@@ -24,5 +24,6 @@ interface AAttributeGroup : HTMLElementAttributes
             }
         }
         get() = (getProperty("rel"))
+
 
 }

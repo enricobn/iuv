@@ -15,4 +15,5 @@ class PhrasingContentDel<MESSAGE> : org.iuv.core.HTML<MESSAGE>("del")
         get() = (getProperty("cite"))
 
 
+
 }

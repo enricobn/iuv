@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface XmlAttributeGroup : HTMLElementAttributes
+interface XmlAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var xml_lang: String?
@@ -34,5 +34,6 @@ interface XmlAttributeGroup : HTMLElementAttributes
             }
         }
         get() = (getProperty("xml:base"))
+
 
 }

@@ -15,4 +15,5 @@ class FlowContentIns<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ins")
         get() = (getProperty("cite"))
 
 
+
 }

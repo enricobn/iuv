@@ -1,10 +1,10 @@
 package org.iuv.examples.buttons
 
+import kotlinx.browser.document
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.View
 import org.w3c.dom.events.MouseEvent
-import kotlin.browser.document
 
 class ButtonsView(private val initialPostId: Int, postService: PostService) : View<ButtonsView.Model, ButtonsView.Message> {
 

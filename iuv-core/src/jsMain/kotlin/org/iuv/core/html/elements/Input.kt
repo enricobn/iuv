@@ -5,7 +5,7 @@ import org.iuv.core.html.enums.Formmethod
 import org.iuv.core.html.enums.InputType
 
 class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var accept: String?
@@ -277,6 +277,7 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
             }
         }
         get() = (getProperty("width"))
+
 
 
 }

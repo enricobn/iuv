@@ -56,7 +56,7 @@ class IUVDebugger<MODEL, MESSAGE>(view: View<MODEL, MESSAGE>) : View<IUVDebugger
                         min = "0"
                         max = (model.messagesAndModels.size - 1).toString()
                         value = model.index.toString()
-                        onInput { _ , value ->
+                        oninput { _ , value ->
                             SetModel(value.toInt())
                         }
                     }

@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Hgroup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("hgroup")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
 
@@ -24,4 +24,5 @@ class Hgroup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("hgroup")
     fun h6(init: H6<MESSAGE>.() -> Unit) {
         element(H6(), init)
     }
+
 }

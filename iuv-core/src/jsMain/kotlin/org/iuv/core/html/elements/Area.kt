@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.Shape
 
 class Area<MESSAGE> : org.iuv.core.HTML<MESSAGE>("area")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var alt: String?
@@ -55,6 +55,7 @@ class Area<MESSAGE> : org.iuv.core.HTML<MESSAGE>("area")
             }
         }
         get() = (getProperty("coords"))
+
 
 
 }

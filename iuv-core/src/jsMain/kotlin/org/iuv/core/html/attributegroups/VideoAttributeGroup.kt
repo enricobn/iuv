@@ -2,7 +2,7 @@ package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
 
-interface VideoAttributeGroup : HTMLElementAttributes
+interface VideoAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
  {
     var src: String?
@@ -104,5 +104,6 @@ interface VideoAttributeGroup : HTMLElementAttributes
             }
         }
         get() = (getProperty("mediagroup"))
+
 
 }

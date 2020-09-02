@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Colgroup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("colgroup")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var span: Int?
@@ -19,4 +19,5 @@ class Colgroup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("colgroup")
     fun col(init: Col<MESSAGE>.() -> Unit) {
         element(Col(), init)
     }
+
 }

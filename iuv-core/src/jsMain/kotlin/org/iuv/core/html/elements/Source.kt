@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Source<MESSAGE> : org.iuv.core.HTML<MESSAGE>("source")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var src: String?
@@ -14,6 +14,7 @@ class Source<MESSAGE> : org.iuv.core.HTML<MESSAGE>("source")
             }
         }
         get() = (getProperty("src"))
+
 
 
 }

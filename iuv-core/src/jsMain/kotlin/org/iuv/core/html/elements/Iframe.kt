@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Iframe<MESSAGE> : org.iuv.core.HTML<MESSAGE>("iframe")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var src: String?
@@ -64,6 +64,7 @@ class Iframe<MESSAGE> : org.iuv.core.HTML<MESSAGE>("iframe")
             }
         }
         get() = (getProperty("seamless"))
+
 
 
 }

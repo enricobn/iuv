@@ -5,4 +5,5 @@ class UlLi<MESSAGE> : org.iuv.core.HTML<MESSAGE>("li")
  
  {
 
+
 }

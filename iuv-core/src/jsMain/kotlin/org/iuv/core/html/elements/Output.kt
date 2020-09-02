@@ -25,4 +25,5 @@ class Output<MESSAGE> : org.iuv.core.HTML<MESSAGE>("output")
         get() = (getProperty("form"))
 
 
+
 }

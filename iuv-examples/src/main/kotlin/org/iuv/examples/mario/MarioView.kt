@@ -1,7 +1,7 @@
 package org.iuv.examples.mario
 
+import kotlinx.browser.window
 import org.iuv.core.*
-import kotlin.browser.window
 import kotlin.math.max
 
 private const val marioSize = 64

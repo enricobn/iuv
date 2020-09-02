@@ -5,8 +5,8 @@ import {{.}}
 
 import org.iuv.core.HTMLElementAttributes
 
-interface {{className}} : HTMLElementAttributes
- {{#attributes.groups}},{{className}}{{/attributes.groups}}
+interface {{className}}<MESSAGE> : HTMLElementAttributes<MESSAGE>
+ {{#attributes.groups}},{{className}}<MESSAGE>{{/attributes.groups}}
  {
     {{#attributes.attributes}}
     var {{name}}: {{type.className}}?
@@ -20,4 +20,16 @@ interface {{className}} : HTMLElementAttributes
         get() = {{type.valueOf}}(getProperty("{{originalName}}"))
 
     {{/attributes.attributes}}
+
+    {{#attributes.functions}}
+    fun {{name}}(handler: ({{eventType}},String) -> MESSAGE) {
+        on("{{eventName}}") { event: {{eventType}} ->
+            handler(event, event.target?.asDynamic().value as String)
+        }
+    }
+    fun {{name}}(message: MESSAGE) {
+        on("{{eventName}}") { _: {{eventType}} -> message }
+    }
+
+    {{/attributes.functions}}
 }

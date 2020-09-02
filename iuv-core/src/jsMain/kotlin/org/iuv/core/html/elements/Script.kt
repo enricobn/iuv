@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Script<MESSAGE> : org.iuv.core.HTML<MESSAGE>("script")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var src: String?
@@ -44,6 +44,7 @@ class Script<MESSAGE> : org.iuv.core.HTML<MESSAGE>("script")
             }
         }
         get() = (getProperty("charset"))
+
 
 
 }

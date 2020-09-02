@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Img<MESSAGE> : org.iuv.core.HTML<MESSAGE>("img")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var src: String?
@@ -64,6 +64,7 @@ class Img<MESSAGE> : org.iuv.core.HTML<MESSAGE>("img")
             }
         }
         get() = (getProperty("ismap"))
+
 
 
 }

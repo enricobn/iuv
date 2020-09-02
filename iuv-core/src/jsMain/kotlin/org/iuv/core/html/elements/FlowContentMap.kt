@@ -15,4 +15,5 @@ class FlowContentMap<MESSAGE> : org.iuv.core.HTML<MESSAGE>("map")
         get() = (getProperty("name"))
 
 
+
 }

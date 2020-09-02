@@ -15,4 +15,5 @@ class FlowContentDel<MESSAGE> : org.iuv.core.HTML<MESSAGE>("del")
         get() = (getProperty("cite"))
 
 
+
 }

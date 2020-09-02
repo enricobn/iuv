@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Html<MESSAGE> : org.iuv.core.HTML<MESSAGE>("html")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var manifest: String?
@@ -22,4 +22,5 @@ class Html<MESSAGE> : org.iuv.core.HTML<MESSAGE>("html")
     fun body(init: Body<MESSAGE>.() -> Unit) {
         element(Body(), init)
     }
+
 }

@@ -2,7 +2,7 @@ package org.iuv.core.html.elements
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class Fieldset<MESSAGE> : org.iuv.core.HTML<MESSAGE>("fieldset")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  ,org.iuv.core.html.groups.FlowContent<MESSAGE>
  {
     var name: String?
@@ -39,4 +39,5 @@ class Fieldset<MESSAGE> : org.iuv.core.HTML<MESSAGE>("fieldset")
     fun legend(init: Legend<MESSAGE>.() -> Unit) {
         element(Legend(), init)
     }
+
 }

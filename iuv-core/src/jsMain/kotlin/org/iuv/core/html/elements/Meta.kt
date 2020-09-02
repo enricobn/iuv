@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.HttpEquiv
 
 class Meta<MESSAGE> : org.iuv.core.HTML<MESSAGE>("meta")
- ,GlobalAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>
  
  {
     var httpequiv: HttpEquiv?
@@ -45,6 +45,7 @@ class Meta<MESSAGE> : org.iuv.core.HTML<MESSAGE>("meta")
             }
         }
         get() = (getProperty("charset"))
+
 
 
 }

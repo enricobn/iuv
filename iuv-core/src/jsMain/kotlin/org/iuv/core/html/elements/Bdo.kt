@@ -5,7 +5,7 @@ import org.iuv.core.html.attributegroups.XmlAttributeGroup
 import org.iuv.core.html.enums.Dir
 
 class Bdo<MESSAGE> : org.iuv.core.HTML<MESSAGE>("bdo")
- ,CoreAttributeGroupNodir,CommonEventsGroup,XmlAttributeGroup
+ ,CoreAttributeGroupNodir<MESSAGE>,CommonEventsGroup<MESSAGE>,XmlAttributeGroup<MESSAGE>
  ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
  {
     var dir: Dir?
@@ -17,6 +17,7 @@ class Bdo<MESSAGE> : org.iuv.core.HTML<MESSAGE>("bdo")
             }
         }
         get() = Dir.fromValue(getProperty("dir"))
+
 
 
 }

@@ -3,7 +3,7 @@ import org.iuv.core.html.attributegroups.AudioAttributeGroup
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
 class FlowContentAudio<MESSAGE> : org.iuv.core.HTML<MESSAGE>("audio")
- ,GlobalAttributeGroup,AudioAttributeGroup
+ ,GlobalAttributeGroup<MESSAGE>,AudioAttributeGroup<MESSAGE>
  ,org.iuv.core.html.groups.FlowContent<MESSAGE>
  {
 
@@ -13,4 +13,5 @@ class FlowContentAudio<MESSAGE> : org.iuv.core.HTML<MESSAGE>("audio")
     fun track(init: Track<MESSAGE>.() -> Unit) {
         element(Track(), init)
     }
+
 }
