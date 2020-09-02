@@ -9,10 +9,10 @@ import java.net.URL
 
 class XHTMLTemplaterRunner(private val resourceProvider: XHTMLResourceProvider) {
 
-    fun runTemplate(resource: String, `package`: String, generatedClass: GeneratedClass) {
+    fun runTemplate(resource: String, generatedClass: GeneratedClass, path: String) {
         val url = resourceProvider.getUrl(resource)
-        val file = File("iuv-xhtml/src/jsMain/kotlin/org/iuv/html/$`package`")
-        //val file = File("iuv-xhtml/src/jsGenerated/kotlin/org/iuv/html")
+
+        val file = File(path, generatedClass.nameSpace().replace('.', '/'))
         file.mkdirs()
         val writer = FileWriter(File(file, generatedClass.className() + ".kt"))
         runTemplate(url, generatedClass, writer)

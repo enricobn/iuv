@@ -1,13 +1,12 @@
 package org.iuv.core
 
-interface HTMLElement {
+interface HTMLElement<MESSAGE> {
 
-    fun addProperty(name: String, prop: dynamic)
+    fun add(html: HTMLChild)
 
-    fun removeProperty(name: String)
-
-    fun getProperty(key: String) : dynamic
-
-    fun hasProperty(key: String) : Boolean
+    fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
+        element.init()
+        add(element)
+    }
 
 }

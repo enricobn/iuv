@@ -1,8 +1,9 @@
 package org.iuv.spring
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerializationStrategy
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import org.iuv.shared.Task
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -34,6 +35,7 @@ annotation class RouteSerializer(val value : KClass<out IUVSerializer>)
 
 annotation class WebSocketAsync
 
+@ExperimentalSerializationApi
 abstract class ServiceVOServlet : HttpServlet() {
 
     @Autowired
@@ -218,7 +220,7 @@ abstract class ServiceVOServlet : HttpServlet() {
     }
 
     private inline fun <reified T> stringify(serializer: KSerializer<*>, value: T) : String where T : Any =
-        JSON.stringify(serializer as SerializationStrategy<T>, value)
+        Json.encodeToString(serializer as SerializationStrategy<T>, value)
 
 }
 
@@ -332,7 +334,7 @@ class Route(val methods: Array<RequestMethod>, val pathExpression: String, val f
                 val (_, routeSerializer) = requestBodies[it]!!
                 val serializer = routeSerializer.value.objectInstance!!.serializer
                 val body = getBody(request)
-                JSON.parse(serializer, body)
+                Json.decodeFromString(serializer, body)
             }
             else -> throw ServletException("Parameter ${it.name} is not annotated with RequestParam or PathVariable.")
         }

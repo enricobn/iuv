@@ -1,12 +1,12 @@
 package org.iuv.core
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.internal.UnitSerializer
-import kotlinx.serialization.json.JSON
 import org.iuv.shared.Task
 import org.w3c.files.File
 import org.w3c.xhr.XMLHttpRequest
-import kotlin.browser.window
+import kotlinx.browser.window
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 import kotlin.js.Date
 
 object Http {
@@ -88,6 +88,7 @@ object Http {
                         username, password, setOf(200, 204), queryParams = queryParams)
             }
 
+    @ExperimentalSerializationApi
     fun <RESULT> request(method: String,
                          url: String,
                          serializer: KSerializer<RESULT>,
@@ -103,7 +104,7 @@ object Http {
                          queryParams: Map<String,Any?> = emptyMap(),
                          multiPartData: List<MultiPartData>? = null,
                          headers: Map<String,Any?> = emptyMap(),
-                         json: JSON = JSON.nonstrict
+                         json: Json = Json
     ) where RESULT : Any {
         try {
             val request = XMLHttpRequest()
@@ -113,10 +114,10 @@ object Http {
                     XMLHttpRequest.DONE ->
                         try {
                             if (successStatuses.contains(request.status.toInt())) {
-                                if (serializer == UnitSerializer && request.responseText.isEmpty()) {
+                                if (isUnitSerializer(serializer) && request.responseText.isEmpty()) {
                                     onSuccess(Unit as RESULT)
                                 } else {
-                                    val response = json.parse(serializer, request.responseText)
+                                    val response = json.decodeFromString(serializer, request.responseText)
                                     onSuccess(response)
                                 }
                             } else {
@@ -148,7 +149,7 @@ object Http {
                 request.send(encodeMultipartData(multiPartData, "blob"))
             } else if (body != null) {
                 request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                request.send(JSON.stringify(bodySerializer!!, body))
+                request.send(json.encodeToString(body, bodySerializer!!))
             } else if (formData != null) {
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
                 request.send(encodeParams(formData))
@@ -162,6 +163,9 @@ object Http {
     fun runner(method: HttpMethod, url: String) = HttpRequestRunner(method, url)
 
 }
+
+private fun <RESULT> isUnitSerializer(serializer: KSerializer<RESULT>) where RESULT : Any =
+        serializer.descriptor.serialName.endsWith("UnitSerializer")
 
 // from https://developer.mozilla.org/en-US/docs/Learn/HTML/Forms/Sending_forms_through_JavaScript
 private fun encodeMultipartData(values: List<MultiPartData>, boundary: String): dynamic {
@@ -274,7 +278,7 @@ data class HttpError(val status: Int, val statusText: String?, val message: Stri
 data class HttpResult<RESULT: Any?>(val status: Int, val result: RESULT, val responseHeaders: Map<String,String>)
 
 class HttpRequestRunner(private val method: HttpMethod, private val url: String) {
-    private var json: JSON = JSON.nonstrict
+    private var json: Json = Json
     private var body: dynamic = null
     private var bodySerializer: KSerializer<Any>? = null
     private var formData: Map<String,Any?>? = null
@@ -351,7 +355,7 @@ class HttpRequestRunner(private val method: HttpMethod, private val url: String)
         return this
     }
 
-    fun json(json: JSON) : HttpRequestRunner {
+    fun json(json: Json) : HttpRequestRunner {
         this.json = json
         return this
     }
@@ -384,7 +388,7 @@ class HttpRequest(
         private val queryParams: Map<String, Any?>,
         private val multiPartData: List<MultiPartData>?,
         private val headers: Map<String, Any?>,
-        private val json: JSON) {
+        private val json: Json) {
 
     fun <BASE_RESULT: Any, RESULT : BASE_RESULT?> run(resultSerializer: KSerializer<BASE_RESULT>) : Task<HttpError,HttpResult<RESULT>> =
         Task { onFailure, onSuccess ->
@@ -398,12 +402,12 @@ class HttpRequest(
                         XMLHttpRequest.DONE ->
                             try {
                                 if (request.status in 200..299) {
-                                    if (resultSerializer == UnitSerializer) {
+                                    if (isUnitSerializer(resultSerializer)) {
                                         onSuccess(HttpResult(status, Unit as RESULT, responseHeaders))
                                     } else if (status == 204) {
                                         onSuccess(HttpResult(status, null as RESULT, responseHeaders))
                                     } else {
-                                        val response = json.parse(resultSerializer, request.responseText)
+                                        val response = json.decodeFromString(resultSerializer, request.responseText)
                                         onSuccess(HttpResult(status, response as RESULT, responseHeaders))
                                     }
                                 } else if (request.status in 300..399) {
@@ -447,7 +451,7 @@ class HttpRequest(
                     request.send(encodeMultipartData(multiPartData, "blob"))
                 } else if (body != null && bodySerializer != null) {
                     request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                    request.send(JSON.stringify(bodySerializer, body))
+                    request.send(json.encodeToString(bodySerializer, body))
                 } else if (formData != null) {
                     request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
                     request.send(encodeParams(formData))

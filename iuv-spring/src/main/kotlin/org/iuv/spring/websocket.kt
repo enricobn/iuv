@@ -1,7 +1,7 @@
 package org.iuv.spring
 
 import kotlinx.serialization.KSerializer
-import kotlinx.serialization.json.JSON
+import kotlinx.serialization.json.Json
 import org.iuv.shared.IUVWebSocketMessage
 import org.iuv.shared.Task
 import org.slf4j.LoggerFactory
@@ -74,10 +74,10 @@ class IUVWebSocketHandlerImpl : WebSocketHandler, IUVScheduler {
             result.run({
                 LOG.error("Sending error '$it' to session $sessionId")
                 val iuvWebSocketMessage = IUVWebSocketMessage(id, null, it)
-                sendToHttpSession(sessionId, JSON.stringify(IUVWebSocketMessage.serializer(), iuvWebSocketMessage))
+                sendToHttpSession(sessionId, Json.encodeToString(IUVWebSocketMessage.serializer(), iuvWebSocketMessage))
             }) {
-                val iuvWebSocketMessage = IUVWebSocketMessage(id, JSON.stringify(kSerializer, it), null)
-                sendToHttpSession(sessionId, JSON.stringify(IUVWebSocketMessage.serializer(), iuvWebSocketMessage))
+                val iuvWebSocketMessage = IUVWebSocketMessage(id, Json.encodeToString(kSerializer, it), null)
+                sendToHttpSession(sessionId, Json.encodeToString(IUVWebSocketMessage.serializer(), iuvWebSocketMessage))
             }
         }.start()
         return id

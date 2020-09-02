@@ -24,7 +24,7 @@ repositories {
 
 apply plugin: 'kotlin-spring'
 apply plugin: 'kotlinx-serialization'
-apply plugin: 'kotlin-platform-jvm'
+//apply plugin: 'kotlin-platform-jvm'
 apply plugin: 'maven-publish'
 
 dependencies {
@@ -36,7 +36,7 @@ dependencies {
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+    compile "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
     compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
     // compileOnly means that iuv core is not exposed to users so must be included manually.
     // If I set it as compile, then the user project won't compile because it searches for a iuv-core library,

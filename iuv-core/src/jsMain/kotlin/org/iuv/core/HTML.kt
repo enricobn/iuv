@@ -9,7 +9,7 @@ import kotlin.browser.window
 @DslMarker
 annotation class HtmlTagMarker
 @HtmlTagMarker
-open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
+open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSAGE>, HTMLElementAttributes {
     internal val attrs: dynamic = object {}
     internal val children = mutableListOf<HTMLChild>()
     private val jsToRun = mutableListOf<String>()
@@ -48,11 +48,6 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
 
     fun getJsTorRun() = jsToRun.toList()
 
-    fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, init: ELEMENT.() -> Unit) {
-        element.init()
-        add(element)
-    }
-
     /*
     fun <ELEMENT: HTML<MESSAGE>> element(element: ELEMENT, classes: String?, init: ELEMENT.() -> Unit) {
         if (classes != null) {
@@ -70,7 +65,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild,HTMLElement {
 //        children.add(html.toH())
 //    }
 //
-    open fun add(html: HTMLChild) {
+    override fun add(html: HTMLChild) {
         when(html) {
             is HTMLTextChild -> children.add(html)
             is HTML<*> -> {

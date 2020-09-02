@@ -1,0 +1,23 @@
+package {{nameSpace}}
+{{#imports}}
+import {{.}}
+{{/imports}}
+
+import org.iuv.core.HTMLElementAttributes
+
+interface {{className}} : HTMLElementAttributes
+ {{#attributes.groups}},{{className}}{{/attributes.groups}}
+ {
+    {{#attributes.attributes}}
+    var {{name}}: {{type.className}}?
+        set(value) {
+            if (value == null) {
+                removeProperty("{{originalName}}")
+            } else {
+                addProperty("{{originalName}}", value{{type.value}})
+            }
+        }
+        get() = {{type.valueOf}}(getProperty("{{originalName}}"))
+
+    {{/attributes.attributes}}
+}

@@ -1,5 +1,7 @@
 package org.iuv.core
 
+import org.iuv.core.html.enums.InputType
+
 // Model
 data class IUVDebuggerModel(val iuvModel: Any?, val messagesAndModels: List<Pair<Any,Any>>, val index : Int)
 
@@ -49,10 +51,10 @@ class IUVDebugger<MODEL, MESSAGE>(view: View<MODEL, MESSAGE>) : View<IUVDebugger
                 if (model.messagesAndModels.isNotEmpty()) {
                     +"History: "
                     input {
-                        key = "IUVDebugger-slider"
-                        type = "range"
-                        min = 0
-                        max = model.messagesAndModels.size - 1
+                        id = "IUVDebugger-slider"
+                        type = InputType.range
+                        min = "0"
+                        max = (model.messagesAndModels.size - 1).toString()
                         value = model.index.toString()
                         onInput { _ , value ->
                             SetModel(value.toInt())

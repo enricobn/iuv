@@ -1,5 +1,7 @@
 package org.iuv.core
 
+import org.iuv.core.html.elements.Div
+
 interface Component<MODEL, MESSAGE> {
 
     fun subscriptions(model: MODEL) : Sub<MESSAGE> = Sub.none()
@@ -8,8 +10,8 @@ interface Component<MODEL, MESSAGE> {
 
     fun view(model: MODEL): HTML<MESSAGE>
 
-    fun html(init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
-        val html = HTML<MESSAGE>("div")
+    fun html(init: Div<MESSAGE>.() -> Unit) : Div<MESSAGE> {
+        val html = Div<MESSAGE>()
         init(html)
         return html
     }

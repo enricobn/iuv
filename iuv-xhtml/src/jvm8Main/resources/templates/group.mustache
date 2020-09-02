@@ -1,23 +1,14 @@
 package {{nameSpace}}
-{{#imports}}
-import {{.}}
-{{/imports}}
 
 import org.iuv.core.HTMLElement
+import org.iuv.core.html.elements.*
 
-interface {{className}} : HTMLElement
- {{#attributes.groups}},{{className}}{{/attributes.groups}}
+interface {{className}}<MESSAGE> : HTMLElement<MESSAGE>
+ {{#groups}},{{className}}<MESSAGE>{{/groups}}
  {
-    {{#attributes.attributes}}
-    var {{name}}: {{type.className}}?
-        set(value) {
-            if (value == null) {
-                removeProperty("{{originalName}}")
-            } else {
-                addProperty("{{originalName}}", value{{type.value}})
-            }
-        }
-        get() = {{type.valueOf}}(getProperty("{{originalName}}"))
-
-    {{/attributes.attributes}}
+    {{#children}}
+    fun {{name}}(init: {{className}}<MESSAGE>.() -> Unit) {
+        element({{className}}(), init)
+    }
+    {{/children}}
 }

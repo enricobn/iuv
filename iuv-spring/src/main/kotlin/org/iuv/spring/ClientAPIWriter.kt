@@ -1,16 +1,14 @@
 package org.iuv.spring
 
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.internal.ArrayListSerializer
-import kotlinx.serialization.internal.EnumSerializer
-import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.internal.UnitSerializer
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.declaredFunctions
 import kotlin.reflect.full.superclasses
 
+@ExperimentalSerializationApi
 class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL: String) {
     private val imports = mutableSetOf("org.iuv.core.Http")
     private val interfaces = mutableSetOf<String>()
@@ -20,9 +18,9 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
 
         servlet.routes.forEach { writeFunction(functionsSB, it) }
 
-        imports.sorted().forEach { sb.appendln("import $it") }
+        imports.sorted().forEach { sb.appendLine("import $it") }
 
-        sb.appendln()
+        sb.appendLine()
 
         val className = servlet::class.simpleName + "Client"
 
@@ -33,13 +31,13 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
             sb.append(interfaces.joinToString(", "))
         }
 
-        sb.appendln(" {")
+        sb.appendLine(" {")
 
         sb.append(functionsSB)
 
-        sb.appendln()
+        sb.appendLine()
 
-        sb.appendln("}")
+        sb.appendLine("}")
     }
     
     private fun writeFunction(sb: StringBuilder, route: Route) {
@@ -51,7 +49,7 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
             interfaces.add(simpleName(it))
         }
 
-        sb.appendln()
+        sb.appendLine()
         sb.indent().append("override fun ")
         sb.append(route.function.name)
         sb.append("(")
@@ -64,7 +62,7 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
 
         /*findById(id: ChecklistTaskVOId): Task<String, ChecklistVO> =
                 Http.GET(ChecklistEditServiceVO.findById(id), ChecklistVO::class.serializer())*/
-        sb.appendln(") =")
+        sb.appendLine(") =")
 
         val pathComponents = route.routeMatcher.expComponents.map {
             if (it.startsWith("{")) {
@@ -85,11 +83,11 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
 
         val kSerializer = route.routeSerializer.value.objectInstance!!.serializer
 
-        sb.append(getSerializer(kSerializer))
+        sb.append(getSerializer(kSerializer.descriptor))
 
         // TODO body
 
-        sb.appendln(")")
+        sb.appendLine(")")
 
     }
 
@@ -121,31 +119,29 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
             s
     }
 
-    private fun getSerializer(kSerializer: KSerializer<*>) : String? {
-        when (kSerializer) {
-            is IntSerializer -> {
-                imports.add(IntSerializer::class.qualifiedName!!)
-                return "IntSerializer"
+    private fun getSerializer(descriptor: SerialDescriptor) : String? {
+        val serialName = descriptor.serialName
+        if (serialName.endsWith("IntSerializer")) {
+                return "Int.serializer()"
             }
-            is UnitSerializer -> {
-                imports.add(UnitSerializer::class.qualifiedName!!)
-                return "UnitSerializer"
+            if (serialName.endsWith("UnitSerializer")) {
+                return "Unit.serializer()"
             }
-            is ArrayListSerializer<*> -> {
-                imports.add(ArrayListSerializer::class.qualifiedName!!)
-                val elementSerializer = getSerializer(kSerializer.elementSerializer)
-                return "ArrayListSerializer($elementSerializer)"
+            if (serialName.endsWith("ArrayListSerializer")) {
+                imports.add("kotlinx.serialization.builtins.ListSerializer")
+                val elementSerializer = getSerializer(descriptor.getElementDescriptor(0))
+                return "ListSerializer($elementSerializer)"
             }
-            is EnumSerializer<*> -> return "EnumSerializer(${kSerializer.descriptor.name})" // Is it correct?
-            else -> {
-                val indexOfCustomSerializer = kSerializer.toString().indexOf("${'$'}${'$'}serializer")
+            // TODO
+            //if (serialName.endsWith("EnumSerializer")) return "EnumSerializer(${kSerializer.descriptor.name})" // Is it correct?
+            else {
+                val indexOfCustomSerializer = descriptor.toString().indexOf("${'$'}${'$'}serializer")
                 if (indexOfCustomSerializer >= 0) {
-                    val className = kSerializer.toString().substring(0, indexOfCustomSerializer)
+                    val className = descriptor.toString().substring(0, indexOfCustomSerializer)
                     imports.add(className)
                     return "${simpleName(className)}::class.serializer()"
                 }
             }
-        }
         return null
     }
 

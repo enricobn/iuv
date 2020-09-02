@@ -14,16 +14,22 @@ fun main() {
     val definitions = XHTMLReader.read(resourceProvider)
     val xhtmlTemplaterRunner = XHTMLTemplaterRunner(resourceProvider)
 
+    val path = "iuv-core/src/jsMain/kotlin"
+
     definitions.elements.forEach {
-        xhtmlTemplaterRunner.runTemplate("/templates/element.mustache", "elements", it)
+        xhtmlTemplaterRunner.runTemplate("/templates/element.mustache", it, path)
     }
 
     definitions.enums.forEach {
-        xhtmlTemplaterRunner.runTemplate("/templates/enum.mustache", "enums", it)
+        xhtmlTemplaterRunner.runTemplate("/templates/enum.mustache", it, path)
     }
 
     definitions.attributeGroups.forEach {
-        xhtmlTemplaterRunner.runTemplate("/templates/group.mustache", "attributegroups", it)
+        xhtmlTemplaterRunner.runTemplate("/templates/attributeGroup.mustache", it, path)
+    }
+
+    definitions.groups.forEach {
+        xhtmlTemplaterRunner.runTemplate("/templates/group.mustache", it, path)
     }
 
 }
@@ -70,6 +76,11 @@ object XHTMLReader {
                             println("Unknown shema type $schemaType")
                         }
                     }
+                } else if (element is XmlSchemaComplexType) {
+                    println(element.name)
+                    indenter.indent {
+                        println("Unknown element $element")
+                    }
                 } else {
                     println("Unknown element $element")
                 }
@@ -86,8 +97,8 @@ object XHTMLReader {
                 if (group is XmlSchemaGroup) {
                     println(group.name.localPart)
                     indenter.indent {
-                        val groupElements = parseParticle(indenter, context, group.particle, group)
-                        context.add(XHTMLGroup(group.name.localPart, groupElements))
+                        val particle = parseParticle(indenter, context, group.particle, group)
+                        context.add(XHTMLGroup(group.name.localPart, particle.groups.filter { it.name != group.name.localPart }, particle.children))
                     }
                 } else {
                     println("Unknown group $group")
@@ -124,8 +135,8 @@ object XHTMLReader {
         indenter.indent {
             schema.schemaTypes.values.forEach {
                 if (it is XmlSchemaSimpleType) {
+                    println(it.name)
                     indenter.indent {
-                        println(it.name)
                         val content = it.content
                         if (content is XmlSchemaSimpleTypeRestriction) {
                             if (content.baseTypeName.localPart == "NMTOKEN") {
@@ -139,6 +150,7 @@ object XHTMLReader {
                                 }
                                 context.add(XHTMLEnumType(it.name, enumValues))
                             } else if (content.baseTypeName.localPart == "token") {
+                                /*
                                 val enums = mutableListOf<String>()
                                 content.facets.iterator.forEach { facet ->
                                     if (facet is XmlSchemaEnumerationFacet) {
@@ -147,36 +159,99 @@ object XHTMLReader {
                                         println("Unknown facet $facet")
                                     }
                                 }
-                                context.add(XHTMLToken(it.name, enums))
+                                val xhtmlEnumType = XHTMLEnumType(it.name, enums.map { token -> XHTMLEnumValue(token) })
+                                context.add(xhtmlEnumType) // XHTMLToken(it.name, enums)
+
+                                 */
+                                context.addType(it.name, XHTMLReaderContext.STRING)
+                            } else if (content.baseTypeName.localPart == "tokens") {
+                                context.addType(it.name, XHTMLReaderContext.STRING)
                             } else {
-                                println("Unknown content type ${content.baseTypeName.localPart}")
+                                if (context.getType(content.baseTypeName.localPart) == null) {
+                                    println("Unknown content type ${content.baseTypeName.localPart}")
+                                }
                             }
                         } else {
-                            println("Unknown content  ${content}")
+                            println("Unknown content $content")
                         }
                     }
                 } else if (it is XmlSchemaComplexType) {
-                    println("Complex: ${it.name}")
+                    println(it.name)
+                    val contentModel = it.contentModel
+
+                    // TODO flowContentElement remove it?
+                    var found = false
+                    val content = contentModel?.content
+                    if (content is XmlSchemaComplexContentExtension) {
+                        if (content.baseTypeName.localPart == "flowContentElement") {
+                            context.addType(it.name, SimpleGeneratedClass(it.name, "types"))
+                            found = true
+                        }
+                    }
+
+                    if (!found) {
+                        indenter.indent {
+                            println("Complex: ${it.name}")
+                        }
+                    }
                 } else {
-                    println("Unknown schemaType $it")
+                    indenter.indent {
+                        println("Unknown schemaType $it")
+                    }
                 }
             }
         }
     }
 
-    private fun parseParticle(indenter: Indenter, context: XHTMLReaderContext, particle: XmlSchemaGroupBase, parent: Any?): MutableList<String> {
-        val groupElements = mutableListOf<String>()
+    private fun parseParticle(indenter: Indenter, context: XHTMLReaderContext, particle: XmlSchemaGroupBase, parent: XmlSchemaAnnotated):
+            XHTMLParticle {
+        val children = mutableListOf<GeneratedClass>()
+        val groups = mutableListOf<GeneratedClass>()
+
+        val parentName = if (parent is XmlSchemaElement) {
+            parent.name
+        } else if (parent is XmlSchemaGroup) {
+            parent.name.localPart
+        } else {
+            null
+        }
+
         particle.items.iterator.forEach {
-            if (it is XmlSchemaElement) {
-                groupElements.add(it.name)
+            if (it is XmlSchemaElement && it.refName == null && (parent is XmlSchemaElement || parent is XmlSchemaGroup)) {
+                if (parentName != null) {
+                    val schemaType = it.schemaType
+                    if (schemaType is XmlSchemaComplexType) {
+                        val element = toXHTMLElement(indenter, context, schemaType, it)
+                        context.add(XHTMLInnerElement(it.name, parentName, element.groups, element.attributes, element.children))
+                    } else {
+                        println("Unknown inner schema type $schemaType of $parent")
+                    }
+                    //groupElements.add(SimpleGeneratedClass(innerName, forcedName = it.name))
+                    children.add(InnerElementGeneratedClass(it.name, parentName))
+                }
+            } else if (it is XmlSchemaElement) {
+                children.add(SimpleGeneratedClass(it.name, "elements"))
             } else if (it is XmlSchemaGroupRef) {
-                val group = context.getGroup(it.refName.localPart)!!
-                groupElements.addAll(group.elements)
+                /*
+                var group = context.getGroup(it.refName.localPart)
+                if (group == null) {
+                    group = context.getGroup(it.refName.localPart)
+                }
+                if (group == null) {
+                    indenter.println("Unknown group for parent $parent : ${it.refName.localPart}")
+                } else {
+                    children.addAll(group.elements.map { groupElement -> SimpleGeneratedClass(groupElement) })
+                }
+                 */
+                groups.add(SimpleGeneratedClass(it.refName.localPart, "groups"))
             } else {
                 indenter.println("Unknown elements for parent $parent : $it")
             }
         }
-        return groupElements
+
+        val excludes = setOf("Svg", "Math")
+
+        return XHTMLParticle(groups, children.filter { !excludes.contains(it.className()) })
     }
 
     private fun toXHTMLElement(indenter: Indenter, context: XHTMLReaderContext, schemaType: XmlSchemaComplexType, element: XmlSchemaElement): XHTMLElement {
@@ -191,16 +266,19 @@ object XHTMLReader {
         }
 
         var children : List<GeneratedClass> = listOf()
+        var groups : List<GeneratedClass> = listOf()
 
         val particle = schemaType.particle
 
         if (particle is XmlSchemaGroupBase) {
-            children = parseParticle(indenter, context, particle, element).map { SimpleGeneratedClass(it) }
+            val parseParticle = parseParticle(indenter, context, particle, element)
+            children = parseParticle.children
+            groups = parseParticle.groups
         } else if (particle != null) {
             indenter.println("Unknown particle type: $particle")
         }
 
-        return XHTMLElement(element.name, attributes, children)
+        return XHTMLElement(element.name, attributes, groups, children)
     }
 
     private fun getAttributes(indenter: Indenter, context: XHTMLReaderContext, schemaType: XmlSchemaComplexType): XHTMLAttributes {
@@ -272,7 +350,7 @@ interface GeneratedClass {
 
     val imports: List<String>
 
-    fun nameSpace() = "org.iuv.html"
+    fun nameSpace() = "org.iuv.core.html"
 
     fun fullClassName() =
         if (nameSpace().isEmpty())
@@ -282,13 +360,27 @@ interface GeneratedClass {
 
 }
 
-data class SimpleGeneratedClass(val originalName: String) : GeneratedClass {
+data class SimpleGeneratedClass(val originalName: String, val relativeNameSpace: String) : GeneratedClass {
     override val imports: List<String> = listOf()
 
     override val name = normalizeName(originalName)
 
     override fun className(): String {
-        return originalName.capitalize()
+        return name.capitalize()
+    }
+
+    override fun nameSpace(): String {
+        return super.nameSpace() + "." + relativeNameSpace
+    }
+}
+
+data class InnerElementGeneratedClass(val originalName: String, val parentName: String) : GeneratedClass {
+    override val imports: List<String> = listOf()
+
+    override val name = normalizeName(originalName)
+
+    override fun className(): String {
+        return parentName.capitalize() + originalName.capitalize()
     }
 
 }
@@ -301,14 +393,42 @@ data class AttributeGroupReference(override val name: String) : GeneratedClass {
     }
 }
 
-data class XHTMLElement(override val name: String, val attributes: XHTMLAttributes, val children: List<GeneratedClass>) : GeneratedClass {
+interface IXHTMLElement : GeneratedClass {
+    val attributes: XHTMLAttributes
+    val groups: List<GeneratedClass>
+    val children: List<GeneratedClass>
+}
+
+data class XHTMLParticle(val groups: List<GeneratedClass>, val children: List<GeneratedClass>)
+
+data class XHTMLElement(val originalName: String, override val attributes: XHTMLAttributes, override val groups: List<GeneratedClass>,
+                        override val children: List<GeneratedClass>) : IXHTMLElement {
 
     override fun nameSpace(): String {
         return super.nameSpace() + ".elements"
     }
 
     override val imports: List<String> = attributes.imports.toList()
+
+    override fun className(): String {
+        return normalizeName(originalName).capitalize()
+    }
+
+    override val name: String = originalName
 }
+
+data class XHTMLInnerElement(override val name: String, val parentName: String, override val groups: List<GeneratedClass>, override val attributes: XHTMLAttributes,
+                             override val children: List<GeneratedClass>) : IXHTMLElement {
+
+    override fun nameSpace(): String {
+        return super.nameSpace() + ".elements"
+    }
+
+    override val imports: List<String> = attributes.imports.toList()
+
+    override fun className(): String = parentName.capitalize() + name.capitalize()
+}
+
 
 class URLMustacheResolver(private val url: URL) : MustacheResolver {
 
@@ -331,6 +451,7 @@ data class XHTMLEnumType(override val name: String, val values: List<XHTMLEnumVa
     override fun nameSpace(): String {
         return super.nameSpace() + ".enums"
     }
+
 }
 
 data class XHTMLEnumValue(val value: String) {
@@ -346,6 +467,12 @@ fun normalizeName(name: String) : String =
         "object_"
     } else if (name == "class") {
         "classes"
+    } else if (name == "map") {
+        "map_"
+    } else if (name == "for") {
+        "for_"
+    } else if (name == "") {
+        "none"
     } else {
         name.replace("-", "")
                 .replace(Regex("^\\d+.*")) { matchResult ->
@@ -354,8 +481,9 @@ fun normalizeName(name: String) : String =
                 .replace(":", "_")
     }
 
-data class XHTMLDefinitions(val elements: List<XHTMLElement>, val enums: List<XHTMLEnumType>,
-                            val attributeGroups: List<XHTMLAttributeGroup>)
+data class XHTMLDefinitions(val elements: List<IXHTMLElement>, val enums: List<XHTMLEnumType>,
+                            val attributeGroups: List<XHTMLAttributeGroup>,
+                            val groups: List<XHTMLGroup>)
 
 data class XHTMLAttributeGroup(override val name: String, val attributes: XHTMLAttributes) : GeneratedClass {
     override val imports: List<String> = attributes.imports
@@ -375,7 +503,7 @@ data class XHTMLAttributes(val attributes: List<XHTMLAttribute>, val groups: Lis
         if (type is XHTMLEnumType) {
             setOf(type.fullClassName())
         } else {
-            emptySet<String>()
+            emptySet()
         }
     }).toSortedSet().toList()
 
@@ -383,10 +511,11 @@ data class XHTMLAttributes(val attributes: List<XHTMLAttribute>, val groups: Lis
 
 data class XHTMLToken(val name: String, val tokens: List<String>)
 
-data class XHTMLGroup(override val name: String, val elements: List<String>) : GeneratedClass {
-    override val imports: List<String> = listOf()
+data class XHTMLGroup(override val name: String, val groups: List<GeneratedClass>, val children: List<GeneratedClass>) : GeneratedClass {
+
+    override val imports: List<String> = children.map { it.fullClassName() }
+
     override fun nameSpace(): String {
         return super.nameSpace() + ".groups"
     }
 }
-

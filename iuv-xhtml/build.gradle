@@ -2,6 +2,7 @@ buildscript {
 
     repositories {
         mavenCentral()
+        jcenter()
         maven { url "https://kotlin.bintray.com/kotlinx" }
     }
     dependencies {
@@ -16,6 +17,7 @@ plugins {
 
 repositories {
     mavenCentral()
+    jcenter()
 }
 
 /*
@@ -82,14 +84,11 @@ kotlin {
                 implementation 'org.jetbrains.kotlin:kotlin-test-js'
             }
         }
-        jsGenerated {
-            dependsOn jsMain
-            /*dependencies {
-                implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
-                implementation project(':iuv-core')
-            }
+    }
 
-             */
-        }
+    js {
+        // To build distributions for and run tests on browser or Node.js use one or both of:
+        browser()
+        nodejs()
     }
 }
