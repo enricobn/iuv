@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.ThAttributeGroup
 
-class Td<MESSAGE> : org.iuv.core.HTML<MESSAGE>("td")
+open class Td<MESSAGE> : HTML<MESSAGE>("td")
+ ,FlowContentElement<MESSAGE>
  ,ThAttributeGroup<MESSAGE>
  
  {

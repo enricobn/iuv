@@ -8,7 +8,6 @@ import org.w3c.dom.events.KeyboardEvent
 
 @DslMarker
 annotation class HtmlTagMarker
-@HtmlTagMarker
 open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSAGE>, HTMLElementAttributes<MESSAGE> {
     internal val attrs: dynamic = object {}
     internal val children = mutableListOf<HTMLChild>()

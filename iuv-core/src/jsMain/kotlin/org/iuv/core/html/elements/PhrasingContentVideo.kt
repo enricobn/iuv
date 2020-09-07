@@ -1,10 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.attributegroups.VideoAttributeGroup
+import org.iuv.core.html.groups.PhrasingContent
 
-class PhrasingContentVideo<MESSAGE> : org.iuv.core.HTML<MESSAGE>("video")
+open class PhrasingContentVideo<MESSAGE> : HTML<MESSAGE>("video")
+ 
  ,GlobalAttributeGroup<MESSAGE>,VideoAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
+ ,PhrasingContent<MESSAGE>
  {
 
     fun source(init: Source<MESSAGE>.() -> Unit) {

@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class Label<MESSAGE> : org.iuv.core.HTML<MESSAGE>("label")
+open class Label<MESSAGE> : HTML<MESSAGE>("label")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

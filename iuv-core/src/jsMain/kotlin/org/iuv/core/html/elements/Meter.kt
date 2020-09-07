@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class Meter<MESSAGE> : org.iuv.core.HTML<MESSAGE>("meter")
+open class Meter<MESSAGE> : HTML<MESSAGE>("meter")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

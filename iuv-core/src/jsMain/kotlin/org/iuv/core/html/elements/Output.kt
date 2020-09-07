@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class Output<MESSAGE> : org.iuv.core.HTML<MESSAGE>("output")
+open class Output<MESSAGE> : HTML<MESSAGE>("output")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

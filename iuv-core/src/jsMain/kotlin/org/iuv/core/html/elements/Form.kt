@@ -1,8 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.enums.Autocomplete
+import org.iuv.core.html.enums.Formenctype
 import org.iuv.core.html.enums.Formmethod
+import org.iuv.core.html.enums.Formnovalidate
 
-class Form<MESSAGE> : org.iuv.core.HTML<MESSAGE>("form")
+open class Form<MESSAGE> : HTML<MESSAGE>("form")
+ ,FlowContentElement<MESSAGE>
  
  
  {
@@ -26,15 +30,15 @@ class Form<MESSAGE> : org.iuv.core.HTML<MESSAGE>("form")
         }
         get() = Formmethod.fromValue(getProperty("method"))
 
-    var enctype: String?
+    var enctype: Formenctype?
         set(value) {
             if (value == null) {
                 removeProperty("enctype")
             } else {
-                addProperty("enctype", value)
+                addProperty("enctype", value.value)
             }
         }
-        get() = (getProperty("enctype"))
+        get() = Formenctype.fromValue(getProperty("enctype"))
 
     var name: String?
         set(value) {
@@ -46,15 +50,15 @@ class Form<MESSAGE> : org.iuv.core.HTML<MESSAGE>("form")
         }
         get() = (getProperty("name"))
 
-    var novalidate: String?
+    var novalidate: Formnovalidate?
         set(value) {
             if (value == null) {
                 removeProperty("novalidate")
             } else {
-                addProperty("novalidate", value)
+                addProperty("novalidate", value.value)
             }
         }
-        get() = (getProperty("novalidate"))
+        get() = Formnovalidate.fromValue(getProperty("novalidate"))
 
     var autocomplete: Autocomplete?
         set(value) {

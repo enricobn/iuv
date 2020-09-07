@@ -50,7 +50,7 @@ class Tab : View<TabModel, TabMessage> {
 
                             if (index == model.activeTab) classes = "mdl-button--accent"
 
-                            onClick { SelectTab(index) }
+                            onclick(SelectTab(index))
                         }
                     }
                 }

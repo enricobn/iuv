@@ -1,19 +1,23 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Open
+import org.iuv.core.html.groups.FlowContent
 
-class Details<MESSAGE> : org.iuv.core.HTML<MESSAGE>("details")
+open class Details<MESSAGE> : HTML<MESSAGE>("details")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
-    var open: String?
+    var open_: Open?
         set(value) {
             if (value == null) {
                 removeProperty("open")
             } else {
-                addProperty("open", value)
+                addProperty("open", value.value)
             }
         }
-        get() = (getProperty("open"))
+        get() = Open.fromValue(getProperty("open"))
 
 
     fun summary(init: Summary<MESSAGE>.() -> Unit) {

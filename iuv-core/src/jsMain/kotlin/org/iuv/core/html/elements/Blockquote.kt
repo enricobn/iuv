@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class Blockquote<MESSAGE> : org.iuv.core.HTML<MESSAGE>("blockquote")
+open class Blockquote<MESSAGE> : HTML<MESSAGE>("blockquote")
+ ,FlowContentElement<MESSAGE>
  
  
  {

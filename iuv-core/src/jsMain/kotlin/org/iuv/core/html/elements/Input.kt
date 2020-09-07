@@ -1,10 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
-import org.iuv.core.html.enums.Autocomplete
-import org.iuv.core.html.enums.Formmethod
-import org.iuv.core.html.enums.InputType
+import org.iuv.core.html.enums.*
 
-class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
+open class Input<MESSAGE> : HTML<MESSAGE>("input")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -38,25 +38,25 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
         }
         get() = Autocomplete.fromValue(getProperty("autocomplete"))
 
-    var autofocus: String?
+    var autofocus: Autofocus?
         set(value) {
             if (value == null) {
                 removeProperty("autofocus")
             } else {
-                addProperty("autofocus", value)
+                addProperty("autofocus", value.value)
             }
         }
-        get() = (getProperty("autofocus"))
+        get() = Autofocus.fromValue(getProperty("autofocus"))
 
-    var checked: String?
+    var checked: Checked?
         set(value) {
             if (value == null) {
                 removeProperty("checked")
             } else {
-                addProperty("checked", value)
+                addProperty("checked", value.value)
             }
         }
-        get() = (getProperty("checked"))
+        get() = Checked.fromValue(getProperty("checked"))
 
     var dirname: String?
         set(value) {
@@ -68,15 +68,15 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
         }
         get() = (getProperty("dirname"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var form: String?
         set(value) {
@@ -98,15 +98,15 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
         }
         get() = (getProperty("formaction"))
 
-    var formenctype: String?
+    var formenctype: Formenctype?
         set(value) {
             if (value == null) {
                 removeProperty("formenctype")
             } else {
-                addProperty("formenctype", value)
+                addProperty("formenctype", value.value)
             }
         }
-        get() = (getProperty("formenctype"))
+        get() = Formenctype.fromValue(getProperty("formenctype"))
 
     var formmethod: Formmethod?
         set(value) {
@@ -118,15 +118,15 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
         }
         get() = Formmethod.fromValue(getProperty("formmethod"))
 
-    var formnovalidate: String?
+    var formnovalidate: Formnovalidate?
         set(value) {
             if (value == null) {
                 removeProperty("formnovalidate")
             } else {
-                addProperty("formnovalidate", value)
+                addProperty("formnovalidate", value.value)
             }
         }
-        get() = (getProperty("formnovalidate"))
+        get() = Formnovalidate.fromValue(getProperty("formnovalidate"))
 
     var height: Int?
         set(value) {
@@ -178,15 +178,15 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
         }
         get() = (getProperty("min"))
 
-    var multiple: String?
+    var multiple: Multiple?
         set(value) {
             if (value == null) {
                 removeProperty("multiple")
             } else {
-                addProperty("multiple", value)
+                addProperty("multiple", value.value)
             }
         }
-        get() = (getProperty("multiple"))
+        get() = Multiple.fromValue(getProperty("multiple"))
 
     var name: String?
         set(value) {
@@ -208,25 +208,25 @@ class Input<MESSAGE> : org.iuv.core.HTML<MESSAGE>("input")
         }
         get() = (getProperty("placeholder"))
 
-    var readonly: String?
+    var readonly: Readonly?
         set(value) {
             if (value == null) {
                 removeProperty("readonly")
             } else {
-                addProperty("readonly", value)
+                addProperty("readonly", value.value)
             }
         }
-        get() = (getProperty("readonly"))
+        get() = Readonly.fromValue(getProperty("readonly"))
 
-    var required: String?
+    var required: Required?
         set(value) {
             if (value == null) {
                 removeProperty("required")
             } else {
-                addProperty("required", value)
+                addProperty("required", value.value)
             }
         }
-        get() = (getProperty("required"))
+        get() = Required.fromValue(getProperty("required"))
 
     var size: Int?
         set(value) {

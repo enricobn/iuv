@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
-class Tr<MESSAGE> : org.iuv.core.HTML<MESSAGE>("tr")
+open class Tr<MESSAGE> : HTML<MESSAGE>("tr")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

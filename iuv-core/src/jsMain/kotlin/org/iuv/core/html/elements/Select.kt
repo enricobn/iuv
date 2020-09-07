@@ -1,7 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Autofocus
+import org.iuv.core.html.enums.Disabled
+import org.iuv.core.html.enums.Multiple
+import org.iuv.core.html.enums.Required
 
-class Select<MESSAGE> : org.iuv.core.HTML<MESSAGE>("select")
+open class Select<MESSAGE> : HTML<MESSAGE>("select")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -15,15 +21,15 @@ class Select<MESSAGE> : org.iuv.core.HTML<MESSAGE>("select")
         }
         get() = (getProperty("name"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var form: String?
         set(value) {
@@ -45,35 +51,35 @@ class Select<MESSAGE> : org.iuv.core.HTML<MESSAGE>("select")
         }
         get() = (getProperty("size"))
 
-    var multiple: String?
+    var multiple: Multiple?
         set(value) {
             if (value == null) {
                 removeProperty("multiple")
             } else {
-                addProperty("multiple", value)
+                addProperty("multiple", value.value)
             }
         }
-        get() = (getProperty("multiple"))
+        get() = Multiple.fromValue(getProperty("multiple"))
 
-    var autofocus: String?
+    var autofocus: Autofocus?
         set(value) {
             if (value == null) {
                 removeProperty("autofocus")
             } else {
-                addProperty("autofocus", value)
+                addProperty("autofocus", value.value)
             }
         }
-        get() = (getProperty("autofocus"))
+        get() = Autofocus.fromValue(getProperty("autofocus"))
 
-    var required: String?
+    var required: Required?
         set(value) {
             if (value == null) {
                 removeProperty("required")
             } else {
-                addProperty("required", value)
+                addProperty("required", value.value)
             }
         }
-        get() = (getProperty("required"))
+        get() = Required.fromValue(getProperty("required"))
 
 
     fun option(init: Option<MESSAGE>.() -> Unit) {

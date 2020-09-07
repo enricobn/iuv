@@ -1,8 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.ThAttributeGroup
 import org.iuv.core.html.enums.Scope
 
-class Th<MESSAGE> : org.iuv.core.HTML<MESSAGE>("th")
+open class Th<MESSAGE> : HTML<MESSAGE>("th")
+ ,FlowContentElement<MESSAGE>
  ,ThAttributeGroup<MESSAGE>
  
  {

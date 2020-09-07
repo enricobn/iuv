@@ -1,8 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Checked
 import org.iuv.core.html.enums.CommandType
+import org.iuv.core.html.enums.Disabled
 
-class Command<MESSAGE> : org.iuv.core.HTML<MESSAGE>("command")
+open class Command<MESSAGE> : HTML<MESSAGE>("command")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -36,15 +40,15 @@ class Command<MESSAGE> : org.iuv.core.HTML<MESSAGE>("command")
         }
         get() = (getProperty("icon"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var radiogroup: String?
         set(value) {
@@ -56,15 +60,15 @@ class Command<MESSAGE> : org.iuv.core.HTML<MESSAGE>("command")
         }
         get() = (getProperty("radiogroup"))
 
-    var checked: String?
+    var checked: Checked?
         set(value) {
             if (value == null) {
                 removeProperty("checked")
             } else {
-                addProperty("checked", value)
+                addProperty("checked", value.value)
             }
         }
-        get() = (getProperty("checked"))
+        get() = Checked.fromValue(getProperty("checked"))
 
 
 

@@ -1,0 +1,44 @@
+package {{nameSpace}}
+{{#imports}}
+import {{.}}
+{{/imports}}
+import org.iuv.core.HTMLChild
+import org.iuv.core.HTMLElement
+import org.iuv.core.HTMLElementAttributes
+
+interface {{className}}<MESSAGE> : HTMLChild, HTMLElement<MESSAGE>, HTMLElementAttributes<MESSAGE>
+ {{#baseElement.className}},{{baseElement.className}}<MESSAGE>{{/baseElement.className}}
+ {{#selfAttributes.groups}},{{className}}<MESSAGE>{{/selfAttributes.groups}}
+ {{#groups}},{{className}}<MESSAGE>{{/groups}}
+ {
+    {{#attributes}}
+    var {{name}}: {{type.className}}?
+        set(value) {
+            if (value == null) {
+                removeProperty("{{originalName}}")
+            } else {
+                addProperty("{{originalName}}", value{{type.value}})
+            }
+        }
+        get() = {{type.valueOf}}(getProperty("{{originalName}}"))
+
+    {{/attributes}}
+
+    {{#children}}
+    fun {{name}}(init: {{className}}<MESSAGE>.() -> Unit) {
+        element({{className}}(), init)
+    }
+    {{/children}}
+
+    {{#functions()}}
+    fun {{name}}(handler: ({{eventType}},String) -> MESSAGE) {
+        on("{{eventName}}") { event: {{eventType}} ->
+            handler(event, event.target?.asDynamic().value as String)
+        }
+    }
+    fun {{name}}(message: MESSAGE) {
+        on("{{eventName}}") { _: {{eventType}} -> message }
+    }
+
+    {{/functions()}}
+}

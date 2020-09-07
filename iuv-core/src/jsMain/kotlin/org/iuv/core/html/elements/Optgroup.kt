@@ -1,7 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Disabled
 
-class Optgroup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("optgroup")
+open class Optgroup<MESSAGE> : HTML<MESSAGE>("optgroup")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -15,15 +18,15 @@ class Optgroup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("optgroup")
         }
         get() = (getProperty("label"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
 
     fun option(init: Option<MESSAGE>.() -> Unit) {

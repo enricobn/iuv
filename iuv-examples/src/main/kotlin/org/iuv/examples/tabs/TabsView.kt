@@ -61,14 +61,14 @@ class TabView(val msg: String) : View<TabView.Model, TabView.Message> {
     }
 
     override fun view(model: Model): HTML<Message> = html {
-        br()
+        br{}
 
         mtButton {
             +"Add"
-            onClick(Add)
+            onclick(Add)
         }
 
-        br()
+        br{}
 
         0.rangeTo(model.count).forEach { _ ->
             +model.msg

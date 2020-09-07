@@ -4,7 +4,7 @@ import org.iuv.core.HTMLElement
 import org.iuv.core.html.elements.*
 
 interface CommonPhrasingElements<MESSAGE> : HTMLElement<MESSAGE>
- 
+ ,CommonPhrasingElementsMetaDataElements<MESSAGE>
  {
     fun abbr(init: Abbr<MESSAGE>.() -> Unit) {
         element(Abbr(), init)
@@ -32,9 +32,6 @@ interface CommonPhrasingElements<MESSAGE> : HTMLElement<MESSAGE>
     }
     fun code(init: Code<MESSAGE>.() -> Unit) {
         element(Code(), init)
-    }
-    fun command(init: Command<MESSAGE>.() -> Unit) {
-        element(Command(), init)
     }
     fun datalist(init: Datalist<MESSAGE>.() -> Unit) {
         element(Datalist(), init)
@@ -92,9 +89,6 @@ interface CommonPhrasingElements<MESSAGE> : HTMLElement<MESSAGE>
     }
     fun samp(init: Samp<MESSAGE>.() -> Unit) {
         element(Samp(), init)
-    }
-    fun script(init: Script<MESSAGE>.() -> Unit) {
-        element(Script(), init)
     }
     fun select(init: Select<MESSAGE>.() -> Unit) {
         element(Select(), init)

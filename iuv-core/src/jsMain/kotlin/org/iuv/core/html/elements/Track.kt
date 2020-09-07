@@ -1,8 +1,11 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Default
 import org.iuv.core.html.enums.TrackKind
 
-class Track<MESSAGE> : org.iuv.core.HTML<MESSAGE>("track")
+open class Track<MESSAGE> : HTML<MESSAGE>("track")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -36,15 +39,15 @@ class Track<MESSAGE> : org.iuv.core.HTML<MESSAGE>("track")
         }
         get() = (getProperty("label"))
 
-    var default: String?
+    var default: Default?
         set(value) {
             if (value == null) {
                 removeProperty("default")
             } else {
-                addProperty("default", value)
+                addProperty("default", value.value)
             }
         }
-        get() = (getProperty("default"))
+        get() = Default.fromValue(getProperty("default"))
 
 
 

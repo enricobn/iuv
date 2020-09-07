@@ -33,7 +33,7 @@ class PostsView(private val postService: PostService) : View<PostsView.Model, Po
             else
                 model.rows.forEach {
                     +("${it.id} - ${it.title}")
-                    br()
+                    br {}
                 }
         }
 }

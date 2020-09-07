@@ -1,9 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.PhrasingContent
 
-class Cite<MESSAGE> : org.iuv.core.HTML<MESSAGE>("cite")
+open class Cite<MESSAGE> : HTML<MESSAGE>("cite")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
+ ,PhrasingContent<MESSAGE>
  {
 
 

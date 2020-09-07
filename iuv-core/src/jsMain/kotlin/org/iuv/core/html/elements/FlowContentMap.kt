@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class FlowContentMap<MESSAGE> : org.iuv.core.HTML<MESSAGE>("map")
+open class FlowContentMap<MESSAGE> : HTML<MESSAGE>("map")
+ ,FlowContentElement<MESSAGE>
  
  
  {

@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class Progress<MESSAGE> : org.iuv.core.HTML<MESSAGE>("progress")
+open class Progress<MESSAGE> : HTML<MESSAGE>("progress")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

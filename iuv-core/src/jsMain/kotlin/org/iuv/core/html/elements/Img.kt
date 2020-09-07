@@ -1,7 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Ismap
 
-class Img<MESSAGE> : org.iuv.core.HTML<MESSAGE>("img")
+open class Img<MESSAGE> : HTML<MESSAGE>("img")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -55,15 +58,15 @@ class Img<MESSAGE> : org.iuv.core.HTML<MESSAGE>("img")
         }
         get() = (getProperty("usemap"))
 
-    var ismap: String?
+    var ismap: Ismap?
         set(value) {
             if (value == null) {
                 removeProperty("ismap")
             } else {
-                addProperty("ismap", value)
+                addProperty("ismap", value.value)
             }
         }
-        get() = (getProperty("ismap"))
+        get() = Ismap.fromValue(getProperty("ismap"))
 
 
 

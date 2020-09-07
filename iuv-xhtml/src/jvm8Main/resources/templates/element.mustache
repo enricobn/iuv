@@ -2,12 +2,14 @@ package {{nameSpace}}
 {{#imports}}
 import {{.}}
 {{/imports}}
+import org.iuv.core.HTML
 
-class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
- {{#attributes.groups}},{{className}}<MESSAGE>{{/attributes.groups}}
- {{#groups}},{{fullClassName}}<MESSAGE>{{/groups}}
+open class {{className}}<MESSAGE> : HTML<MESSAGE>("{{elementName}}")
+ {{#baseElement.className}},{{baseElement.className}}<MESSAGE>{{/baseElement.className}}
+ {{#selfAttributes.groups}},{{className}}<MESSAGE>{{/selfAttributes.groups}}
+ {{#groups}},{{className}}<MESSAGE>{{/groups}}
  {
-    {{#attributes.attributes}}
+    {{#attributes}}
     var {{name}}: {{type.className}}?
         set(value) {
             if (value == null) {
@@ -18,7 +20,7 @@ class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
         }
         get() = {{type.valueOf}}(getProperty("{{originalName}}"))
 
-    {{/attributes.attributes}}
+    {{/attributes}}
 
     {{#children}}
     fun {{name}}(init: {{className}}<MESSAGE>.() -> Unit) {
@@ -26,7 +28,7 @@ class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
     }
     {{/children}}
 
-    {{#attributes.functions}}
+    {{#functions()}}
     fun {{name}}(handler: ({{eventType}},String) -> MESSAGE) {
         on("{{eventName}}") { event: {{eventType}} ->
             handler(event, event.target?.asDynamic().value as String)
@@ -36,5 +38,5 @@ class {{className}}<MESSAGE> : org.iuv.core.HTML<MESSAGE>("{{name}}")
         on("{{eventName}}") { _: {{eventType}} -> message }
     }
 
-    {{/attributes.functions}}
+    {{/functions()}}
 }

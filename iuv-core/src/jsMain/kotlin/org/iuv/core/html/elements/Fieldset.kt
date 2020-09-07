@@ -1,9 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Disabled
+import org.iuv.core.html.groups.FlowContent
 
-class Fieldset<MESSAGE> : org.iuv.core.HTML<MESSAGE>("fieldset")
+open class Fieldset<MESSAGE> : HTML<MESSAGE>("fieldset")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
     var name: String?
         set(value) {
@@ -15,15 +19,15 @@ class Fieldset<MESSAGE> : org.iuv.core.HTML<MESSAGE>("fieldset")
         }
         get() = (getProperty("name"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var form: String?
         set(value) {

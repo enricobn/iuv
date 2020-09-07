@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class PhrasingContentDel<MESSAGE> : org.iuv.core.HTML<MESSAGE>("del")
+open class PhrasingContentDel<MESSAGE> : HTML<MESSAGE>("del")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

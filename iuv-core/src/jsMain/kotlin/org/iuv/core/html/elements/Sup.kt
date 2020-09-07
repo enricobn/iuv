@@ -1,9 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.PhrasingContent
 
-class Sup<MESSAGE> : org.iuv.core.HTML<MESSAGE>("sup")
+open class Sup<MESSAGE> : HTML<MESSAGE>("sup")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
+ ,PhrasingContent<MESSAGE>
  {
 
 

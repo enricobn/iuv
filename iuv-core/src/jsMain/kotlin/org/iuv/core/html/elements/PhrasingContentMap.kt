@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class PhrasingContentMap<MESSAGE> : org.iuv.core.HTML<MESSAGE>("map")
+open class PhrasingContentMap<MESSAGE> : HTML<MESSAGE>("map")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

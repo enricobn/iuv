@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class FlowContentDel<MESSAGE> : org.iuv.core.HTML<MESSAGE>("del")
+open class FlowContentDel<MESSAGE> : HTML<MESSAGE>("del")
+ ,FlowContentElement<MESSAGE>
  
  
  {

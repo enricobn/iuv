@@ -1,9 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.FlowContent
 
-class Div<MESSAGE> : org.iuv.core.HTML<MESSAGE>("div")
+open class Div<MESSAGE> : HTML<MESSAGE>("div")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
 
     fun style(init: Style<MESSAGE>.() -> Unit) {

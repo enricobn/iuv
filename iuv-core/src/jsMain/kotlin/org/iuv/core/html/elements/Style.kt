@@ -1,19 +1,22 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Scoped
 
-class Style<MESSAGE> : org.iuv.core.HTML<MESSAGE>("style")
+open class Style<MESSAGE> : HTML<MESSAGE>("style")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
-    var scoped: String?
+    var scoped: Scoped?
         set(value) {
             if (value == null) {
                 removeProperty("scoped")
             } else {
-                addProperty("scoped", value)
+                addProperty("scoped", value.value)
             }
         }
-        get() = (getProperty("scoped"))
+        get() = Scoped.fromValue(getProperty("scoped"))
 
 
 

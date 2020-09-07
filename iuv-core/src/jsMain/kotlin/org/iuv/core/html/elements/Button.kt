@@ -1,8 +1,9 @@
 package org.iuv.core.html.elements
-import org.iuv.core.html.enums.ButtonType
-import org.iuv.core.html.enums.Formmethod
+import org.iuv.core.HTML
+import org.iuv.core.html.enums.*
 
-class Button<MESSAGE> : org.iuv.core.HTML<MESSAGE>("button")
+open class Button<MESSAGE> : HTML<MESSAGE>("button")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {
@@ -16,15 +17,15 @@ class Button<MESSAGE> : org.iuv.core.HTML<MESSAGE>("button")
         }
         get() = (getProperty("name"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var form: String?
         set(value) {
@@ -66,25 +67,25 @@ class Button<MESSAGE> : org.iuv.core.HTML<MESSAGE>("button")
         }
         get() = (getProperty("formaction"))
 
-    var autofocus: String?
+    var autofocus: Autofocus?
         set(value) {
             if (value == null) {
                 removeProperty("autofocus")
             } else {
-                addProperty("autofocus", value)
+                addProperty("autofocus", value.value)
             }
         }
-        get() = (getProperty("autofocus"))
+        get() = Autofocus.fromValue(getProperty("autofocus"))
 
-    var formenctype: String?
+    var formenctype: Formenctype?
         set(value) {
             if (value == null) {
                 removeProperty("formenctype")
             } else {
-                addProperty("formenctype", value)
+                addProperty("formenctype", value.value)
             }
         }
-        get() = (getProperty("formenctype"))
+        get() = Formenctype.fromValue(getProperty("formenctype"))
 
     var formmethod: Formmethod?
         set(value) {
@@ -96,15 +97,15 @@ class Button<MESSAGE> : org.iuv.core.HTML<MESSAGE>("button")
         }
         get() = Formmethod.fromValue(getProperty("formmethod"))
 
-    var formnovalidate: String?
+    var formnovalidate: Formnovalidate?
         set(value) {
             if (value == null) {
                 removeProperty("formnovalidate")
             } else {
-                addProperty("formnovalidate", value)
+                addProperty("formnovalidate", value.value)
             }
         }
-        get() = (getProperty("formnovalidate"))
+        get() = Formnovalidate.fromValue(getProperty("formnovalidate"))
 
 
 

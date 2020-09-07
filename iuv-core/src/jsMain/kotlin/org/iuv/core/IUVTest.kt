@@ -1,5 +1,6 @@
 package org.iuv.core
 
+import org.iuv.core.html.elements.Div
 import org.w3c.dom.events.Event
 
 typealias HTMLPredicate = (HTML<Any>) -> Boolean
@@ -137,8 +138,8 @@ open class IUVTest<MESSAGE> {
 
     }
 
-    fun html(init: HTML<MESSAGE>.() -> Unit) : HTML<MESSAGE> {
-        val html = HTML<MESSAGE>("div")
+    fun html(init: Div<MESSAGE>.() -> Unit) : Div<MESSAGE> {
+        val html = Div<MESSAGE>()
         init(html)
         return html
     }

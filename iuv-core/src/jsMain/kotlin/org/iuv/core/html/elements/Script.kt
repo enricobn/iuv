@@ -1,7 +1,11 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Async
+import org.iuv.core.html.enums.Defer
 
-class Script<MESSAGE> : org.iuv.core.HTML<MESSAGE>("script")
+open class Script<MESSAGE> : HTML<MESSAGE>("script")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -15,25 +19,25 @@ class Script<MESSAGE> : org.iuv.core.HTML<MESSAGE>("script")
         }
         get() = (getProperty("src"))
 
-    var defer: String?
+    var defer: Defer?
         set(value) {
             if (value == null) {
                 removeProperty("defer")
             } else {
-                addProperty("defer", value)
+                addProperty("defer", value.value)
             }
         }
-        get() = (getProperty("defer"))
+        get() = Defer.fromValue(getProperty("defer"))
 
-    var async: String?
+    var async: Async?
         set(value) {
             if (value == null) {
                 removeProperty("async")
             } else {
-                addProperty("async", value)
+                addProperty("async", value.value)
             }
         }
-        get() = (getProperty("async"))
+        get() = Async.fromValue(getProperty("async"))
 
     var charset: String?
         set(value) {

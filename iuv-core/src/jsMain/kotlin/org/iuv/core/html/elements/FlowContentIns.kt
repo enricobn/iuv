@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class FlowContentIns<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ins")
+open class FlowContentIns<MESSAGE> : HTML<MESSAGE>("ins")
+ ,FlowContentElement<MESSAGE>
  
  
  {

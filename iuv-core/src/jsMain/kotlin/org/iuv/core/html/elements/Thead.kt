@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
-class Thead<MESSAGE> : org.iuv.core.HTML<MESSAGE>("thead")
+open class Thead<MESSAGE> : HTML<MESSAGE>("thead")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

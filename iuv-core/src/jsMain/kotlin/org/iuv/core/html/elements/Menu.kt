@@ -1,10 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.MenuType
+import org.iuv.core.html.groups.FlowContent
 
-class Menu<MESSAGE> : org.iuv.core.HTML<MESSAGE>("menu")
+open class Menu<MESSAGE> : HTML<MESSAGE>("menu")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
     var type: MenuType?
         set(value) {

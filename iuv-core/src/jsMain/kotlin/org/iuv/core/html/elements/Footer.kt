@@ -1,9 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.FlowContent
 
-class Footer<MESSAGE> : org.iuv.core.HTML<MESSAGE>("footer")
+open class Footer<MESSAGE> : HTML<MESSAGE>("footer")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
 
 

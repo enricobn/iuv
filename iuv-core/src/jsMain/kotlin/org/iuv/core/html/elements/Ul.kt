@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
-class Ul<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ul")
+open class Ul<MESSAGE> : HTML<MESSAGE>("ul")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

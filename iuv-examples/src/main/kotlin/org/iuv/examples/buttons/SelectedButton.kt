@@ -31,7 +31,7 @@ object SelectedButton : Component<SelectedButtonModel, SelectedButtonMessage> {
             button {
                 +model.text
 
-                onClick { SelectedButtonClick }
+                onclick(SelectedButtonClick)
 
                 if (model.selected) {
                     classes = "ButtonComponentSelected"

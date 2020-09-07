@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class PhrasingContentIns<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ins")
+open class PhrasingContentIns<MESSAGE> : HTML<MESSAGE>("ins")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id "com.moowork.node"
+    id "com.github.node-gradle.node"
     id 'org.jetbrains.kotlin.js'
 }
 
@@ -42,6 +42,7 @@ dependencies {
     //compile 'org.iuv:iuv-core-js:0.1-SNAPSHOT'
 //    implementation project(path: ':iuv-core', configuration: 'jsDefault')
     implementation project(':iuv-core')
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
     //compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
 
     //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
@@ -70,6 +71,5 @@ kotlin {
     js {
         // To build distributions for and run tests on browser or Node.js use one or both of:
         browser()
-        nodejs()
     }
 }

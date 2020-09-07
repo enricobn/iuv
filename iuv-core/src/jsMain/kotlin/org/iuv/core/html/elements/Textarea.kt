@@ -1,8 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
-import org.iuv.core.html.enums.Wrap
+import org.iuv.core.html.enums.*
 
-class Textarea<MESSAGE> : org.iuv.core.HTML<MESSAGE>("textarea")
+open class Textarea<MESSAGE> : HTML<MESSAGE>("textarea")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -16,15 +18,15 @@ class Textarea<MESSAGE> : org.iuv.core.HTML<MESSAGE>("textarea")
         }
         get() = (getProperty("name"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var form: String?
         set(value) {
@@ -36,15 +38,15 @@ class Textarea<MESSAGE> : org.iuv.core.HTML<MESSAGE>("textarea")
         }
         get() = (getProperty("form"))
 
-    var readonly: String?
+    var readonly: Readonly?
         set(value) {
             if (value == null) {
                 removeProperty("readonly")
             } else {
-                addProperty("readonly", value)
+                addProperty("readonly", value.value)
             }
         }
-        get() = (getProperty("readonly"))
+        get() = Readonly.fromValue(getProperty("readonly"))
 
     var maxlength: Int?
         set(value) {
@@ -56,25 +58,25 @@ class Textarea<MESSAGE> : org.iuv.core.HTML<MESSAGE>("textarea")
         }
         get() = (getProperty("maxlength"))
 
-    var autofocus: String?
+    var autofocus: Autofocus?
         set(value) {
             if (value == null) {
                 removeProperty("autofocus")
             } else {
-                addProperty("autofocus", value)
+                addProperty("autofocus", value.value)
             }
         }
-        get() = (getProperty("autofocus"))
+        get() = Autofocus.fromValue(getProperty("autofocus"))
 
-    var required: String?
+    var required: Required?
         set(value) {
             if (value == null) {
                 removeProperty("required")
             } else {
-                addProperty("required", value)
+                addProperty("required", value.value)
             }
         }
-        get() = (getProperty("required"))
+        get() = Required.fromValue(getProperty("required"))
 
     var placeholder: String?
         set(value) {

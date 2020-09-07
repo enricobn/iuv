@@ -1,10 +1,12 @@
 package org.iuv.core.html.groups
 
 import org.iuv.core.HTMLElement
-import org.iuv.core.html.elements.*
+import org.iuv.core.html.elements.Link
+import org.iuv.core.html.elements.Meta
+import org.iuv.core.html.elements.Style
 
 interface MetaDataElements<MESSAGE> : HTMLElement<MESSAGE>
- 
+ ,CommonPhrasingElementsMetaDataElements<MESSAGE>
  {
     fun link(init: Link<MESSAGE>.() -> Unit) {
         element(Link(), init)
@@ -14,11 +16,5 @@ interface MetaDataElements<MESSAGE> : HTMLElement<MESSAGE>
     }
     fun meta(init: Meta<MESSAGE>.() -> Unit) {
         element(Meta(), init)
-    }
-    fun script(init: Script<MESSAGE>.() -> Unit) {
-        element(Script(), init)
-    }
-    fun command(init: Command<MESSAGE>.() -> Unit) {
-        element(Command(), init)
     }
 }

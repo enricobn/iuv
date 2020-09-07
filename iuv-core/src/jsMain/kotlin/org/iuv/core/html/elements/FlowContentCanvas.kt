@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class FlowContentCanvas<MESSAGE> : org.iuv.core.HTML<MESSAGE>("canvas")
+open class FlowContentCanvas<MESSAGE> : HTML<MESSAGE>("canvas")
+ ,FlowContentElement<MESSAGE>
  
  
  {

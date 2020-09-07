@@ -1,8 +1,11 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.OlType
+import org.iuv.core.html.enums.Reversed
 
-class Ol<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ol")
+open class Ol<MESSAGE> : HTML<MESSAGE>("ol")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -26,15 +29,15 @@ class Ol<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ol")
         }
         get() = (getProperty("start"))
 
-    var reversed: String?
+    var reversed: Reversed?
         set(value) {
             if (value == null) {
                 removeProperty("reversed")
             } else {
-                addProperty("reversed", value)
+                addProperty("reversed", value.value)
             }
         }
-        get() = (getProperty("reversed"))
+        get() = Reversed.fromValue(getProperty("reversed"))
 
 
     fun li(init: OlLi<MESSAGE>.() -> Unit) {

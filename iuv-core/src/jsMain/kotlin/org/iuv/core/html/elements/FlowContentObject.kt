@@ -1,10 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.attributegroups.ObjectAttributeGroup
+import org.iuv.core.html.groups.FlowContent
 
-class FlowContentObject<MESSAGE> : org.iuv.core.HTML<MESSAGE>("object")
+open class FlowContentObject<MESSAGE> : HTML<MESSAGE>("object")
+ 
  ,GlobalAttributeGroup<MESSAGE>,ObjectAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
 
     fun param(init: Param<MESSAGE>.() -> Unit) {

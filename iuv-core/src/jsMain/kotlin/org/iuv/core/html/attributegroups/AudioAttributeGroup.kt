@@ -1,6 +1,10 @@
 package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
+import org.iuv.core.html.enums.Autoplay
+import org.iuv.core.html.enums.Controls
+import org.iuv.core.html.enums.Loop
+import org.iuv.core.html.enums.Preload
 
 interface AudioAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
@@ -15,45 +19,45 @@ interface AudioAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
         }
         get() = (getProperty("src"))
 
-    var autoplay: String?
+    var autoplay: Autoplay?
         set(value) {
             if (value == null) {
                 removeProperty("autoplay")
             } else {
-                addProperty("autoplay", value)
+                addProperty("autoplay", value.value)
             }
         }
-        get() = (getProperty("autoplay"))
+        get() = Autoplay.fromValue(getProperty("autoplay"))
 
-    var preload: String?
+    var preload: Preload?
         set(value) {
             if (value == null) {
                 removeProperty("preload")
             } else {
-                addProperty("preload", value)
+                addProperty("preload", value.value)
             }
         }
-        get() = (getProperty("preload"))
+        get() = Preload.fromValue(getProperty("preload"))
 
-    var controls: String?
+    var controls: Controls?
         set(value) {
             if (value == null) {
                 removeProperty("controls")
             } else {
-                addProperty("controls", value)
+                addProperty("controls", value.value)
             }
         }
-        get() = (getProperty("controls"))
+        get() = Controls.fromValue(getProperty("controls"))
 
-    var loop: String?
+    var loop: Loop?
         set(value) {
             if (value == null) {
                 removeProperty("loop")
             } else {
-                addProperty("loop", value)
+                addProperty("loop", value.value)
             }
         }
-        get() = (getProperty("loop"))
+        get() = Loop.fromValue(getProperty("loop"))
 
     var mediagroup: String?
         set(value) {

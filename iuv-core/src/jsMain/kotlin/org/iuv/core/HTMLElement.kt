@@ -1,5 +1,6 @@
 package org.iuv.core
 
+@HtmlTagMarker
 interface HTMLElement<MESSAGE> {
 
     fun add(html: HTMLChild)

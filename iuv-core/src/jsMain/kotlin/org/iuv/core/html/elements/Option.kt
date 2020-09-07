@@ -1,29 +1,33 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Disabled
+import org.iuv.core.html.enums.Selected
 
-class Option<MESSAGE> : org.iuv.core.HTML<MESSAGE>("option")
+open class Option<MESSAGE> : HTML<MESSAGE>("option")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
-    var selected: String?
+    var selected: Selected?
         set(value) {
             if (value == null) {
                 removeProperty("selected")
             } else {
-                addProperty("selected", value)
+                addProperty("selected", value.value)
             }
         }
-        get() = (getProperty("selected"))
+        get() = Selected.fromValue(getProperty("selected"))
 
     var label: String?
         set(value) {

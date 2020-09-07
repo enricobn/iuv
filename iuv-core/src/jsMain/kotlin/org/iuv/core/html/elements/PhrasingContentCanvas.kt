@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class PhrasingContentCanvas<MESSAGE> : org.iuv.core.HTML<MESSAGE>("canvas")
+open class PhrasingContentCanvas<MESSAGE> : HTML<MESSAGE>("canvas")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

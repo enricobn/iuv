@@ -1,8 +1,12 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Autofocus
+import org.iuv.core.html.enums.Disabled
 import org.iuv.core.html.enums.Keytype
 
-class Keygen<MESSAGE> : org.iuv.core.HTML<MESSAGE>("keygen")
+open class Keygen<MESSAGE> : HTML<MESSAGE>("keygen")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -26,15 +30,15 @@ class Keygen<MESSAGE> : org.iuv.core.HTML<MESSAGE>("keygen")
         }
         get() = Keytype.fromValue(getProperty("keytype"))
 
-    var autofocus: String?
+    var autofocus: Autofocus?
         set(value) {
             if (value == null) {
                 removeProperty("autofocus")
             } else {
-                addProperty("autofocus", value)
+                addProperty("autofocus", value.value)
             }
         }
-        get() = (getProperty("autofocus"))
+        get() = Autofocus.fromValue(getProperty("autofocus"))
 
     var name: String?
         set(value) {
@@ -46,15 +50,15 @@ class Keygen<MESSAGE> : org.iuv.core.HTML<MESSAGE>("keygen")
         }
         get() = (getProperty("name"))
 
-    var disabled: String?
+    var disabled: Disabled?
         set(value) {
             if (value == null) {
                 removeProperty("disabled")
             } else {
-                addProperty("disabled", value)
+                addProperty("disabled", value.value)
             }
         }
-        get() = (getProperty("disabled"))
+        get() = Disabled.fromValue(getProperty("disabled"))
 
     var form: String?
         set(value) {

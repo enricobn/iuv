@@ -2,9 +2,10 @@ package org.iuv.examples.components
 
 import org.iuv.core.HTML
 import org.iuv.core.HTMLChild
+import org.iuv.core.html.elements.Div
 
-fun <MESSAGE> HTML<MESSAGE>.vBox(init: HTML<MESSAGE>.() -> Unit) {
-    val html = object : HTML<MESSAGE>("div") {
+fun <MESSAGE> Div<MESSAGE>.vBox(init: Div<MESSAGE>.() -> Unit) {
+    val html = object : Div<MESSAGE>() {
         override fun add(html: HTMLChild) {
             val wrapper = HTML<MESSAGE>("div")
             wrapper.add(html)

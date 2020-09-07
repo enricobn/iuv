@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class MenuLi<MESSAGE> : org.iuv.core.HTML<MESSAGE>("li")
+open class MenuLi<MESSAGE> : HTML<MESSAGE>("li")
+ ,FlowContentElement<MESSAGE>
  
  
  {

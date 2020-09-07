@@ -1,6 +1,8 @@
 package org.iuv.core.html.attributegroups
 
 import org.iuv.core.HTMLElementAttributes
+import org.iuv.core.html.enums.Hidden
+import org.iuv.core.html.enums.ImplicitBoolean
 
 interface CoreAttributeGroupNodir<MESSAGE> : HTMLElementAttributes<MESSAGE>
  
@@ -15,15 +17,15 @@ interface CoreAttributeGroupNodir<MESSAGE> : HTMLElementAttributes<MESSAGE>
         }
         get() = (getProperty("class"))
 
-    var contenteditable: String?
+    var contenteditable: ImplicitBoolean?
         set(value) {
             if (value == null) {
                 removeProperty("contenteditable")
             } else {
-                addProperty("contenteditable", value)
+                addProperty("contenteditable", value.value)
             }
         }
-        get() = (getProperty("contenteditable"))
+        get() = ImplicitBoolean.fromValue(getProperty("contenteditable"))
 
     var contextmenu: String?
         set(value) {
@@ -45,15 +47,15 @@ interface CoreAttributeGroupNodir<MESSAGE> : HTMLElementAttributes<MESSAGE>
         }
         get() = (getProperty("draggable"))
 
-    var hidden: String?
+    var hidden: Hidden?
         set(value) {
             if (value == null) {
                 removeProperty("hidden")
             } else {
-                addProperty("hidden", value)
+                addProperty("hidden", value.value)
             }
         }
-        get() = (getProperty("hidden"))
+        get() = Hidden.fromValue(getProperty("hidden"))
 
     var id: String?
         set(value) {
@@ -65,15 +67,15 @@ interface CoreAttributeGroupNodir<MESSAGE> : HTMLElementAttributes<MESSAGE>
         }
         get() = (getProperty("id"))
 
-    var spellcheck: String?
+    var spellcheck: ImplicitBoolean?
         set(value) {
             if (value == null) {
                 removeProperty("spellcheck")
             } else {
-                addProperty("spellcheck", value)
+                addProperty("spellcheck", value.value)
             }
         }
-        get() = (getProperty("spellcheck"))
+        get() = ImplicitBoolean.fromValue(getProperty("spellcheck"))
 
     var style: String?
         set(value) {

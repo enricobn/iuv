@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
-class Link<MESSAGE> : org.iuv.core.HTML<MESSAGE>("link")
+open class Link<MESSAGE> : HTML<MESSAGE>("link")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

@@ -1,8 +1,12 @@
 package org.iuv.examples.components
 
-import org.iuv.core.*
+import org.iuv.core.Cmd
+import org.iuv.core.Component
+import org.iuv.core.HTML
+import org.iuv.core.IUVRouter
+import org.iuv.core.html.elements.Button
 
-class ButtonLink(val label: String, val path: String, val extendButton: ButtonH<Message>.() -> Unit = {}) : Component<ButtonLink.Model, ButtonLink.Message> {
+class ButtonLink(val label: String, val path: String, val extendButton: Button<Message>.() -> Unit = {}) : Component<ButtonLink.Model, ButtonLink.Message> {
 
     object Model
 
@@ -20,7 +24,7 @@ class ButtonLink(val label: String, val path: String, val extendButton: ButtonH<
         mtButton {
             extendButton()
             +label
-            onClick(OnClick)
+            onclick(OnClick)
         }
     }
 

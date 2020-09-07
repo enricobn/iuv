@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class OlLi<MESSAGE> : org.iuv.core.HTML<MESSAGE>("li")
+open class OlLi<MESSAGE> : HTML<MESSAGE>("li")
+ ,Li<MESSAGE>
  
  
  {

@@ -1,8 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.HttpEquiv
 
-class Meta<MESSAGE> : org.iuv.core.HTML<MESSAGE>("meta")
+open class Meta<MESSAGE> : HTML<MESSAGE>("meta")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

@@ -1,8 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 import org.iuv.core.html.enums.Shape
 
-class Area<MESSAGE> : org.iuv.core.HTML<MESSAGE>("area")
+open class Area<MESSAGE> : HTML<MESSAGE>("area")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

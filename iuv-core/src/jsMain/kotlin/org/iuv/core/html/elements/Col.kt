@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
-class Col<MESSAGE> : org.iuv.core.HTML<MESSAGE>("col")
+open class Col<MESSAGE> : HTML<MESSAGE>("col")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {

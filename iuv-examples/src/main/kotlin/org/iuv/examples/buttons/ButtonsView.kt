@@ -4,6 +4,7 @@ import kotlinx.browser.document
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.View
+import org.iuv.core.html.enums.Autofocus
 import org.w3c.dom.events.MouseEvent
 
 class ButtonsView(private val initialPostId: Int, postService: PostService) : View<ButtonsView.Model, ButtonsView.Message> {
@@ -78,9 +79,9 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
         return html {
             +"Post ID: "
             input {
-                autofocus = true
+                autofocus = Autofocus.autofocus
                 value = model.postId.toString()
-                onBlur { _,value -> PostIdChanged(value.toInt()) }
+                onblur { _,value -> PostIdChanged(value.toInt()) }
             }
             div {
                 if (handleMouseMove) {
@@ -89,9 +90,9 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
                     }
                 }
                 table {
-                    for (y in 1..height) {
+                    for (y in 1..ButtonsView.height) {
                         tr {
-                            (1..width)
+                            (1..ButtonsView.width)
                                 .map { index(y, it) }
                                 .forEach {
                                     td {

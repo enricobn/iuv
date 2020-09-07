@@ -2,7 +2,9 @@ package org.iuv.examples
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
+import org.iuv.core.IUVRouter.Companion.navigate
 import org.iuv.core.View
+import org.iuv.core.html.elements.Div
 import org.iuv.examples.components.vBox
 
 class ExamplesView : View<ExamplesView.Model, ExamplesView.Message> {
@@ -10,13 +12,14 @@ class ExamplesView : View<ExamplesView.Model, ExamplesView.Message> {
     companion object {
         // Messages
 
-        private fun HTML<Message>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
+        private fun Div<Message>.linkToButtons(id: Int) = link("Buttons $id", "/buttons/$id")
 
-        private fun HTML<Message>.link(text: String, url: String) {
+        private fun Div<Message>.link(text: String, url: String) {
             a {
                 +text
-                navigate(url)
+                navigate<Message>(url)
             }
+
         }
 
     }

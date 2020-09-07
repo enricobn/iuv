@@ -1,10 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.AudioAttributeGroup
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.PhrasingContent
 
-class PhrasingContentAudio<MESSAGE> : org.iuv.core.HTML<MESSAGE>("audio")
+open class PhrasingContentAudio<MESSAGE> : HTML<MESSAGE>("audio")
+ 
  ,GlobalAttributeGroup<MESSAGE>,AudioAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
+ ,PhrasingContent<MESSAGE>
  {
 
     fun source(init: Source<MESSAGE>.() -> Unit) {

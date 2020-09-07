@@ -1,12 +1,15 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.CommonEventsGroup
 import org.iuv.core.html.attributegroups.CoreAttributeGroupNodir
 import org.iuv.core.html.attributegroups.XmlAttributeGroup
 import org.iuv.core.html.enums.Dir
+import org.iuv.core.html.groups.PhrasingContent
 
-class Bdi<MESSAGE> : org.iuv.core.HTML<MESSAGE>("bdi")
+open class Bdi<MESSAGE> : HTML<MESSAGE>("bdi")
+ 
  ,CoreAttributeGroupNodir<MESSAGE>,CommonEventsGroup<MESSAGE>,XmlAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
+ ,PhrasingContent<MESSAGE>
  {
     var dir: Dir?
         set(value) {

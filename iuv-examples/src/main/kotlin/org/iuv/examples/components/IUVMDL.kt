@@ -1,9 +1,7 @@
 package org.iuv.examples.components
 
-import org.iuv.core.ButtonH
-import org.iuv.core.HTML
-import org.iuv.core.InputH
-import org.iuv.core.TableH
+import org.iuv.core.html.elements.*
+import org.iuv.core.html.enums.InputType
 
 /*
     A file for Material Design Lite components.
@@ -15,28 +13,20 @@ object IUVMDL {
     val isChecked = "is-checked"
 }
 
-fun <MESSAGE> HTML<MESSAGE>.mtButton(init: ButtonH<MESSAGE>.() -> Unit) {
+fun <MESSAGE> Div<MESSAGE>.mtButton(init: Button<MESSAGE>.() -> Unit) {
     button {
         init()
 
-        appendClasses(
-            "mdl-button",
-            "mdl-js-button",
-            "mdl-button--raised",
-            "mdl-js-ripple-effect"
-        )//mdl-button--accent
+        classes = classes?:"" +
+            " mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+        //mdl-button--accent
     }
 
 }
 
-fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, init: InputH<MESSAGE>.() -> Unit) {
+fun <MESSAGE> FlowContentElement<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, init: Input<MESSAGE>.() -> Unit) {
     label {
-        appendClasses(
-            "mdl-checkbox",
-            "mdl-js-checkbox",
-            "mdl-js-ripple-effect",
-            "mdl-data-table__select"
-        )
+        classes = classes?:"" + " mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select"
 
         id = labelId
 
@@ -49,27 +39,23 @@ fun <MESSAGE> HTML<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, 
         input {
             init()
 
-            appendClasses("mdl-checkbox__input")
+            classes = classes?:"" + " mdl-checkbox__input"
 
-            type = "checkbox"
+            type = InputType.checkbox
         }
 
     }
 }
 
-fun <MESSAGE> HTML<MESSAGE>.mdlTable(init: TableH<MESSAGE>.() -> Unit) {
+fun <MESSAGE> Div<MESSAGE>.mdlTable(init: Table<MESSAGE>.() -> Unit) {
     table {
         init()
 
-        appendClasses(
-            "mdl-data-table",
-            "mdl-js-data-table",
-            "mdl-shadow--2dp"
-        )
+        classes = classes?:"" + " mdl-data-table mdl-js-data-table mdl-shadow--2dp"
     }
 }
 
-fun <MESSAGE> HTML<MESSAGE>.mdlCard(title: String, text: String) {
+fun <MESSAGE> Div<MESSAGE>.mdlCard(title: String, text: String) {
         div {
             classes ="demo-card-square mdl-card mdl-shadow--2dp"
             div {

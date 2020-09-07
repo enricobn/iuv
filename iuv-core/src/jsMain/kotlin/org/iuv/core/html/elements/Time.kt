@@ -1,6 +1,8 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 
-class Time<MESSAGE> : org.iuv.core.HTML<MESSAGE>("time")
+open class Time<MESSAGE> : HTML<MESSAGE>("time")
+ ,PhrasingContentElement<MESSAGE>
  
  
  {

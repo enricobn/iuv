@@ -1,10 +1,19 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.PhrasingContent
 
-class Ruby<MESSAGE> : org.iuv.core.HTML<MESSAGE>("ruby")
+open class Ruby<MESSAGE> : HTML<MESSAGE>("ruby")
+ 
  ,GlobalAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.PhrasingContent<MESSAGE>
+ ,PhrasingContent<MESSAGE>
  {
 
+    fun rt(init: Rt<MESSAGE>.() -> Unit) {
+        element(Rt(), init)
+    }
+    fun rp(init: Rp<MESSAGE>.() -> Unit) {
+        element(Rp(), init)
+    }
 
 }

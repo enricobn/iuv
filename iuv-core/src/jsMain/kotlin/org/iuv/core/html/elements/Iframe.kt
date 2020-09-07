@@ -1,7 +1,10 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.enums.Seamless
 
-class Iframe<MESSAGE> : org.iuv.core.HTML<MESSAGE>("iframe")
+open class Iframe<MESSAGE> : HTML<MESSAGE>("iframe")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
@@ -55,15 +58,15 @@ class Iframe<MESSAGE> : org.iuv.core.HTML<MESSAGE>("iframe")
         }
         get() = (getProperty("height"))
 
-    var seamless: String?
+    var seamless: Seamless?
         set(value) {
             if (value == null) {
                 removeProperty("seamless")
             } else {
-                addProperty("seamless", value)
+                addProperty("seamless", value.value)
             }
         }
-        get() = (getProperty("seamless"))
+        get() = Seamless.fromValue(getProperty("seamless"))
 
 
 

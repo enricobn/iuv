@@ -71,7 +71,7 @@ class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, G
                         if (multiSelect) {
                             th {
                                 mdlTableCheckbox("0", model.rows.size == model.selectedRows.size) {
-                                    onChange(GridOnAllRowsClick)
+                                    onchange(GridOnAllRowsClick)
                                 }
                             }
                         }
@@ -90,17 +90,17 @@ class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, G
 
                         tr {
                             if (model.selectedRows.contains(index)) {
-                                appendClasses(IUVMDL.isSelected)
+                                classes = classes?:"" + " " + IUVMDL.isSelected
                             }
 
                             if (multiSelect) {
                                 td {
                                     mdlTableCheckbox((index + 1).toString(), model.selectedRows.contains(index)) {
-                                        onChange(GridOnRowClick(index))
+                                        onchange(GridOnRowClick(index))
                                     }
                                 }
                             } else {
-                                onClick(GridOnRowClick(index))
+                                onclick(GridOnRowClick(index))
                             }
 
                             for (column in model.columns) {

@@ -1,10 +1,13 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.AudioAttributeGroup
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
+import org.iuv.core.html.groups.FlowContent
 
-class FlowContentAudio<MESSAGE> : org.iuv.core.HTML<MESSAGE>("audio")
+open class FlowContentAudio<MESSAGE> : HTML<MESSAGE>("audio")
+ 
  ,GlobalAttributeGroup<MESSAGE>,AudioAttributeGroup<MESSAGE>
- ,org.iuv.core.html.groups.FlowContent<MESSAGE>
+ ,FlowContent<MESSAGE>
  {
 
     fun source(init: Source<MESSAGE>.() -> Unit) {

@@ -1,7 +1,9 @@
 package org.iuv.core.html.elements
+import org.iuv.core.HTML
 import org.iuv.core.html.attributegroups.GlobalAttributeGroup
 
-class Embed<MESSAGE> : org.iuv.core.HTML<MESSAGE>("embed")
+open class Embed<MESSAGE> : HTML<MESSAGE>("embed")
+ 
  ,GlobalAttributeGroup<MESSAGE>
  
  {
