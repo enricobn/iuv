@@ -13,63 +13,57 @@ open class Keygen<MESSAGE> : HTML<MESSAGE>("keygen")
     var challenge: String?
         set(value) {
             if (value == null) {
-                removeProperty("challenge")
+                removeAttribute("challenge")
             } else {
-                addProperty("challenge", value)
+                addAttribute("challenge", value)
             }
         }
-        get() = (getProperty("challenge"))
-
+        get() = (getAttribute("challenge"))
     var keytype: Keytype?
         set(value) {
             if (value == null) {
-                removeProperty("keytype")
+                removeAttribute("keytype")
             } else {
-                addProperty("keytype", value.value)
+                addAttribute("keytype", value.value)
             }
         }
-        get() = Keytype.fromValue(getProperty("keytype"))
-
+        get() = Keytype.fromValue(getAttribute("keytype"))
     var autofocus: Autofocus?
         set(value) {
             if (value == null) {
-                removeProperty("autofocus")
+                removeAttribute("autofocus")
             } else {
-                addProperty("autofocus", value.value)
+                addAttribute("autofocus", value.value)
             }
         }
-        get() = Autofocus.fromValue(getProperty("autofocus"))
-
+        get() = Autofocus.fromValue(getAttribute("autofocus"))
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
 
 
 }

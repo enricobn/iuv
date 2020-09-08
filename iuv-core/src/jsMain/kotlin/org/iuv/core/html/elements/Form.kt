@@ -13,63 +13,57 @@ open class Form<MESSAGE> : HTML<MESSAGE>("form")
     var action: String?
         set(value) {
             if (value == null) {
-                removeProperty("action")
+                removeAttribute("action")
             } else {
-                addProperty("action", value)
+                addAttribute("action", value)
             }
         }
-        get() = (getProperty("action"))
-
+        get() = (getAttribute("action"))
     var method: Formmethod?
         set(value) {
             if (value == null) {
-                removeProperty("method")
+                removeAttribute("method")
             } else {
-                addProperty("method", value.value)
+                addAttribute("method", value.value)
             }
         }
-        get() = Formmethod.fromValue(getProperty("method"))
-
+        get() = Formmethod.fromValue(getAttribute("method"))
     var enctype: Formenctype?
         set(value) {
             if (value == null) {
-                removeProperty("enctype")
+                removeAttribute("enctype")
             } else {
-                addProperty("enctype", value.value)
+                addAttribute("enctype", value.value)
             }
         }
-        get() = Formenctype.fromValue(getProperty("enctype"))
-
+        get() = Formenctype.fromValue(getAttribute("enctype"))
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var novalidate: Formnovalidate?
         set(value) {
             if (value == null) {
-                removeProperty("novalidate")
+                removeAttribute("novalidate")
             } else {
-                addProperty("novalidate", value.value)
+                addAttribute("novalidate", value.value)
             }
         }
-        get() = Formnovalidate.fromValue(getProperty("novalidate"))
-
+        get() = Formnovalidate.fromValue(getAttribute("novalidate"))
     var autocomplete: Autocomplete?
         set(value) {
             if (value == null) {
-                removeProperty("autocomplete")
+                removeAttribute("autocomplete")
             } else {
-                addProperty("autocomplete", value.value)
+                addAttribute("autocomplete", value.value)
             }
         }
-        get() = Autocomplete.fromValue(getProperty("autocomplete"))
-
+        get() = Autocomplete.fromValue(getAttribute("autocomplete"))
 
 
 }

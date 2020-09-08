@@ -2,9 +2,9 @@ package org.iuv.examples
 
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
-import org.iuv.core.IUVRouter.Companion.navigate
 import org.iuv.core.View
 import org.iuv.core.html.elements.Div
+import org.iuv.core.navigate
 import org.iuv.examples.components.vBox
 
 class ExamplesView : View<ExamplesView.Model, ExamplesView.Message> {
@@ -17,7 +17,7 @@ class ExamplesView : View<ExamplesView.Model, ExamplesView.Message> {
         private fun Div<Message>.link(text: String, url: String) {
             a {
                 +text
-                navigate<Message>(url)
+                navigate(url)
             }
 
         }

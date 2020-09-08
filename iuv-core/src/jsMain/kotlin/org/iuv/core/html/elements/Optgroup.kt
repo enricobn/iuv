@@ -11,23 +11,21 @@ open class Optgroup<MESSAGE> : HTML<MESSAGE>("optgroup")
     var label: String?
         set(value) {
             if (value == null) {
-                removeProperty("label")
+                removeAttribute("label")
             } else {
-                addProperty("label", value)
+                addAttribute("label", value)
             }
         }
-        get() = (getProperty("label"))
-
+        get() = (getAttribute("label"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
 
     fun option(init: Option<MESSAGE>.() -> Unit) {
         element(Option(), init)

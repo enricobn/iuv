@@ -10,103 +10,93 @@ open class Button<MESSAGE> : HTML<MESSAGE>("button")
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
     var type: ButtonType?
         set(value) {
             if (value == null) {
-                removeProperty("type")
+                removeAttribute("type")
             } else {
-                addProperty("type", value.value)
+                addAttribute("type", value.value)
             }
         }
-        get() = ButtonType.fromValue(getProperty("type"))
-
+        get() = ButtonType.fromValue(getAttribute("type"))
     var value: String?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
     var formaction: String?
         set(value) {
             if (value == null) {
-                removeProperty("formaction")
+                removeAttribute("formaction")
             } else {
-                addProperty("formaction", value)
+                addAttribute("formaction", value)
             }
         }
-        get() = (getProperty("formaction"))
-
+        get() = (getAttribute("formaction"))
     var autofocus: Autofocus?
         set(value) {
             if (value == null) {
-                removeProperty("autofocus")
+                removeAttribute("autofocus")
             } else {
-                addProperty("autofocus", value.value)
+                addAttribute("autofocus", value.value)
             }
         }
-        get() = Autofocus.fromValue(getProperty("autofocus"))
-
+        get() = Autofocus.fromValue(getAttribute("autofocus"))
     var formenctype: Formenctype?
         set(value) {
             if (value == null) {
-                removeProperty("formenctype")
+                removeAttribute("formenctype")
             } else {
-                addProperty("formenctype", value.value)
+                addAttribute("formenctype", value.value)
             }
         }
-        get() = Formenctype.fromValue(getProperty("formenctype"))
-
+        get() = Formenctype.fromValue(getAttribute("formenctype"))
     var formmethod: Formmethod?
         set(value) {
             if (value == null) {
-                removeProperty("formmethod")
+                removeAttribute("formmethod")
             } else {
-                addProperty("formmethod", value.value)
+                addAttribute("formmethod", value.value)
             }
         }
-        get() = Formmethod.fromValue(getProperty("formmethod"))
-
+        get() = Formmethod.fromValue(getAttribute("formmethod"))
     var formnovalidate: Formnovalidate?
         set(value) {
             if (value == null) {
-                removeProperty("formnovalidate")
+                removeAttribute("formnovalidate")
             } else {
-                addProperty("formnovalidate", value.value)
+                addAttribute("formnovalidate", value.value)
             }
         }
-        get() = Formnovalidate.fromValue(getProperty("formnovalidate"))
-
+        get() = Formnovalidate.fromValue(getAttribute("formnovalidate"))
 
 
 }

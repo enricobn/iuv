@@ -12,62 +12,56 @@ interface AudioAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
     var autoplay: Autoplay?
         set(value) {
             if (value == null) {
-                removeProperty("autoplay")
+                removeAttribute("autoplay")
             } else {
-                addProperty("autoplay", value.value)
+                addAttribute("autoplay", value.value)
             }
         }
-        get() = Autoplay.fromValue(getProperty("autoplay"))
-
+        get() = Autoplay.fromValue(getAttribute("autoplay"))
     var preload: Preload?
         set(value) {
             if (value == null) {
-                removeProperty("preload")
+                removeAttribute("preload")
             } else {
-                addProperty("preload", value.value)
+                addAttribute("preload", value.value)
             }
         }
-        get() = Preload.fromValue(getProperty("preload"))
-
+        get() = Preload.fromValue(getAttribute("preload"))
     var controls: Controls?
         set(value) {
             if (value == null) {
-                removeProperty("controls")
+                removeAttribute("controls")
             } else {
-                addProperty("controls", value.value)
+                addAttribute("controls", value.value)
             }
         }
-        get() = Controls.fromValue(getProperty("controls"))
-
+        get() = Controls.fromValue(getAttribute("controls"))
     var loop: Loop?
         set(value) {
             if (value == null) {
-                removeProperty("loop")
+                removeAttribute("loop")
             } else {
-                addProperty("loop", value.value)
+                addAttribute("loop", value.value)
             }
         }
-        get() = Loop.fromValue(getProperty("loop"))
-
+        get() = Loop.fromValue(getAttribute("loop"))
     var mediagroup: String?
         set(value) {
             if (value == null) {
-                removeProperty("mediagroup")
+                removeAttribute("mediagroup")
             } else {
-                addProperty("mediagroup", value)
+                addAttribute("mediagroup", value)
             }
         }
-        get() = (getProperty("mediagroup"))
-
+        get() = (getAttribute("mediagroup"))
 
 }

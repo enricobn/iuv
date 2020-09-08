@@ -9,22 +9,20 @@ interface VideoAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var poster: String?
         set(value) {
             if (value == null) {
-                removeProperty("poster")
+                removeAttribute("poster")
             } else {
-                addProperty("poster", value)
+                addAttribute("poster", value)
             }
         }
-        get() = (getProperty("poster"))
-
+        get() = (getAttribute("poster"))
     var muted: Muted?
         set(value) {
             if (value == null) {
-                removeProperty("muted")
+                removeAttribute("muted")
             } else {
-                addProperty("muted", value.value)
+                addAttribute("muted", value.value)
             }
         }
-        get() = Muted.fromValue(getProperty("muted"))
-
+        get() = Muted.fromValue(getAttribute("muted"))
 
 }

@@ -1,6 +1,6 @@
-package org.iuv.examples
-
+import kotlinx.serialization.InternalSerializationApi
 import org.iuv.core.*
+import org.iuv.examples.ExamplesView
 import org.iuv.examples.buttons.ButtonsView
 import org.iuv.examples.buttons.PostServiceImpl
 import org.iuv.examples.buttons.PostsView
@@ -12,9 +12,8 @@ import org.iuv.examples.tabs.TabsView
 
 const val debugger = false
 
-class ExamplesMain {
-
-    fun run() {
+@InternalSerializationApi
+fun main() {
         val postService = PostServiceImpl()
 
         val router = IUVRouter(ExamplesView())
@@ -34,6 +33,4 @@ class ExamplesMain {
         val application = IUVApplication(
                 if (debugger) IUVDebugger(router) else router, renderer)
         application.run()
-    }
-
 }

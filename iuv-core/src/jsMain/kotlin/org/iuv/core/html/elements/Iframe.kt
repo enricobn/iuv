@@ -11,63 +11,57 @@ open class Iframe<MESSAGE> : HTML<MESSAGE>("iframe")
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
     var srcdoc: String?
         set(value) {
             if (value == null) {
-                removeProperty("srcdoc")
+                removeAttribute("srcdoc")
             } else {
-                addProperty("srcdoc", value)
+                addAttribute("srcdoc", value)
             }
         }
-        get() = (getProperty("srcdoc"))
-
+        get() = (getAttribute("srcdoc"))
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var width: Int?
         set(value) {
             if (value == null) {
-                removeProperty("width")
+                removeAttribute("width")
             } else {
-                addProperty("width", value)
+                addAttribute("width", value)
             }
         }
-        get() = (getProperty("width"))
-
+        get() = (getAttribute("width"))
     var height: Int?
         set(value) {
             if (value == null) {
-                removeProperty("height")
+                removeAttribute("height")
             } else {
-                addProperty("height", value)
+                addAttribute("height", value)
             }
         }
-        get() = (getProperty("height"))
-
+        get() = (getAttribute("height"))
     var seamless: Seamless?
         set(value) {
             if (value == null) {
-                removeProperty("seamless")
+                removeAttribute("seamless")
             } else {
-                addProperty("seamless", value.value)
+                addAttribute("seamless", value.value)
             }
         }
-        get() = Seamless.fromValue(getProperty("seamless"))
-
+        get() = Seamless.fromValue(getAttribute("seamless"))
 
 
 }

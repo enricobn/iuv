@@ -8,22 +8,20 @@ interface ObjectAttributeGroupVideoAttributeGroup<MESSAGE> : HTMLElementAttribut
     var height: Int?
         set(value) {
             if (value == null) {
-                removeProperty("height")
+                removeAttribute("height")
             } else {
-                addProperty("height", value)
+                addAttribute("height", value)
             }
         }
-        get() = (getProperty("height"))
-
+        get() = (getAttribute("height"))
     var width: Int?
         set(value) {
             if (value == null) {
-                removeProperty("width")
+                removeAttribute("width")
             } else {
-                addProperty("width", value)
+                addAttribute("width", value)
             }
         }
-        get() = (getProperty("width"))
-
+        get() = (getAttribute("width"))
 
 }

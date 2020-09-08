@@ -13,13 +13,12 @@ open class {{className}}<MESSAGE> : HTML<MESSAGE>("{{elementName}}")
     var {{name}}: {{type.className}}?
         set(value) {
             if (value == null) {
-                removeProperty("{{originalName}}")
+                removeAttribute("{{originalName}}")
             } else {
-                addProperty("{{originalName}}", value{{type.value}})
+                addAttribute("{{originalName}}", value{{type.value}})
             }
         }
-        get() = {{type.valueOf}}(getProperty("{{originalName}}"))
-
+        get() = {{type.valueOf}}(getAttribute("{{originalName}}"))
     {{/attributes}}
 
     {{#children}}
@@ -29,9 +28,9 @@ open class {{className}}<MESSAGE> : HTML<MESSAGE>("{{elementName}}")
     {{/children}}
 
     {{#functions()}}
-    fun {{name}}(handler: ({{eventType}},String) -> MESSAGE) {
+    fun {{name}}(handler: ({{eventType}},dynamic) -> MESSAGE) {
         on("{{eventName}}") { event: {{eventType}} ->
-            handler(event, event.target?.asDynamic().value as String)
+            handler(event, event.target?.asDynamic().value)
         }
     }
     fun {{name}}(message: MESSAGE) {

@@ -9,13 +9,12 @@ open class FlowContentMap<MESSAGE> : HTML<MESSAGE>("map")
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
 
 
 }

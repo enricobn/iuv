@@ -9,23 +9,21 @@ open class Label<MESSAGE> : HTML<MESSAGE>("label")
     var for_: String?
         set(value) {
             if (value == null) {
-                removeProperty("for")
+                removeAttribute("for")
             } else {
-                addProperty("for", value)
+                addAttribute("for", value)
             }
         }
-        get() = (getProperty("for"))
-
+        get() = (getAttribute("for"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
 
 
 }

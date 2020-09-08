@@ -9,12 +9,11 @@ interface CoreAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var dir: Dir?
         set(value) {
             if (value == null) {
-                removeProperty("dir")
+                removeAttribute("dir")
             } else {
-                addProperty("dir", value.value)
+                addAttribute("dir", value.value)
             }
         }
-        get() = Dir.fromValue(getProperty("dir"))
-
+        get() = Dir.fromValue(getAttribute("dir"))
 
 }

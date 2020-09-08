@@ -8,42 +8,38 @@ interface ObjectAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var data: String?
         set(value) {
             if (value == null) {
-                removeProperty("data")
+                removeAttribute("data")
             } else {
-                addProperty("data", value)
+                addAttribute("data", value)
             }
         }
-        get() = (getProperty("data"))
-
+        get() = (getAttribute("data"))
     var usemap: String?
         set(value) {
             if (value == null) {
-                removeProperty("usemap")
+                removeAttribute("usemap")
             } else {
-                addProperty("usemap", value)
+                addAttribute("usemap", value)
             }
         }
-        get() = (getProperty("usemap"))
-
+        get() = (getAttribute("usemap"))
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
 
 }

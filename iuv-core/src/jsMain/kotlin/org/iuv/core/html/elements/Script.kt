@@ -12,43 +12,39 @@ open class Script<MESSAGE> : HTML<MESSAGE>("script")
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
     var defer: Defer?
         set(value) {
             if (value == null) {
-                removeProperty("defer")
+                removeAttribute("defer")
             } else {
-                addProperty("defer", value.value)
+                addAttribute("defer", value.value)
             }
         }
-        get() = Defer.fromValue(getProperty("defer"))
-
+        get() = Defer.fromValue(getAttribute("defer"))
     var async: Async?
         set(value) {
             if (value == null) {
-                removeProperty("async")
+                removeAttribute("async")
             } else {
-                addProperty("async", value.value)
+                addAttribute("async", value.value)
             }
         }
-        get() = Async.fromValue(getProperty("async"))
-
+        get() = Async.fromValue(getAttribute("async"))
     var charset: String?
         set(value) {
             if (value == null) {
-                removeProperty("charset")
+                removeAttribute("charset")
             } else {
-                addProperty("charset", value)
+                addAttribute("charset", value)
             }
         }
-        get() = (getProperty("charset"))
-
+        get() = (getAttribute("charset"))
 
 
 }

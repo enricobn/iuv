@@ -1,9 +1,19 @@
 build.doLast() {
 
+    /*
+    for (conf in configurations) {
+        if (conf.canBeResolved) {
+            println(conf.name)
+        }
+    }
+
+     */
+
     // Copy kotlin.js and kotlin.meta.js from jar into web directory
-    copyConfigurationFiles(configurations.compile)
+    copyConfigurationFiles(configurations.jsDefault)
 
     // Copy kotlin-test.js and kotlin-test.meta.js from jar into web directory
+    // TODO does it work?
     copyConfigurationFiles(configurations.testCompile)
 
 //     // Unpack build contents
@@ -28,7 +38,7 @@ build.doLast() {
 
     copy {
         includeEmptyDirs = false
-        from project.fileTree("build/classes/kotlin/main").files
+        from project.fileTree("build/distributions").files
         into "${web_dir}/classes"
         include "*.js"
         include "*.js.map"
@@ -64,6 +74,7 @@ build.doLast() {
 
 private Iterable<File> copyConfigurationFiles(Configuration compile) {
     compile.each { File file ->
+        //println("HENRY file" + file)
         copy {
             includeEmptyDirs = false
 
@@ -71,7 +82,8 @@ private Iterable<File> copyConfigurationFiles(Configuration compile) {
             into "${web_dir}/lib"
             include { fileTreeElement ->
                 def path = fileTreeElement.path
-                (path.endsWith(".js") || path.endsWith(".js.map")) && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+                //println("HENRY path " + path)
+                (path.endsWith(".js") || path.endsWith(".js.map")) //&& (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
             }
         }
     }

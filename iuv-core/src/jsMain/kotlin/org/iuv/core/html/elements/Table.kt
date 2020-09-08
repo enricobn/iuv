@@ -10,13 +10,12 @@ open class Table<MESSAGE> : HTML<MESSAGE>("table")
     var border: String?
         set(value) {
             if (value == null) {
-                removeProperty("border")
+                removeAttribute("border")
             } else {
-                addProperty("border", value)
+                addAttribute("border", value)
             }
         }
-        get() = (getProperty("border"))
-
+        get() = (getAttribute("border"))
 
     fun caption(init: Caption<MESSAGE>.() -> Unit) {
         element(Caption(), init)

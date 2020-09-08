@@ -11,113 +11,102 @@ open class Textarea<MESSAGE> : HTML<MESSAGE>("textarea")
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
     var readonly: Readonly?
         set(value) {
             if (value == null) {
-                removeProperty("readonly")
+                removeAttribute("readonly")
             } else {
-                addProperty("readonly", value.value)
+                addAttribute("readonly", value.value)
             }
         }
-        get() = Readonly.fromValue(getProperty("readonly"))
-
+        get() = Readonly.fromValue(getAttribute("readonly"))
     var maxlength: Int?
         set(value) {
             if (value == null) {
-                removeProperty("maxlength")
+                removeAttribute("maxlength")
             } else {
-                addProperty("maxlength", value)
+                addAttribute("maxlength", value)
             }
         }
-        get() = (getProperty("maxlength"))
-
+        get() = (getAttribute("maxlength"))
     var autofocus: Autofocus?
         set(value) {
             if (value == null) {
-                removeProperty("autofocus")
+                removeAttribute("autofocus")
             } else {
-                addProperty("autofocus", value.value)
+                addAttribute("autofocus", value.value)
             }
         }
-        get() = Autofocus.fromValue(getProperty("autofocus"))
-
+        get() = Autofocus.fromValue(getAttribute("autofocus"))
     var required: Required?
         set(value) {
             if (value == null) {
-                removeProperty("required")
+                removeAttribute("required")
             } else {
-                addProperty("required", value.value)
+                addAttribute("required", value.value)
             }
         }
-        get() = Required.fromValue(getProperty("required"))
-
+        get() = Required.fromValue(getAttribute("required"))
     var placeholder: String?
         set(value) {
             if (value == null) {
-                removeProperty("placeholder")
+                removeAttribute("placeholder")
             } else {
-                addProperty("placeholder", value)
+                addAttribute("placeholder", value)
             }
         }
-        get() = (getProperty("placeholder"))
-
+        get() = (getAttribute("placeholder"))
     var rows: Int?
         set(value) {
             if (value == null) {
-                removeProperty("rows")
+                removeAttribute("rows")
             } else {
-                addProperty("rows", value)
+                addAttribute("rows", value)
             }
         }
-        get() = (getProperty("rows"))
-
+        get() = (getAttribute("rows"))
     var cols: Int?
         set(value) {
             if (value == null) {
-                removeProperty("cols")
+                removeAttribute("cols")
             } else {
-                addProperty("cols", value)
+                addAttribute("cols", value)
             }
         }
-        get() = (getProperty("cols"))
-
+        get() = (getAttribute("cols"))
     var wrap: Wrap?
         set(value) {
             if (value == null) {
-                removeProperty("wrap")
+                removeAttribute("wrap")
             } else {
-                addProperty("wrap", value.value)
+                addAttribute("wrap", value.value)
             }
         }
-        get() = Wrap.fromValue(getProperty("wrap"))
-
+        get() = Wrap.fromValue(getAttribute("wrap"))
 
 
 }

@@ -8,22 +8,20 @@ interface ThAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var colspan: Int?
         set(value) {
             if (value == null) {
-                removeProperty("colspan")
+                removeAttribute("colspan")
             } else {
-                addProperty("colspan", value)
+                addAttribute("colspan", value)
             }
         }
-        get() = (getProperty("colspan"))
-
+        get() = (getAttribute("colspan"))
     var rowspan: Int?
         set(value) {
             if (value == null) {
-                removeProperty("rowspan")
+                removeAttribute("rowspan")
             } else {
-                addProperty("rowspan", value)
+                addAttribute("rowspan", value)
             }
         }
-        get() = (getProperty("rowspan"))
-
+        get() = (getAttribute("rowspan"))
 
 }

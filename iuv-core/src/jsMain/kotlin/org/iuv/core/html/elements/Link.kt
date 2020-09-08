@@ -10,33 +10,30 @@ open class Link<MESSAGE> : HTML<MESSAGE>("link")
     var href: String?
         set(value) {
             if (value == null) {
-                removeProperty("href")
+                removeAttribute("href")
             } else {
-                addProperty("href", value)
+                addAttribute("href", value)
             }
         }
-        get() = (getProperty("href"))
-
+        get() = (getAttribute("href"))
     var rel: String?
         set(value) {
             if (value == null) {
-                removeProperty("rel")
+                removeAttribute("rel")
             } else {
-                addProperty("rel", value)
+                addAttribute("rel", value)
             }
         }
-        get() = (getProperty("rel"))
-
+        get() = (getAttribute("rel"))
     var sizes: String?
         set(value) {
             if (value == null) {
-                removeProperty("sizes")
+                removeAttribute("sizes")
             } else {
-                addProperty("sizes", value)
+                addAttribute("sizes", value)
             }
         }
-        get() = (getProperty("sizes"))
-
+        get() = (getAttribute("sizes"))
 
 
 }

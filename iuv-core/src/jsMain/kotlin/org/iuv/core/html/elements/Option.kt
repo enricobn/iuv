@@ -12,43 +12,39 @@ open class Option<MESSAGE> : HTML<MESSAGE>("option")
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var selected: Selected?
         set(value) {
             if (value == null) {
-                removeProperty("selected")
+                removeAttribute("selected")
             } else {
-                addProperty("selected", value.value)
+                addAttribute("selected", value.value)
             }
         }
-        get() = Selected.fromValue(getProperty("selected"))
-
+        get() = Selected.fromValue(getAttribute("selected"))
     var label: String?
         set(value) {
             if (value == null) {
-                removeProperty("label")
+                removeAttribute("label")
             } else {
-                addProperty("label", value)
+                addAttribute("label", value)
             }
         }
-        get() = (getProperty("label"))
-
+        get() = (getAttribute("label"))
     var value: String?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
 
 
 }

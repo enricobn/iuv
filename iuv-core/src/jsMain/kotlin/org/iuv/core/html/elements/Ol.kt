@@ -12,33 +12,30 @@ open class Ol<MESSAGE> : HTML<MESSAGE>("ol")
     var type: OlType?
         set(value) {
             if (value == null) {
-                removeProperty("type")
+                removeAttribute("type")
             } else {
-                addProperty("type", value.value)
+                addAttribute("type", value.value)
             }
         }
-        get() = OlType.fromValue(getProperty("type"))
-
+        get() = OlType.fromValue(getAttribute("type"))
     var start: Int?
         set(value) {
             if (value == null) {
-                removeProperty("start")
+                removeAttribute("start")
             } else {
-                addProperty("start", value)
+                addAttribute("start", value)
             }
         }
-        get() = (getProperty("start"))
-
+        get() = (getAttribute("start"))
     var reversed: Reversed?
         set(value) {
             if (value == null) {
-                removeProperty("reversed")
+                removeAttribute("reversed")
             } else {
-                addProperty("reversed", value.value)
+                addAttribute("reversed", value.value)
             }
         }
-        get() = Reversed.fromValue(getProperty("reversed"))
-
+        get() = Reversed.fromValue(getAttribute("reversed"))
 
     fun li(init: OlLi<MESSAGE>.() -> Unit) {
         element(OlLi(), init)

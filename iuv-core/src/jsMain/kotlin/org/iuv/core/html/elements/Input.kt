@@ -11,273 +11,246 @@ open class Input<MESSAGE> : HTML<MESSAGE>("input")
     var accept: String?
         set(value) {
             if (value == null) {
-                removeProperty("accept")
+                removeAttribute("accept")
             } else {
-                addProperty("accept", value)
+                addAttribute("accept", value)
             }
         }
-        get() = (getProperty("accept"))
-
+        get() = (getAttribute("accept"))
     var alt: String?
         set(value) {
             if (value == null) {
-                removeProperty("alt")
+                removeAttribute("alt")
             } else {
-                addProperty("alt", value)
+                addAttribute("alt", value)
             }
         }
-        get() = (getProperty("alt"))
-
+        get() = (getAttribute("alt"))
     var autocomplete: Autocomplete?
         set(value) {
             if (value == null) {
-                removeProperty("autocomplete")
+                removeAttribute("autocomplete")
             } else {
-                addProperty("autocomplete", value.value)
+                addAttribute("autocomplete", value.value)
             }
         }
-        get() = Autocomplete.fromValue(getProperty("autocomplete"))
-
+        get() = Autocomplete.fromValue(getAttribute("autocomplete"))
     var autofocus: Autofocus?
         set(value) {
             if (value == null) {
-                removeProperty("autofocus")
+                removeAttribute("autofocus")
             } else {
-                addProperty("autofocus", value.value)
+                addAttribute("autofocus", value.value)
             }
         }
-        get() = Autofocus.fromValue(getProperty("autofocus"))
-
+        get() = Autofocus.fromValue(getAttribute("autofocus"))
     var checked: Checked?
         set(value) {
             if (value == null) {
-                removeProperty("checked")
+                removeAttribute("checked")
             } else {
-                addProperty("checked", value.value)
+                addAttribute("checked", value.value)
             }
         }
-        get() = Checked.fromValue(getProperty("checked"))
-
+        get() = Checked.fromValue(getAttribute("checked"))
     var dirname: String?
         set(value) {
             if (value == null) {
-                removeProperty("dirname")
+                removeAttribute("dirname")
             } else {
-                addProperty("dirname", value)
+                addAttribute("dirname", value)
             }
         }
-        get() = (getProperty("dirname"))
-
+        get() = (getAttribute("dirname"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
     var formaction: String?
         set(value) {
             if (value == null) {
-                removeProperty("formaction")
+                removeAttribute("formaction")
             } else {
-                addProperty("formaction", value)
+                addAttribute("formaction", value)
             }
         }
-        get() = (getProperty("formaction"))
-
+        get() = (getAttribute("formaction"))
     var formenctype: Formenctype?
         set(value) {
             if (value == null) {
-                removeProperty("formenctype")
+                removeAttribute("formenctype")
             } else {
-                addProperty("formenctype", value.value)
+                addAttribute("formenctype", value.value)
             }
         }
-        get() = Formenctype.fromValue(getProperty("formenctype"))
-
+        get() = Formenctype.fromValue(getAttribute("formenctype"))
     var formmethod: Formmethod?
         set(value) {
             if (value == null) {
-                removeProperty("formmethod")
+                removeAttribute("formmethod")
             } else {
-                addProperty("formmethod", value.value)
+                addAttribute("formmethod", value.value)
             }
         }
-        get() = Formmethod.fromValue(getProperty("formmethod"))
-
+        get() = Formmethod.fromValue(getAttribute("formmethod"))
     var formnovalidate: Formnovalidate?
         set(value) {
             if (value == null) {
-                removeProperty("formnovalidate")
+                removeAttribute("formnovalidate")
             } else {
-                addProperty("formnovalidate", value.value)
+                addAttribute("formnovalidate", value.value)
             }
         }
-        get() = Formnovalidate.fromValue(getProperty("formnovalidate"))
-
+        get() = Formnovalidate.fromValue(getAttribute("formnovalidate"))
     var height: Int?
         set(value) {
             if (value == null) {
-                removeProperty("height")
+                removeAttribute("height")
             } else {
-                addProperty("height", value)
+                addAttribute("height", value)
             }
         }
-        get() = (getProperty("height"))
-
+        get() = (getAttribute("height"))
     var list: String?
         set(value) {
             if (value == null) {
-                removeProperty("list")
+                removeAttribute("list")
             } else {
-                addProperty("list", value)
+                addAttribute("list", value)
             }
         }
-        get() = (getProperty("list"))
-
+        get() = (getAttribute("list"))
     var max: String?
         set(value) {
             if (value == null) {
-                removeProperty("max")
+                removeAttribute("max")
             } else {
-                addProperty("max", value)
+                addAttribute("max", value)
             }
         }
-        get() = (getProperty("max"))
-
+        get() = (getAttribute("max"))
     var maxlength: Int?
         set(value) {
             if (value == null) {
-                removeProperty("maxlength")
+                removeAttribute("maxlength")
             } else {
-                addProperty("maxlength", value)
+                addAttribute("maxlength", value)
             }
         }
-        get() = (getProperty("maxlength"))
-
+        get() = (getAttribute("maxlength"))
     var min: String?
         set(value) {
             if (value == null) {
-                removeProperty("min")
+                removeAttribute("min")
             } else {
-                addProperty("min", value)
+                addAttribute("min", value)
             }
         }
-        get() = (getProperty("min"))
-
+        get() = (getAttribute("min"))
     var multiple: Multiple?
         set(value) {
             if (value == null) {
-                removeProperty("multiple")
+                removeAttribute("multiple")
             } else {
-                addProperty("multiple", value.value)
+                addAttribute("multiple", value.value)
             }
         }
-        get() = Multiple.fromValue(getProperty("multiple"))
-
+        get() = Multiple.fromValue(getAttribute("multiple"))
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var placeholder: String?
         set(value) {
             if (value == null) {
-                removeProperty("placeholder")
+                removeAttribute("placeholder")
             } else {
-                addProperty("placeholder", value)
+                addAttribute("placeholder", value)
             }
         }
-        get() = (getProperty("placeholder"))
-
+        get() = (getAttribute("placeholder"))
     var readonly: Readonly?
         set(value) {
             if (value == null) {
-                removeProperty("readonly")
+                removeAttribute("readonly")
             } else {
-                addProperty("readonly", value.value)
+                addAttribute("readonly", value.value)
             }
         }
-        get() = Readonly.fromValue(getProperty("readonly"))
-
+        get() = Readonly.fromValue(getAttribute("readonly"))
     var required: Required?
         set(value) {
             if (value == null) {
-                removeProperty("required")
+                removeAttribute("required")
             } else {
-                addProperty("required", value.value)
+                addAttribute("required", value.value)
             }
         }
-        get() = Required.fromValue(getProperty("required"))
-
+        get() = Required.fromValue(getAttribute("required"))
     var size: Int?
         set(value) {
             if (value == null) {
-                removeProperty("size")
+                removeAttribute("size")
             } else {
-                addProperty("size", value)
+                addAttribute("size", value)
             }
         }
-        get() = (getProperty("size"))
-
+        get() = (getAttribute("size"))
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
     var type: InputType?
         set(value) {
             if (value == null) {
-                removeProperty("type")
+                removeAttribute("type")
             } else {
-                addProperty("type", value.value)
+                addAttribute("type", value.value)
             }
         }
-        get() = InputType.fromValue(getProperty("type"))
-
+        get() = InputType.fromValue(getAttribute("type"))
     var value: String?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
     var width: Int?
         set(value) {
             if (value == null) {
-                removeProperty("width")
+                removeAttribute("width")
             } else {
-                addProperty("width", value)
+                addAttribute("width", value)
             }
         }
-        get() = (getProperty("width"))
-
+        get() = (getAttribute("width"))
 
 
 }

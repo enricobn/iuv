@@ -9,13 +9,12 @@ open class OlLi<MESSAGE> : HTML<MESSAGE>("li")
     var value: Int?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
 
 
 }

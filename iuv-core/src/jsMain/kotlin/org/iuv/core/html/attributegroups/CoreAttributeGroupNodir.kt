@@ -10,102 +10,92 @@ interface CoreAttributeGroupNodir<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var classes: String?
         set(value) {
             if (value == null) {
-                removeProperty("class")
+                removeAttribute("class")
             } else {
-                addProperty("class", value)
+                addAttribute("class", value)
             }
         }
-        get() = (getProperty("class"))
-
+        get() = (getAttribute("class"))
     var contenteditable: ImplicitBoolean?
         set(value) {
             if (value == null) {
-                removeProperty("contenteditable")
+                removeAttribute("contenteditable")
             } else {
-                addProperty("contenteditable", value.value)
+                addAttribute("contenteditable", value.value)
             }
         }
-        get() = ImplicitBoolean.fromValue(getProperty("contenteditable"))
-
+        get() = ImplicitBoolean.fromValue(getAttribute("contenteditable"))
     var contextmenu: String?
         set(value) {
             if (value == null) {
-                removeProperty("contextmenu")
+                removeAttribute("contextmenu")
             } else {
-                addProperty("contextmenu", value)
+                addAttribute("contextmenu", value)
             }
         }
-        get() = (getProperty("contextmenu"))
-
+        get() = (getAttribute("contextmenu"))
     var draggable: Boolean?
         set(value) {
             if (value == null) {
-                removeProperty("draggable")
+                removeAttribute("draggable")
             } else {
-                addProperty("draggable", value)
+                addAttribute("draggable", value)
             }
         }
-        get() = (getProperty("draggable"))
-
+        get() = (getAttribute("draggable"))
     var hidden: Hidden?
         set(value) {
             if (value == null) {
-                removeProperty("hidden")
+                removeAttribute("hidden")
             } else {
-                addProperty("hidden", value.value)
+                addAttribute("hidden", value.value)
             }
         }
-        get() = Hidden.fromValue(getProperty("hidden"))
-
+        get() = Hidden.fromValue(getAttribute("hidden"))
     var id: String?
         set(value) {
             if (value == null) {
-                removeProperty("id")
+                removeAttribute("id")
             } else {
-                addProperty("id", value)
+                addAttribute("id", value)
             }
         }
-        get() = (getProperty("id"))
-
+        get() = (getAttribute("id"))
     var spellcheck: ImplicitBoolean?
         set(value) {
             if (value == null) {
-                removeProperty("spellcheck")
+                removeAttribute("spellcheck")
             } else {
-                addProperty("spellcheck", value.value)
+                addAttribute("spellcheck", value.value)
             }
         }
-        get() = ImplicitBoolean.fromValue(getProperty("spellcheck"))
-
+        get() = ImplicitBoolean.fromValue(getAttribute("spellcheck"))
     var style: String?
         set(value) {
             if (value == null) {
-                removeProperty("style")
+                removeAttribute("style")
             } else {
-                addProperty("style", value)
+                addAttribute("style", value)
             }
         }
-        get() = (getProperty("style"))
-
+        get() = (getAttribute("style"))
     var tabindex: Int?
         set(value) {
             if (value == null) {
-                removeProperty("tabindex")
+                removeAttribute("tabindex")
             } else {
-                addProperty("tabindex", value)
+                addAttribute("tabindex", value)
             }
         }
-        get() = (getProperty("tabindex"))
-
+        get() = (getAttribute("tabindex"))
     var title: String?
         set(value) {
             if (value == null) {
-                removeProperty("title")
+                removeAttribute("title")
             } else {
-                addProperty("title", value)
+                addAttribute("title", value)
             }
         }
-        get() = (getProperty("title"))
-
+        get() = (getAttribute("title"))
 
 }

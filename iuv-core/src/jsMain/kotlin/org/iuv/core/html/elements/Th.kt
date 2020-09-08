@@ -11,13 +11,12 @@ open class Th<MESSAGE> : HTML<MESSAGE>("th")
     var scope: Scope?
         set(value) {
             if (value == null) {
-                removeProperty("scope")
+                removeAttribute("scope")
             } else {
-                addProperty("scope", value.value)
+                addAttribute("scope", value.value)
             }
         }
-        get() = Scope.fromValue(getProperty("scope"))
-
+        get() = Scope.fromValue(getAttribute("scope"))
 
 
 }

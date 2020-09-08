@@ -10,23 +10,21 @@ open class Param<MESSAGE> : HTML<MESSAGE>("param")
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var value: String?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
 
 
 }

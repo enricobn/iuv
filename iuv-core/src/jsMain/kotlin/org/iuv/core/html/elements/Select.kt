@@ -14,73 +14,66 @@ open class Select<MESSAGE> : HTML<MESSAGE>("select")
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
     var size: Int?
         set(value) {
             if (value == null) {
-                removeProperty("size")
+                removeAttribute("size")
             } else {
-                addProperty("size", value)
+                addAttribute("size", value)
             }
         }
-        get() = (getProperty("size"))
-
+        get() = (getAttribute("size"))
     var multiple: Multiple?
         set(value) {
             if (value == null) {
-                removeProperty("multiple")
+                removeAttribute("multiple")
             } else {
-                addProperty("multiple", value.value)
+                addAttribute("multiple", value.value)
             }
         }
-        get() = Multiple.fromValue(getProperty("multiple"))
-
+        get() = Multiple.fromValue(getAttribute("multiple"))
     var autofocus: Autofocus?
         set(value) {
             if (value == null) {
-                removeProperty("autofocus")
+                removeAttribute("autofocus")
             } else {
-                addProperty("autofocus", value.value)
+                addAttribute("autofocus", value.value)
             }
         }
-        get() = Autofocus.fromValue(getProperty("autofocus"))
-
+        get() = Autofocus.fromValue(getAttribute("autofocus"))
     var required: Required?
         set(value) {
             if (value == null) {
-                removeProperty("required")
+                removeAttribute("required")
             } else {
-                addProperty("required", value.value)
+                addAttribute("required", value.value)
             }
         }
-        get() = Required.fromValue(getProperty("required"))
-
+        get() = Required.fromValue(getAttribute("required"))
 
     fun option(init: Option<MESSAGE>.() -> Unit) {
         element(Option(), init)

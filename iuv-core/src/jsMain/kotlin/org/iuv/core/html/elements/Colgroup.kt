@@ -10,13 +10,12 @@ open class Colgroup<MESSAGE> : HTML<MESSAGE>("colgroup")
     var span: Int?
         set(value) {
             if (value == null) {
-                removeProperty("span")
+                removeAttribute("span")
             } else {
-                addProperty("span", value)
+                addAttribute("span", value)
             }
         }
-        get() = (getProperty("span"))
-
+        get() = (getAttribute("span"))
 
     fun col(init: Col<MESSAGE>.() -> Unit) {
         element(Col(), init)

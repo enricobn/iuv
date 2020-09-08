@@ -12,43 +12,39 @@ open class Track<MESSAGE> : HTML<MESSAGE>("track")
     var kind: TrackKind?
         set(value) {
             if (value == null) {
-                removeProperty("kind")
+                removeAttribute("kind")
             } else {
-                addProperty("kind", value.value)
+                addAttribute("kind", value.value)
             }
         }
-        get() = TrackKind.fromValue(getProperty("kind"))
-
+        get() = TrackKind.fromValue(getAttribute("kind"))
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
     var label: String?
         set(value) {
             if (value == null) {
-                removeProperty("label")
+                removeAttribute("label")
             } else {
-                addProperty("label", value)
+                addAttribute("label", value)
             }
         }
-        get() = (getProperty("label"))
-
+        get() = (getAttribute("label"))
     var default: Default?
         set(value) {
             if (value == null) {
-                removeProperty("default")
+                removeAttribute("default")
             } else {
-                addProperty("default", value.value)
+                addAttribute("default", value.value)
             }
         }
-        get() = Default.fromValue(getProperty("default"))
-
+        get() = Default.fromValue(getAttribute("default"))
 
 
 }

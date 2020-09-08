@@ -8,32 +8,29 @@ interface XmlAttributeGroup<MESSAGE> : HTMLElementAttributes<MESSAGE>
     var xml_lang: String?
         set(value) {
             if (value == null) {
-                removeProperty("xml:lang")
+                removeAttribute("xml:lang")
             } else {
-                addProperty("xml:lang", value)
+                addAttribute("xml:lang", value)
             }
         }
-        get() = (getProperty("xml:lang"))
-
+        get() = (getAttribute("xml:lang"))
     var xml_space: String?
         set(value) {
             if (value == null) {
-                removeProperty("xml:space")
+                removeAttribute("xml:space")
             } else {
-                addProperty("xml:space", value)
+                addAttribute("xml:space", value)
             }
         }
-        get() = (getProperty("xml:space"))
-
+        get() = (getAttribute("xml:space"))
     var xml_base: String?
         set(value) {
             if (value == null) {
-                removeProperty("xml:base")
+                removeAttribute("xml:base")
             } else {
-                addProperty("xml:base", value)
+                addAttribute("xml:base", value)
             }
         }
-        get() = (getProperty("xml:base"))
-
+        get() = (getAttribute("xml:base"))
 
 }

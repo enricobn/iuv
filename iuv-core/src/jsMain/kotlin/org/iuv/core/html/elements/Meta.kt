@@ -11,43 +11,39 @@ open class Meta<MESSAGE> : HTML<MESSAGE>("meta")
     var httpequiv: HttpEquiv?
         set(value) {
             if (value == null) {
-                removeProperty("http-equiv")
+                removeAttribute("http-equiv")
             } else {
-                addProperty("http-equiv", value.value)
+                addAttribute("http-equiv", value.value)
             }
         }
-        get() = HttpEquiv.fromValue(getProperty("http-equiv"))
-
+        get() = HttpEquiv.fromValue(getAttribute("http-equiv"))
     var name: String?
         set(value) {
             if (value == null) {
-                removeProperty("name")
+                removeAttribute("name")
             } else {
-                addProperty("name", value)
+                addAttribute("name", value)
             }
         }
-        get() = (getProperty("name"))
-
+        get() = (getAttribute("name"))
     var content: String?
         set(value) {
             if (value == null) {
-                removeProperty("content")
+                removeAttribute("content")
             } else {
-                addProperty("content", value)
+                addAttribute("content", value)
             }
         }
-        get() = (getProperty("content"))
-
+        get() = (getAttribute("content"))
     var charset: String?
         set(value) {
             if (value == null) {
-                removeProperty("charset")
+                removeAttribute("charset")
             } else {
-                addProperty("charset", value)
+                addAttribute("charset", value)
             }
         }
-        get() = (getProperty("charset"))
-
+        get() = (getAttribute("charset"))
 
 
 }

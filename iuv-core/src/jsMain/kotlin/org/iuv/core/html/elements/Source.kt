@@ -10,13 +10,12 @@ open class Source<MESSAGE> : HTML<MESSAGE>("source")
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
 
 
 }

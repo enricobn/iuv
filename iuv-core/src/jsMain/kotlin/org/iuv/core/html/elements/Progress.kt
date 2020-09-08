@@ -9,33 +9,30 @@ open class Progress<MESSAGE> : HTML<MESSAGE>("progress")
     var value: Float?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
     var max: Float?
         set(value) {
             if (value == null) {
-                removeProperty("max")
+                removeAttribute("max")
             } else {
-                addProperty("max", value)
+                addAttribute("max", value)
             }
         }
-        get() = (getProperty("max"))
-
+        get() = (getAttribute("max"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
 
 
 }

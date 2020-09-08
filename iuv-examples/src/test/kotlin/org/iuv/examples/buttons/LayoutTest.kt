@@ -51,7 +51,7 @@ class LayoutTest : IUVTest<TestLayoutMessage>() {
                     button {
                         +"clicked 0 times"
 
-                        onClick { TestLayoutChildMessageWrapper(TestLayoutChildClick) }
+                        onclick(TestLayoutChildMessageWrapper(TestLayoutChildClick))
 
                     }
                 }
@@ -102,7 +102,7 @@ object TestChildComponent : Component<TestLayoutChildModel, TestLayoutChildMessa
         html {
             button {
                 +"clicked ${model.clicked} times"
-                onClick { TestLayoutChildClick }
+                onclick(TestLayoutChildClick)
             }
         }
 

@@ -13,63 +13,57 @@ open class Command<MESSAGE> : HTML<MESSAGE>("command")
     var type: CommandType?
         set(value) {
             if (value == null) {
-                removeProperty("type")
+                removeAttribute("type")
             } else {
-                addProperty("type", value.value)
+                addAttribute("type", value.value)
             }
         }
-        get() = CommandType.fromValue(getProperty("type"))
-
+        get() = CommandType.fromValue(getAttribute("type"))
     var label: String?
         set(value) {
             if (value == null) {
-                removeProperty("label")
+                removeAttribute("label")
             } else {
-                addProperty("label", value)
+                addAttribute("label", value)
             }
         }
-        get() = (getProperty("label"))
-
+        get() = (getAttribute("label"))
     var icon: String?
         set(value) {
             if (value == null) {
-                removeProperty("icon")
+                removeAttribute("icon")
             } else {
-                addProperty("icon", value)
+                addAttribute("icon", value)
             }
         }
-        get() = (getProperty("icon"))
-
+        get() = (getAttribute("icon"))
     var disabled: Disabled?
         set(value) {
             if (value == null) {
-                removeProperty("disabled")
+                removeAttribute("disabled")
             } else {
-                addProperty("disabled", value.value)
+                addAttribute("disabled", value.value)
             }
         }
-        get() = Disabled.fromValue(getProperty("disabled"))
-
+        get() = Disabled.fromValue(getAttribute("disabled"))
     var radiogroup: String?
         set(value) {
             if (value == null) {
-                removeProperty("radiogroup")
+                removeAttribute("radiogroup")
             } else {
-                addProperty("radiogroup", value)
+                addAttribute("radiogroup", value)
             }
         }
-        get() = (getProperty("radiogroup"))
-
+        get() = (getAttribute("radiogroup"))
     var checked: Checked?
         set(value) {
             if (value == null) {
-                removeProperty("checked")
+                removeAttribute("checked")
             } else {
-                addProperty("checked", value.value)
+                addAttribute("checked", value.value)
             }
         }
-        get() = Checked.fromValue(getProperty("checked"))
-
+        get() = Checked.fromValue(getAttribute("checked"))
 
 
 }

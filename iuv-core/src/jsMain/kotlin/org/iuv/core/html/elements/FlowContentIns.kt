@@ -9,13 +9,12 @@ open class FlowContentIns<MESSAGE> : HTML<MESSAGE>("ins")
     var cite: String?
         set(value) {
             if (value == null) {
-                removeProperty("cite")
+                removeAttribute("cite")
             } else {
-                addProperty("cite", value)
+                addAttribute("cite", value)
             }
         }
-        get() = (getProperty("cite"))
-
+        get() = (getAttribute("cite"))
 
 
 }

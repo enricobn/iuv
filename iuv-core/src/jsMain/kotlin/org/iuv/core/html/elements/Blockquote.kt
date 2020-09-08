@@ -9,13 +9,12 @@ open class Blockquote<MESSAGE> : HTML<MESSAGE>("blockquote")
     var cite: String?
         set(value) {
             if (value == null) {
-                removeProperty("cite")
+                removeAttribute("cite")
             } else {
-                addProperty("cite", value)
+                addAttribute("cite", value)
             }
         }
-        get() = (getProperty("cite"))
-
+        get() = (getAttribute("cite"))
 
 
 }

@@ -390,7 +390,7 @@ interface GeneratedClass {
      */
     fun valueOf() : String = ""
 
-    fun imports() : Set<String>
+    fun imports() : Collection<String>
 
     fun nameSpace() = "org.iuv.core.html"
 
@@ -482,7 +482,7 @@ interface IXHTMLElement : GeneratedClass {
     override fun imports() = (groups + selfChildren +
             selfAttributes.attributes.map { it.type } + selfAttributes.groups)
             .filter { it.nameSpace().isNotEmpty() && it.nameSpace() != nameSpace() }
-            .map { it.fullClassName() }.toSet()
+            .map { it.fullClassName() }.toSet().sorted()
 }
 
 data class XHTMLObjectCollection(val groups: List<GeneratedClass>, val children: List<GeneratedClass>)
@@ -594,7 +594,7 @@ data class XHTMLAttributeGroup(override val name: String, val attributes: XHTMLA
     override fun imports() = (
             attributes.attributes.map { it.type } + attributes.groups)
             .filter { it.nameSpace().isNotEmpty() && it.nameSpace() != nameSpace() }
-            .map { it.fullClassName() }.toSet()
+            .map { it.fullClassName() }.toSet().sorted()
 
     override fun nameSpace(): String {
         return super.nameSpace() + ".attributegroups"

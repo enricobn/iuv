@@ -12,6 +12,14 @@ interface HTMLElementAttributes<MESSAGE> {
 
     fun hasProperty(key: String) : Boolean
 
+    fun addAttribute(name: String, attr: dynamic)
+
+    fun removeAttribute(name: String)
+
+    fun getAttribute(key: String) : dynamic
+
+    fun hasAttribute(key: String) : Boolean
+
     fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?)
 
     fun <EVENT : Event> on(name: String, handler: (EVENT, MessageBus<MESSAGE>) -> Unit)

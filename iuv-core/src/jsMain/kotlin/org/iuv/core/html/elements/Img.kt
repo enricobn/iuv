@@ -11,63 +11,57 @@ open class Img<MESSAGE> : HTML<MESSAGE>("img")
     var src: String?
         set(value) {
             if (value == null) {
-                removeProperty("src")
+                removeAttribute("src")
             } else {
-                addProperty("src", value)
+                addAttribute("src", value)
             }
         }
-        get() = (getProperty("src"))
-
+        get() = (getAttribute("src"))
     var alt: String?
         set(value) {
             if (value == null) {
-                removeProperty("alt")
+                removeAttribute("alt")
             } else {
-                addProperty("alt", value)
+                addAttribute("alt", value)
             }
         }
-        get() = (getProperty("alt"))
-
+        get() = (getAttribute("alt"))
     var height: Int?
         set(value) {
             if (value == null) {
-                removeProperty("height")
+                removeAttribute("height")
             } else {
-                addProperty("height", value)
+                addAttribute("height", value)
             }
         }
-        get() = (getProperty("height"))
-
+        get() = (getAttribute("height"))
     var width: Int?
         set(value) {
             if (value == null) {
-                removeProperty("width")
+                removeAttribute("width")
             } else {
-                addProperty("width", value)
+                addAttribute("width", value)
             }
         }
-        get() = (getProperty("width"))
-
+        get() = (getAttribute("width"))
     var usemap: String?
         set(value) {
             if (value == null) {
-                removeProperty("usemap")
+                removeAttribute("usemap")
             } else {
-                addProperty("usemap", value)
+                addAttribute("usemap", value)
             }
         }
-        get() = (getProperty("usemap"))
-
+        get() = (getAttribute("usemap"))
     var ismap: Ismap?
         set(value) {
             if (value == null) {
-                removeProperty("ismap")
+                removeAttribute("ismap")
             } else {
-                addProperty("ismap", value.value)
+                addAttribute("ismap", value.value)
             }
         }
-        get() = Ismap.fromValue(getProperty("ismap"))
-
+        get() = Ismap.fromValue(getAttribute("ismap"))
 
 
 }

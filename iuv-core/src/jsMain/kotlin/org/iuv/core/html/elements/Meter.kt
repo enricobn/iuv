@@ -9,73 +9,66 @@ open class Meter<MESSAGE> : HTML<MESSAGE>("meter")
     var value: Float?
         set(value) {
             if (value == null) {
-                removeProperty("value")
+                removeAttribute("value")
             } else {
-                addProperty("value", value)
+                addAttribute("value", value)
             }
         }
-        get() = (getProperty("value"))
-
+        get() = (getAttribute("value"))
     var min: Float?
         set(value) {
             if (value == null) {
-                removeProperty("min")
+                removeAttribute("min")
             } else {
-                addProperty("min", value)
+                addAttribute("min", value)
             }
         }
-        get() = (getProperty("min"))
-
+        get() = (getAttribute("min"))
     var low: Float?
         set(value) {
             if (value == null) {
-                removeProperty("low")
+                removeAttribute("low")
             } else {
-                addProperty("low", value)
+                addAttribute("low", value)
             }
         }
-        get() = (getProperty("low"))
-
+        get() = (getAttribute("low"))
     var high: Float?
         set(value) {
             if (value == null) {
-                removeProperty("high")
+                removeAttribute("high")
             } else {
-                addProperty("high", value)
+                addAttribute("high", value)
             }
         }
-        get() = (getProperty("high"))
-
+        get() = (getAttribute("high"))
     var max: Float?
         set(value) {
             if (value == null) {
-                removeProperty("max")
+                removeAttribute("max")
             } else {
-                addProperty("max", value)
+                addAttribute("max", value)
             }
         }
-        get() = (getProperty("max"))
-
+        get() = (getAttribute("max"))
     var optimum: Float?
         set(value) {
             if (value == null) {
-                removeProperty("optimum")
+                removeAttribute("optimum")
             } else {
-                addProperty("optimum", value)
+                addAttribute("optimum", value)
             }
         }
-        get() = (getProperty("optimum"))
-
+        get() = (getAttribute("optimum"))
     var form: String?
         set(value) {
             if (value == null) {
-                removeProperty("form")
+                removeAttribute("form")
             } else {
-                addProperty("form", value)
+                addAttribute("form", value)
             }
         }
-        get() = (getProperty("form"))
-
+        get() = (getAttribute("form"))
 
 
 }

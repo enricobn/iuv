@@ -11,13 +11,12 @@ open class Style<MESSAGE> : HTML<MESSAGE>("style")
     var scoped: Scoped?
         set(value) {
             if (value == null) {
-                removeProperty("scoped")
+                removeAttribute("scoped")
             } else {
-                addProperty("scoped", value.value)
+                addAttribute("scoped", value.value)
             }
         }
-        get() = Scoped.fromValue(getProperty("scoped"))
-
+        get() = Scoped.fromValue(getAttribute("scoped"))
 
 
 }

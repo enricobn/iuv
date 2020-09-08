@@ -12,23 +12,21 @@ open class Menu<MESSAGE> : HTML<MESSAGE>("menu")
     var type: MenuType?
         set(value) {
             if (value == null) {
-                removeProperty("type")
+                removeAttribute("type")
             } else {
-                addProperty("type", value.value)
+                addAttribute("type", value.value)
             }
         }
-        get() = MenuType.fromValue(getProperty("type"))
-
+        get() = MenuType.fromValue(getAttribute("type"))
     var label: String?
         set(value) {
             if (value == null) {
-                removeProperty("label")
+                removeAttribute("label")
             } else {
-                addProperty("label", value)
+                addAttribute("label", value)
             }
         }
-        get() = (getProperty("label"))
-
+        get() = (getAttribute("label"))
 
     fun li(init: MenuLi<MESSAGE>.() -> Unit) {
         element(MenuLi(), init)

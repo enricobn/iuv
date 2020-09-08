@@ -12,13 +12,12 @@ open class Details<MESSAGE> : HTML<MESSAGE>("details")
     var open_: Open?
         set(value) {
             if (value == null) {
-                removeProperty("open")
+                removeAttribute("open")
             } else {
-                addProperty("open", value.value)
+                addAttribute("open", value.value)
             }
         }
-        get() = Open.fromValue(getProperty("open"))
-
+        get() = Open.fromValue(getAttribute("open"))
 
     fun summary(init: Summary<MESSAGE>.() -> Unit) {
         element(Summary(), init)

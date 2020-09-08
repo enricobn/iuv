@@ -10,13 +10,12 @@ open class Html<MESSAGE> : HTML<MESSAGE>("html")
     var manifest: String?
         set(value) {
             if (value == null) {
-                removeProperty("manifest")
+                removeAttribute("manifest")
             } else {
-                addProperty("manifest", value)
+                addAttribute("manifest", value)
             }
         }
-        get() = (getProperty("manifest"))
-
+        get() = (getAttribute("manifest"))
 
     fun head(init: Head<MESSAGE>.() -> Unit) {
         element(Head(), init)

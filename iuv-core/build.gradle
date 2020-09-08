@@ -151,12 +151,14 @@ task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
 }
 
 // END
-
+/*
 task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
     args = ['test']
 }
 
 jsTest.dependsOn runKarma
+
+ */
 
 publishToMavenLocal.dependsOn jsTest
 

@@ -10,13 +10,12 @@ open class Col<MESSAGE> : HTML<MESSAGE>("col")
     var span: Int?
         set(value) {
             if (value == null) {
-                removeProperty("span")
+                removeAttribute("span")
             } else {
-                addProperty("span", value)
+                addAttribute("span", value)
             }
         }
-        get() = (getProperty("span"))
-
+        get() = (getAttribute("span"))
 
 
 }

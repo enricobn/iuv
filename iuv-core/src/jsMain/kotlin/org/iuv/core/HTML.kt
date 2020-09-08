@@ -1,6 +1,7 @@
 package org.iuv.core
 
 import kotlinx.browser.window
+import org.iuv.core.html.attributegroups.AAttributeGroup
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.InputEvent
@@ -113,19 +114,19 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
 
      */
 
-    fun addAttribute(name: String, attr: dynamic) {
+    override fun addAttribute(name: String, attr: dynamic) {
         attrs[name] = attr
     }
 
-    fun removeAttribute(name: String) {
+    override fun removeAttribute(name: String) {
         deleteProperty(attrs, name)
     }
 
-    fun getAttribute(key: String) : dynamic {
+    override fun getAttribute(key: String) : dynamic {
         return if (attrs == null) null else attrs[key]
     }
 
-    fun hasAttribute(key: String) : Boolean {
+    override fun hasAttribute(key: String) : Boolean {
         return getAttribute(key) == null
     }
 
@@ -575,4 +576,12 @@ data class HTMLTextChild(val text: String) : HTMLChild
 // TODO what's this?
 fun deleteProperty(obj: Any, property: Any) {
     js("delete obj[property]")
+}
+
+fun <MESSAGE> AAttributeGroup<MESSAGE>.navigate(path: String) {
+    if (path.startsWith("/")) {
+        addAttribute("href", "#$path")
+    } else {
+        addAttribute("href", "#" + window.location.hash + "/" + path)
+    }
 }

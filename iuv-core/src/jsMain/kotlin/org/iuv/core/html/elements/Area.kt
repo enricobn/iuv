@@ -11,53 +11,48 @@ open class Area<MESSAGE> : HTML<MESSAGE>("area")
     var alt: String?
         set(value) {
             if (value == null) {
-                removeProperty("alt")
+                removeAttribute("alt")
             } else {
-                addProperty("alt", value)
+                addAttribute("alt", value)
             }
         }
-        get() = (getProperty("alt"))
-
+        get() = (getAttribute("alt"))
     var href: String?
         set(value) {
             if (value == null) {
-                removeProperty("href")
+                removeAttribute("href")
             } else {
-                addProperty("href", value)
+                addAttribute("href", value)
             }
         }
-        get() = (getProperty("href"))
-
+        get() = (getAttribute("href"))
     var rel: String?
         set(value) {
             if (value == null) {
-                removeProperty("rel")
+                removeAttribute("rel")
             } else {
-                addProperty("rel", value)
+                addAttribute("rel", value)
             }
         }
-        get() = (getProperty("rel"))
-
+        get() = (getAttribute("rel"))
     var shape: Shape?
         set(value) {
             if (value == null) {
-                removeProperty("shape")
+                removeAttribute("shape")
             } else {
-                addProperty("shape", value.value)
+                addAttribute("shape", value.value)
             }
         }
-        get() = Shape.fromValue(getProperty("shape"))
-
+        get() = Shape.fromValue(getAttribute("shape"))
     var coords: String?
         set(value) {
             if (value == null) {
-                removeProperty("coords")
+                removeAttribute("coords")
             } else {
-                addProperty("coords", value)
+                addAttribute("coords", value)
             }
         }
-        get() = (getProperty("coords"))
-
+        get() = (getAttribute("coords"))
 
 
 }
