@@ -10,4 +10,8 @@ interface HTMLElement<MESSAGE> {
         add(element)
     }
 
+    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childComponent: ChildComponent<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL)
+
+    operator fun String.unaryPlus()
+
 }

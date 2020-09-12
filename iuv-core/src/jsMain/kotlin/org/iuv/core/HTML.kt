@@ -2,10 +2,9 @@ package org.iuv.core
 
 import kotlinx.browser.window
 import org.iuv.core.html.attributegroups.AAttributeGroup
+import org.iuv.core.html.attributegroups.CoreAttributeGroupNodir
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
-import org.w3c.dom.events.InputEvent
-import org.w3c.dom.events.KeyboardEvent
 
 @DslMarker
 annotation class HtmlTagMarker
@@ -89,7 +88,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
         }
     }
 
-    fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childComponent: ChildComponent<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
+    override fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childComponent: ChildComponent<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
         childComponent.addTo(this, model)
     }
 
@@ -100,7 +99,7 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
         jsToRun.add(code)
     }
 
-    operator fun String.unaryPlus() {
+    override operator fun String.unaryPlus() {
         children.add(HTMLTextChild(this))
     }
 
@@ -294,280 +293,9 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
 
 }
 
-
-class SpanH<MESSAGE> : HTML<MESSAGE>("span"),ClickableHTML<MESSAGE>
-
-open class DivH<MESSAGE> : HTML<MESSAGE>("div")
-
-class TableH<MESSAGE> : HTML<MESSAGE>("table")
-
-class TheadH<MESSAGE> : HTML<MESSAGE>("thead")
-
-class TbodyH<MESSAGE> : HTML<MESSAGE>("tbody")
-
-class THH<MESSAGE> : HTML<MESSAGE>("th")
-
-class BH<MESSAGE> : HTML<MESSAGE>("b")
-
-class TDH<MESSAGE> : HTML<MESSAGE>("td"),ClickableHTML<MESSAGE>
-
-class TRH<MESSAGE> : HTML<MESSAGE>("tr"),ClickableHTML<MESSAGE>
-
-open class InputH<MESSAGE> : HTML<MESSAGE>("input"),ClickableHTML<MESSAGE> {
-
-    var value: String?
-        set(value) {
-            if (value == null) {
-                removeProperty("value")
-            } else {
-                addProperty("value", value)
-            }
-        }
-        get() = getProperty("value")
-
-    var defaultValue: String?
-        set(value) {
-            if (value == null) {
-                removeAttribute("defaultValue")
-            } else {
-                addAttribute("defaultValue", value)
-            }
-        }
-        get() = getProperty("defaultValue")
-
-
-    var autofocus: Boolean
-        set(value) {
-            if (value) {
-                addAttribute("autofocus", "autofocus")
-            }
-        }
-        get() = getAttribute("autofocus") == null
-
-    // TODO enum?
-    var type: String
-        set(value) {
-            addAttribute("type", value)
-        }
-        get() = (getAttribute("type") as String?) ?: "text"
-
-    var min: Int?
-        set(value) {
-            if (value != null) {
-                addAttribute("min", value.toString())
-            }
-        }
-        get() = (getAttribute("min") as String?)?.toInt()
-
-    var max: Int?
-        set(value) {
-            if (value != null) {
-                addAttribute("max", value.toString())
-            }
-        }
-        get() = (getAttribute("max") as String?)?.toInt()
-
-    var step: Int?
-        set(value) {
-            if (value != null) {
-                addAttribute("step", value.toString())
-            }
-        }
-        get() = (getAttribute("step") as String?)?.toInt()
-
-    var placeholder: String?
-        set(value) {
-            if (value != null) {
-                addAttribute("placeholder", value.toString())
-            }
-        }
-        get() = (getAttribute("placeholder") as String?)
-
-    fun onInput(handler: (InputEvent,String) -> MESSAGE) {
-        on("input", { event: InputEvent ->
-            handler(event, event.target?.asDynamic().value)
-        })
-    }
-
-    fun onChange(handler: (InputEvent,String) -> MESSAGE) {
-        on("change", { event: InputEvent ->
-            handler(event, event.target?.asDynamic().value)
-        })
-    }
-
-    fun onInput(message: MESSAGE) {
-        on("input", { _: InputEvent -> message })
-    }
-
-    fun onChange(message: MESSAGE) {
-        on("change", { _: InputEvent -> message })
-    }
-
-    fun onBlur(handler: (InputEvent,String) -> MESSAGE) {
-        on("blur", { event: InputEvent ->
-            handler(event, event.target?.asDynamic().value)
-        })
-    }
-
-    fun onBlur(message: MESSAGE) {
-        on("blur", { _: InputEvent -> message })
-    }
-
-    fun onKeydown(handler: (KeyboardEvent, String) -> MESSAGE?) {
-        on("keydown", { event: KeyboardEvent ->
-            handler(event, event.target?.asDynamic().value)
-        })
-    }
-
-    fun onFocus(handler: (InputEvent, String) -> MESSAGE) {
-        on("focus", { event: InputEvent ->
-            handler(event, event.target?.asDynamic().value)
-        })
-    }
-
-    fun onFocus(message: MESSAGE) {
-        on("focus") { _: InputEvent -> message }
-    }
-}
-
-class CheckBoxH<MESSAGE> : InputH<MESSAGE>() {
-
-    init {
-        type = "checkbox"
-    }
-
-    var checked: Boolean
-        set(value) {
-//                addAttribute("value", value)
-            addProperty("checked", value)
-        }
-//        get() = getAttribute("value")
-        get() = getProperty("checked") ?: false
-
-    fun onChecked(handler: (Event, Boolean) -> MESSAGE) {
-        val clickHandler: (Event) -> MESSAGE = {
-            val checked : Boolean = (it.target?.asDynamic()).checked
-
-            handler(it, checked)
-        }
-        on("click", clickHandler)
-    }
-
-}
-
-open class ButtonH<MESSAGE> : HTML<MESSAGE>("button"),ClickableHTML<MESSAGE>
-
-class LabelH<MESSAGE> : HTML<MESSAGE>("label") {
-
-    var forElement: String?
-        set(value) {
-            addAttribute("for", value)
-        }
-        get() = getAttribute("for") as String?
-
-    var title: String?
-        set(value) {
-            addAttribute("title", value)
-        }
-        get() = getAttribute("title") as String?
-}
-
-class UlH<MESSAGE> : HTML<MESSAGE>("ul")
-
-class LiH<MESSAGE> : HTML<MESSAGE>("li")
-
-class HeaderH<MESSAGE> : HTML<MESSAGE>("header")
-
-class NavH<MESSAGE> : HTML<MESSAGE>("nav")
-
-class AH<MESSAGE> : HTML<MESSAGE>("a"),ClickableHTML<MESSAGE> {
-    var href: String?
-        set(value) {
-            addAttribute("href", value)
-        }
-        get() = getAttribute("href") as String?
-
-    fun navigate(path: String) {
-        if (path.startsWith("/")) {
-            addAttribute("href", "#" + path)
-        } else {
-            addAttribute("href", "#" + window.location.hash + "/" + path)
-        }
-    }
-
-}
-
-class IMAGEH<MESSAGE> : HTML<MESSAGE>("img") {
-    var src: String?
-        set(value) {
-            addAttribute("src", value)
-        }
-        get() = getAttribute("src") as String?
-
-}
-
-class MainH<MESSAGE> : HTML<MESSAGE>("main")
-
-class FormH<MESSAGE> : HTML<MESSAGE>("form")
-
-class SectionH<MESSAGE> : HTML<MESSAGE>("section")
-
-class HH<MESSAGE>(size: Int) : HTML<MESSAGE>("h$size")
-
-class StrongH<MESSAGE> : HTML<MESSAGE>("strong")
-
-class FooterH<MESSAGE> : HTML<MESSAGE>("footer")
-
-class IH<MESSAGE> : HTML<MESSAGE>("i")
-
 interface HTMLRenderer {
     fun <MESSAGE> render(element: Element, html: HTML<MESSAGE>)
 }
-
-interface OnHTMLEvents<in MESSAGE> {
-
-    fun <EVENT : Event> on(name: String, handler: (EVENT) -> MESSAGE?)
-
-}
-
-interface ClickableHTML<in MESSAGE> : OnHTMLEvents<MESSAGE> {
-
-    fun onClick(handler: (Event) -> MESSAGE) {
-        on("click", handler)
-    }
-
-    fun onClick(message: MESSAGE) {
-        on("click") { _ : Event -> message }
-    }
-}
-
-interface DataAttributesHTML<MESSAGE> : WithAttributesHTML<MESSAGE> {
-
-    var dataToggle: String?
-        set(value) {
-            if (value != null) {
-                addAttribute("data-toggle", value.toString())
-            }
-        }
-        get() = getAttribute("data-toggle") as String?
-
-    var dataTarget: String?
-        set(value) {
-            if (value != null) {
-                addAttribute("data-target", value.toString())
-            }
-        }
-        get() = getAttribute("data-target") as String?
-}
-
-interface WithAttributesHTML<MESSAGE> {
-    fun addAttribute(name: String, attr: dynamic)
-
-    fun removeAttribute(name: String)
-
-    fun getAttribute(key: String) : dynamic
-}
-
 
 interface HTMLChild
 
@@ -584,4 +312,8 @@ fun <MESSAGE> AAttributeGroup<MESSAGE>.navigate(path: String) {
     } else {
         addAttribute("href", "#" + window.location.hash + "/" + path)
     }
+}
+
+fun <MESSAGE> CoreAttributeGroupNodir<MESSAGE>.appendClasses(vararg classesToAdd: String) {
+    classes = classes?:"" + classesToAdd.joinToString(separator = "") { " $it" }
 }

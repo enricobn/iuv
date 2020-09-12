@@ -14,6 +14,8 @@ private class SubNone<out MESSAGE> : Sub<MESSAGE> {
     override fun removeListener(listener: SubListener<MESSAGE>) {
     }
 
+    override fun removeListeners() {
+    }
 }
 
 interface Sub<out MESSAGE> {
@@ -37,6 +39,10 @@ interface Sub<out MESSAGE> {
 
                 override fun removeListener(listener: SubListener<MESSAGE>) {
                     notNone.forEach { it.removeListener(listener) }
+                }
+
+                override fun removeListeners() {
+                    notNone.forEach { it.removeListeners() }
                 }
             }
         }
@@ -70,6 +76,15 @@ interface Sub<out MESSAGE> {
                         }
                     }
                 }
+
+                override fun removeListeners() {
+                    if (thisListener != null) {
+                        thisListener.let {
+                            sub.removeListeners()
+                        }
+                    }
+                }
+
             }
         }
 
@@ -78,6 +93,8 @@ interface Sub<out MESSAGE> {
     fun addListener(listener: SubListener<MESSAGE>)
 
     fun removeListener(listener: SubListener<MESSAGE>)
+
+    fun removeListeners()
 
 }
 
@@ -90,6 +107,10 @@ class SubImpl<MESSAGE> : Sub<MESSAGE> {
 
     override fun removeListener(listener: SubListener<MESSAGE>) {
         listeners.add(listener)
+    }
+
+    override fun removeListeners() {
+        listeners.clear()
     }
 
     fun dispatch(message: MESSAGE) {

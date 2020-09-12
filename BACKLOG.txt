@@ -1,6 +1,7 @@
 Doing
 -------
 - iuv-xhtml
+  - properties: value and checked in Input are properties, not attributes
 
 - IUVTest runjs
 

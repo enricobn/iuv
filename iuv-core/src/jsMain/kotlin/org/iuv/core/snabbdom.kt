@@ -1,23 +1,24 @@
 package org.iuv.core
 
+import kotlinext.js.require
 import org.w3c.dom.Element
 import kotlin.js.Date
 
-external object snabbdom {
+var snabbdom_: dynamic = require("snabbdom/snabbdom.js")
 
-    fun init(props: dynamic) : dynamic = definedExternally
+object snabbdom {
 
-    fun h(sel: String) : dynamic = definedExternally
-    fun h(sel: String, a: dynamic, b: dynamic) : dynamic = definedExternally
-    fun h(sel: String, a: dynamic) : dynamic = definedExternally
+    fun init(props: dynamic) : dynamic = snabbdom_.init(props)
+
+    fun h(sel: String, a: dynamic, b: dynamic) : dynamic = snabbdom_.h(sel, a, b)
 
 }
 
-external var snabbdom_style: dynamic = definedExternally
-external var snabbdom_class: dynamic = definedExternally
-external var snabbdom_props: dynamic = definedExternally
-external var snabbdom_attributes: dynamic = definedExternally
-external var snabbdom_eventlisteners: dynamic = definedExternally
+var snabbdom_style: dynamic = require("snabbdom/modules/style.js")
+var snabbdom_class: dynamic = require("snabbdom/modules/class.js")
+var snabbdom_props: dynamic = require("snabbdom/modules/props.js")
+var snabbdom_attributes: dynamic = require("snabbdom/modules/attributes.js")
+var snabbdom_eventlisteners: dynamic = require("snabbdom/modules/eventlisteners.js")
 
 fun snabbdomInit() : ((old: dynamic, new: dynamic) -> Unit) {
     val props = arrayOf(

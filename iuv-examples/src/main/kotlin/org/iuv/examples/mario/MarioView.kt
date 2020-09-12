@@ -27,11 +27,11 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
     enum class Direction { Left, Right }
 
     override fun subscriptions(model: Model): Sub<Message> {
-        return Sub(super.subscriptions(model),
-                DocumentEventSubFactoryImpl.keydown({ KeyDown(it.keyCode) }),
-                DocumentEventSubFactoryImpl.keyup({ KeyUp(it.keyCode) }),
-                DocumentEventSubFactoryImpl.animationFrame(::Frame)
-        )
+            return Sub(super.subscriptions(model),
+                    DocumentEventSubFactoryImpl.keydown { KeyDown(it.keyCode) },
+                    DocumentEventSubFactoryImpl.keyup { KeyUp(it.keyCode) },
+                    DocumentEventSubFactoryImpl.animationFrame(::Frame)
+            )
     }
 
     override fun init(): Pair<Model, Cmd<Message>> = Pair(Model(100.0, (window.innerHeight - marioSize).toDouble()), Cmd.none())
@@ -98,7 +98,10 @@ class MarioView : View<MarioView.Model, MarioView.Message> {
             38 -> keys.copy(y = scale)
             39 -> keys.copy(x = scale)
             40 -> keys.copy(y = -scale)
-            else -> keys
+            else -> {
+                println(key)
+                keys
+            }
         }
 
     private fun walk(model : Model) : Model =

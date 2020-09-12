@@ -2,7 +2,6 @@ package org.iuv.core
 
 import kotlinx.browser.document
 import org.iuv.core.impl.MessageBusImpl
-import org.w3c.dom.Element
 import kotlin.js.Date
 
 class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
@@ -10,13 +9,15 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
 
     private var model : MODEL
     private var lastViewedModel: MODEL? = null
-    private var domElement : Element = document.createElement("div")
+    private val mainElement = document.createElement("div")
     private var lastSub: Sub<MESSAGE>? = null
 
     init {
         try {
+            document.body!!.appendChild(mainElement)
+
             IUVGlobals.messageBus = MessageBusImpl(this::onMessage) as MessageBus<Any>
-            document.body!!.appendChild(domElement)
+
             val (newModel,cmd) = view.init()
             model = newModel
             cmd.run(messageBus())
@@ -28,7 +29,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
 
     fun run() {
         IUVGlobals.setAnimationFrameCallback { updateDocument() }
-        //window.setInterval(this::onTimer, delay)
     }
 
     override fun onMessage(message: MESSAGE) {
@@ -42,7 +42,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                 val newSub = view.subscriptions(model)
 
                 lastSub.let {
-                    it?.removeListener(this)
+                    it?.removeListeners()
                 }
 
                 newSub.addListener(this)
@@ -58,10 +58,6 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
     }
 
     private fun messageBus(): MessageBus<MESSAGE> { return IUVGlobals.getMessageBus() as MessageBus<MESSAGE> }
-
-    private fun onTimer() {
-        updateDocument()
-    }
 
     private fun updateDocument() {
         try {
@@ -80,7 +76,7 @@ class IUVApplication<MODEL, in MESSAGE>(private val view: View<MODEL, MESSAGE>,
                 if (printTime)
                     console.log("view ${Date().getTime() - time}")
 
-                renderer.render(domElement, newView)
+                renderer.render(mainElement, newView)
 
                 if (printTime)
                     console.log("updateDocument ${Date().getTime() - time}")

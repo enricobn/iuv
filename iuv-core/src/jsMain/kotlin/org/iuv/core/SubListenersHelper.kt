@@ -19,6 +19,10 @@ class SubListenersHelper<T> : Dispatcher<T> {
             override fun removeListener(listener: SubListener<MESSAGE>) {
                 subListeners.remove(listener to handler)
             }
+
+            override fun removeListeners() {
+                subListeners.clear()
+            }
         }
 
     override fun dispatch(t: T) {
