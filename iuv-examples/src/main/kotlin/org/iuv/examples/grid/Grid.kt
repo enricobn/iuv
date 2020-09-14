@@ -3,6 +3,7 @@ package org.iuv.examples.grid
 import org.iuv.core.Cmd
 import org.iuv.core.Component
 import org.iuv.core.HTML
+import org.iuv.core.appendClasses
 import org.iuv.examples.components.IUVMDL
 import org.iuv.examples.components.mdlTable
 import org.iuv.examples.components.mdlTableCheckbox
@@ -90,7 +91,7 @@ class Grid<ROW>(private val multiSelect : Boolean) : Component<GridModel<ROW>, G
 
                         tr {
                             if (model.selectedRows.contains(index)) {
-                                classes = classes?:"" + " " + IUVMDL.isSelected
+                                appendClasses(IUVMDL.isSelected)
                             }
 
                             if (multiSelect) {

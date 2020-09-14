@@ -1,5 +1,6 @@
 package org.iuv.examples.components
 
+import org.iuv.core.appendClasses
 import org.iuv.core.html.elements.*
 import org.iuv.core.html.enums.InputType
 
@@ -17,8 +18,12 @@ fun <MESSAGE> Div<MESSAGE>.mtButton(init: Button<MESSAGE>.() -> Unit) {
     button {
         init()
 
-        classes = classes?:"" +
-            " mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect"
+        appendClasses(
+                "mdl-button",
+                "mdl-js-button",
+                "mdl-button--raised",
+                "mdl-js-ripple-effect"
+        )
         //mdl-button--accent
     }
 
@@ -26,7 +31,12 @@ fun <MESSAGE> Div<MESSAGE>.mtButton(init: Button<MESSAGE>.() -> Unit) {
 
 fun <MESSAGE> FlowContentElement<MESSAGE>.mdlTableCheckbox(labelId: String, checked: Boolean, init: Input<MESSAGE>.() -> Unit) {
     label {
-        classes = classes?:"" + " mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect mdl-data-table__select"
+        appendClasses(
+                "mdl-checkbox",
+                "mdl-js-checkbox",
+                "mdl-js-ripple-effect",
+                "mdl-data-table__select"
+        )
 
         id = labelId
 
@@ -39,7 +49,7 @@ fun <MESSAGE> FlowContentElement<MESSAGE>.mdlTableCheckbox(labelId: String, chec
         input {
             init()
 
-            classes = classes?:"" + " mdl-checkbox__input"
+            appendClasses("mdl-checkbox__input")
 
             type = InputType.checkbox
         }
@@ -51,7 +61,11 @@ fun <MESSAGE> Div<MESSAGE>.mdlTable(init: Table<MESSAGE>.() -> Unit) {
     table {
         init()
 
-        classes = classes?:"" + " mdl-data-table mdl-js-data-table mdl-shadow--2dp"
+        appendClasses(
+                "mdl-data-table",
+                "mdl-js-data-table",
+                "mdl-shadow--2dp"
+        )
     }
 }
 
