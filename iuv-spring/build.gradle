@@ -22,6 +22,7 @@ repositories {
     maven { url "https://kotlin.bintray.com/kotlinx" }
 }
 
+apply plugin: 'maven'
 apply plugin: 'kotlin-spring'
 apply plugin: 'kotlinx-serialization'
 //apply plugin: 'kotlin-platform-jvm'
@@ -55,11 +56,18 @@ compileTestKotlin {
 
 publishToMavenLocal.dependsOn test
 
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allSource
+    classifier = 'sources'
+}
+
 publishing {
     publications {
         mavenKotlin(MavenPublication) {
             from components.java
+            artifact sourcesJar
         }
+
     }
     repositories {
         mavenLocal()
