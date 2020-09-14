@@ -1,12 +1,12 @@
 package org.iuv.core
 
+import kotlinx.browser.window
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.json.Json
 import org.iuv.shared.Task
 import org.w3c.files.File
 import org.w3c.xhr.XMLHttpRequest
-import kotlinx.browser.window
-import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.json.Json
 import kotlin.js.Date
 
 object Http {
@@ -149,7 +149,7 @@ object Http {
                 request.send(encodeMultipartData(multiPartData, "blob"))
             } else if (body != null) {
                 request.setRequestHeader("Content-Type", "application/json;charset=UTF-8")
-                request.send(json.encodeToString(body, bodySerializer!!))
+                request.send(json.encodeToString(bodySerializer!!, body))
             } else if (formData != null) {
                 request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;charset=UTF-8")
                 request.send(encodeParams(formData))
