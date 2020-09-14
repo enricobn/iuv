@@ -315,5 +315,5 @@ fun <MESSAGE> AAttributeGroup<MESSAGE>.navigate(path: String) {
 }
 
 fun <MESSAGE> CoreAttributeGroupNodir<MESSAGE>.appendClasses(vararg classesToAdd: String) {
-    classes = classes?:"" + classesToAdd.joinToString(separator = "") { " $it" }
+    classes = ((classes ?: "") + classesToAdd.joinToString(separator = "") { " $it" }).trim()
 }
