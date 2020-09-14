@@ -20,6 +20,16 @@ interface Task<ERROR,out RESULT> {
         }
     }
 
+    fun <NEW_ERROR, NEW_RESULT> map(mapError: (ERROR) -> NEW_ERROR, mapResult: (RESULT) -> NEW_RESULT) : Task<NEW_ERROR, NEW_RESULT> {
+        return object : Task<NEW_ERROR, NEW_RESULT> {
+            override fun run(onFailure: (NEW_ERROR) -> Unit, onSuccess: (NEW_RESULT) -> Unit) {
+                this@Task.run({ error : ERROR -> onFailure.invoke(mapError.invoke(error))}, {
+                    result: RESULT -> onSuccess.invoke(mapResult.invoke(result))
+                })
+            }
+        }
+    }
+
 }
 
 private class SimpleTask<ERROR,out RESULT>(private val handler: ((ERROR) -> Unit, (RESULT) -> Unit) -> Unit) : Task<ERROR, RESULT> {
