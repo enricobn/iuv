@@ -7,11 +7,7 @@ import org.iuv.shared.Task
 import org.slf4j.LoggerFactory
 import org.springframework.web.context.request.RequestContextHolder
 import org.springframework.web.context.request.ServletRequestAttributes
-import org.springframework.web.socket.CloseStatus
-import org.springframework.web.socket.TextMessage
-import org.springframework.web.socket.WebSocketHandler
-import org.springframework.web.socket.WebSocketMessage
-import org.springframework.web.socket.WebSocketSession
+import org.springframework.web.socket.*
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor
 import java.util.*
 import javax.servlet.http.HttpSession

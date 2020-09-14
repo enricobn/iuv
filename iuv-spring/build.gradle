@@ -13,7 +13,7 @@ buildscript {
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
+    id 'org.jetbrains.kotlin.multiplatform'
 }
 
 repositories {
@@ -25,51 +25,66 @@ repositories {
 apply plugin: 'maven'
 apply plugin: 'kotlin-spring'
 apply plugin: 'kotlinx-serialization'
-//apply plugin: 'kotlin-platform-jvm'
 apply plugin: 'maven-publish'
 
-dependencies {
-    compile("org.springframework:spring-web:$springVersion")
-    compile("org.springframework:spring-webmvc:$springVersion")
-    compile("org.springframework:spring-messaging:$springVersion")
-    compile("org.springframework:spring-websocket:$springVersion")
-    compile('javax.servlet:javax.servlet-api:4.0.0')
-    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-
-    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
-    compile("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
-    // compileOnly means that iuv core is not exposed to users so must be included manually.
-    // If I set it as compile, then the user project won't compile because it searches for a iuv-core library,
-    // but there is not, there is a iuv-core-jvm8 library and must be included manually.  
-    compileOnly project(':iuv-core')
-
-    testImplementation('org.junit.jupiter:junit-jupiter:5.4.1')
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-compileTestKotlin {
-    kotlinOptions.jvmTarget = "1.8"
-}
-
-publishToMavenLocal.dependsOn test
-
-task sourcesJar(type: Jar) {
-    from sourceSets.main.allSource
-    classifier = 'sources'
-}
-
-publishing {
-    publications {
-        mavenKotlin(MavenPublication) {
-            from components.java
-            artifact sourcesJar
+kotlin {
+    targets {
+        fromPreset(presets.jvm, 'jvm8') {
+            // Configure a single target's compilations (main and test)
+            compilations.all {
+                tasks[compileKotlinTaskName].kotlinOptions {
+                    jvmTarget = '1.8'
+                }
+            }
         }
 
+        fromPreset(presets.js, 'js') {
+            // Configure a single target's compilations (main and test)
+            compilations.all {
+                tasks[compileKotlinTaskName].kotlinOptions {
+                    moduleKind = "umd"
+                    sourceMap = true
+                    metaInfo = true
+                    sourceMapEmbedSources = "always"
+                }
+            }
+        }
     }
-    repositories {
-        mavenLocal()
+
+    sourceSets {
+        commonMain {
+            dependencies {
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+            }
+        }
+        jvm8Main {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+                implementation("org.springframework:spring-web:$springVersion")
+                implementation("org.springframework:spring-webmvc:$springVersion")
+                implementation("org.springframework:spring-messaging:$springVersion")
+                implementation("org.springframework:spring-websocket:$springVersion")
+                implementation('javax.servlet:javax.servlet-api:4.0.0')
+                implementation group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+
+                implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+                implementation("org.jetbrains.kotlin:kotlin-reflect:$kotlin_version")
+                // compileOnly means that iuv core is not exposed to users so must be included manually.
+                // If I set it as compile, then the user project won't compile because it searches for a iuv-core library,
+                // but there is not, there is a iuv-core-jvm8 library and must be included manually.
+                implementation project(':iuv-core')
+            }
+        }
+        jvm8Test {
+            dependencies {
+                implementation 'org.jetbrains.kotlin:kotlin-test'
+                implementation 'org.jetbrains.kotlin:kotlin-test-junit'
+                implementation('org.junit.jupiter:junit-jupiter:5.4.1')
+            }
+        }
     }
 }
+
+publishToMavenLocal.dependsOn jsTest

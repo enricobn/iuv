@@ -27,11 +27,7 @@ import kotlin.reflect.full.memberFunctions
 import kotlin.reflect.jvm.javaMethod
 import kotlin.reflect.jvm.javaType
 
-interface IUVSerializer {
-    val serializer: KSerializer<*>
-}
-
-annotation class RouteSerializer(val value : KClass<out IUVSerializer>)
+annotation class RouteSerializer(val value : KClass<out IUVSerializer<*>>)
 
 annotation class WebSocketAsync
 

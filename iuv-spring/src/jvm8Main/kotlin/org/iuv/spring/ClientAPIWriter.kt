@@ -77,18 +77,35 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
                 it
         }
 
+
         sb.indent(2).append("Http.${route.methods[0].name}(")
-        sb.append("\"$baseURL/${pathComponents.joinToString("/")}\"")
-        sb.append(", ")
+        sb.append("\"$baseURL/${pathComponents.joinToString("/")}")
 
-        val kSerializer = route.routeSerializer.value.objectInstance!!.serializer
+        if (route.getRequestParams().isNotEmpty()) {
+            val requestParams = route.getRequestParams().entries.map { it.value.name + "=\$" + it.key.name }.joinToString("&")
 
-        sb.append(getSerializer(kSerializer.descriptor))
+            sb.append("?")
+            sb.append(requestParams)
+        }
 
-        // TODO body
+        sb.append("\", ")
+
+        sb.append(getSerializer(route.routeSerializer))
+
+        if (route.getRequestBodies().isNotEmpty()) {
+            val (kParameter, pair) = route.getRequestBodies().entries.first()
+            sb.append(", ")
+            sb.append(kParameter.name)
+            sb.append(", ")
+            sb.append(getSerializer(pair.second))
+        }
 
         sb.appendLine(")")
 
+    }
+
+    private fun getSerializer(routeSerializer: RouteSerializer): String? {
+        return routeSerializer.value.qualifiedName + ".serializer"
     }
 
     private fun StringBuilder.indent(num: Int = 1) : StringBuilder {
@@ -119,31 +136,23 @@ class ClientAPIWriter(private val servlet: ServiceVOServlet, private val baseURL
             s
     }
 
-    private fun getSerializer(descriptor: SerialDescriptor) : String? {
-        val serialName = descriptor.serialName
-        if (serialName.endsWith("IntSerializer")) {
-                return "Int.serializer()"
+    private fun getSerializer(descriptor: SerialDescriptor) : String? =
+        when (val serialName = descriptor.serialName) {
+            "kotlin.Int" -> {
+                "Int.serializer()"
             }
-            if (serialName.endsWith("UnitSerializer")) {
-                return "Unit.serializer()"
+            "kotlin.Unit" -> {
+                "Unit.serializer()"
             }
-            if (serialName.endsWith("ArrayListSerializer")) {
+            "kotlin.collections.ArrayList" -> {
                 imports.add("kotlinx.serialization.builtins.ListSerializer")
                 val elementSerializer = getSerializer(descriptor.getElementDescriptor(0))
-                return "ListSerializer($elementSerializer)"
+                "ListSerializer($elementSerializer)"
             }
-            // TODO
-            //if (serialName.endsWith("EnumSerializer")) return "EnumSerializer(${kSerializer.descriptor.name})" // Is it correct?
-            else {
-                val indexOfCustomSerializer = descriptor.toString().indexOf("${'$'}${'$'}serializer")
-                if (indexOfCustomSerializer >= 0) {
-                    val className = descriptor.toString().substring(0, indexOfCustomSerializer)
-                    imports.add(className)
-                    return "${simpleName(className)}::class.serializer()"
-                }
+            else -> {
+                "$serialName::class.serializer()"
             }
-        return null
-    }
+        }
 
     private fun simpleName(kClass: KClass<*>) = simpleName(kClass.qualifiedName!!)
 
