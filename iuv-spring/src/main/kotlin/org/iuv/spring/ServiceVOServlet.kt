@@ -175,9 +175,8 @@ abstract class ServiceVOServlet : HttpServlet() {
                     response.contentType = "text/plain"
                     response.writer.print(webSocketResponseId)
                 } else {
-                    val result = route.function.callBy(params)
 
-                    when (result) {
+                    when (val result = route.function.callBy(params)) {
                         is Task<*, *> -> {
                             result.run({
                                 response.contentType = "text/plain"
@@ -326,6 +325,10 @@ class Route(val methods: Array<RequestMethod>, val pathExpression: String, val f
         }.toMap()
     }
 
+    fun getRequestBodies() = requestBodies.toMap()
+
+    fun getRequestParams() = requestParams.toMap()
+
     private fun getParameterValueFromRequest(it: KParameter, request: HttpServletRequest, pathVariablesFromRequest: Map<String, String>) : Any? =
         when {
             requestParams.containsKey(it) -> parse(it, request.getParameter(requestParams[it]!!.value))
@@ -340,12 +343,12 @@ class Route(val methods: Array<RequestMethod>, val pathExpression: String, val f
         }
 
     private fun parse(it: KParameter, parameterValueString: String): Any =
-        when {
-            it.type == Int::class.createType() -> parameterValueString.toInt()
-            it.type == Long::class.createType() -> parameterValueString.toLong()
-            it.type == Boolean::class.createType() -> parameterValueString.toBoolean()
-            else -> parameterValueString
-        }
+            when (it.type) {
+                Int::class.createType() -> parameterValueString.toInt()
+                Long::class.createType() -> parameterValueString.toLong()
+                Boolean::class.createType() -> parameterValueString.toBoolean()
+                else -> parameterValueString
+            }
 
 }
 
