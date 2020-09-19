@@ -13,13 +13,8 @@ buildscript {
 }
 
 plugins {
-    id "com.github.node-gradle.node"
     id 'org.jetbrains.kotlin.js'
 }
-
-//apply plugin: 'org.jetbrains.kotlin.js'
-//apply plugin: 'org.jetbrains.kotlin.frontend'
-//apply plugin: 'kotlin2js'
 
 apply from: 'web.gradle'
 apply plugin: 'kotlinx-serialization'
@@ -34,38 +29,11 @@ repositories {
 }
 
 dependencies {
-    
-    //testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
-    testImplementation 'org.jetbrains.kotlin:kotlin-test-js'
-    //compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    //compile "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
-    //compile 'org.iuv:iuv-core-js:0.1-SNAPSHOT'
-//    implementation project(path: ':iuv-core', configuration: 'jsDefault')
     implementation project(':iuv-core')
     implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
-    //compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
 
-    //compile 'org.jetbrains.kotlinx:kotlinx-html-js:0.6.1'
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-js'
 }
-/*
-compileKotlin2Js {
-    kotlinOptions.moduleKind = "umd"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.metaInfo = true
-    kotlinOptions.sourceMapEmbedSources = "always"
-}
-
-compileTestKotlin2Js { kotlinOptions.moduleKind = 'umd' }
-*/
-
-node {
-    download = true
-}
-
-task yarnInstall(type: YarnTask) {
-    args = ['install']
-}
-
 
 kotlin {
     js {

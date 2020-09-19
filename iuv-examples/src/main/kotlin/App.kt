@@ -10,7 +10,7 @@ import org.iuv.examples.mario.MarioView
 import org.iuv.examples.mouse.MouseView
 import org.iuv.examples.tabs.TabsView
 
-const val debugger = false
+const val debugger = true
 
 @InternalSerializationApi
 fun main() {
