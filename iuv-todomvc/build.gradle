@@ -1,0 +1,43 @@
+buildscript {
+    ext.web_dir = "${projectDir}/build/web"
+
+    repositories {
+        mavenCentral()
+        maven { url "https://kotlin.bintray.com/kotlinx" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-serialization:$kotlin_version"
+    }
+}
+
+plugins {
+    id 'org.jetbrains.kotlin.js'
+}
+
+apply from: 'web.gradle'
+apply plugin: 'kotlinx-serialization'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        url = "http://dl.bintray.com/kotlin/kotlinx.html/"
+        url = "https://kotlin.bintray.com/kotlinx"
+    }
+}
+
+dependencies {
+    implementation project(':iuv-core')
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
+
+    testImplementation 'org.jetbrains.kotlin:kotlin-test-js'
+}
+
+kotlin {
+    js {
+        // To build distributions for and run tests on browser or Node.js use one or both of:
+        browser()
+    }
+}
