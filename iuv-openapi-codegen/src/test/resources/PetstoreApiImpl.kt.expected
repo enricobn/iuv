@@ -1,12 +1,10 @@
 package org.iuv.test.client
 
-import kotlin.browser.document
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.internal.ArrayListSerializer
-import kotlinx.serialization.internal.HashMapSerializer
-import kotlinx.serialization.internal.IntSerializer
-import kotlinx.serialization.internal.StringSerializer
-import kotlinx.serialization.internal.UnitSerializer
+import kotlinx.browser.document
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.builtins.ListSerializer
+import kotlinx.serialization.builtins.MapSerializer
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.serializer
 import org.w3c.dom.get
 import org.iuv.core.Authentication
@@ -23,6 +21,7 @@ import org.iuv.test.models.Order
 import org.iuv.test.models.Pet
 import org.iuv.test.models.User
 
+@InternalSerializationApi
 class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.io/v2") : PetstoreApi {
     private var authentication : Authentication? = null
 
@@ -30,7 +29,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         this.authentication = authentication
     }
 
-    @ImplicitReflectionSerializer
     override fun addPet(body : Pet) : Task<HttpError,HttpResult<Pet>> {
         val path = "/pet".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -45,7 +43,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(Pet::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun updatePet(body : Pet) : Task<HttpError,HttpResult<Pet>> {
         val path = "/pet".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -60,7 +57,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(Pet::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun findPetsByStatus(status : List<String>) : Task<HttpError,HttpResult<List<Pet>>> {
         val path = "/pet/findByStatus".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -74,10 +70,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(ArrayListSerializer(Pet::class.serializer()))
+        return runner.run(ListSerializer(Pet::class.serializer()))
     }
 
-    @ImplicitReflectionSerializer
     override fun findPetsByTags(tags : List<String>) : Task<HttpError,HttpResult<List<Pet>>> {
         val path = "/pet/findByTags".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -91,10 +86,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(ArrayListSerializer(Pet::class.serializer()))
+        return runner.run(ListSerializer(Pet::class.serializer()))
     }
 
-    @ImplicitReflectionSerializer
     override fun getPetById(petId : Long) : Task<HttpError,HttpResult<Pet>> {
         val path = "/pet/$petId".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -108,7 +102,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(Pet::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun updatePetWithForm(petId : Long, name : String?, status : String?) : Task<HttpError,HttpResult<Unit>> {
         val path = "/pet/$petId".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -123,10 +116,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun deletePet(api_key : String?, petId : Long) : Task<HttpError,HttpResult<Unit>> {
         val path = "/pet/$petId".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -138,10 +130,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun uploadFile(petId : Long, additionalMetadata : String?, file : MultipartFile?) : Task<HttpError,HttpResult<ApiResponse>> {
         val path = "/pet/$petId/uploadImage".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -159,7 +150,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(ApiResponse::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun getInventory() : Task<HttpError,HttpResult<Map<String, Int>>> {
         val path = "/store/inventory".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -170,10 +160,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(HashMapSerializer(StringSerializer,IntSerializer))
+        return runner.run(MapSerializer(String.serializer(),Int.serializer()))
     }
 
-    @ImplicitReflectionSerializer
     override fun placeOrder(body : Order) : Task<HttpError,HttpResult<Order>> {
         val path = "/store/order".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -188,7 +177,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(Order::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun getOrderById(orderId : Long) : Task<HttpError,HttpResult<Order>> {
         val path = "/store/order/$orderId".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -202,7 +190,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(Order::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun deleteOrder(orderId : Long) : Task<HttpError,HttpResult<Unit>> {
         val path = "/store/order/$orderId".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -213,10 +200,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun createUser(body : User) : Task<HttpError,HttpResult<Unit>> {
         val path = "/user".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -228,40 +214,37 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun createUsersWithArrayInput(body : List<User>) : Task<HttpError,HttpResult<Unit>> {
         val path = "/user/createWithArray".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
 
         val runner = httpRequestRunner(HttpMethod.Post, fullPath)
-            .body(body, ArrayListSerializer(User::class.serializer()))
+            .body(body, ListSerializer(User::class.serializer()))
         authentication.let {
             if (it != null) {
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun createUsersWithListInput(body : List<User>) : Task<HttpError,HttpResult<Unit>> {
         val path = "/user/createWithList".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
 
         val runner = httpRequestRunner(HttpMethod.Post, fullPath)
-            .body(body, ArrayListSerializer(User::class.serializer()))
+            .body(body, ListSerializer(User::class.serializer()))
         authentication.let {
             if (it != null) {
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun loginUser(username : String, password : String) : Task<HttpError,HttpResult<String>> {
         val path = "/user/login".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -276,10 +259,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(StringSerializer)
+        return runner.run(String.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun logoutUser() : Task<HttpError,HttpResult<Unit>> {
         val path = "/user/logout".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -290,10 +272,9 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun getUserByName(username : String) : Task<HttpError,HttpResult<User>> {
         val path = "/user/$username".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -307,7 +288,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(User::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun updateUser(username : String, body : User) : Task<HttpError,HttpResult<User>> {
         val path = "/user/$username".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -322,7 +302,6 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
         return runner.run(User::class.serializer())
     }
 
-    @ImplicitReflectionSerializer
     override fun deleteUser(username : String) : Task<HttpError,HttpResult<Unit>> {
         val path = "/user/$username".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -333,7 +312,7 @@ class PetstoreApiImpl(private val baseUrl : String = "https://petstore.swagger.i
                 runner.configuration(it)
             }
         }
-        return runner.run(UnitSerializer)
+        return runner.run(Unit.serializer())
     }
 
     private fun httpRequestRunner(method: HttpMethod, fullPath: String): HttpRequestRunner {

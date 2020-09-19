@@ -1,23 +1,51 @@
 build.doLast() {
 
-    // Copy kotlin.js and kotlin.meta.js from jar into web directory
-    copyConfigurationFiles(configurations.compile)
+    /*
+    for (conf in configurations) {
+        if (conf.canBeResolved) {
+            println(conf.name)
+            conf.each { File file ->
+                if (file.toString().endsWith(".js") || file.toString().endsWith(".jar"))
+                    println("  " + file)
+            }
+        }
+    }
+     */
 
-    // Copy kotlin-test.js and kotlin-test.meta.js from jar into web directory
-    copyConfigurationFiles(configurations.testCompile)
+    if (!project.hasProperty('web_fat') || web_fat) {
+        copy {
+            includeEmptyDirs = false
+            from project.fileTree("build/distributions").files
+            into "${web_dir}/js"
+            include "*.js"
+            include "*.js.map"
+        }
+    } else {
+        copyConfigurationFiles(configurations.testRuntimeClasspath)
 
-    copy {
-        includeEmptyDirs = false
-        from project.fileTree("build/classes/kotlin/main").files
-        into "${web_dir}/classes"
-        include "*.js"
-        include "*.js.map"
+        project.file("build/libs").listFiles().each { file ->
+            if (!file.path.endsWith("-sources.jar")) {
+                copy {
+                    includeEmptyDirs = false
+
+                    from zipTree(file.absolutePath)
+                    into "${web_dir}/js"
+                    include { fileTreeElement ->
+                        def path = fileTreeElement.path
+                        def valid = !path.contains("/") && (path.endsWith(".js") || path.endsWith(".js.map"))
+                        if (valid)
+                            println("HENRY $path")
+                        valid
+                    }
+                }
+            }
+        }
     }
 
     copy {
         includeEmptyDirs = false
         from project.fileTree("build/classes/kotlin/test").files
-        into "${web_dir}/classes"
+        into "${web_dir}/js"
         include "*.js"
         include "*.js.map"
     }
@@ -34,24 +62,25 @@ build.doLast() {
         into "${web_dir}"
     }
 
-    copy {
-        from("${projectDir}/node_modules/snabbdom/dist")
-        into "${web_dir}/js"
-        include "*.min.js"
-    }
-
 }
 
 private Iterable<File> copyConfigurationFiles(Configuration compile) {
     compile.each { File file ->
-        copy {
-            includeEmptyDirs = false
+        if (file.toString().endsWith(".js")) {
+            copy {
+                from file
+                into "${web_dir}/js"
+            }
+        } else if (file.toString().endsWith(".jar")) {
+            copy {
+                includeEmptyDirs = false
 
-            from zipTree(file.absolutePath)
-            into "${web_dir}/lib"
-            include { fileTreeElement ->
-                def path = fileTreeElement.path
-                (path.endsWith(".js") || path.endsWith(".js.map")) && (path.startsWith("META-INF/resources/") || !path.startsWith("META-INF/"))
+                from zipTree(file.absolutePath)
+                into "${web_dir}/js"
+                include { fileTreeElement ->
+                    def path = fileTreeElement.path
+                    path.endsWith(".js") || path.endsWith(".js.map")
+                }
             }
         }
     }

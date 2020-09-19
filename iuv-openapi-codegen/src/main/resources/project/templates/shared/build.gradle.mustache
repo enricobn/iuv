@@ -50,8 +50,8 @@ kotlin {
     sourceSets {
         commonMain {
             dependencies {
-                implementation 'org.iuv:iuv-core-metadata:{{iuvVersion}}'
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:$serialization_version"
+                implementation 'org.iuv:iuv-core:{{iuvVersion}}'
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
             }
         }
         jvm8Main {
@@ -59,7 +59,7 @@ kotlin {
                 dependsOn commonMain
                 implementation 'org.iuv:iuv-core-jvm8:{{iuvVersion}}'
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-jdk8'
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
             }
         }
         jvm8Test {
@@ -73,7 +73,7 @@ kotlin {
                 dependsOn commonMain
                 implementation 'org.iuv:iuv-core-js:{{iuvVersion}}'
                 implementation 'org.jetbrains.kotlin:kotlin-stdlib-js'
-                implementation "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+                implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
             }
         }
         jsTest {
@@ -81,5 +81,10 @@ kotlin {
                 implementation 'org.jetbrains.kotlin:kotlin-test-js'
             }
         }
+    }
+
+    js {
+        // To build distributions for and run tests on browser or Node.js use one or both of:
+        browser()
     }
 }

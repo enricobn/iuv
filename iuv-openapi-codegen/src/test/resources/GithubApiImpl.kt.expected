@@ -1,8 +1,8 @@
 package org.iuv.test.client
 
-import kotlin.browser.document
-import kotlinx.serialization.ImplicitReflectionSerializer
-import kotlinx.serialization.internal.ArrayListSerializer
+import kotlinx.browser.document
+import kotlinx.serialization.InternalSerializationApi
+import kotlinx.serialization.builtins.ListSerializer
 import kotlinx.serialization.serializer
 import org.w3c.dom.get
 import org.iuv.core.Authentication
@@ -14,6 +14,7 @@ import org.iuv.core.HttpResult
 import org.iuv.shared.Task
 import org.iuv.test.models.Event
 
+@InternalSerializationApi
 class NetworksApiImpl(private val baseUrl : String = "https://api.github.com") : NetworksApi {
     private var authentication : Authentication? = null
 
@@ -21,7 +22,6 @@ class NetworksApiImpl(private val baseUrl : String = "https://api.github.com") :
         this.authentication = authentication
     }
 
-    @ImplicitReflectionSerializer
     override fun getNetworksByOwnerByRepoEvents(owner : String, repo : String, Accept : String?) : Task<HttpError,HttpResult<List<Event>>> {
         val path = "/networks/$owner/$repo/events".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")
@@ -33,7 +33,7 @@ class NetworksApiImpl(private val baseUrl : String = "https://api.github.com") :
                 runner.configuration(it)
             }
         }
-        return runner.run(ArrayListSerializer(Event::class.serializer()))
+        return runner.run(ListSerializer(Event::class.serializer()))
     }
 
     private fun httpRequestRunner(method: HttpMethod, fullPath: String): HttpRequestRunner {

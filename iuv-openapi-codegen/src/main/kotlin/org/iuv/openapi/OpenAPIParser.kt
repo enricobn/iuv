@@ -217,18 +217,18 @@ private fun safeName(name: String) =
 
 private fun toPrimitiveType(type: String, format: String?) =
         when (type) {
-            "string" -> PrimitiveParserType("String", IUVAPISerializer("StringSerializer",
-                    imports = setOf("kotlinx.serialization.internal.StringSerializer")), emptySet())
+            "string" -> PrimitiveParserType("String", IUVAPISerializer("String.serializer()",
+                    imports = setOf("kotlinx.serialization.builtins.serializer")), emptySet())
             "integer", "number" ->
                 if (format == "int64") {
-                    PrimitiveParserType("Long", IUVAPISerializer("LongSerializer",
-                            imports = setOf("kotlinx.serialization.internal.LongSerializer")), emptySet())
+                    PrimitiveParserType("Long", IUVAPISerializer("Long.serializer()",
+                            imports = setOf("kotlinx.serialization.builtins.serializer")), emptySet())
                 } else {
-                    PrimitiveParserType("Int", IUVAPISerializer("IntSerializer",
-                            imports = setOf("kotlinx.serialization.internal.IntSerializer")), emptySet())
+                    PrimitiveParserType("Int", IUVAPISerializer("Int.serializer()",
+                            imports = setOf("kotlinx.serialization.builtins.serializer")), emptySet())
                 }
-            "boolean" -> PrimitiveParserType("Boolean", IUVAPISerializer("BooleanSerializer",
-                    imports = setOf("kotlinx.serialization.internal.BooleanSerializer")), emptySet())
+            "boolean" -> PrimitiveParserType("Boolean", IUVAPISerializer("Boolean.serializer()",
+                    imports = setOf("kotlinx.serialization.builtins.serializer")), emptySet())
             "file" -> PrimitiveParserType("MultipartFile", IUVAPISerializer("MultipartFileSerializer",
                     imports = setOf("kotlinx.serialization.internal.MultipartFileSerializer")), emptySet())
             else -> throw UnsupportedOpenAPISpecification("Unknown type '$type'.")

@@ -11,9 +11,9 @@ import java.io.InputStream
 
 class NewProjectCommand : CliktCommand(name = "newProject") {
     private val group: String by argument("group")
-    private val kotlinVersion : String by option().default("1.3.30")
+    private val kotlinVersion : String by option().default("1.4.10")
     private val iuvVersion : String by option().default("0.1-SNAPSHOT")
-    private val serializationVersion : String by option().default("0.9.1")
+    private val serializationVersion : String by option().default("1.0.0-RC")
     private val springBootVersion : String by option().default("2.1.4.RELEASE")
     private val projectName = File(System.getProperty("user.dir")).name
     private val jarFileName = File(this::class.java.protectionDomain.codeSource.location
@@ -38,8 +38,6 @@ class NewProjectCommand : CliktCommand(name = "newProject") {
 
         runTemplate("ui", ".gitignore", destFolder = "$projectName-ui")
         runTemplate("ui", "build.gradle", destFolder = "$projectName-ui")
-        runTemplate("ui", "karma.conf.js", destFolder = "$projectName-ui")
-        runTemplate("ui", "package.json", destFolder = "$projectName-ui")
         runTemplate("ui", "web.gradle", destFolder = "$projectName-ui")
         runTemplate("ui/src/main", "Main.kt", destFolder = "$projectName-ui/src/main/kotlin/" +
                 packageToDir(projectContext.clientPackage))

@@ -13,12 +13,11 @@ buildscript {
     }
 }
 
-apply plugin: 'com.moowork.node'
-apply plugin: 'kotlin-platform-js'
-apply plugin : 'kotlin2js'
+plugins {
+    id 'org.jetbrains.kotlin.js'
+}
+
 apply plugin: 'kotlinx-serialization'
-// to let gradle copy resources folder into the jar on build
-apply plugin: 'java'
 apply from : 'web.gradle'
 
 repositories {
@@ -31,50 +30,18 @@ repositories {
 }
 
 dependencies {
-    compile project(':{{projectName}}-shared')
-    compile "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    compile 'org.iuv:iuv-core-js:{{iuvVersion}}'
-    compile 'org.iuv:iuv-core-metadata:{{iuvVersion}}'
-    compile "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:$serialization_version"
+    implementation project(':{{projectName}}-shared')
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
+    implementation 'org.iuv:iuv-core-js:0.1-SNAPSHOT'
+    implementation 'org.iuv:iuv-core:0.1-SNAPSHOT'
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
 
-    testCompile "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
+    testImplementation "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
 }
 
-compileKotlin2Js {
-    kotlinOptions.moduleKind = "umd"
-    kotlinOptions.sourceMap = true
-    kotlinOptions.metaInfo = true
-    kotlinOptions.sourceMapEmbedSources = "always"
-}
-
-compileTestKotlin2Js { kotlinOptions.moduleKind = 'umd' }
-
-node {
-    download = true
-}
-
-task yarnInstall(type: YarnTask) {
-    args = ['install']
-}
-
-/*
-task installMocha(type: NpmTask) {
-    args = ['install', 'mocha']
-}
-*/
-
-task populateNodeModules(type: Copy, dependsOn: compileTestKotlin2Js) {
-    configurations.testCompile.each {
-        from zipTree(it.absolutePath).matching { include '*.js' }
+kotlin {
+    js {
+        // To build distributions for and run tests on browser or Node.js use one or both of:
+        browser()
     }
-
-    into "${buildDir}/node_modules"
-
-    includeEmptyDirs = false
 }
-
-task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
-    args = ['test']
-}
-
-test.dependsOn runKarma

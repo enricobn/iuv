@@ -19,8 +19,8 @@ private const val JSON = "application/json"
 private const val ALL_CONTENTS = "*/*"
 private const val FORM_URL_ENCODED = "application/x-www-form-urlencoded"
 private const val MULTIPART_FORM_DATA = "multipart/form-data"
-private val UNIT_SERIALIZER = IUVAPISerializer("UnitSerializer",
-        imports = setOf("kotlinx.serialization.internal.UnitSerializer"))
+private val UNIT_SERIALIZER = IUVAPISerializer("Unit.serializer()",
+        imports = setOf("kotlinx.serialization.builtins.serializer"))
 private val unitType = PrimitiveParserType("Unit", UNIT_SERIALIZER, emptySet())
 
 interface Last {
@@ -354,15 +354,15 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
 
     private fun read(splitApisByPath : Boolean) : IUVAPIServer {
         val standardImports = setOf(
+                IUVImport("kotlinx.serialization.InternalSerializationApi", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.shared.Task", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
-                IUVImport("kotlinx.serialization.ImplicitReflectionSerializer", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Http", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.HttpError", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
                 IUVImport("org.iuv.core.HttpRequestRunner", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.HttpResult", setOf(IUVImportType.CLIENT_IMPL, IUVImportType.CLIENT)),
                 IUVImport("org.iuv.core.HttpMethod", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.w3c.dom.get", setOf(IUVImportType.CLIENT_IMPL)),
-                IUVImport("kotlin.browser.document", setOf(IUVImportType.CLIENT_IMPL)),
+                IUVImport("kotlinx.browser.document", setOf(IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.iuv.core.Authentication", setOf(IUVImportType.CLIENT, IUVImportType.CLIENT_IMPL)),
                 IUVImport("org.springframework.http.ResponseEntity", setOf(IUVImportType.CONTROLLER))
         )
@@ -644,9 +644,9 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 val mapType = valueType.toIUVAPIType()
                 IUVAPIType("Map<String, $mapType>",
                         IUVAPISerializer(
-                                "HashMapSerializer(StringSerializer,${mapType.serializer.code})",
-                                imports = setOf("kotlinx.serialization.internal.HashMapSerializer",
-                                        "kotlinx.serialization.internal.StringSerializer") + mapType.serializer.imports),
+                                "MapSerializer(String.serializer(),${mapType.serializer.code})",
+                                imports = setOf("kotlinx.serialization.builtins.MapSerializer",
+                                        "kotlinx.serialization.builtins.serializer") + mapType.serializer.imports),
                         mapType.imports)
             }
             is RefParserType -> {
@@ -664,13 +664,13 @@ class OpenAPIReader(private val name : String, private val api: OpenAPI, private
                 val itemsType = itemsType.toIUVAPIType()
 
                 IUVAPIType("List<$itemsType>",
-                        IUVAPISerializer("ArrayListSerializer(${itemsType.serializer.code})",
-                                imports = setOf("kotlinx.serialization.internal.ArrayListSerializer") + itemsType.serializer.imports),
+                        IUVAPISerializer("ListSerializer(${itemsType.serializer.code})",
+                                imports = setOf("kotlinx.serialization.builtins.ListSerializer") + itemsType.serializer.imports),
                         itemsType.imports, itemsType.innerComponent)
             }
             is EnumParserType -> {
                 IUVAPIType(name,
-                        IUVAPISerializer("EnumSerializer($name::class)",
+                        IUVAPISerializer("$name::class.serializer()",
                                 imports = setOf("kotlinx.serialization.internal.EnumSerializer")),
                         emptySet(), null)
             }

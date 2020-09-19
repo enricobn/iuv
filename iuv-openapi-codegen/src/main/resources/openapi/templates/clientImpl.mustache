@@ -6,6 +6,7 @@ import {{fullClassName}}
 
 {{/last}}
 {{/api.clientImplImports}}
+@InternalSerializationApi
 class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : {{api.name}}Api {
     private var authentication : Authentication? = null
 
@@ -15,7 +16,6 @@ class {{api.name}}ApiImpl(private val baseUrl : String = "{{{api.baseUrl}}}") : 
 {{#api.paths}}
   {{#operations}}
 
-    @ImplicitReflectionSerializer
     override fun {{name}}({{#parameters}}{{name}} : {{{type}}}{{^required}}?{{/required}}{{^last}}, {{/last}}{{/parameters}}) : Task<HttpError,HttpResult<{{{resultType}}}{{#nullableResult}}?{{/nullableResult}}>> {
         val path = "{{pathSubst}}".removePrefix("/")
         val fullPath = "$baseUrl/$path".removePrefix("/")

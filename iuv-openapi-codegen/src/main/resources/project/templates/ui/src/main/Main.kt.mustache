@@ -3,11 +3,7 @@ package {{clientPackage}}
 import org.iuv.core.IUVApplication
 import org.iuv.core.SnabbdomRenderer
 
-object Main {
-
-    fun run() {
-        IUVApplication(ExampleView, SnabbdomRenderer())
-            .run()
-    }
-
+fun main() {
+    IUVApplication(ExampleView, SnabbdomRenderer())
+        .run()
 }
