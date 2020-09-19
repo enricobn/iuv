@@ -14,6 +14,7 @@ From the command line : `./gradlew build`
 The first time it will be slow since it will download node js, yarn and all javascript libraries.
 
 That task creates a "web" folder under iuv-examples/build, then you have to open index.html with a browser.  
+That task creates a "web" folder under iuv-todomvc/build, then you have to open index.html with a browser.
 
 ### Build code generation command line tool
 From the command line : `./gradlew iuv-openapi-codegen:shadowJar`  
