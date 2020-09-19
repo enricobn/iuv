@@ -5,5 +5,6 @@ include 'iuv-core',
         'iuv-spring',
         'iuv-openapi-codegen',
         'iuv-idea-plugin',
-        'iuv-xhtml'
+        'iuv-xhtml',
+        'iuv-todomvc'
 

@@ -13,7 +13,6 @@ buildscript {
 }
 
 plugins {
-    id "com.github.node-gradle.node"
     id 'org.jetbrains.kotlin.multiplatform'
 }
 
@@ -95,74 +94,4 @@ kotlin {
     }
 }
 
-node {
-    download = true
-}
-
-task yarnInstall(type: YarnTask) {
-    args = ['install']
-}
-
-// START workaround to copy all js files needed for test to build/node_modules
-
-configurations {
-    jsLibs
-    jsTestLibs
-}
-
-dependencies {
-    jsLibs "org.jetbrains.kotlin:kotlin-stdlib-js:$kotlin_version"
-    jsImplementation "org.jetbrains.kotlinx:kotlinx-serialization-core:$serialization_version"
-    jsTestLibs "org.jetbrains.kotlin:kotlin-test-js:$kotlin_version"
-}
-
-task populateNodeModules(type: Copy, dependsOn: jsTestClasses) {
-    def jsTarget = kotlin.targets.js
-
-    from(jsTarget.compilations.main.output) {
-        include '**/*.js'
-        // To flatten files
-        eachFile { details ->
-            details.path = details.name
-        }
-    }
-
-    from(jsTarget.compilations.test.output) {
-        include '**/*.js'
-        // To flatten files
-        eachFile { details ->
-            details.path = details.name
-        }
-    }
-
-    (configurations.jsLibs + configurations.jsTestLibs).each { File file ->
-        from(zipTree(file.absolutePath), {
-            includeEmptyDirs = false
-            include { fileTreeElement ->
-                def path = fileTreeElement.path
-                path.endsWith(".js") && (path.startsWith("META-INF/resources/") ||
-                        !path.startsWith("META-INF/"))
-            }
-        })
-    }
-
-    into "${buildDir}/node_modules"
-
-    includeEmptyDirs = false
-}
-
-// END
-/*
-task runKarma(type: YarnTask, dependsOn: [populateNodeModules, yarnInstall]) {
-    args = ['test']
-}
-
-jsTest.dependsOn runKarma
-
- */
-
 publishToMavenLocal.dependsOn jsTest
-
-configurations {
-    compileClasspath
-}
