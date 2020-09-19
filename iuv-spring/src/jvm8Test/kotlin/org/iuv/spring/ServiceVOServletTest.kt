@@ -1,12 +1,13 @@
 package org.iuv.spring
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import javax.servlet.ServletException
 
-
+@ExperimentalSerializationApi
 class ServiceVOServletTest {
 
     @Test
@@ -45,6 +46,7 @@ class ServiceVOServletTest {
 
 }
 
+@ExperimentalSerializationApi
 private class TestServiceVOImpl : ServiceVOServlet(), TestServiceVO {
 
     override fun getById(id: String): String {
@@ -61,6 +63,7 @@ private interface TestServiceVO {
 
 }
 
+@ExperimentalSerializationApi
 private class SimpleServiceVO : ServiceVOServlet() {
 
     @GetMapping("/count")
@@ -70,6 +73,7 @@ private class SimpleServiceVO : ServiceVOServlet() {
 
 }
 
+@ExperimentalSerializationApi
 private class WrongPathVariableNameServiceVO : ServiceVOServlet() {
 
     @GetMapping("/{id}")

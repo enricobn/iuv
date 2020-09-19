@@ -85,6 +85,14 @@ kotlin {
             }
         }
     }
+
+    js {
+        browser()
+    }
 }
 
-publishToMavenLocal.dependsOn jsTest
+publishToMavenLocal.dependsOn jvm8Test
+
+jvm8Test {
+    useJUnitPlatform()
+}
