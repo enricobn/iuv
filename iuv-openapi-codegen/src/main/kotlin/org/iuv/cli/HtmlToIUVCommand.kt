@@ -39,9 +39,9 @@ class HtmlToIUVCommandParser {
         indent(sb, indent)
 
         if (node is TextNode) {
-            sb.append("+\"").append(node.text()).append("\"\n")
+            sb.append("+\"").append(node.text()).appendLine("\"")
         } else {
-            sb.append(node.nodeName()).append(" {\n")
+            sb.append(node.nodeName()).appendLine(" {")
 
             var i = 0
             node.attributes().forEach {
@@ -55,7 +55,7 @@ class HtmlToIUVCommandParser {
                     key = "forElement"
                 }
 
-                sb.append(key).append(" = \"").append(it.value).append("\"\n")
+                sb.append(key).append(" = \"").append(it.value).appendLine("\"")
             }
 
             val textNodes = node.childNodes().filterIsInstance<TextNode>()
@@ -74,7 +74,7 @@ class HtmlToIUVCommandParser {
             i = 0
             nodes.forEach {
                 if (i > 0) {
-                    sb.append("\n")
+                    sb.appendLine()
                 }
                 i++
                 parse(it, indent + 1, sb)
