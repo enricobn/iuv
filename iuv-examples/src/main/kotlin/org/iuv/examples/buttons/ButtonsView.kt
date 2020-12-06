@@ -5,13 +5,12 @@ import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.View
 import org.iuv.core.html.enums.Autofocus
-import org.w3c.dom.events.MouseEvent
 
 class ButtonsView(private val initialPostId: Int, postService: PostService) : View<ButtonsView.Model, ButtonsView.Message> {
 
     companion object {
-        private val height = 500
-        private val width = 10
+        private const val height = 500
+        private const val width = 10
     }
 
     // MODEL
@@ -25,7 +24,6 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
     data class ButtonsMouseMove(val x: Int, val y: Int) : Message
 
     data class PostIdChanged(val postId: Int) : Message
-
 
     private val handleMouseMove = false
     private val buttonComponent = ButtonComponent(postService)
@@ -46,9 +44,7 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
     private fun mouseMove(): Cmd<Message> {
         return Cmd { messageBus ->
             document.onmousemove = { event ->
-                if (event is MouseEvent) {
-                    messageBus.send(ButtonsMouseMove(event.screenX, event.screenY))
-                }
+                messageBus.send(ButtonsMouseMove(event.screenX, event.screenY))
             }
         }
     }
@@ -81,7 +77,7 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
             input {
                 autofocus = Autofocus.autofocus
                 value = model.postId.toString()
-                onblur { _,value -> PostIdChanged(value.toInt()) }
+                onblur { _, value -> PostIdChanged(value.toInt()) }
             }
             div {
                 if (handleMouseMove) {
@@ -90,9 +86,9 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
                     }
                 }
                 table {
-                    for (y in 1..ButtonsView.height) {
+                    for (y in 1..height) {
                         tr {
-                            (1..ButtonsView.width)
+                            (1..width)
                                 .map { index(y, it) }
                                 .forEach {
                                     td {

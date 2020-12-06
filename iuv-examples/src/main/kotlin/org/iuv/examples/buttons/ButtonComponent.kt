@@ -29,7 +29,8 @@ class ButtonComponent(private val postService: PostService) : Component<ButtonMo
     override fun update(message: ButtonComponentMessage, model: ButtonModel): Pair<ButtonModel, Cmd<ButtonComponentMessage>> {
         when (message) {
             is SelectedButtonMessageWrapper -> {
-                val (updatedModel, updateCmd) = SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
+                val (updatedModel, updateCmd) =
+                        SelectedButton.update(message.selectedButtonMessage, model.selectedButtonModel)
 
                 val updateCmdMapped = updateCmd.map(::SelectedButtonMessageWrapper)
 
