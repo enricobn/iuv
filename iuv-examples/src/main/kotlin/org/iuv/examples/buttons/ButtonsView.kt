@@ -1,6 +1,7 @@
 package org.iuv.examples.buttons
 
 import kotlinx.browser.document
+import org.iuv.core.ChildComponent
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.View
@@ -28,6 +29,16 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
     private val handleMouseMove = false
     private val buttonComponent = ButtonComponent(postService)
 
+    private fun buttonChildComponent(index: Int) =
+            ChildComponent<Model, Message, ButtonModel, ButtonComponentMessage>(buttonComponent,
+                    { ButtonsButtonMessage(it, index) },
+                    { it.buttonModels[index] },
+                    { parentModel, childModel ->
+                        val newButtonModels = parentModel.buttonModels.toMutableList()
+                        newButtonModels[index] = childModel
+                        parentModel.copy(buttonModels = newButtonModels)
+                    })
+
     private fun index(y: Int, x: Int) = (y - 1) * width + x - 1
 
     override fun init(): Pair<Model, Cmd<Message>> {
@@ -50,24 +61,17 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
     }
 
     override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> {
-        when (message) {
+        return when (message) {
             is ButtonsButtonMessage -> {
-                val (updateModel, updateCmd) = buttonComponent
-                        .update(message.message, model.buttonModels[message.index])
-
-                val updateCmdMapped = updateCmd.map { ButtonsButtonMessage(it, message.index) }
-
-                val newButtonModels = model.buttonModels.toMutableList()
-                newButtonModels[message.index] = updateModel
-
-                return Pair(model.copy(buttonModels = newButtonModels), updateCmdMapped)
+                val buttonChildComponent = buttonChildComponent(message.index)
+                buttonChildComponent.update(message.message, model)
             }
-            is ButtonsMouseMove -> return Pair(model.copy(x = message.x, y = message.y), Cmd.none())
+            is ButtonsMouseMove -> Pair(model.copy(x = message.x, y = message.y), Cmd.none())
             is PostIdChanged -> {
                 val newButtonModels = model.buttonModels.map { it.copy(postId = message.postId) }
-                return Pair(model.copy(postId = message.postId, buttonModels = newButtonModels), Cmd.none())
+                Pair(model.copy(postId = message.postId, buttonModels = newButtonModels), Cmd.none())
             }
-            else -> return Pair(model, Cmd.none())
+            else -> Pair(model, Cmd.none())
         }
     }
 
@@ -77,7 +81,7 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
             input {
                 autofocus = Autofocus.autofocus
                 value = model.postId.toString()
-                onblur { _, value -> PostIdChanged(value.toInt()) }
+                onblur { _, value -> PostIdChanged(value.toInt() as Int) }
             }
             div {
                 if (handleMouseMove) {
@@ -89,14 +93,12 @@ class ButtonsView(private val initialPostId: Int, postService: PostService) : Vi
                     for (y in 1..height) {
                         tr {
                             (1..width)
-                                .map { index(y, it) }
-                                .forEach {
-                                    td {
-                                        add(buttonComponent.view(model.buttonModels[it])) { message: ButtonComponentMessage ->
-                                            ButtonsButtonMessage(message, it)
-                                        }
-                                    }
+                                    .map { index(y, it) }.forEach {
+                                td {
+                                    val buttonChildComponent = buttonChildComponent(it)
+                                    add(buttonChildComponent, model)
                                 }
+                            }
                         }
                     }
                 }
