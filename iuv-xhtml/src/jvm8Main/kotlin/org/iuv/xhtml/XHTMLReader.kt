@@ -464,9 +464,9 @@ interface IXHTMLElement : GeneratedClass {
     val isAbstract: Boolean
     val elementName: String
 
-    fun attributes() = selfAttributes.attributes.minus(selfAttributes.allAttributesButNotSelf(context))
+    fun attributes() = selfAttributes.attributes.minus(selfAttributes.inheritedAttributes(context))
 
-    fun functions() = selfAttributes.functions.minus(selfAttributes.allFunctionsButNotSelf(context))
+    fun functions() = selfAttributes.functions.minus(selfAttributes.inheritedFunctions(context))
 
     fun children() =
         selfChildren.minus(groups.flatMap {
@@ -623,17 +623,11 @@ data class XHTMLAttributes(val attributes: Set<XHTMLAttribute>, val groups: Set<
     fun allAttributes(context: XHTMLReaderContext) : Set<XHTMLAttribute> {
         val result = mutableSetOf<XHTMLAttribute>()
         result.addAll(attributes)
-        groups.forEach { val group = context.getAttributeGroup(it.name)
-            if (group != null) {
-                result.addAll(group.attributes.allAttributes(context))
-            } else {
-                println("Cannot find attribute group: ${it.name}")
-            }
-        }
+        result.addAll(inheritedAttributes(context))
         return result
     }
 
-    fun allAttributesButNotSelf(context: XHTMLReaderContext) : Set<XHTMLAttribute> {
+    fun inheritedAttributes(context: XHTMLReaderContext) : Set<XHTMLAttribute> {
         val result = mutableSetOf<XHTMLAttribute>()
         groups.forEach { val group = context.getAttributeGroup(it.name)
             if (group != null) {
@@ -658,7 +652,7 @@ data class XHTMLAttributes(val attributes: Set<XHTMLAttribute>, val groups: Set<
         return result
     }
 
-    fun allFunctionsButNotSelf(context: XHTMLReaderContext) : Set<XHTMLEventHandler> {
+    fun inheritedFunctions(context: XHTMLReaderContext) : Set<XHTMLEventHandler> {
         val result = mutableSetOf<XHTMLEventHandler>()
         groups.forEach { val group = context.getAttributeGroup(it.name)
             if (group != null) {
