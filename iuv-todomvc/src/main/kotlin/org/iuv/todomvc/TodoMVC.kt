@@ -203,8 +203,10 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                 input {
                     classes = "toggle"
                     type = InputType.checkbox
-                    if (todo.completed)
-                        checked = Checked.checked
+                    checked = if (todo.completed)
+                        Checked.checked
+                    else
+                        Checked.empty
 
                     onclick { _, _ -> Check(index) }
                 }
