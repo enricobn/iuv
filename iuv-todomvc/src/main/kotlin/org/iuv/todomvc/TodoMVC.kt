@@ -8,39 +8,33 @@ import kotlinx.serialization.serializer
 import org.iuv.core.Cmd
 import org.iuv.core.HTML
 import org.iuv.core.View
-import org.iuv.core.appendClasses
 import org.iuv.core.html.elements.Input
 import org.iuv.core.html.elements.Ul
 import org.iuv.core.html.enums.Checked
 import org.iuv.core.html.enums.InputType
 import org.iuv.core.html.groups.FlowContent
+import org.iuv.todomvc.TodoComponent.TodoModel
 import org.w3c.dom.get
 import org.w3c.dom.set
 
 @InternalSerializationApi
 object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
+    val todoComponent = TodoComponent()
 
-    enum class Filter(val isValid: (Todo) -> Boolean) {
+    enum class Filter(val isValid: (TodoModel) -> Boolean) {
         All({ true }),
         Active({ !it.completed }),
         Completed({ it.completed })
     }
 
     @Serializable
-    data class Todo(val message: String, val completed: Boolean)
-
-    @Serializable
-    data class Model(val todos: List<Todo>, val filter: Filter, val edit: Set<Int>)
+    data class Model(val todos: List<TodoModel>, val filter: Filter, val edit: Set<Int>)
 
     interface Message
 
     private object None : Message
 
-    private data class Delete(val index: Int) : Message
-
     private data class Add(val value: String) : Message
-
-    private data class Check(val index: Int) : Message
 
     private object All : Message
 
@@ -52,11 +46,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
 
     private object ToggleAll : Message
 
-    private data class Edit(val index: Int) : Message
-
-    private data class EditCommit(val index: Int, val message: String) : Message
-
-    private data class EditCancel(val index: Int) : Message
+    private data class TodoChildMessage(val index: Int, val message: TodoComponent.TodoMessage) : Message
 
     override fun init(): Pair<Model, Cmd<Message>> {
         val stored = localStorage["todos"]
@@ -71,14 +61,8 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
     override fun update(message: Message, model: Model): Pair<Model, Cmd<Message>> {
         val result: Pair<Model, Cmd<Message>> = when (message) {
             is Add -> {
-                Pair(model.copy(todos = model.todos + Todo(message.value, completed = false)), Cmd.none())
-            }
-            is Delete -> {
-                Pair(model.copy(todos = model.todos.filterIndexed { index, _ -> index != message.index }), Cmd.none())
-            }
-            is Check -> {
-                val todos = model.todos.update(message.index) { it.copy(completed = !it.completed) }
-                Pair(model.copy(todos = todos), Cmd.none())
+                val id = if (model.todos.isEmpty()) 0 else (model.todos.last().inputName.drop(5).toInt() + 1)
+                Pair(model.copy(todos = model.todos + TodoModel("todo-$id", message.value)), Cmd.none())
             }
             is All -> Pair(model.copy(filter = Filter.All), Cmd.none())
             is Active -> Pair(model.copy(filter = Filter.Active), Cmd.none())
@@ -88,11 +72,11 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                 val allCompleted = model.todos.all { it.completed }
                 Pair(model.copy(todos = model.todos.map { it.copy(completed = !allCompleted) }), Cmd.none())
             }
-            is Edit -> Pair(model.copy(edit = model.edit + message.index), Cmd.none())
-            is EditCommit -> Pair(model.copy(edit = model.edit - message.index,
-                todos = model.todos.update(message.index) { it.copy(message = message.message) }
-            ), Cmd.none())
-            is EditCancel -> Pair(model.copy(edit = model.edit - message.index), Cmd.none())
+            is TodoChildMessage -> {
+                val (childModel, childCmd) = todoComponent.update(message.message, model.todos[message.index])
+                Pair(model.copy(todos = model.todos.update(message.index) { childModel}.filter { !it.deleted }),
+                    childCmd.map { TodoChildMessage(message.index, it) })
+            }
             else -> Pair(model, Cmd.none())
         }
 
@@ -104,8 +88,6 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
     }
 
     override fun view(model: Model): HTML<Message> = html {
-        println(model)
-
         id = "root"
         style = "display:block"
 
@@ -125,7 +107,9 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                     classes = "todo-list"
 
                     model.todos.filter(model.filter.isValid).forEachIndexed { index, todo ->
-                        renderTodo(index, todo, model.edit.contains(index))
+                        li {
+                            add(todoComponent.view(todo)) { TodoChildMessage(index, it) }
+                        }
                     }
                 }
             }
@@ -150,7 +134,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                 placeholder = "What needs to be done?"
                 value = ""
 
-                onEnter({ None }, ::Add)
+                onEnter(None, { None }, ::Add)
             }
         }
     }
@@ -169,61 +153,6 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
         label {
             for_ = "toggle-all"
             title = "Mark all as complete"
-        }
-    }
-
-    private fun Ul<Message>.renderTodo(index: Int, todo: Todo, edit: Boolean) {
-        li {
-            if (todo.completed) {
-                classes = "completed"
-            }
-
-            if (edit) {
-                println("editing $index")
-                appendClasses("editing")
-                runJs("document.getElementById(\"todo-$index\").focus(); ")
-            }
-
-            div {
-                classes = "view"
-
-                input {
-                    classes = "toggle"
-                    type = InputType.checkbox
-                    checked = if (todo.completed)
-                        Checked.checked
-                    else
-                        Checked.empty
-
-                    onclick { _, _ -> Check(index) }
-                }
-
-                label {
-                    +todo.message
-
-                    ondblclick(Edit(index))
-                }
-
-                button {
-                    classes = "destroy"
-                    onclick(Delete(index))
-                }
-            }
-
-            input {
-                id = "todo-$index"
-                classes = "edit"
-                type = InputType.text
-                value = todo.message
-
-                onEnter({ EditCancel(index) }) { v -> EditCommit(index, v) }
-
-                if (edit) {
-                    onblur { _, v ->
-                        EditCommit(index, v)
-                    }
-                }
-            }
         }
     }
 
@@ -281,7 +210,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
         }
     }
 
-    private fun Input<Message>.onEnter(onFailure: (String) -> Message, onSuccess: (String) -> Message) {
+    fun <M> Input<M>.onEnter(noneMessage: M, onFailure: (String) -> M, onSuccess: (String) -> M) {
         onkeydown { event, value ->
             if (event.keyCode == 13) {
                 val input = event.currentTarget.asDynamic()
@@ -291,7 +220,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
             } else if (event.keyCode == 27) {
                 onFailure(value)
             } else {
-                None
+                noneMessage
             }
         }
     }
