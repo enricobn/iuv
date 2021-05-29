@@ -6,6 +6,8 @@ import org.iuv.core.html.attributegroups.CoreAttributeGroupNodir
 import org.w3c.dom.Element
 import org.w3c.dom.events.Event
 
+val keys = js("Object.keys")
+
 @DslMarker
 annotation class HtmlTagMarker
 open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSAGE>, HTMLElementAttributes<MESSAGE> {
@@ -86,6 +88,39 @@ open class HTML<MESSAGE>(val elementName: String) : HTMLChild, HTMLElement<MESSA
                 }
             }
         }
+
+        for (attr in keys(html.attrs)) {
+            attrs[attr] = html.attrs[attr]
+        }
+
+        if (html.props != null) {
+            if (props == null)
+                props = object {}
+            for (attr in keys(html.props)) {
+                props[attr] = html.props[attr]
+            }
+        }
+
+        if (html.handlers != null) {
+            if (handlers == null)
+                handlers = object {}
+            for (attr in keys(html.handlers)) {
+                handlers[attr] = html.handlers[attr]
+            }
+        }
+
+        jsToRun.addAll(html.jsToRun)
+
+        onElementInsert = html.onElementInsert
+
+        onElementDestroy = html.onElementDestroy
+
+        text = html.text
+
+    }
+
+    fun addObject(source: dynamic, dest: dynamic) {
+
     }
 
     override fun <MODEL,CHILD_MODEL,CHILD_MESSAGE> add(childComponent: ChildComponent<MODEL,MESSAGE,CHILD_MODEL,CHILD_MESSAGE>, model: MODEL) {
