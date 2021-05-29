@@ -77,13 +77,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                 Pair(model.copy(todos = model.todos.filterIndexed { index, _ -> index != message.index }), Cmd.none())
             }
             is Check -> {
-                val todos = model.todos.mapIndexed { index, todo ->
-                    if (index == message.index) {
-                        todo.copy(completed = !todo.completed)
-                    } else {
-                        todo
-                    }
-                }
+                val todos = model.todos.update(message.index) { it.copy(completed = !it.completed) }
                 Pair(model.copy(todos = todos), Cmd.none())
             }
             is All -> Pair(model.copy(filter = Filter.All), Cmd.none())
@@ -96,12 +90,8 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
             }
             is Edit -> Pair(model.copy(edit = model.edit + message.index), Cmd.none())
             is EditCommit -> Pair(model.copy(edit = model.edit - message.index,
-                    todos = model.todos.mapIndexed { index, todo ->
-                        if (index == message.index)
-                            todo.copy(message = message.message)
-                        else
-                            todo
-                    }), Cmd.none())
+                todos = model.todos.update(message.index) { it.copy(message = message.message) }
+            ), Cmd.none())
             is EditCancel -> Pair(model.copy(edit = model.edit - message.index), Cmd.none())
             else -> Pair(model, Cmd.none())
         }
@@ -134,10 +124,8 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                 ul {
                     classes = "todo-list"
 
-                    model.todos.forEachIndexed { index, todo ->
-                        if (model.filter.isValid(todo)) {
-                            renderTodo(index, todo, model.edit.contains(index))
-                        }
+                    model.todos.filter(model.filter.isValid).forEachIndexed { index, todo ->
+                        renderTodo(index, todo, model.edit.contains(index))
                     }
                 }
             }
@@ -145,7 +133,6 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
             if (model.todos.isNotEmpty()) {
                 renderFooter(model)
             }
-
         }
     }
 
@@ -292,12 +279,6 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
 
             span { }
         }
-
-        //span {}
-    }
-
-    private fun HTML<Message>.snippet() {
-
     }
 
     private fun Input<Message>.onEnter(onFailure: (String) -> Message, onSuccess: (String) -> Message) {
@@ -314,4 +295,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
             }
         }
     }
+
+    private fun <E> List<E>.update(index: Int, fn: (E) -> E) : List<E> =
+        mapIndexed { i, e -> if (i == index) fn(e) else e }
 }
