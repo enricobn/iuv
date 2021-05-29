@@ -44,15 +44,6 @@ open class Input<MESSAGE> : HTML<MESSAGE>("input")
             }
         }
         get() = Autofocus.fromValue(getAttribute("autofocus"))
-    var checked: Checked?
-        set(value) {
-            if (value == null) {
-                removeAttribute("checked")
-            } else {
-                addAttribute("checked", value.value)
-            }
-        }
-        get() = Checked.fromValue(getAttribute("checked"))
     var dirname: String?
         set(value) {
             if (value == null) {
@@ -233,15 +224,6 @@ open class Input<MESSAGE> : HTML<MESSAGE>("input")
             }
         }
         get() = InputType.fromValue(getAttribute("type"))
-    var value: String?
-        set(value) {
-            if (value == null) {
-                removeAttribute("value")
-            } else {
-                addAttribute("value", value)
-            }
-        }
-        get() = (getAttribute("value"))
     var width: Int?
         set(value) {
             if (value == null) {
@@ -251,6 +233,24 @@ open class Input<MESSAGE> : HTML<MESSAGE>("input")
             }
         }
         get() = (getAttribute("width"))
+    var checked: Checked?
+        set(value) {
+            if (value == null) {
+                removeProperty("checked")
+            } else {
+                addProperty("checked", value.value)
+            }
+        }
+        get() = Checked.fromValue(getProperty("checked"))
+    var value: String?
+        set(value) {
+            if (value == null) {
+                removeProperty("value")
+            } else {
+                addProperty("value", value)
+            }
+        }
+        get() = (getProperty("value"))
 
 
 }

@@ -20,6 +20,17 @@ open class {{className}}<MESSAGE> : HTML<MESSAGE>("{{elementName}}")
         }
         get() = {{type.valueOf}}(getAttribute("{{originalName}}"))
     {{/attributes}}
+    {{#properties}}
+    var {{name}}: {{type.className}}?
+        set(value) {
+            if (value == null) {
+                removeProperty("{{originalName}}")
+            } else {
+                addProperty("{{originalName}}", value{{type.value}})
+            }
+        }
+        get() = {{type.valueOf}}(getProperty("{{originalName}}"))
+    {{/properties}}
 
     {{#children}}
     fun {{name}}(init: {{className}}<MESSAGE>.() -> Unit) {

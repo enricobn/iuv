@@ -463,10 +463,15 @@ interface IXHTMLElement : GeneratedClass {
     val baseElement: GeneratedClass?
     val isAbstract: Boolean
     val elementName: String
+    val selfProperties: Set<String>
 
-    fun attributes() = selfAttributes.attributes.minus(selfAttributes.inheritedAttributes(context))
+    private fun attributesAndProperties() = selfAttributes.attributes.minus(selfAttributes.inheritedAttributes(context))
+
+    fun attributes() = attributesAndProperties().filter { !selfProperties.contains(it.originalName) }
 
     fun functions() = selfAttributes.functions.minus(selfAttributes.inheritedFunctions(context))
+
+    fun properties() = selfProperties.mapNotNull { prop -> attributesAndProperties().find { it.originalName == prop } }
 
     fun children() =
         selfChildren.minus(groups.flatMap {
@@ -506,6 +511,8 @@ data class XHTMLElement(override val context: XHTMLReaderContext,
     override val name: String = originalName
     override val elementName: String = originalName
 
+    override val selfProperties: Set<String>
+        get() = if (elementName == "input") setOf("checked", "value") else emptySet()
 }
 
 data class XHTMLInnerElement(override val context: XHTMLReaderContext,
@@ -525,6 +532,9 @@ data class XHTMLInnerElement(override val context: XHTMLReaderContext,
     }
 
     override fun className(): String = parentName.capitalize() + elementName.capitalize()
+
+    override val selfProperties: Set<String>
+        get() = emptySet()
 }
 
 
