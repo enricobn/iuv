@@ -13,12 +13,12 @@ import org.iuv.todomvc.TodoMVC.onEnter
 @InternalSerializationApi
 class TodoComponent : Component<TodoComponent.TodoModel, TodoComponent.TodoMessage> {
     interface TodoMessage
-    object Check : TodoMessage
-    object Edit : TodoMessage
-    object Delete : TodoMessage
-    object EditCancel : TodoMessage
-    data class EditCommit(val message: String) : TodoMessage
-    object None : TodoMessage
+    private object Check : TodoMessage
+    private object Edit : TodoMessage
+    private object Delete : TodoMessage
+    private object EditCancel : TodoMessage
+    private object None : TodoMessage
+    private data class EditCommit(val message: String) : TodoMessage
 
     @Serializable
     data class TodoModel(

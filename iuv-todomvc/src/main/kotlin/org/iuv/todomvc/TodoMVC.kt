@@ -19,7 +19,7 @@ import org.w3c.dom.set
 
 @InternalSerializationApi
 object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
-    val todoComponent = TodoComponent()
+    private val todoComponent = TodoComponent()
 
     enum class Filter(val isValid: (TodoModel) -> Boolean) {
         All({ true }),
