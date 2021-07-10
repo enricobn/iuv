@@ -84,9 +84,9 @@ open class IUVTest<MESSAGE> {
                         return SameResult()
                     } else -> return SameResult("Not same child type.")
                 }
-                is HTML<*> -> when(other) {
-                    is HTML<*> -> return child.same(other)
-                    else -> return SameResult("Not same child type.")
+                is HTML<*> -> return when(other) {
+                    is HTML<*> -> child.same(other)
+                    else -> SameResult("Not same child type.")
                 }
                 else -> {
                     return SameResult("Unknown child type.")

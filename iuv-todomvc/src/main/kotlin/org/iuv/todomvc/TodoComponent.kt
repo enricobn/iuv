@@ -32,7 +32,7 @@ class TodoComponent : Component<TodoComponent.TodoModel, TodoComponent.TodoMessa
             is Edit -> Pair(model.copy(edit = true), Cmd.none())
             is Delete -> Pair(model.copy(deleted = true), Cmd.none())
             is EditCancel -> Pair(model.copy(edit = false), Cmd.none())
-            is EditCommit -> Pair(model.copy(message = message.message), Cmd.none())
+            is EditCommit -> Pair(model.copy(message = message.message, edit = false), Cmd.none())
             else -> Pair(model, Cmd.none())
         }
 

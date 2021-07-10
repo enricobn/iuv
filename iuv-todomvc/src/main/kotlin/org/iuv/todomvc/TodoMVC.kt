@@ -46,7 +46,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
 
     private object ToggleAll : Message
 
-    private data class TodoChildMessage(val index: Int, val message: TodoComponent.TodoMessage) : Message
+    private data class TodoComponentMessage(val index: Int, val message: TodoComponent.TodoMessage) : Message
 
     override fun init(): Pair<Model, Cmd<Message>> {
         val stored = localStorage["todos"]
@@ -72,10 +72,10 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
                 val allCompleted = model.todos.all { it.completed }
                 Pair(model.copy(todos = model.todos.map { it.copy(completed = !allCompleted) }), Cmd.none())
             }
-            is TodoChildMessage -> {
+            is TodoComponentMessage -> {
                 val (childModel, childCmd) = todoComponent.update(message.message, model.todos[message.index])
                 Pair(model.copy(todos = model.todos.update(message.index) { childModel}.filter { !it.deleted }),
-                    childCmd.map { TodoChildMessage(message.index, it) })
+                    childCmd.map { TodoComponentMessage(message.index, it) })
             }
             else -> Pair(model, Cmd.none())
         }
@@ -108,7 +108,7 @@ object TodoMVC : View<TodoMVC.Model, TodoMVC.Message> {
 
                     model.todos.filter(model.filter.isValid).forEachIndexed { index, todo ->
                         li {
-                            add(todoComponent.view(todo)) { TodoChildMessage(index, it) }
+                            add(todoComponent.view(todo)) { TodoComponentMessage(index, it) }
                         }
                     }
                 }
